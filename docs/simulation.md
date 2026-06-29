@@ -41,6 +41,22 @@ Where:
 
 Attribution: manual transfer equation plus `readECGsim.m`, which names `DATA.VENTR.THORAX` as the BEM transfer function from transmembrane potentials to body-surface potentials.
 
+Task `0022` implements this as `ecgsim.core.apply_transfer_function(transfer, source)`.
+It accepts parsed `MatrixData` or plain row-major numeric sequences and returns
+row-major `MatrixData` with shape:
+
+```text
+rows(B) = rows(A)
+columns(B) = columns(S)
+columns(A) must equal rows(S)
+```
+
+Performance notes:
+
+- The current implementation is dependency-free pure Python and suitable for fixture-sized regression checks and first-pass recomputation plumbing.
+- It is not the final high-throughput path for repeated interactive recomputation of large transfer/source matrices.
+- If profiling shows the pure-Python multiply blocking interaction, replace the inner multiply with a typed-array/NumPy/WebAssembly path while preserving the same shape contract and tests.
+
 ## WCT Reference
 
 `readECGsim.m` computes a Wilson central terminal correction for thorax-related transfer matrices:
@@ -51,6 +67,8 @@ A_referenced = A - repeat_row(A_wct, rows(A))
 ```
 
 Attribution: `calcAwct` and `doWCT` in `readECGsim.m`.
+
+Task `0022` implements this row operation as `ecgsim.core.apply_wct_reference`.
 
 Required data:
 
