@@ -4,7 +4,7 @@
 
 Initial parser work uses Python. The package is intentionally small while file formats are still being mapped.
 
-## Test Command
+## Python Test Command
 
 Run:
 
@@ -12,7 +12,7 @@ Run:
 python -m unittest discover -s tests
 ```
 
-The current test suite is a package smoke test. Parser tests should be added with each reader task.
+The Python suite covers parser/core behavior plus regression fixtures.
 
 ## Case Metadata Command
 
@@ -35,6 +35,18 @@ Run:
 ```powershell
 npm --prefix app/viewer test
 ```
+
+This checks fixture metadata, browser module imports, and shared UI helper behavior without launching a browser.
+
+## Viewer App Workflow Command
+
+Run:
+
+```powershell
+npm --prefix app/viewer run test:app
+```
+
+This starts the viewer on a temporary local port and drives Chromium through the actual UI. It validates initial views, file-picker notices, heart selection, TMP edit/reset controls, thorax toggles, leads coupling modes, canvas rendering, console errors, and mobile layout. Set `CHROME_PATH` if Chrome or Edge is not installed in a standard location.
 
 ## Viewer Fixture Export
 

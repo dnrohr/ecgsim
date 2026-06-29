@@ -84,9 +84,10 @@ This prints the known marker inventory and unsupported payload categories for th
 
 ## Developer Checks
 
-Run both checks before committing changes:
+Run these checks before committing changes:
 
 ```powershell
 python -m unittest discover -s tests
 npm --prefix app/viewer test
+npm --prefix app/viewer run test:app
 ```

@@ -5,9 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev-server.mjs",
-    "test": "node scripts/smoke.mjs"
+    "test": "node scripts/smoke.mjs",
+    "test:app": "node scripts/app-test.mjs"
   },
   "dependencies": {
     "three": "^0.185.0"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.61.1"
   }
 }
