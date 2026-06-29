@@ -20,6 +20,12 @@ ECGSIM supports node/region edits to depolarization time, repolarization time, r
 - Record any architectural decision in `docs/decisions.md`.
 - Add type/interface stubs only if useful.
 
+## Result
+
+- Added `docs/source-editing-model.md`.
+- Recorded the adapted-value transaction decision in `docs/decisions.md`.
+- Deferred code stubs until task `0018` introduces concrete selection data structures.
+
 ## Verification
 
 - Model accounts for initial/adapted values, beats, atria/ventricles, selected regions, and reset.

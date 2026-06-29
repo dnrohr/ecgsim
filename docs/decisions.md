@@ -46,3 +46,14 @@ The next tasks need a place to render heart geometry, thorax geometry, ECG trace
 
 Consequences:
 The viewer scaffold lives under `app/viewer/` and can be smoke-tested with Node. Geometry rendering should use Three.js when task 0009 needs real 3D interaction. Signal plotting can start with Canvas or SVG and adopt a plotting library only if repeated workflows justify it. Packaging remains undecided; likely paths are a local web app during development and a desktop wrapper or hosted app later. Tests should prefer small smoke checks plus browser automation once rendering becomes visual.
+
+## 2026-06-29: Store Source Edits As Adapted-Value Transactions
+
+Decision:
+Source editing state will preserve immutable initial values and store user changes as transactions that update adapted values for concrete source nodes, parameters, source kind, and beat.
+
+Context:
+The legacy app displays initial TMP values separately from user-adapted values, supports node and region edits, and offers parameter reset plus beat reset. The modern app needs the same semantics while remaining usable as a web app, desktop wrapper, or command-line workflow.
+
+Consequences:
+Selection gestures may be UI-specific, but committed edit state is deterministic per-node data. Undo, redo, reset, export, and future simulation should operate on adapted-value transactions rather than replaying mouse gestures.
