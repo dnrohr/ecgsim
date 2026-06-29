@@ -17,7 +17,7 @@ Each task should end with:
 - [x] [0004 Implement Matrix And Vector Readers](0004-implement-matrix-and-vector-readers.md)
 - [x] [0005 Implement Geometry Reader](0005-implement-geometry-reader.md)
 - [x] [0006 Implement ECGsimcase Metadata Loader](0006-implement-ecgsimcase-metadata-loader.md)
-- [0007 Add Case Metadata CLI](0007-add-case-metadata-cli.md)
+- [x] [0007 Add Case Metadata CLI](0007-add-case-metadata-cli.md)
 
 ## M2: Read-Only Viewer
 
