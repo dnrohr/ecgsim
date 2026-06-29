@@ -95,6 +95,10 @@ h2 {
   max-width: 62%;
 }
 
+.pane-tmp .pane-header output {
+  max-width: 62%;
+}
+
 .layer-toggles {
   display: flex;
   flex-wrap: wrap;

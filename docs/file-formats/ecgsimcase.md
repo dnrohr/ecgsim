@@ -163,4 +163,6 @@ It intentionally does not parse numeric payloads inside `PMatrix`, `PGeometry`, 
 
 Task 0011 added `ecgsim.io.read_ecgsimcase_matrix(path, offset)` for known `PMatrix` payloads. It is deliberately offset-driven while the object graph is still being mapped. The first `PMatrix` in `normal_male2.ECGsimcase` is at offset `54` and parses as a `300 x 1000` row-major float32 matrix. This appears to be thorax-node surface-potential time data associated with the root `PECG` block, not yet a named standard 12-lead ECG matrix.
 
-The next `.ECGsimcase`-specific parser task is `docs/tasks/0007-add-case-metadata-cli.md`.
+Task 0012 added `ecgsim.io.read_ecgsimcase_vector(path, offset)` for known `PVector` payloads. The ventricular source block in `normal_male2.ECGsimcase` contains paired `576`-value vectors for initial/adapted parameters. Observed offsets include depolarization time (`11272300`, `11274630`), repolarization time (`11277000`, `11279330`), plateau slope (`11281700`, `11284030`), resting potential (`11286400`, `11288730`), amplitude (`11291100`, `11293430`), depolarization slope (`11295800`, `11298130`), and repolarization slope (`11300500`, `11302830`). These offsets are fixtures for current development, not a full object-graph parser.
+
+Future `.ECGsimcase` parser work should replace the current offset-driven matrix/vector fixture readers with an object-graph reader that names source, signal, lead-system, and geometry payloads directly.

@@ -9,7 +9,7 @@ import math
 from pathlib import Path
 import struct
 
-from ecgsim.io.matrix import MatrixData
+from ecgsim.io.matrix import MatrixData, VectorData
 
 
 ROOT_SIGNATURE = "PECGsimData"
@@ -87,7 +87,7 @@ def read_ecgsimcase_metadata(path: str | Path) -> ECGsimCaseMetadata:
             "PGeometry numeric payloads",
             "PGraphGeometry payloads",
             "PSource/PSourceParameter payloads",
-            "PVector payloads",
+            "unnamed PVector payloads",
             "PActivationConstruction payloads",
             "PLead/PShowLead payloads",
         ),
@@ -146,6 +146,53 @@ def read_ecgsimcase_matrix(path: str | Path, offset: int) -> MatrixData:
         source_path=source_path,
         storage_format=f"ecgsimcase-pmatrix-v{version}",
     )
+
+
+def read_ecgsimcase_vector(path: str | Path, offset: int) -> VectorData:
+    """Read a known ``PVector`` payload from an ECGsimcase file."""
+
+    source_path = Path(path)
+    data = source_path.read_bytes()
+    marker, values_offset = _read_marker(data, source_path, offset)
+    if marker != "PVector":
+        raise ECGsimCaseFormatError(f"{source_path} marker at {offset} is {marker!r}, not PVector")
+
+    if values_offset + 8 > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} PVector header at {offset} overruns the file")
+    version, length = struct.unpack_from("<ii", data, values_offset)
+    if version <= 0:
+        raise ECGsimCaseFormatError(f"{source_path} PVector at {offset} has invalid version {version}")
+    if length <= 0:
+        raise ECGsimCaseFormatError(f"{source_path} PVector at {offset} has invalid length {length}")
+
+    value_start = values_offset + 8
+    expected_bytes = length * 4
+    if value_start + expected_bytes > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} PVector values at {offset} overrun the file")
+    values = struct.unpack_from(f"<{length}f", data, value_start)
+
+    return VectorData(
+        length=length,
+        values=tuple(float(value) for value in values),
+        source_path=source_path,
+        storage_format=f"ecgsimcase-pvector-v{version}",
+    )
+
+
+def _read_marker(data: bytes, source_path: Path, offset: int) -> tuple[str, int]:
+    if offset < 0 or offset + 4 > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} marker offset {offset} is outside the file")
+
+    byte_length = struct.unpack_from("<I", data, offset)[0]
+    text_start = offset + 4
+    text_end = text_start + byte_length
+    if text_end > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} marker at {offset} overruns the file")
+    try:
+        marker = data[text_start:text_end].decode("utf-16le")
+    except UnicodeDecodeError as exc:
+        raise ECGsimCaseFormatError(f"{source_path} marker at {offset} is not UTF-16LE") from exc
+    return marker, text_end
 
 
 def find_length_prefixed_utf16le(

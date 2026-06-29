@@ -7,6 +7,7 @@ const heartMetadata = document.querySelector("[data-heart-metadata]");
 const thoraxViewport = document.querySelector("[data-thorax-viewport]");
 const thoraxMetadata = document.querySelector("[data-thorax-metadata]");
 const leadsMetadata = document.querySelector("[data-leads-metadata]");
+const tmpMetadata = document.querySelector("[data-tmp-metadata]");
 
 function buildGeometry(fixture, { center = false } = {}) {
   const geometry = new THREE.BufferGeometry();
@@ -163,34 +164,6 @@ function mountThorax(fixture) {
   animate();
 }
 
-function drawTrace(canvas, color, phase) {
-  const context = canvas.getContext("2d");
-  const width = canvas.width;
-  const height = canvas.height;
-  context.clearRect(0, 0, width, height);
-  context.strokeStyle = "rgba(140, 150, 160, 0.35)";
-  context.lineWidth = 1;
-  for (let y = 40; y < height; y += 40) {
-    context.beginPath();
-    context.moveTo(0, y);
-    context.lineTo(width, y);
-    context.stroke();
-  }
-  context.strokeStyle = color;
-  context.lineWidth = 3;
-  context.beginPath();
-  for (let x = 0; x < width; x += 4) {
-    const t = x / width;
-    const y = height * 0.5 + Math.sin(t * Math.PI * 6 + phase) * 35 * Math.exp(-t * 0.7);
-    if (x === 0) {
-      context.moveTo(x, y);
-    } else {
-      context.lineTo(x, y);
-    }
-  }
-  context.stroke();
-}
-
 function plotSignals(canvas, fixture) {
   if (!canvas || !leadsMetadata) {
     throw new Error("Leads canvas did not mount");
@@ -271,6 +244,86 @@ function plotSignals(canvas, fixture) {
   leadsMetadata.value = `${fixture.traces.length} node leads / ${fixture.columns} samples / ${fixture.sampleRateHz} Hz`;
 }
 
+function plotTmp(canvas, fixture) {
+  if (!canvas || !tmpMetadata) {
+    throw new Error("TMP canvas did not mount");
+  }
+
+  const context = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+  const left = 72;
+  const right = 12;
+  const top = 18;
+  const bottom = 34;
+  const plotWidth = width - left - right;
+  const plotHeight = height - top - bottom;
+  const nodeCount = fixture.nodes.length;
+  const laneHeight = plotHeight / nodeCount;
+
+  context.clearRect(0, 0, width, height);
+  context.fillStyle = "#f8fafb";
+  context.fillRect(0, 0, width, height);
+  context.strokeStyle = "#d9e0e3";
+  context.lineWidth = 1;
+  context.strokeRect(0.5, 0.5, width - 1, height - 1);
+  context.font = "12px Segoe UI, Arial, sans-serif";
+  context.textBaseline = "middle";
+
+  fixture.nodes.forEach((node, nodeIndex) => {
+    const values = [...node.initial, ...node.adapted];
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const span = max - min || 1;
+    const centerY = top + laneHeight * (nodeIndex + 0.5);
+    const amplitude = laneHeight * 0.38;
+
+    context.strokeStyle = "rgba(140, 150, 160, 0.22)";
+    context.beginPath();
+    context.moveTo(left, centerY);
+    context.lineTo(width - right, centerY);
+    context.stroke();
+
+    context.fillStyle = "#52616b";
+    context.fillText(`N${node.sourceNode + 1}`, 8, centerY);
+
+    drawTmpLine(context, node.initial, min, span, left, plotWidth, centerY, amplitude, "#6f8790", 1.5);
+    drawTmpLine(context, node.adapted, min, span, left, plotWidth, centerY, amplitude, "#b3261e", 1.9);
+  });
+
+  context.strokeStyle = "#78909c";
+  context.beginPath();
+  context.moveTo(left, height - bottom + 7);
+  context.lineTo(width - right, height - bottom + 7);
+  context.stroke();
+  context.fillStyle = "#52616b";
+  context.textAlign = "left";
+  context.fillText("0 ms", left, height - 12);
+  context.textAlign = "right";
+  const durationMs = Math.round(((fixture.sampleCount - 1) / fixture.sampleRateHz) * 1000);
+  context.fillText(`${durationMs} ms`, width - right, height - 12);
+  context.textAlign = "start";
+
+  tmpMetadata.value = `${fixture.nodes.length} nodes / ${fixture.sampleCount} samples / ${fixture.sampleRateHz} Hz`;
+}
+
+function drawTmpLine(context, values, min, span, left, plotWidth, centerY, amplitude, color, width) {
+  context.strokeStyle = color;
+  context.lineWidth = width;
+  context.beginPath();
+  values.forEach((value, sampleIndex) => {
+    const x = left + (sampleIndex / (values.length - 1)) * plotWidth;
+    const normalized = (value - min) / span - 0.5;
+    const y = centerY - normalized * amplitude * 2;
+    if (sampleIndex === 0) {
+      context.moveTo(x, y);
+    } else {
+      context.lineTo(x, y);
+    }
+  });
+  context.stroke();
+}
+
 async function mount() {
   if (!shell || !status) {
     throw new Error("Viewer shell did not mount");
@@ -281,15 +334,16 @@ async function mount() {
     }
     return response.json();
   });
-  const [heartFixture, thoraxFixture, ecgFixture] = await Promise.all([
+  const [heartFixture, thoraxFixture, ecgFixture, tmpFixture] = await Promise.all([
     loadFixture("./public/fixtures/heart.json"),
     loadFixture("./public/fixtures/thorax.json"),
     loadFixture("./public/fixtures/ecg-signals.json"),
+    loadFixture("./public/fixtures/tmp-waveforms.json"),
   ]);
   shell.dataset.ready = "true";
   mountHeart(heartFixture);
   mountThorax(thoraxFixture);
-  drawTrace(document.querySelector("[data-tmp-canvas]"), "#b3261e", 0.2);
+  plotTmp(document.querySelector("[data-tmp-canvas]"), tmpFixture);
   plotSignals(document.querySelector("[data-leads-canvas]"), ecgFixture);
 }
 

@@ -4,6 +4,7 @@ const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const fixture = JSON.parse(await readFile(new URL("../public/fixtures/heart.json", import.meta.url), "utf8"));
 const thoraxFixture = JSON.parse(await readFile(new URL("../public/fixtures/thorax.json", import.meta.url), "utf8"));
 const ecgFixture = JSON.parse(await readFile(new URL("../public/fixtures/ecg-signals.json", import.meta.url), "utf8"));
+const tmpFixture = JSON.parse(await readFile(new URL("../public/fixtures/tmp-waveforms.json", import.meta.url), "utf8"));
 const required = [
   "data-viewer-shell",
   "data-pane=\"heart\"",
@@ -12,6 +13,7 @@ const required = [
   "data-pane=\"leads\"",
   "data-heart-metadata",
   "data-thorax-metadata",
+  "data-tmp-metadata",
   "data-leads-metadata",
   "data-toggle-mesh=\"thorax\"",
   "data-toggle-mesh=\"leftLung\"",
@@ -56,6 +58,20 @@ if (
 }
 if (ecgFixture.traces.some((trace) => trace.values.length !== 1000)) {
   console.error("Unexpected ECG signal trace length");
+  process.exit(1);
+}
+
+if (
+  tmpFixture.nodeCount !== 576 ||
+  tmpFixture.sampleCount !== 576 ||
+  tmpFixture.sampleRateHz !== 1000 ||
+  tmpFixture.nodes.length !== 5
+) {
+  console.error("Unexpected TMP fixture metadata");
+  process.exit(1);
+}
+if (tmpFixture.nodes.some((node) => node.initial.length !== 576 || node.adapted.length !== 576)) {
+  console.error("Unexpected TMP waveform length");
   process.exit(1);
 }
 
