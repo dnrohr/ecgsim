@@ -8,9 +8,12 @@ Read these files before starting a task:
 
 1. `docs/project-brief.md`
 2. `docs/roadmap.md`
-3. The task-specific document under `docs/` or `research/website-notes.md` only if needed.
+3. `docs/tasks/README.md`
+4. The task-specific document under `docs/tasks/` or `research/website-notes.md` only if needed.
 
 Avoid rereading the full archived website unless the task needs source detail. Use `research/extracted-text/` for quick search and `research/source/` for originals.
+
+When no task is specified, start from the lowest unfinished task in `docs/tasks/README.md`.
 
 ## Current Phase
 

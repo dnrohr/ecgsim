@@ -1,5 +1,7 @@
 # Roadmap
 
+Concrete task descriptions live in `docs/tasks/README.md`. This roadmap stays at milestone level.
+
 ## M0: Research Archive
 
 Status: mostly complete.
