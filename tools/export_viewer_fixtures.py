@@ -10,7 +10,12 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ecgsim.io import read_ecgsimcase_matrix, read_ecgsimcase_vector, read_geometry
+from ecgsim.io import (
+    read_ecgsimcase_matrix,
+    read_ecgsimcase_metadata,
+    read_ecgsimcase_vector,
+    read_geometry,
+)
 
 
 GEOMETRY_SOURCE_DIR = ROOT / "research/source/www.ecgsim.org/downloads/other13/geometry"
@@ -21,6 +26,7 @@ HEART_TARGET = ROOT / "app/viewer/public/fixtures/heart.json"
 THORAX_TARGET = ROOT / "app/viewer/public/fixtures/thorax.json"
 ECG_SIGNAL_TARGET = ROOT / "app/viewer/public/fixtures/ecg-signals.json"
 TMP_TARGET = ROOT / "app/viewer/public/fixtures/tmp-waveforms.json"
+CASE_METADATA_TARGET = ROOT / "app/viewer/public/fixtures/case-metadata.json"
 TMP_PARAMETER_OFFSETS = {
     "depolarizationMs": (11272300, 11274630),
     "repolarizationMs": (11277000, 11279330),
@@ -139,6 +145,26 @@ def sigmoid(value: float) -> float:
     return 1.0 / (1.0 + pow(2.718281828459045, -value))
 
 
+def case_metadata_payload() -> dict[str, object]:
+    metadata = read_ecgsimcase_metadata(SIGNAL_SOURCE)
+    return {
+        "source": str(SIGNAL_SOURCE.relative_to(ROOT)).replace("\\", "/"),
+        "fileName": SIGNAL_SOURCE.name,
+        "byteSize": metadata.byte_size,
+        "sha256": metadata.sha256,
+        "rootSignature": metadata.root_signature,
+        "leadSystems": metadata.lead_systems,
+        "markerCounts": metadata.marker_counts,
+        "unsupportedPayloads": metadata.unsupported_payloads,
+        "loadedFixtures": {
+            "heart": "heart.json",
+            "thorax": "thorax.json",
+            "ecgSignals": "ecg-signals.json",
+            "tmpWaveforms": "tmp-waveforms.json",
+        },
+    }
+
+
 def main() -> int:
     HEART_TARGET.parent.mkdir(parents=True, exist_ok=True)
     HEART_TARGET.write_text(
@@ -172,6 +198,11 @@ def main() -> int:
         encoding="utf-8",
     )
     print(f"wrote {TMP_TARGET.relative_to(ROOT)}")
+    CASE_METADATA_TARGET.write_text(
+        json.dumps(case_metadata_payload(), separators=(",", ":")) + "\n",
+        encoding="utf-8",
+    )
+    print(f"wrote {CASE_METADATA_TARGET.relative_to(ROOT)}")
     return 0
 
 

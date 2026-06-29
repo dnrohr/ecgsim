@@ -16,7 +16,7 @@ body {
 .viewer-shell {
   min-height: 100vh;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto 1fr;
 }
 
 .topbar {
@@ -50,6 +50,78 @@ h2 {
 .case-status {
   color: #52616b;
   font-size: 13px;
+}
+
+.case-status {
+  max-width: min(42vw, 360px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.case-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.case-open {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid #b8c3c8;
+  color: #182026;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.case-open input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.case-summary {
+  padding: 8px 18px 10px;
+  border-bottom: 1px solid #cfd8dc;
+  background: #f8fafb;
+}
+
+.case-summary dl {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.7fr) minmax(180px, 1.2fr) minmax(180px, 1fr) minmax(220px, 1.4fr);
+  gap: 12px;
+  margin: 0;
+}
+
+.case-summary dl > div {
+  min-width: 0;
+}
+
+.case-summary dt {
+  color: #52616b;
+  font-size: 11px;
+  font-weight: 650;
+  text-transform: uppercase;
+}
+
+.case-summary dd {
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: #182026;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.case-summary p {
+  margin-top: 7px;
+  color: #52616b;
+  font-size: 12px;
+  overflow-wrap: anywhere;
 }
 
 .workspace {
@@ -146,6 +218,24 @@ canvas {
   .topbar {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .case-actions {
+    align-items: flex-start;
+    flex-direction: column;
+    max-width: 100%;
+  }
+
+  .case-status {
+    max-width: 100%;
+  }
+
+  .case-summary dl {
+    grid-template-columns: 1fr;
+  }
+
+  .case-summary dd {
+    white-space: normal;
   }
 
   .workspace {

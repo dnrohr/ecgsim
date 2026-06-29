@@ -1,12 +1,15 @@
 import { readFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
+const caseFixture = JSON.parse(await readFile(new URL("../public/fixtures/case-metadata.json", import.meta.url), "utf8"));
 const fixture = JSON.parse(await readFile(new URL("../public/fixtures/heart.json", import.meta.url), "utf8"));
 const thoraxFixture = JSON.parse(await readFile(new URL("../public/fixtures/thorax.json", import.meta.url), "utf8"));
 const ecgFixture = JSON.parse(await readFile(new URL("../public/fixtures/ecg-signals.json", import.meta.url), "utf8"));
 const tmpFixture = JSON.parse(await readFile(new URL("../public/fixtures/tmp-waveforms.json", import.meta.url), "utf8"));
 const required = [
   "data-viewer-shell",
+  "data-case-file",
+  "data-case-unsupported",
   "data-pane=\"heart\"",
   "data-pane=\"thorax\"",
   "data-pane=\"tmp\"",
@@ -26,6 +29,15 @@ const required = [
 const missing = required.filter((token) => !html.includes(token));
 if (missing.length) {
   console.error(`Missing viewer scaffold tokens: ${missing.join(", ")}`);
+  process.exit(1);
+}
+
+if (
+  caseFixture.fileName !== "normal_male2.ECGsimcase" ||
+  caseFixture.byteSize !== 11323178 ||
+  !caseFixture.unsupportedPayloads.includes("unnamed PVector payloads")
+) {
+  console.error("Unexpected case metadata fixture");
   process.exit(1);
 }
 

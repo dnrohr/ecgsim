@@ -2,6 +2,12 @@ import * as THREE from "three";
 
 const status = document.querySelector("[data-case-status]");
 const shell = document.querySelector("[data-viewer-shell]");
+const caseFile = document.querySelector("[data-case-file]");
+const caseSize = document.querySelector("[data-case-size]");
+const caseLeads = document.querySelector("[data-case-leads]");
+const caseMarkers = document.querySelector("[data-case-markers]");
+const caseUnsupported = document.querySelector("[data-case-unsupported]");
+const caseNotice = document.querySelector("[data-case-notice]");
 const heartViewport = document.querySelector("[data-heart-viewport]");
 const heartMetadata = document.querySelector("[data-heart-metadata]");
 const thoraxViewport = document.querySelector("[data-thorax-viewport]");
@@ -324,6 +330,36 @@ function drawTmpLine(context, values, min, span, left, plotWidth, centerY, ampli
   context.stroke();
 }
 
+function mountCaseMetadata(metadata) {
+  status.value = metadata.fileName;
+  caseSize.textContent = `${metadata.byteSize.toLocaleString()} bytes`;
+  caseLeads.textContent = metadata.leadSystems.join(", ");
+  caseMarkers.textContent = [
+    `PMatrix ${metadata.markerCounts.PMatrix}`,
+    `PGeometry ${metadata.markerCounts.PGeometry}`,
+    `PLead ${metadata.markerCounts.PLead}`,
+    `PVector ${metadata.markerCounts.PVector}`,
+  ].join(" / ");
+  caseUnsupported.textContent = metadata.unsupportedPayloads.join(", ");
+  caseNotice.textContent = `Loaded bundled read-only fixtures from ${metadata.source}.`;
+
+  if (caseFile) {
+    caseFile.addEventListener("change", () => {
+      const file = caseFile.files?.[0];
+      if (!file) {
+        return;
+      }
+      status.value = file.name;
+      if (file.name === metadata.fileName && file.size === metadata.byteSize) {
+        caseNotice.textContent = `${file.name} matches the bundled fixture metadata; read-only views are active.`;
+      } else {
+        caseNotice.textContent =
+          `${file.name} is not parsed in-browser yet; showing bundled ${metadata.fileName} fixtures.`;
+      }
+    });
+  }
+}
+
 async function mount() {
   if (!shell || !status) {
     throw new Error("Viewer shell did not mount");
@@ -334,13 +370,15 @@ async function mount() {
     }
     return response.json();
   });
-  const [heartFixture, thoraxFixture, ecgFixture, tmpFixture] = await Promise.all([
+  const [caseMetadata, heartFixture, thoraxFixture, ecgFixture, tmpFixture] = await Promise.all([
+    loadFixture("./public/fixtures/case-metadata.json"),
     loadFixture("./public/fixtures/heart.json"),
     loadFixture("./public/fixtures/thorax.json"),
     loadFixture("./public/fixtures/ecg-signals.json"),
     loadFixture("./public/fixtures/tmp-waveforms.json"),
   ]);
   shell.dataset.ready = "true";
+  mountCaseMetadata(caseMetadata);
   mountHeart(heartFixture);
   mountThorax(thoraxFixture);
   plotTmp(document.querySelector("[data-tmp-canvas]"), tmpFixture);

@@ -20,8 +20,35 @@
           <h1>ECGSIM Viewer</h1>
           <p>Read-only compatibility workspace</p>
         </div>
-        <output class="case-status" data-case-status>normal_male2.ECGsimcase</output>
+        <div class="case-actions">
+          <label class="case-open">
+            <input type="file" accept=".ECGsimcase" data-case-file>
+            Open case
+          </label>
+          <output class="case-status" data-case-status>normal_male2.ECGsimcase</output>
+        </div>
       </header>
+      <section class="case-summary" aria-label="Loaded case metadata">
+        <dl>
+          <div>
+            <dt>Size</dt>
+            <dd data-case-size>--</dd>
+          </div>
+          <div>
+            <dt>Lead systems</dt>
+            <dd data-case-leads>--</dd>
+          </div>
+          <div>
+            <dt>Markers</dt>
+            <dd data-case-markers>--</dd>
+          </div>
+          <div>
+            <dt>Unsupported</dt>
+            <dd data-case-unsupported>--</dd>
+          </div>
+        </dl>
+        <p data-case-notice></p>
+      </section>
       <section class="workspace" aria-label="ECGSIM views">
         <section class="pane pane-heart" data-pane="heart">
           <div class="pane-header">
