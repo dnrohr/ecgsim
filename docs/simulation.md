@@ -193,7 +193,12 @@ Implementation status:
 
 - `DC`: no correction.
 - `AC`: subtract per-lead temporal mean.
-- `baseline`: requires fiducial timing for P-wave start and T-wave end; exact legacy interpolation/window behavior is unknown.
+- `baseline`: subtract a linear baseline between the supplied fiducial samples. If fiducials are unknown, the current implementation falls back to the first and last sample.
+
+Task `0023` implements these modes as `ecgsim.core.filter_signal` and
+`ecgsim.core.filter_matrix`. The viewer exposes the same three modes for the
+bundled leads plot. Exact legacy P-wave-start/T-wave-end fiducial detection and
+any non-linear interpolation/window behavior remain unknown.
 
 ## Required Case Data Checklist
 

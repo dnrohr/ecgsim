@@ -101,6 +101,16 @@
             <h2>Leads</h2>
             <output data-leads-metadata>--</output>
           </div>
+          <div class="leads-controls" aria-label="Leads controls">
+            <label>
+              Coupling
+              <select data-leads-filter>
+                <option value="baseline">Baseline</option>
+                <option value="ac">AC</option>
+                <option value="dc">DC</option>
+              </select>
+            </label>
+          </div>
           <canvas width="640" height="220" data-leads-canvas></canvas>
         </section>
       </section>

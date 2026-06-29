@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { filterTraces } from "./filtering.js";
 import { computeRegionMembership } from "./selection.js";
 import {
   EDITABLE_PARAMETERS,
@@ -25,6 +26,7 @@ const heartSelection = document.querySelector("[data-heart-selection]");
 const thoraxViewport = document.querySelector("[data-thorax-viewport]");
 const thoraxMetadata = document.querySelector("[data-thorax-metadata]");
 const leadsMetadata = document.querySelector("[data-leads-metadata]");
+const leadsFilter = document.querySelector("[data-leads-filter]");
 const tmpMetadata = document.querySelector("[data-tmp-metadata]");
 const tmpParameter = document.querySelector("[data-tmp-parameter]");
 const tmpValue = document.querySelector("[data-tmp-value]");
@@ -297,7 +299,7 @@ function mountThorax(fixture) {
   animate();
 }
 
-function plotSignals(canvas, fixture) {
+function plotSignals(canvas, fixture, mode = "baseline") {
   if (!canvas || !leadsMetadata) {
     throw new Error("Leads canvas did not mount");
   }
@@ -311,7 +313,13 @@ function plotSignals(canvas, fixture) {
   const bottom = 34;
   const plotWidth = width - left - right;
   const plotHeight = height - top - bottom;
-  const traceCount = fixture.traces.length;
+  const traces = filterTraces(
+    fixture.traces,
+    mode,
+    fixture.baselineStartIndex ?? null,
+    fixture.baselineEndIndex ?? null,
+  );
+  const traceCount = traces.length;
   const traceHeight = plotHeight / traceCount;
   const colors = ["#b3261e", "#175c8a", "#6f8790", "#287d5b", "#8a5b13", "#5f4b8b"];
 
@@ -327,7 +335,7 @@ function plotSignals(canvas, fixture) {
   context.textBaseline = "middle";
 
   for (let traceIndex = 0; traceIndex < traceCount; traceIndex += 1) {
-    const trace = fixture.traces[traceIndex];
+    const trace = traces[traceIndex];
     const values = trace.values;
     const min = Math.min(...values);
     const max = Math.max(...values);
@@ -374,7 +382,8 @@ function plotSignals(canvas, fixture) {
   context.fillText(`${durationMs} ms`, width - right, height - 12);
   context.textAlign = "start";
 
-  leadsMetadata.value = `${fixture.traces.length} node leads / ${fixture.columns} samples / ${fixture.sampleRateHz} Hz`;
+  leadsMetadata.value =
+    `${fixture.traces.length} node leads / ${fixture.columns} samples / ${fixture.sampleRateHz} Hz / ${mode.toUpperCase()}`;
 }
 
 function plotTmp(canvas, fixture) {
@@ -579,7 +588,10 @@ async function mount() {
   mountHeart(heartFixture, () => tmpEditing.syncControls());
   mountThorax(thoraxFixture);
   tmpEditing.syncControls();
-  plotSignals(document.querySelector("[data-leads-canvas]"), ecgFixture);
+  const leadsCanvas = document.querySelector("[data-leads-canvas]");
+  const redrawSignals = () => plotSignals(leadsCanvas, ecgFixture, leadsFilter?.value ?? "baseline");
+  leadsFilter?.addEventListener("change", redrawSignals);
+  redrawSignals();
 }
 
 mount();

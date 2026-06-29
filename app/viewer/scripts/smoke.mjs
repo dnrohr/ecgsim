@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { filterSignal } from "../src/filtering.js";
 import { computeRegionMembership, findNearestPointIndex } from "../src/selection.js";
 import {
   applyParameterValue,
@@ -34,6 +35,7 @@ const required = [
   "data-tmp-reset-parameter",
   "data-tmp-reset-beat",
   "data-leads-metadata",
+  "data-leads-filter",
   "data-toggle-mesh=\"thorax\"",
   "data-toggle-mesh=\"leftLung\"",
   "data-toggle-mesh=\"rightLung\"",
@@ -100,6 +102,16 @@ if (
 }
 if (ecgFixture.traces.some((trace) => trace.values.length !== 1000)) {
   console.error("Unexpected ECG signal trace length");
+  process.exit(1);
+}
+const acFiltered = filterSignal([1, 2, 3], "ac");
+if (acFiltered[0] !== -1 || acFiltered[1] !== 0 || acFiltered[2] !== 1) {
+  console.error("AC filtering failed");
+  process.exit(1);
+}
+const baselineFiltered = filterSignal([5, 7, 9], "baseline");
+if (baselineFiltered.some((value) => value !== 0)) {
+  console.error("Baseline filtering failed");
   process.exit(1);
 }
 
