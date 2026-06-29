@@ -21,6 +21,10 @@ Simulation should be implemented from documented model behavior and papers/manua
 - Document TMP generation, transfer-function application, ECG/BSPM computation, and filtering needs.
 - List exact data required from case files.
 
+## Result
+
+- Added `docs/simulation.md` with sourced equations, implementation forms, required case data, and unknowns.
+
 ## Verification
 
 - Every equation includes source attribution.

@@ -42,12 +42,12 @@ Each task should end with:
 
 ## M5: Simulation/Recomputation
 
-- [0020 Document Simulation Equations](0020-document-simulation-equations.md)
-- [0021 Implement TMP Generation](0021-implement-tmp-generation.md)
-- [0022 Apply Transfer Function](0022-apply-transfer-function.md)
-- [0023 Implement ECG Filtering Modes](0023-implement-ecg-filtering-modes.md)
+- [x] [0020 Document Simulation Equations](0020-document-simulation-equations.md)
+- [ ] [0021 Implement TMP Generation](0021-implement-tmp-generation.md)
+- [ ] [0022 Apply Transfer Function](0022-apply-transfer-function.md)
+- [ ] [0023 Implement ECG Filtering Modes](0023-implement-ecg-filtering-modes.md)
 
 ## M6: Product Polish
 
-- [0024 Package Examples And User Docs](0024-package-examples-and-user-docs.md)
-- [0025 Cross-Platform Packaging Plan](0025-cross-platform-packaging-plan.md)
+- [ ] [0024 Package Examples And User Docs](0024-package-examples-and-user-docs.md)
+- [ ] [0025 Cross-Platform Packaging Plan](0025-cross-platform-packaging-plan.md)
