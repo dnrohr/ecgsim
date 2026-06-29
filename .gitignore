@@ -10,3 +10,7 @@ ECGSim-*.zip
 __pycache__/
 *.py[cod]
 .pytest_cache/
+
+# Node local/generated files.
+node_modules/
+dist/

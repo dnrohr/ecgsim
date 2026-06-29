@@ -27,3 +27,11 @@ If the package is installed, the equivalent console command is:
 ```powershell
 ecgsim-case-info research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
 ```
+
+## Viewer Smoke Command
+
+Run:
+
+```powershell
+npm --prefix app/viewer test
+```

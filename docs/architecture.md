@@ -29,6 +29,19 @@ This is a starting point, not a final design.
 5. Recompute signals/maps through `simulation`.
 6. Export through `io`.
 
+## Initial Viewer Flow
+
+The first viewer prototypes use a browser-native shell in `app/viewer/`.
+
+Early flow:
+
+1. Python parser commands inspect legacy files and emit stable metadata or fixture data.
+2. Viewer prototypes load static fixture JSON or generated development artifacts.
+3. The browser layer owns interaction and rendering only; it should not parse `.ECGsimcase` binary data directly.
+4. Rendering tasks add view-specific modules for heart geometry, thorax geometry, ECG plots, and TMP plots.
+
+This keeps legacy parsing testable in Python while allowing the UI to evolve independently.
+
 ## Design Bias
 
 Prefer compatibility and testability over early abstraction. Add abstractions when two real implementations or workflows need the same contract.

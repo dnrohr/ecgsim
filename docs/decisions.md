@@ -35,3 +35,14 @@ The first milestones are byte inspection, matrix/geometry readers, metadata repo
 
 Consequences:
 The repository now has a minimal Python package skeleton and a `python -m unittest discover -s tests` test command. This choice is reversible before UI work; a future app stack can call the parser package, port the parsers, or replace this layer if another runtime becomes clearly better.
+
+## 2026-06-29: Use A Browser-Native Shell For The First Viewer
+
+Decision:
+The first read-only viewer prototypes will use a browser-native HTML/CSS/JavaScript shell with no frontend framework dependency. Python remains the parser/runtime layer for legacy data inspection.
+
+Context:
+The next tasks need a place to render heart geometry, thorax geometry, ECG traces, and TMP traces, but the project does not yet need application state management, packaging, or a full desktop shell. A browser-native scaffold keeps the viewer inspectable and runnable with the local Node runtime while avoiding early dependency churn.
+
+Consequences:
+The viewer scaffold lives under `app/viewer/` and can be smoke-tested with Node. Geometry rendering should use Three.js when task 0009 needs real 3D interaction. Signal plotting can start with Canvas or SVG and adopt a plotting library only if repeated workflows justify it. Packaging remains undecided; likely paths are a local web app during development and a desktop wrapper or hosted app later. Tests should prefer small smoke checks plus browser automation once rendering becomes visual.

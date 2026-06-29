@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ECGSIM Viewer</title>
+    <link rel="stylesheet" href="./src/styles.css">
+  </head>
+  <body>
+    <main class="viewer-shell" data-viewer-shell>
+      <header class="topbar">
+        <div>
+          <h1>ECGSIM Viewer</h1>
+          <p>Read-only compatibility workspace</p>
+        </div>
+        <output class="case-status" data-case-status>normal_male2.ECGsimcase</output>
+      </header>
+      <section class="workspace" aria-label="ECGSIM views">
+        <section class="pane pane-heart" data-pane="heart">
+          <h2>Heart</h2>
+          <div class="viewport" data-heart-viewport></div>
+        </section>
+        <section class="pane pane-thorax" data-pane="thorax">
+          <h2>Thorax</h2>
+          <div class="viewport" data-thorax-viewport></div>
+        </section>
+        <section class="pane pane-tmp" data-pane="tmp">
+          <h2>TMP</h2>
+          <canvas width="640" height="220" data-tmp-canvas></canvas>
+        </section>
+        <section class="pane pane-leads" data-pane="leads">
+          <h2>Leads</h2>
+          <canvas width="640" height="220" data-leads-canvas></canvas>
+        </section>
+      </section>
+    </main>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
