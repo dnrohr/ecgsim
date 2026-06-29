@@ -1,0 +1,79 @@
+ECGSIM: About Us
+HOME INTRODUCTION DOWNLOADS MANUAL ABOUT US
+Adriaan van Oosterom Thom Oostendorp Peter van Dam Sponsor
+Adriaan van Oosterom
+After studying to become an electronic engineer Adriaan van Oosterom
+was employed by the Laboratory of Medical Physics at the University of
+Amsterdam where, from 1961 to 1965, he was engaged in the designing of
+electronic equipment for use in experimental cardiologic research.
+From 1965 to 1971 he studied Experimental Physics at the University of
+Amsterdam where, in 1971, he received an honours degree in Physics
+(MSc).
+Next, from 1971 to 1981, he worked at the Laboratory of Medical
+Physics (mentor: Prof. Dr. J. Strackee), as well as at the
+Department of Experimental Cardiology (Prof. Dr. D. Durrer),
+both in Amsterdam.
+During this period various physical aspects of the genesis of the
+electrocardiogram were studied, which led to a PhD in Physics in 1978
+at the University of Amsterdam.
+In 1981 he was appointed Professor of Medical Physics at the
+University of Nijmegen. Here he set up a research group studying
+Bioelectricity. Besides subjects related to electrocardiography, other
+bioelectric phenomena were studied, such as those related to
+electroneurography, electromyography, electroencephalography,
+functional electrostimulation and electrical impedance tomography.
+In September 2003 he was invited to join the Department of Cardiology
+of the Centre Hospitalier Universitaire Vaudois (CHUV),
+Lausanne; Switzerland, where he was subsequently appointed Professor
+of Experimental Cardiology. From his base at the Institute of Signal
+Processing of the Ecole Polytechnique Fédérale de Lausanne
+(EPFL) he was involved in research on the electric activity of
+the heart, with special focus on atrial fibrillation.
+After his retirement in September 2009 van Oosterom returned to the
+Netherlands, where he collaborated in scientific projects on the inverse
+problem of electrocardiology.
+In April 2019 Adriaan van Oosterom passed away at the age of 77. He
+will be dearly missed by his colleagues.
+Thom Oostendorp
+Thom Oostendorp is an associate professor at the Donders Institute
+for Brain, Cognition and Behaviour of the Radboud
+University in Nijmegen, the Netherlands.
+From 1977 to 1983 he studied Experimental Physics at the Radboud
+University in Nijmegen, the Netherlands, where he received his MSc
+degree in Physics.
+Thom Oostendorp started his scientific career in 1984 modeling the
+fetal ECG at the Department of Medical Physics and Biophysics (mentor:
+Adriaan van Oosterom) of the Radboud University Medical Center in
+Nijmegen, the Netherlands. In 1989 he received a PhD degree in Medical
+Science for this work. Since then, he has been worked at the
+Department of Medical Physics and Biophysics, first as a assistant
+professor, and since 2003 as a research professor. During this time,
+his main research interest has been in bio-electricity, specifically
+in solving the forward and inverse problem related to the electric
+signals that can be observed at the body surface.
+In 2006, the Department of Medical Physics and Biophysics has been
+renamed to Department for Cognitive Neuroscience, and has become
+incorporated in the Donders Center for Neuroscience.
+Thom Oostendorp is a principal lecturer at the Radboud
+University Medical Center , where he teaches students of medicine
+and biomedical science. He was elected "Teacher of the Year" 9
+times between 2006 and 2017. He has developed many computer classes that
+involve computer models of physiological systems. In this capacity,
+as well as his scientific involvement, he has played an active role
+in the development of ECGSIM.
+Peter van Dam
+After studying to become an electronic engineer Peter van Dam worked at the 'instrumentele dienst' of the Academic Medical Center Utrecht. Here he was engaged in the designing of electronic equipment and software for use in experimental research.
+From 1995 to 2008 he was employed by Medtronic (Maastricht and Arnhem), working at the software and research departments. Several patents were filed and he received a degree in Natural Sciences (MSc).
+During the period of 2007 to 2010, he also worked at the Laboratory of Medical Physics of Nijmegen (mentor: Prof. Dr. A. van Oosterom).
+During this period the inverse procedure, relating body surface signals to the electrical functioning of the heart, was enhanced enabling its clinical application. This research led to a PhD in Medical Science in 2010 at the Radboud University Nijmegen.
+Currently he is involved in the further development and verification of this inverse procedure, bringing it towards a clinical application.
+In 2009 he started a company, Peacs, together with his brother, Eelco van Dam. This company aims to develop open source software for educational and research applications. ECGSIM is the first product.
+Sponsor
+StITPro
+StITPro is a non-profit foundation that supports ICT projects for
+scientific research and education. StITPro has sponsored the
+conversion from ECGSIM 1.3 to ECGSIM 2.0.
+Information about StITPro can
+be found on www.stitpro.nl .
+The pictures (except for the pictures of Thom Oostendorp and Peter van Dam on this page) on this website were made by Dennis Vloedmans during a ECGSIM lab class for medical students at the Nijmegen Radboud University in April 2010 .
+HOME CONTACT US TOP OF THIS PAGE

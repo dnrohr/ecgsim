@@ -1,0 +1,431 @@
+<html>
+<head>
+<title>
+ECGSIM Manual: File
+</title>
+<style type="text/css"><!--
+h3.fn,span.fn { margin-left: 1cm; text-indent: -1cm; }
+a:link { color: #0000ff; text-decoration: none }
+a:visited { color: #004faf; text-decoration: none }
+body { background: #ffffff; color: black; }
+--></style>
+</head>
+<body>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr bgcolor="#E5E5E5">
+<td valign=center>
+ &nbsp;&nbsp;| <a href="index.html">
+<font color="#0000ff">Contents</font></a>
+ | <a href="http://www.ecgsim.org">
+<font color="#0000ff">ecgsim&nbsp;home</font></a>&nbsp;|
+</td>
+<td valign="center">
+<b><font size="15">ECGSIM Manual</font></b>
+</td>
+<td align="right" valign="center">
+<img src="ecgsim_s.gif" align="right" border="0"></td></tr></table>      
+
+<h2>
+File
+</h2>
+
+The <tt>File</tt> menu has the following entries:
+<ul> 
+<li> <a href="#open"><tt>Open</tt></a>;
+<li> <a href="#save"><tt>Save</tt></a>;
+<li> <a href="#default"><tt>Default</tt></a>; 
+<li> <a href="#print"><tt>Print</tt></a>;
+<li> <tt>Exit</tt>.
+</ul>
+
+<h3> 
+<a name="open"></a> Open 
+</h3> 
+
+The <tt>Open</tt> menu item starts up a sub-menu containing two entries: 
+<a href="#opensource"><tt>Source parameters</tt></a> and <a href="#openref">
+<tt>Reference surface potentials</tt></a>.
+
+<h4>
+<a name="opensource"></a>Open: Source parameters
+</h4>
+
+The parameters ECGSIM works with are: depolarization times, dep,
+repolarization times, rep,
+and the magnitudes of the local transmembrane potential, str,
+at all nodes of the heart.
+<tt>Open -> Source parameters</tt> allows the user
+to replace the default parameter by those read from a file.
+You may either open
+a file <a href="#savesource">saved</a> during a previous ECGSIM session, or 
+create your own. See <a href="#src">source description files</a> for the
+required file format.
+<p>
+
+If the source parameters loaded from a file contain depolarization times beyond
+500 ms, the <a href="membrane.html#maxrep">maximum repolarization time</a> is
+automatically set to 1000 ms.
+
+<h4>
+<a name="openref"></a>Open: Reference surface potentials
+</h4>
+
+<tt>Open -> Reference surface potentials</tt> allows the user
+to replace the default set of reference potentials. These will be used both
+for the reference body surface potentials in the <a href="thorax.html">thorax</a>
+pane and the reference 12-lead ECG in the <a href="ecgs.html">ECGs</a> pane.
+You may either open
+a file previously <a href="#savesim">saved</a> by ECGSIM, or create
+your own. 
+<p>
+The number of rows in the file must match the number of nodes on the thorax.
+See <a href="#pot">surface potential files</a> for the file format.
+<p>
+Reference surface potentials may also be loaded when ECGSIM starts by using the
+<a href="altgeo.html#altref"><tt>-ref</tt> command line option</a>.
+
+<h3> 
+<a name="save"></a> Save
+</h3> 
+
+The <tt>Save</tt> menu item starts up a sub-menu containing three entries: 
+<a href="#savesource"><tt>Source parameters</tt></a>, <a href="#savesim">
+<tt>Simulated surface potentials</tt></a>, and <a href="#save12">
+<tt>Simulated 12-lead ECG</tt></a>.
+
+<h4>
+<a name="savesource"></a>Save: Source parameters
+</h4>
+
+You may save the set of depolarization times, dep, repolarization times, rep,
+and transmembrane potential magnitudes (str) at all nodes
+of the heart to a file by using
+<tt>Save -> Source parameters</tt>. You may <a href="#opensource">open</a>
+this file in a later ECGSIM session. 
+See <a href="#src">source description files</a> for the file format.
+
+<h4>
+<a name="savesim"></a>Save: Simulated surface potentials
+</h4>
+
+<tt>Save -> Simulated surface potentials</tt> allows the user
+to save the simulated surface potentials at all nodes of the thorax to a file.
+These may later be <a href="#operef">opened</a> to serve as
+reference potentials, or used for further analysis outside ECGSIM.
+See <a href="#pot">surface potential files</a> for the file format.
+
+<h4>
+<a name="save12"></a>Save: Simulated 12-lead ECG
+</h4>
+
+<tt>Save -> Simulated 12-lead ECG</tt> allows the user
+to save the simulated 12-lead ECG to a file.
+These may then be saved for further analysis outside ECGSIM.
+See <a href="#ecg">12-lead ECG files</a> for the file format.
+
+<h3> 
+<a name="default"></a> Default
+</h3> 
+
+Once you have <a href="#open">opened</a> a source description file, the
+default set of source parameters is lost. You may restore the default source
+parameters by choosing <tt>Default</tt>.
+
+<h3> 
+<a name="print"></a> Print
+</h3> 
+
+The <tt>Print</tt> menu item starts up a sub-menu, from which
+you may choose which pane you want to print.
+<p>
+
+ECGSIM sends a bitmap copy of the pane to the printer, hence the resolution of
+the print-out is that of the screen and not that of the printer (which
+commonly has a much higher resolution). You may improve the quality of the
+print-out by enlarging the pane you want to print, which is done
+by dragging the bars between the pane by the left mouse button.
+<p>
+
+We plan to make use of the full printer resolution in a later release of
+ECGSIM.
+
+<h3>
+<a name="format"></a>
+File formats
+</h3>
+
+<h4>
+<a name="src"></a>
+Source description files
+</h4>
+
+The default extension of the files in which ECGSIM stores the source parameters
+is <tt>.src</tt>. The format of the file is:
+
+<p>
+
+<table>
+<tr>
+<td> <!--<em>-->N<!--</em>-->
+<td> 3
+</tr>
+<tr>
+<td> <!--<em>-->d<!--</em>-->(1)
+<td> <!--<em>-->r<!--</em>-->(1)
+<td> <!--<em>-->s<!--</em>-->(1)
+</tr>
+<tr>
+<td> <!--<em>-->d<!--</em>-->(2)
+<td> <!--<em>-->r<!--</em>-->(2)
+<td> <!--<em>-->s<!--</em>-->(2)
+</tr>
+<tr>
+<td> .
+<td> .
+<td> .
+</tr>
+<tr>
+<td> .
+<td> .
+<td> .
+</tr>
+<tr>
+<td> d(<!--<em>-->N<!--</em>-->)
+<td> r(<!--<em>-->N<!--</em>-->)
+<td> s(<!--<em>-->N<!--</em>-->)
+</tr>
+</table>
+
+<p>
+where N is the number of rows that follow (=the number of nodes at the
+heart; N=257 for the default heart geometry), 3 is the number of columns, 
+<!--<em>-->d<!--</em>-->(<!--<em>-->n<!--</em>-->) is the depolarization time at node <!--<em>-->n<!--</em>--> in ms,
+<!--<em>-->r<!--</em>-->(<!--<em>-->n<!--</em>-->) is the repolarization time at node <!--<em>-->n<!--</em>--> in ms, and
+<!--<em>-->s<!--</em>-->(<!--<em>-->n<!--</em>-->) is the
+depolarization magnitude at node <!--<em>-->n<!--</em>-->. The scaling of the
+latter ranges from a  value of 0 for inactive nodes to 1 for the full
+(relative) magnitude of the upstroke of the transmembrane potential.
+<p>
+The index n of a selected heart node may be displayed on the status bar of the <a
+href="heart.html">heart pane</a> by displaying the geometry in that pane and
+<a href="heart.html#select">selecting</a> the node.
+<p>
+The geometry description of the heart may be downloaded from <a
+href="http://www.ecgsim.org">www.ecgsim.org</a>.
+
+<h4>
+<a name="pot"></a>
+Surface potential files
+</h4>
+
+The default extension of the files in which ECGSIM stores surface potentials
+is <tt>.bsm</tt>. 
+<p>
+The format of the file is <em>the standard format used
+for matrix files</em> in ECGSIM:
+
+<p>
+
+<table>
+<tr>
+<td> <!--<em>-->L<!--</em>-->
+&nbsp;&nbsp;&nbsp; <!--<em>-->T<!--</em>-->
+</tr>
+<tr>
+<td> <!--<em>-->p<!--</em>-->(1,1)
+<td> <!--<em>-->p<!--</em>-->(1,2)
+<td> <!--<em>-->...<!--</em>-->
+<td> <!--<em>-->p<!--</em>-->(1,T)
+</tr>
+<tr>
+<td> <!--<em>-->p<!--</em>-->(2,1)
+<td> <!--<em>-->p<!--</em>-->(2,2)
+<td> <!--<em>-->...<!--</em>-->
+<td> <!--<em>-->p<!--</em>-->(2,T)
+</tr>
+<tr>
+<td> .
+<td> .
+<td> .
+<td> .
+</tr>
+<tr>
+<td> .
+<td> .
+<td> .
+<td> .
+</tr>
+<tr>
+<td> <!--<em>-->p<!--</em>-->(L,1)
+<td> <!--<em>-->p<!--</em>-->(L,2)
+<td> <!--<em>-->...<!--</em>-->
+<td> <!--<em>-->p<!--</em>-->(L,T)
+</tr>
+</table>
+
+<p>
+where L is the number of rows that follow
+(=the number of nodes on the thorax; L=300 for the default torso geometry),
+T is the number of columns
+(=number of time samples) and
+<!--<em>-->p<!--</em>-->(<!--<em>-->l<!--</em>-->,<!--<em>-->t<!--</em>-->) 
+is the potential in mV at node <!--<em>-->l<!--</em>--> at sampling time
+<!--<em>-->t<!--</em>-->.
+<p>
+The sample frequency is 1000 Hz.
+<p>
+The index of the selected thorax node  may be displayed on the status bar of the <a
+href="thorax.html">thorax pane</a> by displaying the geometry in that pane and
+<a href="thorax.html#select">selecting</a> the node.
+<p>
+The geometry description of the thorax may downloaded from <a
+href="http://www.ecgsim.org">www.ecgsim.org</a>.
+
+
+<h4>
+<a name="ecg"></a>
+12-lead ECG files
+</h4>
+
+The default extension of the files in which ECGSIM stores 12-lead ECGs
+is <tt>.ecg</tt>. The format of the file is:
+
+<p>
+
+<table>
+<tr>
+<td colspan=2> <!--<em>-->L<!--</em>-->
+&nbsp;&nbsp;&nbsp; <!--<em>-->T<!--</em>-->
+</tr>
+<tr>
+<td> <!--<em>-->p<!--</em>-->(1,1)
+<td> <!--<em>-->p<!--</em>-->(1,2)
+<td> <!--<em>-->...<!--</em>-->
+<td> <!--<em>-->p<!--</em>-->(1,T)
+</tr>
+<tr>
+<td> <!--<em>-->p<!--</em>-->(2,1)
+<td> <!--<em>-->p<!--</em>-->(2,2)
+<td> <!--<em>-->...<!--</em>-->
+<td> <!--<em>-->p<!--</em>-->(2,T)
+</tr>
+<tr>
+<td> .
+<td> .
+<td> .
+<td> .
+</tr>
+<tr>
+<td> .
+<td> .
+<td> .
+<td> .
+</tr>
+<tr>
+<td> <!--<em>-->p<!--</em>-->(L,1)
+<td> <!--<em>-->p<!--</em>-->(L,2)
+<td> <!--<em>-->...<!--</em>-->
+<td> <!--<em>-->p<!--</em>-->(L,T)
+</tr>
+</table>
+
+<p>
+where L is the number of rows that follow
+(=the number of leads, normally 12), T is the number of columns
+(=number of time samples) and
+<!--<em>-->p<!--</em>-->(<!--<em>-->l<!--</em>-->,<!--<em>-->t<!--</em>-->) 
+is the potential in mV at lead <!--<em>-->l<!--</em>--> at time sample
+<!--<em>-->t<!--</em>-->.
+<p>
+Rows 1-6 correspond to leads V1-V6, rows 7-9 to leads
+aVR, aVL and aVF, respectively and rows 10-12 to leads I, II and III, respectively.
+<p>
+The implied sample frequency is 1000 Hz.
+
+<h4>
+<a name="geo"></a>
+Triangulated geometry files
+</h4>
+<p>
+The format of the files that describe triangulated geometries is as follows:
+<p>
+
+<table>
+<tr>
+<td> <!--<em>-->npnt<!--</em>-->
+</tr>
+<tr>
+<td> 1
+<td> <!--<em>-->x<!--</em>-->(1)
+<td> <!--<em>-->y<!--</em>-->(1)
+<td> <!--<em>-->z<!--</em>-->(1)
+</tr>
+<tr>
+<td> 2
+<td> <!--<em>-->x<!--</em>-->(2)
+<td> <!--<em>-->y<!--</em>-->(2)
+<td> <!--<em>-->z<!--</em>-->(2)
+</tr>
+<tr>
+<td> .
+<td> .
+<td> .
+<td> .
+</tr>
+<tr>
+<td> .
+<td> .
+<td> .
+<td> .
+</tr>
+<tr>
+<td> npnt
+<td> x(<!--<em>-->npnt<!--</em>-->)
+<td> y(<!--<em>-->npnt<!--</em>-->)
+<td> z(<!--<em>-->npnt<!--</em>-->)
+</tr>
+<tr>
+<td> <!--<em>-->ntri<!--</em>-->
+</tr>
+<tr>
+<td> 1
+<td> <!--<em>-->ind<!--</em>-->(1,1)
+<td> <!--<em>-->ind<!--</em>-->(1,2)
+<td> <!--<em>-->ind<!--</em>-->(1,3)
+</tr>
+<tr>
+<td> 2
+<td> <!--<em>-->ind<!--</em>-->(2,1)
+<td> <!--<em>-->ind<!--</em>-->(2,2)
+<td> <!--<em>-->ind<!--</em>-->(2,3)
+</tr>
+<tr>
+<td> .
+<td> .
+<td> .
+<td> .
+</tr>
+<tr>
+<td> .
+<td> .
+<td> .
+<td> .
+</tr>
+<tr>
+<td> ntri
+<td> ind(<!--<em>-->ntri<!--</em>-->,1)
+<td> ind(<!--<em>-->ntri<!--</em>-->,2)
+<td> ind(<!--<em>-->ntri<!--</em>-->,3)
+</tr>
+</table>
+
+<p>
+where npnt is the number of vertices, x(i), y(i) and z(i) are the coordinates
+(in meters) of vertex i, ntri is the number of triangles, and ind(j,1), ind(j,2) and
+ind(j,3) are the indices of the vertices of triangle j. The order of the
+indices for a triangle defines the orientation of the triangle; when viewed
+from the outside the vertices are numbered clockwise.
+
+</body>
+</html>

@@ -1,0 +1,270 @@
+body{
+  margin: 3% 7% 3% 7%;
+  font-family: Calibri, Arial, Helvetica, sans-serif;
+  color: #000000;
+  background-color: #ffffff;
+  padding: 0;
+}
+img{
+  border: 0 solid transparent;
+  margin: 10px;
+}
+div.layout{
+  border: 0 solid transparent;
+  background-color: #ffffff;
+  color: #000000;
+  padding: 0;
+  vertical-align: top;
+  margin: 4% auto 7% auto;
+  max-width: 818px;
+}
+img#logo{
+  width: 775px;
+  height: 131px;
+}
+/*HEADERS*/
+h1, h2, h3, h4, h5, h6 {
+	letter-spacing: -1px;
+}
+
+h1,h2,h3{
+  background-color: #ffffff;
+  color: #333333;
+  padding: 0;
+  margin: 0;
+}
+h4,h5,h6{
+  background-color: #ffffff;
+  color: #000000;
+  padding: 0;
+  margin: 0;
+}
+h1{
+  font-size: 2em;
+  margin: 10px 10px 0 10px;
+}
+h2{
+  font-size:1.6em;
+  margin: 10px 10px 0 10px;
+}
+h3{
+  font-size: 1.3em;
+  margin: 10px 10px 0 10px;
+}
+h4{
+  margin: 10px 10px 0 10px;
+}
+h5{
+  margin: 10px 10px 0 10px;
+}
+h6{
+  margin: 10px 10px 0 10px;
+}
+/*TABLES*/
+table, th, td{
+  border: 0 solid transparent;
+  margin: 10px 0 3px 10px;
+}
+th{
+  color: #000;
+  background-color: #fff;
+}
+th, td{
+  padding: .2em;
+}
+/*LISTS*/
+ul,ol{
+  margin: 0 0 0 10px;
+  padding-left: 20px;
+  padding-right: 6px;
+}
+li {
+  list-style-type: disc;
+  list-style-position: outside;
+}
+/*DIT IS DE STYLE VOOR HET MENU VAN DE MANUAL*/
+ul.helpmenu, ul.manualmenu{
+  color: #d7191f;
+  background-color: #ffffff;
+  margin: 0 0 10px 10px;  
+}
+/*FORMULIEREN*/
+/*REGISTRATIEFORMULIER*/
+.regform{
+  margin: 5px;
+  padding: 0 5px 5px 0;
+}
+/*DONATIEFORMULIER*/
+.donateform{
+    padding: 0 0 0 0;
+	background-color: #dd1319;
+	border-radius: 10px;
+	color: #ffffff;
+	font-weight: bold;
+}
+/*NAVIGATIONBARS*/
+/*HEADER NAVIGATIONBAR*/
+.headerbar{
+  background-color: #dadbe3;
+  color: #000000;
+  text-decoration: none;
+  margin: 0;
+  padding: 0 10px;
+  font-size: 1.3em;
+}
+.submenu{
+  background-color: #ffffff;
+  color: #000000;
+  font-weight: bold;
+  padding: 0 10px;
+  margin: 5px 0;
+#  font-size: 40pt;
+}
+.footerbar{
+  background-color: #dadbe3;
+  color: #000000;
+  text-decoration: none;
+  padding: 0 10px;
+  margin: 0;
+}
+/*HEADERBARLINKS*/
+.headerbar :link{
+  text-decoration: none;
+  background-color: #dadbe3;
+  color: #ff3333;
+  padding: 0;
+}
+.headerbar :visited{
+  text-decoration: none;
+  background-color: #dadbe3;
+  color: #ff3333;
+  padding: 0;
+}
+.headerbar :hover{
+  text-decoration: none;
+  color: #000000;
+  background-color: #dadbe3;
+  padding: 0;
+}
+/*SUBMENULINKS*/
+.submenu :link {
+  color: #d7191f;
+  background-color: transparent;
+  text-decoration: none;
+  padding: 0;
+}
+.submenu :visited {
+  color: #831014;
+  background-color: transparent;
+  text-decoration: none;
+  padding: 0;
+}
+.submenu :hover {
+  color: #000000;
+  background-color: transparent;
+  text-decoration: none;
+  padding: 0;
+}
+/*TEXT NAVIGATIONLINKS*/
+a:link {
+  color: #d7191f;
+  background-color: transparent;
+  text-decoration: underline;
+}
+a:visited {
+  color: #831014;
+  background-color: transparent;
+  text-decoration: underline;
+}
+a:hover {
+  color: #000000;
+  background-color: transparent;
+  text-decoration: underline;
+}
+/*TEXT*/
+p.text{
+  margin: 0 10px 13px 10px;
+}
+p{
+  margin: 0 10px 13px 10px;
+}
+/*IMAGES*/
+img.whitepace-navigationbar{
+  border: 0 solid transparent;
+  margin: 0 5px 0 5px;
+}
+/*DE IMAGES OP DE ABOUTUS-PAGINA*/
+img.adriaan{
+  width: 146px;
+  float: right;
+  margin: 0 0 0 10px;
+}
+img.thom{
+  width: 146px;
+  height: 200px;
+  float: left;
+  margin: 5px 10px 0 0;
+}
+img#petervandam{
+  width: 146px;
+  float: left;
+  margin: 5px 10px 0 0;
+}
+img#weezenhofcopy{
+  border:0 solid transparent;
+  margin: 0 0 0 10px;
+  width: 382px;
+  height: 40px;
+}
+/*DE FOTO, DIE ONDERAAN OP (BIJNA) ELKE PAGINA STAAT*/
+img.illustration{
+  width: 681px;
+  margin: 10px;
+}
+/*DE IMAGES IN DE HELPFILE VAN HET PROGRAMMA*/
+img.helpimage{
+  border: 0 solid transparent;
+  margin: 5px 5px 10px 10px;
+}
+/*M.B.V. DE STYLES SCHUIVEN DE PLAATJES NAAR LINKS OF RECHTS*/
+/*DIT PLAATJE SCHUIFT NAAR RECHTS*/
+img.textimageRight{
+  border:0 solid transparent;
+  margin: 0;
+  float: right;
+}
+/*DIT PLAATJE SCHUIFT NAAR LINKS*/
+img.textimageLeft{
+  border: 0 solid transparent;
+  margin: 0;
+  float: left;
+}
+/*DIT ZIJN DE ICONS DIE ALS BUTTONS FUNGEREN*/
+img.helpiconbutton{
+  border: 2px solid #333333;
+  margin: 0 2px -3px 2px;
+}
+/*DIT ZIJN DE ICONS DIE NIET ALS BUTTONS FUNGEREN*/
+img.helpicon{
+  border:0 solid #ffffff;
+  margin: 0 2px -3px 2px;
+}
+/*FOOTER NAVIGATIONBAR*/
+.footerbar :link{
+  text-decoration: none;
+  background-color: #dadbe3;
+  color: #000000;
+  padding: 0;
+}
+.footerbar :visited{
+  text-decoration: none;
+  background-color: #dadbe3;
+  color: #000000;
+  padding: 0;
+}
+.footerbar :hover{
+  text-decoration: underline;
+  background-color: #dadbe3;
+  color: #000000;
+  padding: 0;
+}

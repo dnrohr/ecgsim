@@ -1,0 +1,211 @@
+<html>
+<head>
+<title>
+ECGSIM Manual: Heart
+</title>
+<style type="text/css"><!--
+h3.fn,span.fn { margin-left: 1cm; text-indent: -1cm; }
+a:link { color: #0000ff; text-decoration: none }
+a:visited { color: #004faf; text-decoration: none }
+body { background: #ffffff; color: black; }
+--></style>
+</head>
+<body>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr bgcolor="#E5E5E5">
+<td valign=center>
+ &nbsp;&nbsp;| <a href="index.html">
+<font color="#0000ff">Contents</font></a>
+ | <a href="http://www.ecgsim.org">
+<font color="#0000ff">ecgsim&nbsp;home</font></a>&nbsp;|
+</td>
+<td valign="center">
+<b><font size="15">ECGSIM Manual</font></b>
+</td>
+<td align="right" valign="center">
+<img src="ecgsim_s.gif" align="right" border="0"></td></tr></table>      
+
+<h2>
+Heart
+</h2>
+
+The heart pane is used to display the geometry of the heart and any of a wide
+range of functions on its surface. If a node on the heart is selected by right
+a mouse button click, its position is shown by a black patch.
+<p>
+The function that is being displayed in the heart pane, as well as various
+display options that can be be selected from the <tt>Heart</tt> entry on the menu bar: 
+<ul>
+<li> <a href="#surface"><tt>Surface function</tt></a>;
+<li> <a href="#options"><tt>Display options</tt></a>;
+<li> <a href="#scale"><tt>Scale</tt></a>;
+<li> <a href="#orientation"><tt>Orientation</tt></a>.
+</ul>
+<a href="#actions">Mouse actions</a> in the heart pane are reflected 
+in this pane and may also have an effect on the other ones.
+<p>
+
+The image shown in the heart pane may be
+copied to the <a href="clipboard.html">
+clipboard</a> by selecting <tt>Copy</tt> from the <tt>Heart</tt> menu, or by
+pressing <tt>Ctrl-C</tt> while the mouse is within the heart pane. 
+
+<h3>
+<a name="surface"></a>
+Surface function
+</h3>
+The item <tt>Surface function</tt> in the <tt>heart</tt> menu brings up a
+dialog window, with which you may choose the function to be
+displayed on the heart surface.
+Options available are: the depolarization times, repolarization times, action potential
+duration, action potential magnitude, transmembrane potential, epicardial
+potential and the <a href="transfer.html">
+transfer function</a>. 
+<p>
+The most frequently used surface functions may also be activated by clicking on
+the corresponding button on the tool bar at the top of the heart pane.
+<p>
+If transmembrane or epicardial potentials are displayed, the
+status bar indicates the time instant for which the potentials are displayed.
+You may press the up and down arrow keys to in- and decrease time by steps
+of one millisecond. Use the page up and page down keys for in- and decrements with
+steps of ten milliseconds. Also, you may click in the <a
+href="membrane.html">membrane</a> and <a href="ecgs.html">ECGs</a> pane on the
+time instant for which you wish the potentials to be displayed. Finally, you
+may use the <a href="movie.html">movie</a> option to view the development
+in time of the potentials as a movie.
+
+<h3>
+<a name="options"></a>
+Display options
+</h3>
+The item <tt>Display options</tt> in the <tt>Heart</tt> menu brings up a
+dialog window in which you may choose how the heart and the surface function are
+to be displayed. There are two tabs: the <a
+href="#optionsgeometry"><tt>Geometry</tt></a> tab that controls the geometry 
+options, and the <a
+href="#optionsfunction"><tt>Surface function</tt></a> tab 
+that controls the surface function options.
+<h4>
+<a name="optionsgeometry"></a>
+Display options: Geometry
+</h4>
+To facilitate orientation, the left arteria decendens marking
+the boundary between the right and left ventricle may be brought into view.
+In addition, the precordial thoracic
+electrodes may be included in the display.
+In the <tt> geometry</tt> tab you may select whether you want the electrodes
+to be shown, and whether you want them to be
+transparent or opaque.
+<p>
+You may choose whether the size of the range around the selected node
+that is affected by changes of the source parameters at the selected node
+(see <a href="membrane.html#range">range</a>) should be shown on the heart
+surface. You may choose to display the outline of the range, to dim the region
+of the heart surface that is within the range, or to dim the region outside the
+range. You may also turn the range display on and off by using the <tt>range
+on/off</tt> button on the heart tool bar. The size of the range may be
+controlled by using the <a href="#range">mouse</a>.
+<p>
+The heart surface may be hidden or made transparent. If a function is mapped on
+the heart surface using a color code, the surface will always be opaque, since
+a colored transparent heart is too confusing. Should
+you want to map a function on the
+heart while being able to see through the surface, use <a
+href="#optionsfunction">isofunction lines only</a>.
+<p>
+The heart vector and vector loop (according to the <a
+href="ecgs.html#display">Frank Leads</a>) for the simulated data may be
+displayed by choosing <tt>opaque</tt> for the corresponding items. The scale of
+the vector is 13 cm/mV times the scale factor of the signals in the <a
+href="ecgs.html">ECGs pane</a>. You may
+change the size of the displayed vector by
+using the <a href="ecgs.html#scale"> scale in the ECGs pane</a>.
+<p>
+Finally, you may select in the <tt>geometry</tt> tab whether the grid and/or 
+the nodes that make up the discretized heart should be displayed.
+<h4>
+<a name="optionsfunction"></a>
+Display options: Surface function
+</h4>
+The <tt> surface function</tt> tab allows you to determine how the function is
+displayed; by a color map, isofunction lines, or by both. Also, you may determine
+whether the light effect should be active when using a color map display. The
+light effect gives a three-dimensional impression of the geometry of the heart,
+but it also renders the colors on the surface less bright.
+
+<h3>
+<a name="scale"></a>
+Scale
+</h3>
+The item <tt>Scale</tt> in the <tt>heart</tt> menu brings up a
+dialog window, through which you may set the scale for
+the various surface functions that are plotted on the heart surface.
+<p>
+
+By default, the scale of time functions (repolarization, depolarization and
+action potential duration) is adapted automatically as the timing values
+change. By unchecking the <tt>Autoscale</tt> check box, manual control by means
+of the three timing sliders is enabled.
+
+
+<h3>
+<a name="actions"></a>
+Mouse actions in the heart pane
+</h3>
+
+<h4>
+Orientation
+</h4>
+You may rotate the heart by (left) mouse dragging. By rotating
+the mouse wheel, the heart
+rotates along an axis perpendicular to the screen. If you press the shift key
+simultaneously, the angle by which the heart rotates with
+each click of the mouse wheel becomes smaller.
+<p>
+You may easily return to
+the standard frontal view by clicking on the <tt>reset orientation</tt> button
+on the tool bar.
+<p>
+
+<h4>
+<a name="select"></a>
+Selection
+</h4>
+A node at the heart is selected by a right mouse button click on the
+heart surface. The node nearest to the "click" is selected, as shown by a black
+patch on the surface. Only one node may be selected at a time; if you select
+another node, the previous one is deselected. If you click on the right mouse
+button outside the heart, the currently selected node is deselected.
+<p>
+If a function is mapped on the heart surface, the value at the
+selected node is displayed on the status bar of the heart pane. If the geometry
+is displayed, the location of the selected node and its index are displayed
+(the node index corresponds to the row in which the source parameters for that
+node are <a href="file.html#save">saved</a>).
+<p>
+In the <a href="membrane">membrane pane</a> the transmembrane potential of the
+selected node is displayed.
+
+<h4>
+<a name="range"></a>
+Setting the range
+</h4>
+The size of the range around the selected node
+that is affected by changes of the source parameters at the selected node
+(see <a href="membrane.html#range">range</a>) may be set by clicking the middle
+mouse button. The point that was clicked on will define the edge of the
+selected range. If your mouse does not have a middle button, or if a special
+function has been assigned to the middle mouse button by the mouse driver (as
+is often the case in Windows), you may get the same result by clicking with the
+right mouse button, while holding down the <tt>shift</tt> key.
+<p>
+The size of the range may also be set from the <a
+href="membrane.html#range">range dialog window</a> in the membrane menu. In
+this dialog window you may also choose whether the range should be computed
+through the myocardium (transmuraly), or merely on the part of the heart
+surface that carries the selected node.
+
+</body>
+</html>

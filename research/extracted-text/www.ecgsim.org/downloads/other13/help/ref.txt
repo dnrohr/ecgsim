@@ -1,0 +1,65 @@
+ECGSIM Manual: References
+|
+Contents
+|
+ecgsim home  |
+ECGSIM Manual
+References
+ECGSIM (QRS + T wave)
+A. van Oosterom, T. Oostendorp:
+ECGSIM; an interactive tool for studying the genesis of QRST waveforms.
+Heart 2004, 90, 165-168.
+A. van Oosterom, G. Windau, G.J.M Huiskamp:
+Simulation on a PC of the QRS-T wave forms.
+In: Electrocardiology '93
+edt: P.W. Macfarlane P. Rautaharju
+World Scientific, Singapore, 1994, 97-100.
+ECGSIM (QRS only)
+A. van Oosterom:
+Interactive simulation of the QRS wave forms.
+In: Images of the Twenty-first Century. Proc. of the
+Annual Internat. Conf. of the IEEE Eng. in Med. and Biol. Soc.
+edt: Y. Kim, F.A. Spelman
+IEEE Publishing Services, New York, 1989, 183-184.
+The forward transfer; matrix A:
+G.J.M. Huiskamp, A. van Oosterom:
+The Effect of Torso Inhomogeneities on Body Surface Potentials.
+J. of Electrocardiol. 1989, 22/1,1-20.
+The computed timing of depolarization
+J.J.M. Cuppen, A. van Oosterom:
+Model studies with the inversely calculated isochrones of ventricular
+depolarization.
+IEEE Trans. Biomed. Eng 1984, BME-31, 652-659.
+G.J.M. Huiskamp, A. van Oosterom:
+The depolarization sequence of the human heart surface computed
+from measured body surface potentials.
+IEEE Trans. Biomed. Eng. 1988, BME-35, 1047-1058.
+The computed timing of repolarization
+A. van Oosterom, G. Windau, G.J.M. Huiskamp:
+Simulation on a PC of the QRS-T wave forms.
+In: Electrocardiology '93
+edt: P.W. Macfarlane, P.Rautaharju
+World Scientific, Singapore, 1994, 97-100.
+A. van Oosterom:
+Genesis of the T-wave as based on an Equivalent Surface Source Model .
+J. Electrocardiol. 34S, 2001, 217-227.
+The basic elements of T-wave modeling
+A. van Oosterom:
+Genesis of the T-wave as based on an Equivalent Surface Source Model .
+J. Electrocardiol. 34S, 2001, 217-227.
+K. Harumi, M.J. Burgess, J.A. Abildskov:
+A Theoretic Model of the T Wave.
+Circulation XXIV, 657-668, 1966.
+D.B. Geselowitz:
+On the Theory of the Electrocardiogram
+Proceedings IEEE 77/6, 857-876, 1989.
+D.B. Geselowitz:
+Description of cardiac sources in anisotropic cardiac muscle.
+Application of bidomain model.
+J. Electrocardiol. 1992, 25S, 65-67.
+A. van Oosterom:
+The Equivalent Surface Source Model in its Application to the T Wave .
+Electrocardiology'01 2002, C. A. Pastore, 527-535.
+A. van Oosterom:
+The Dominent T-wave and its Significance.
+J Cardiovasc Electrophysiol 2003, 14S, 180-187.

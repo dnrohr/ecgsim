@@ -1,0 +1,48 @@
+ECGSIM Manual: Alternative Geometry
+HOME INTRODUCTION DOWNLOADS MANUAL ABOUT US
+Introduction Basic Usage Heart Thorax TMP Leads Tools Focus Preferences Case Files Versions Download case files Update ECGSIM Publications License terms
+Preferences
+Color scale
+Grid
+Thorax / heart settings
+TMP handlers
+This dialog can be opened by pressing the -preferences- item. For Windows this item is
+located in the -Options- main menu item. While this dialog is being shown the rest of
+the application cannot be accessed.
+Color scale
+Color coding scales are used to visualize surface functions in the heart
+view and thorax view. The used color scale can be adjusted for
+three types of functions:
+timing, used when visualizing depolarization , repolarization and
+ARI on the heart ,
+potential, used when visualizing heart contribution and potential field
+on the heart and all surface functions in the
+thorax and the
+TMP, used when visualizing amplitude , resting potential and TMP
+on the heart .
+Grid
+The graphics in the leads and TMP view can be shown with, by selecting this option, or
+without, by deselect the option, a grid.
+The grid is only being shown if the size of the view is not too small. If the leads and
+TMP view are sized too small the grid is automatically disabled to reappear again when the
+view is made bigger again.
+Thorax / heart settings
+1)
+Thorax isofunction lines. If checked, only iso function lines are used to draw the
+potential maps and sensitivity map ,
+otherwise a complete colormap is used (see thorax pane ).
+When only the iso function lines are being used to draw, the lungs and the heart are still
+visible in the semi transparent thorax geometry.
+2)
+Arc ball rotation.
+We are still working on this feature. It will become available as soon as possible!
+TMP handlers
+For the TMP view two specific options are available:
+1)
+Combine the resting potential and amplitude handler, i.e. lifting the
+resting potenial will reduce the upstroke amplitude. If not checked both the
+amplitude handler and the resting potential handler are visible.
+2)
+When shifting the depolarization time the repolarization time shifts with
+it or not (keep constant APD)
+HOME     CONTACT US     TOP OF THIS PAGE

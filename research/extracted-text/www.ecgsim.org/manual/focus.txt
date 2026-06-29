@@ -1,0 +1,51 @@
+ECGSIM Manual: Focus
+HOME INTRODUCTION DOWNLOADS MANUAL ABOUT US
+Introduction Basic Usage Heart Thorax TMP Leads Tools Focus Preferences Case Files Versions Download case files Update ECGSIM Publications License terms
+Focus: construction of the depolarization sequence
+The foci edit view can be opened under the main menu item -Heart- by selecting
+-foci edit- in the -left mouse- sub menu or by selecting
+foci edit in the heart view.
+This view is a dockable
+view, which means that is can be dragged outsize the application window but can
+also be embeded in its window left from the heart pane or right from the thorax pane.
+When leaving the foci edit mode by selecting an other option in the
+heart view , the foci edit view is closed.
+When in the foci edit mode, a node selected on the heart surface can be assigned to
+represent an early break through of depolarization, or an ectopic focus in the event of a single
+activation site. The user may also specify whether the node on the oposite wall is used as a focus.
+This function was added to simulate activations starting within the wall and activating both
+sides of the wall simultaneously. It permits to control the relevant parameters: the initial
+depolarization time of the focus, and the propagation velocity of the depolarization wave front
+started from this focus.
+The propagtion velocity of the constructed depolarization wave can be changed in a
+local region or global. The way the velocity is adapted depends on the oparation mode:
+construction: In the construction mode the velocities can
+be set on the left and right endocardium, epicardium and transmural. The transmural
+velocity is slower because of the myocardial fiber orientation. Typical values are
+0.7 ms -1 over the wall and 0.3 ms -1 transmural.
+manipuilation: In the manipulation the velocities, both over
+the surface as well as transmural, are derived from the initial depolarization sequence.
+The user is now able to change the local propagation velocity in respect to the initial esitmated, apparent,
+velocity. Changes are expressed as a percentage of the initial propagation velocity.
+Repolarization
+The repolarization times can be recomputed using an heuristic approach (select global repolarization ).
+If one or more foci of depolarization are defined on the heart surface, the activation recovery interval (ARI)
+of each node n can be computed as follows:
+ARI(n) = mARI - alpha x dDEP(n),
+with mARI(n) = mean( ARI ) and dDEP(n) = DEP(n) - mean(DEP)
+where mARI is the mean ARI defined by the user and alpha the (linear) relation between depolarization time and ARI.
+This heuristic assignment of repolarization times is based on the following arguments. The original
+distribution of the action potential duration is partially an expression of the intrinsic characteristics
+of the myocardium. For another part it is the result of the distribution of the activation times, where
+regions that depolarize early tend to repolarize late. Hence the new action potential duration is set
+the original one, plus a term that is negative is the new activation time is later than before, and vise
+versa. The (default) weight factor 0.4 of alpha is based on the statistical relation between depolarization and repolarization
+times described in Genesis of the T-wave as based on an Equivalent Surface Source Model listed in the
+references section. The whole T wave can be shifted in time by changing the mean ARI (Activation Recovery Interval).
+Construction of activation
+The ectopic focus situation is shown below.
+An example of an additional early break through on the right ventricular epiocardium is shown below.
+Any node that is selected to be a focus is marked on the Heart surface
+(black dot in the figure above). The foci indicated with white dots are the foci derived from the
+initial depolarziation sequence.
+HOME     CONTACT US     TOP OF THIS PAGE

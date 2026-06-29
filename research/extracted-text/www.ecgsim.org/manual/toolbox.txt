@@ -1,0 +1,60 @@
+ECGSIM Manual: Tools
+HOME INTRODUCTION DOWNLOADS MANUAL ABOUT US
+Introduction Basic Usage Heart Thorax TMP Leads Tools Focus Preferences Case Files Versions Download case files Update ECGSIM Publications License terms
+Tools
+View
+Create rhythm
+Statistics
+Transition zone
+This view can be opened under the main menu item -Options- by selecting
+Tools . This view is a dockable view, which means that is can be dragged
+outsize the application window but can also be embed in its window left from the
+heart pane or right from the thorax pane.
+This view contains 4 tabs with on each of them grouped functionality.
+Views
+In this tab four standard, predefined 'views' on the heart
+orientation are provided, the anterior posterior view ,
+the posterior anterior view , the superior inferior view and the
+inferior superior view .
+Next to these four 'views', the user may store the current orientation of the heart in its
+view by pressing the store button. The stored orientation can be restored by
+pressing stored view .
+Create rhythm
+Traditionally ECGsim simulates only a single heart beat, i.e. a single atrial and/or ventricular activation.
+This, however, does limit the clinical educational application as a rhythm ECG strip is normally provided. Therefore
+ECGsim also offers the opportunity to add muliple atrial and ventricular activations. This feautuer enables the simulation of
+an atrial tachycardia with irrecgular AV conduction or the changes in the ECG due to an ischemic event over time.
+Each atrial or ventricular activation can be added by the add at button. The maximum ECG strip
+length is 10 seconds, i.e. when the rhythm strip has more then 10 seconds in length no event can be added.
+Global TMP parameters
+This tab is divided in three groups.
+Statistics of the timing TMP parameters
+Adapt the timing of TMP parameters
+Adapt other TMP parameters
+The Statistics of the timing TMP parameters box in the figure shown above
+displays some basic statistics of the timing parameters.
+The Adapt the timing of TMP parameters box permits the user to specify these
+statistics. This is effected by scaling and/or shifting the involved source
+parameters, while retaining the pattern of their distribution.
+The result of these changes are immediately visible in the various views after the changed
+value field has lost focus, i.e. click with the mouse in an other field in the view, or
+when the <ENTER> button is hit. An extra option is to press the
+apply button.
+The timing values are supervised automatically to ensure that no non-valid values of the timing
+parameters are generated (such as: depolarization before 0 ms, or an activation recovery interval
+less than 50 ms).
+Note that scaling of the depolarization dispersion will lead to changes in the action potential
+duration dispersion and vice versa (recall: for each node the repolarization time is equal to the
+depolarization time plus the action potential duration: rep = dep + apd ).
+The Adapt other TMP parameters box of the view permits a global adjustment of the
+shape parameters of the TMPs.
+Transition zone
+When an area is selected in the heart view the adaptations are
+tapered off from 100% at the selected node toward zero at the boundary of the selected area
+around it. The manner in which this is done can be modified by changing the slope shown in
+this tab by dragging the slope handler in the directions pointed to by the white triangular
+arrows - left or right.
+Note: Changes only apply to the the currently selected area and not to the
+previous selected areas when in expand adaptation region mode or in select
+several adapttion regions mode in the TMP view.
+HOME     CONTACT US     TOP OF THIS PAGE

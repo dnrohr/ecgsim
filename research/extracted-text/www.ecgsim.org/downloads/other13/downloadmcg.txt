@@ -1,0 +1,21 @@
+ECGSIM Downloads: MCG related files for ECGSIM 1.3
+HOME     INTRODUCTION    DOWNLOADS    MANUAL     ABOUT US     SITEMAP
+Download MCG related files for ECGSIM 1.3
+From here MCG related files to be used in ecgsim
+can be downloaded. The manual of ECGSIM 1.3 contains a description
+of the file format and instructions on simulating and displaying the MCG in
+ecgsim.
+gumcg300.tra : the MCG transfer
+function for the standard ecgsim geometry set and the MCG observation grid
+described in the next item. At each point of that grid a second order
+gradiometer, with coils parallel to the frontal plane and 6 cm between the
+coils, is assumed.
+gumcg.obs :
+a set of 9 by 9 observation points in front of the standard ecgsim thorax.
+The distance between the observation points is 3 cm.
+gumcg.int :a set of MCG signals
+measured at the observation grid described in the previous item. The data set
+contains only the QRS complex.
+mcg.lay : layout definition for
+displaying MCGs in the ECGs pane.
+HOME     CONTACT US     TOP OF THIS PAGE

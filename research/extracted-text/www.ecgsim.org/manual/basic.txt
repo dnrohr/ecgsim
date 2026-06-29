@@ -1,0 +1,39 @@
+ECGSIM Manual: Basic
+HOME INTRODUCTION DOWNLOADS MANUAL ABOUT US
+Introduction Basic Usage Heart Thorax TMP Leads Tools Focus Preferences Case Files Versions Download case files Update ECGSIM Publications License terms
+Basic usage
+The interactive operation of ECGSIM is almost entirely mouse
+controlled. The main mouse operations are:
+dragging, i.e. moving the mouse while holding the mouse button down, and
+clicking of either the left- or the right mouse button.
+The ECGSIM main window consists of four panes:
+the heart pane in the upper left part of the application window,
+the thorax pane in the upper right part of the application window,
+the TMP pane in the lower left part of the application window and
+the leads pane in the lower right part of the application window.
+The boundaries between the panes may be shifted by dragging the left mouse button. For each pane
+there is a menu item on the menu bar. The options in each menu
+control what is displayed in the corresponding pane.
+The most frequently used functions are also available from
+the tool buttons at the top of the application. To view the function
+of each button, rest the mouse cursor on the button without
+pressing any of the mouse buttons. A short text explaining the
+function of the button will appear.
+The heart and the thorax may be rotated by right mouse button
+dragging. The default, AP view (natural frontal view),
+is restored by a double click of the left or right mouse button.
+By clicking with the left mouse button on the heart surface
+in the heart pane the nearest node on the heart surface is
+selected. The TMP pane shows the
+transmembrane potential at this node. By means of the handlers
+( or
+,
+see het TMP main menu) the parameters of the TMP: depolarization, duration, resting potential,
+source amplitude and slopes at that node and the region around it can be changed.
+The resulting changes are visible in the heart pane
+if the corresponding surface function is selected.
+The effect of these changes on the body surface potentials may be viewed in the
+leads pane and the thorax pane . Again, for the
+thorax pane the corresponding surface function must be selected.
+The status bar at the bottom of ECGSIM shows general information from the application.
+HOME     CONTACT US     TOP OF THIS PAGE

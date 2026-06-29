@@ -1,0 +1,36 @@
+ECGSIM Manual: Help
+|
+Contents
+|
+ecgsim home  |
+ECGSIM Manual
+Help
+There are 4 ways to obtain help in ECGSIM:
+For a comprehensive manual, choose Manual from the Help
+menu. This way you will
+start the built-in manual browser. While the manual browser is active, you may
+continue to operate ECGSIM, enabling you to experiment
+while consulting the manual.
+The manual browser is locked while a dialog window is activated. (We plan to
+remove this constraint in a later release).
+If you choose What's this? from the Help menu, the mouse
+pointer changes into a question mark. You may then move the mouse cursor to the
+object within ECGSIM about which you wish to know more, and then
+click on the left mouse
+button. A brief text with an explanation of the object's function
+will appear.
+You can determine the function of the tool buttons at the top of each pane by
+resting the mouse above them for a moment. A brief text with an
+explanation of the function
+of the button will appear.
+The dialog windows in ECGSIM contain a button with a question mark in the
+title bar. If you press this button, the mouse cursor changes into a question
+mark. If you now click on an element of the dialog window, a brief text
+with an explanation of the function of the element will appear.
+The web site www.ecgsim.org provides
+additional information as well as the most recent version of ECGSIM.
+You can determine
+the version you are currently working with by choosing About
+ecgsim in the Help menu.
+Should you find a bug in ECGSIM, please report it to
+.

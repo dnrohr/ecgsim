@@ -1,0 +1,172 @@
+<html>
+<head>
+<title>
+ECGSIM Manual: Thorax
+</title>
+<style type="text/css"><!--
+h3.fn,span.fn { margin-left: 1cm; text-indent: -1cm; }
+a:link { color: #0000ff; text-decoration: none }
+a:visited { color: #004faf; text-decoration: none }
+body { background: #ffffff; color: black; }
+--></style>
+</head>
+<body>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr bgcolor="#E5E5E5">
+<td valign=center>
+ &nbsp;&nbsp;| <a href="index.html">
+<font color="#0000ff">Contents</font></a>
+ | <a href="http://www.ecgsim.org">
+<font color="#0000ff">ecgsim&nbsp;home</font></a>&nbsp;|
+</td>
+<td valign="center">
+<b><font size="15">ECGSIM Manual</font></b>
+</td>
+<td align="right" valign="center">
+<img src="ecgsim_s.gif" align="right" border="0"></td></tr></table>      
+
+<h2>
+Thorax
+</h2>
+
+The thorax pane is used to display the geometry of the thorax, and any of a wide
+range of functions on the thorax surface. If a node on the thorax is selected,
+it is shown by a black patch on the surface.
+<p>
+What exactly is displayed in the thorax pane and how, is controlled by the
+various menu options
+available from the <tt>Thorax</tt> entry on the menu bar: 
+<ul>
+<li> <a href="#surface"><tt>Surface function</tt></a>;
+<li> <a href="#options"><tt>Display options</tt></a>;
+<li> <a href="#scale"><tt>Scale</tt></a>;
+<li> <a href="#orientation"><tt>Orientation</tt></a>.
+</ul>
+<a href="#actions">Mouse actions</a> in the thorax pane are reflected 
+in this pane and may also have an effect on the other ones.
+<p>
+
+The contents of the thorax pane is copied onto the <a href="clipboard.html">
+clipboard</a> by selecting <tt>Copy</tt> from the <tt>Thorax</tt> menu, or by
+pressing <tt>Ctrl-C</tt> while the mouse is within the thorax pane. 
+
+<h3>
+<a name="surface"></a>
+Surface function
+</h3>
+The item <tt>Surface function</tt> in the <tt>thorax</tt> menu brings up a
+dialog window, with which you may choose the function to be displayed
+on the thorax surface.
+Available are the simulated potentials (i.e. the potentials that result from
+the transmembrane potentials at the heart as set by the user), the reference
+(i.e. measured) potentials, and the 
+<a href="transfer.html"> transfer function</a>.
+
+<p>
+The most frequently used surface functions may also be activated by clicking on
+the corresponding button on the tool bar at the top of the thorax pane.
+<p>
+If surface potentials are displayed in the thorax pane, the
+status bar indicates the time instant for which the potentials are displayed.
+You may press the up and down arrow keys to in- and decrease the time by steps
+of milliseconds. Use the page up and page down keys for in- and decrements with
+steps of ten milliseconds. Also, you may click in the <a
+href="membrane.html">membrane</a> or in the
+<a href="ecgs.html">ECGs</a> pane to select the
+time instant for which you wish the potentials to be displayed. Finally, you
+may use the <a href="movie.html">movie</a> option to view the development
+of the potentials in time as a movie.
+<h3>
+<a name="options"></a>
+Display options
+</h3>
+The item <tt>Display options</tt> in the <tt>Thorax</tt> menu brings up a
+dialog window, from which you may select how the thorax and the surface function are
+displayed. There are two tabs: the <a
+href="#optionsgeometry"><tt>Geometry</tt> tab</a> that controls the geometry 
+options, and the <a
+href="#optionsfunction"><tt>Surface function</tt> tab</a> 
+that controls the surface function options.
+<h4>
+<a name="optionsgeometry"></a>
+Display options: Geometry
+</h4>
+In the <tt>Geometry</tt> tab you may determine whether you want the
+heart, lungs, thorax and precordial electrodes to be displayed, 
+and whether you want them to be transparent or opaque.
+<p>
+If a function is mapped on
+the thorax using a color code, the surface will always remain opaque, as a
+colored transparent thorax is too confusing. If you want to map a function on the
+thorax while being able to see through the surface, use <a
+href="#optionsfunction">isofunction lines only</a>.
+<p>
+The heart vector and vector loop (according to the <a
+href="ecgs.html#display">Frank Leads</a>) for the simulated data may be
+displayed by choosing <tt>opaque</tt> for the corresponding items. The scale of
+the vector is 20 cm/mV times the scale factor of the signals in the <a
+href="ecgs.html">ECGs pane</a>. Change the size of the displayed vector by
+changing the <a href="ecgs.html#scale"> scale in the ECGs pane</a>.
+<p>
+Also, you may choose whether the grid and/or 
+the nodes that make up the discretized thorax are to be displayed.
+<h4>
+<a name="optionsfunction"></a>
+Display options: Surface function
+</h4>
+The <tt> surface function</tt> tab allows you to determine how the function is
+displayed; by a color map, isofunction lines, or both. Also, you may determine
+whether the light effect should be active when using a color map display. The
+light effect gives a three-dimensional impression of the geometry of the thorax,
+but it also renders the colors on the surface less bright.
+
+<h3>
+<a name="scale"></a>
+Scale
+</h3>
+The item <tt>Scale</tt> in the <tt>thorax</tt> menu brings up a
+dialog window, by which you set the scale for the various surface functions that can
+be plotted on the thorax surface. This dialog window may also be started by clicking
+on the <tt>Scale</tt> button on the thorax tool bar.
+
+<h3>
+<a name="actions"></a>
+Mouse actions in the thorax pane
+</h3>
+
+<h4>
+Orientation
+</h4>
+You may rotate the thorax by left-mouse dragging, i.e. move the mouse while
+holding the left mouse button down. By rotating the mouse wheel, the thorax
+rotates along an axis perpendicular to the screen. 
+If you press the shift key
+simultaneously, the angle by which the thorax rotates with each click of the mouse 
+wheel becomes smaller.
+<p>
+You may go back to
+the standard frontal view by clicking on the <tt>reset orientation</tt> button
+on the tool bar.
+<p>
+
+<h4>
+<a name="select">Selection
+</h4>
+A node at the thorax is selected by clicking with the right mouse button on the
+thorax surface. The node nearest to the "click" is selected, as shown by a
+black patch on the surface. Only one node may be selected at a time. If you
+select another node, the previous one is deselected. If you click on the right
+mouse button outside the thorax, the currently selected node is deselected.  
+<p>
+If a function is mapped on the thorax surface, the value at the
+selected node is displayed on the status bar of the thorax pane. If the geometry
+is displayed, the index of the selected node is displayed
+(the node index corresponds to the row in which the surface potentials for that
+node are <a href="file.html#save">saved</a>).
+<p>
+In the <a href="ecgs">ECGs pane</a> you may choose to
+display just the (single) ECG at the selected node.
+
+</body>
+</html>

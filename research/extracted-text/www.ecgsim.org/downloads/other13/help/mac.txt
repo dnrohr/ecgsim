@@ -1,0 +1,12 @@
+ECGSIM Manual: Mac users
+|
+Contents
+|
+ecgsim home  |
+ECGSIM Manual
+Mac users
+This manual refers to left, right and middle mouse buttons.
+The standard mac has only a single mouse button. This signal button is
+equivalent to the left mouse button mentioned in this manual. The equivalent
+for the right button is ctrl+button, and the equivalent for the middle button
+is alt+button.

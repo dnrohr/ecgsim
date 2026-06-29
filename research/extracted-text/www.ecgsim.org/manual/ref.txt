@@ -1,0 +1,86 @@
+ECGSIM Manual: References
+HOME INTRODUCTION DOWNLOADS MANUAL ABOUT US
+Introduction Basic Usage Heart Thorax TMP Leads Tools Focus Preferences Case Files Versions Download case files Update ECGSIM Publications License terms
+References
+ECGSIM (QRS + T wave)
+A. van Oosterom, T. Oostendorp:
+ECGSIM; an interactive
+tool for studying the genesis of QRST waveforms. Heart 2004, 90,
+165-168.
+A. van Oosterom, G. Windau, G.J.M Huiskamp: Simulation on a PC of the
+QRS-T wave forms. In: Electrocardiology '93 edt: P.W. Macfarlane P.
+Rautaharju World Scientific, Singapore, 1994, 97-100.
+van Dam PM, Oostendorp TF, Linnenbank AC, van Oosterom A. Non-Invasive
+Imaging of Cardiac Activation and Recovery. Annals of Biomedical
+Engineering 2009;37(9):1739-56.
+ECGSIM (P wave only)
+van Dam PM, van Oosterom A. Atrial Excitation Assuming Uniform Propagation.
+Journal of Cardiovascular Electrophysiology 2003;14(s10):S166-S71.
+ECGSIM (QRS only)
+A. van Oosterom: Interactive simulation of the QRS wave forms. In:
+Images of the Twenty-first Century. Proc. of the Annual Internat. Conf. of the
+IEEE Eng. in Med. and Biol. Soc. edt: Y. Kim, F.A. Spelman IEEE
+Publishing Services, New York, 1989, 183-184.
+The forward transfer; matrix A:
+A. van Oosterom, G.J.M. Huiskamp: The Effect of Torso Inhomogeneities on
+Body Surface Potentials. J. of Electrocardiol. 1989, 22/1,1-20.
+van Dam PM, van Oosterom A. Volume conductor effects involved in the genesis
+of the P wave. Europace 2005;7:S30-S8.
+The computed timing of depolarization
+J.J.M. Cuppen, A. van Oosterom: Model studies with the inversely
+calculated isochrones of ventricular depolarization. IEEE Trans. Biomed.
+Eng 1984, BME-31, 652-659.
+G.J.M. Huiskamp, A. van Oosterom: The depolarization sequence of the human
+heart surface computed from measured body surface potentials. IEEE Trans.
+Biomed. Eng. 1988, BME-35, 1047-1058.
+van Dam P, Oostendorp T, van Oosterom A. Application of the fastest route
+algorithm in the interactive simulation of the effect of local ischemia on
+the ECG. Medical & Biological Engineering & Computing 2009;47(1):11-20.
+The computed timing of repolarization
+A. van Oosterom, G. Windau, G.J.M. Huiskamp: Simulation on a PC of the
+QRS-T wave forms. In: Electrocardiology '93 edt: P.W. Macfarlane,
+P.Rautaharju World Scientific, Singapore, 1994, 97-100.
+A. van Oosterom:
+Genesis of the T-wave as based on an Equivalent Surface Source Model
+.
+J. Electrocardiol. 34S, 2001, 217-227.
+The basic elements of T-wave modeling
+A. van Oosterom:
+Genesis of the T-wave as based on an Equivalent Surface Source Model
+.
+J. Electrocardiol. 34S, 2001, 217-227.
+K. Harumi, M.J. Burgess, J.A. Abildskov: A Theoretic Model of the T Wave.
+Circulation XXIV, 657-668, 1966.
+D.B. Geselowitz: On the Theory of the Electrocardiogram
+Proceedings IEEE 77/6, 857-876, 1989.
+D.B. Geselowitz: Description of cardiac sources in anisotropic cardiac
+muscle. Application of bidomain model. J. Electrocardiol. 1992, 25S,
+65-67.
+A. van Oosterom:
+The Equivalent Surface Source Model in its Application to the T Wave
+.
+Electrocardiology'01 2002, C. A. Pastore, 527-535.
+A. van Oosterom:
+The Dominent T-wave and its Significance.
+J Cardiovasc Electrophysiol 2003, 14S, 180-187.
+ECGSIM in education and research
+van Huysduynen BH, Swenne CA, Draisma HH, Antoni ML, Van De Vooren H, Van
+Der Wall EE, et al. Validation of ECG indices of ventricular repolarization
+heterogeneity: a computer simulation study.
+J Cardiovasc Electrophysiol 2005;16(10):1097-103.
+van Huysduynen BH, Swenne CA, Bax JJ, Bleeker GB, Draisma HH, van Erven L,
+et al. Dispersion of repolarization in cardiac resynchronization therapy.
+Heart Rhythm 2005;2(12):1286-93.
+Patuwo T, Wagner GS, Ajijola O. Comparison of Teaching Basic
+Electrocardiographic Concepts with and without ECGSIM: An Interactive Program
+for Electrocardiography. In: Computers in Cardiology 2007. Durham NC; 2007.
+Kesek M, Gustavsson O, Wiklund U. Nondipolar content of T wave derived from a
+myocardial source simulation with increased repolarization inhomogeneity.
+Ann Noninvasive Electrocardiol 2009;14(2):185-92.
+Galeotti L, Strauss DG, Ubachs JF, Pahlm O, Heiberg E. Development of an
+automated method for display of ischemic myocardium from simulated
+electrocardiograms. J Electrocardiol 2009;42(2):204-12.
+van Dam P M, Oostendorp T F, van Oosterom A.
+Interactive Simulation of the Activation Sequence: replacing Effect by Cause.
+Computers in Cardiology 2011 ; Hang Zou, China: IEEE Computer Society Press.
+HOME     CONTACT US     TOP OF THIS PAGE

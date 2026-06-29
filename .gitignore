@@ -1,0 +1,7 @@
+ECGsim-3.0.1/
+
+# Local ECGSIM application packages/installers are reference binaries, not repo material.
+*.dmg
+*.exe
+ECGsim-*.zip
+ECGSim-*.zip

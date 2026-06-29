@@ -1,0 +1,8 @@
+# Preserve archived third-party/source material exactly as collected.
+research/source/** -text
+research/source_checksums.csv text eol=lf
+research/download_manifest.csv text eol=lf
+
+# Keep project documentation predictable across platforms.
+*.md text eol=lf
+*.csv text eol=lf

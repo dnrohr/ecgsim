@@ -1,0 +1,42 @@
+ECGSIM Downloads: The Program (ECGSIM)
+HOME INTRODUCTION DOWNLOADS MANUAL ABOUT US
+The Program (ECGSIM) Tutorial Cases Other Material
+THE PROGRAM (ECGSIM)
+ECGSIM is distributed under the terms of the
+Creative Commons GNU general public license .
+Registration (optional)
+We would appreciate it if you would fill in the form below, so we can keep
+track on how many people have downloaded ECGSIM.
+Note: if you have registered before, there is no need to fill in this form
+again.
+Name:
+Institute:
+E-mail address:
+I want to be informed about new releases of ECGSIM
+Support the Development of ECGSIM
+Downloading the program is free, but if you would like to support the development of ECGSIM financially, please fill in this form.
+Download the ECGSIM Program
+Follow the links below to download the various releases of ECGSIM for
+your operating system of choice.
+Release 3.0.1 (December 2019)
+Windows
+Mac OS X
+Release 3.0.0 (June 2014)
+Windows
+Mac OS X
+Release 2.2.1 (January 2013)
+Windows
+Mac OS X
+Release 2.1.1 (February 2011)
+Windows
+Mac OS X
+Release 1.4 (May 2023)
+This release was added on request in order to provide extended possibilities for MCG simulations.
+Windows
+Release 1.3 (September 2009)
+Windows
+Mac OS X
+Changes
+List of changes between different
+versions of ECGSIM.
+HOME CONTACT US TOP OF THIS PAGE

@@ -1,0 +1,23 @@
+ECGSIM Manual: Movie
+|
+Contents
+|
+ecgsim home  |
+ECGSIM Manual
+Movie
+If surface potentials are displayed in the heart or thorax panes, you may start up a movie in which the
+surface potentials are shown for subsequent time instances. During the movie
+vertical yellow lines in the membrane and ECGs panes indicate the time instant for which the
+potentials are displayed.
+You may start the movie by selecting Start from the movie
+menu. You may also start the movie by clicking on the Start/stop movie tool
+button in the thorax pane.
+Movie properties
+The movie parameters are controlled from the Movie properties dialog
+window, which is activated from the Movie menu.
+By default, the start and end
+of the movie coincide with the first and last time instant shown in the ECGs pane. By unchecking the Lock to ECG span ,
+the Start/end slider in the Movie properties is enabled, and
+may be used to set the span of the movie.
+The speed slider controls the movie speed, which may be varied from 10
+ms/s to 1000 ms/s (i.e. real time).

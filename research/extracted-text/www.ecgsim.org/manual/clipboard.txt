@@ -1,0 +1,13 @@
+ECGSIM Manual: Clipboard
+HOME INTRODUCTION DOWNLOADS MANUAL ABOUT US
+Introduction Basic Usage Heart Thorax TMP Leads Tools Focus Preferences Case Files Versions Download case files Update ECGSIM Publications License terms
+Clipboard
+The clipboard may be used to copy the content from one application to another. In
+ECGSIM, you may copy the content in any of the four panes as an image onto the
+clipboard by pressing <Ctrl> -C while the mouse is within the
+pane, or by selecting -Copy- from the main menu item -Edit- and
+then choose the item that corresponds to the pane to copy.
+From the clipboard the image may be pasted into other applications. However,
+ECGSIM should still be running at the time that you paste the image. ECGSIM may
+be minimized during the paste operation.
+HOME     CONTACT US     TOP OF THIS PAGE

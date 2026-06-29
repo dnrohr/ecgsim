@@ -1,0 +1,319 @@
+<html>
+<head>
+<title>
+ECGSIM Manual: Membrane
+</title>
+<style type="text/css"><!--
+h3.fn,span.fn { margin-left: 1cm; text-indent: -1cm; }
+a:link { color: #0000ff; text-decoration: none }
+a:visited { color: #004faf; text-decoration: none }
+body { background: #ffffff; color: black; }
+--></style>
+</head>
+<body>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr bgcolor="#E5E5E5">
+<td valign=center>
+ &nbsp;&nbsp;| <a href="index.html">
+<font color="#0000ff">Contents</font></a>
+ | <a href="http://www.ecgsim.org">
+<font color="#0000ff">ecgsim&nbsp;home</font></a>&nbsp;|
+</td>
+<td valign="center">
+<b><font size="15">ECGSIM Manual</font></b>
+</td>
+<td align="right" valign="center">
+<img src="ecgsim_s.gif" align="right" border="0"></td></tr></table>      
+
+<h2>
+Membrane
+</h2>
+
+The membrane pane displays the transmembrane potential at the selected node of
+the heart surface. If desired, the <a href="#elgram">electrogram</a> at that 
+node may also be displayed.
+
+<p>
+The sliders allow the
+user to change the parameters describing the 
+transmembrane potential:
+the depolarization time (the fast onset of the action potential), the
+repolarization time (defined as the moment of maximum down-slope during
+repolarization), and the magnitude of the action potential.
+The action potential duration that results is taken to be
+the difference between the specified repolarization and depolarization times.
+
+<p>
+
+The left knob of the slider pair beneath the plot allows the user to specify
+the onset (dep) of the action potential at the selected node.
+The right knob affects the depolarization time (rep).
+When the left slider knob is moved the 
+right one moves along. In this way the action potential duration (apd)
+remains constant. Moving the right knob sets the repolarization timing (rep)
+only. This also affects the duration since rep = dep+apd. The numbers shown
+indicate (from left to right): dep, apd and rep.
+
+<p>
+
+The slider on the right is used to change the action potential magnitude,
+expressed as a fraction of its normal value.
+
+<p>
+
+If the user changes the source parameters, the
+effect on the ECG is immediately visible in the
+other panes, provided that the appropriate functions have been selected.
+
+<p>
+
+The <tt>Membrane</tt> menu on the menu bar contains the following entries: 
+<ul>
+<li> <a href="#undo"><tt>Undo</tt></a>;
+<li> <a href="#undo"><tt>Undo all</tt></a>;
+<li> <a href="#elgram"><tt>Show electrogram</tt></a>;
+<li> <a href="#focus"><tt>Focus</tt></a>;
+<li> <a href="#range"><tt>Range</tt></a>;
+<li> <a href="#maxrep"><tt>Maximum repolarization time</tt></a>;
+<li> <a href="#statistics"><tt>Statistics</tt></a>;
+<li> <a href="#shape"><tt>Repolarization waveform</tt></a>.
+</ul>
+
+<p>
+The image shown in the membrane pane may be copied to the <a href="clipboard.html">
+clipboard</a> by selecting <tt>Copy</tt> from the <tt>Membrane</tt> menu, or by
+pressing <tt>Ctrl-C</tt> while the mouse is within the membrane pane. 
+
+
+<h3>
+<a name="focus"></a>
+Focus
+</h3>
+
+If you choose <tt>Focus</tt> from the <tt>Membrane</tt> menu, the currently
+selected node on the heart surface will be a focus of depolarization. A
+dialog window will appear that allows you to control the
+parameters (e.g. propagation velocity) of the depolarization
+wave front starting from this focus.
+
+<p>
+
+In this dialog window, you may set the depolarization time of the
+focus, and the speed of the depolarization wave front started from this focus.
+Furthermore you may choose whether the selected node should be the
+only focus of depolarization (<tt>Replace current activation sequence</tt>), or
+whether the node should be an additional focus (<tt>Add to current activation
+sequence</tt>). In the latter case the original depolarization times will be
+retained for nodes that are reached by the new depolarization wave front
+at a later time than its original depolarization time.
+
+<p>
+
+If a focus of depolarization is defined on the heart surface, the 
+repolarization time rep(n) of each node n is set as follows:
+<p><tt>
+rep(n) = dep(n) + OldDur(n) + 0.4 (OldDep(n)-OldMeanDep) - 0.4 (dep(n)-MeanDep),
+</tt><p>
+where OldDur(n) is the original action potential duration of node n 
+(i.e: before the focus was defined), OldDep(n) is the original depolarization
+time of node n, and MeanDep and OldMeanDep are, respectively, the new and
+original mean depolarization times.
+
+<p>
+
+This, heuristic, assignment of repolarization times is based on the
+following arguments. The original distribution of the action potential duration
+is partially an expression of the intrinsic characteristics of the myocardium.
+For another part it is the result of
+the distribution of the activation times, where regions that depolarize early
+tend to repolarize late. Hence the new action potential duration is set the
+original one, plus a term that is negative is the new activation time is later
+than before, and vise versa.  The weight factor 0.4 is based on the
+statistical relation between depolarization and repolarization times described
+in <a href=ref.html#gentwave>Genesis of the T-wave as based on an
+Equivalent Surface Source Model</a> listed in the <a
+href="ref.html">references</a> section.
+
+<p>
+
+<h3>
+<a name="range"></a>
+Range
+</h3>
+
+The parameter values of nodes within a certain range around the selected 
+node are also adapted.
+The relative amount by which these node values change changes from one at the
+selected node to zero at the edge of the range. 
+
+<p>
+
+The size of the range is controlled by the range dialog window, which may be activated
+from the <tt>membrane</tt> menu. In this dialog window you may also choose whether you
+want to compute the range through the myocardium, or along the myocardial
+surface. In this way various myocardial malfunctions may be modeled. For
+instance, a bundle branch block would affect both epicardium and endocardium
+in roughly the same way. So here one would choose
+the range through the myocardium.
+On the other hand, hypertrophy, may be modeled by increasing the activation
+times at the epicardium only. In such cases one would want to restrict the
+range to the epicardial surface.
+<p>
+As an alternative, you may also set the size of the range by clicking with the
+middle mouse button (or, if your mouse doesn't have a middle button, clicking
+with the right mouse button while holding down the <tt>shift</tt> key) on the 
+heart
+surface displayed in the <a href="heart.html">heart pane</a> (see <a
+href="heart.html#range">Setting the range</a> for details).
+
+<p>
+
+<!--
+Note: Changing the range affects changes you will to the source parameter in
+the future; it does not affect changes you have made in the past.
+-->
+Note: if you first change some parameter(s) of the selected node, and
+subsequently change the range, the changes will be recomputed for the new
+range. If you don't want this (e.g, if you want to make new changes on top of
+the old ones for a different range), first select another node and then come
+back to this node.
+
+<p>
+
+<h3>
+<a name="undo"></a>
+Undo
+</h3>
+
+Recent changes may be undone by selecting <tt>Undo</tt> from the
+<tt>Membrane</tt> menu, or by clicking on the <tt>Undo</tt> tool button on the
+tool bar at the top of the membrane pane.
+
+<p>
+
+By selecting <tt>Undo All</tt>, or clicking on the <tt>Undo All</tt> tool
+button, all changes made since the start of the program or since the last time
+a source parameters file was <a href="file.html#open">opened</a> are
+undone.
+Once you have opened a source parameter file, you may go back to the default
+source parameters (i.e. the ones with which the program starts) by selecting
+<tt>Default</tt> from the <a href="file.html"><tt>File</tt></a> menu.
+
+<p>
+
+<h3>
+<a name="elgram"></a>
+Show electrogram
+</h3>
+You may use this option in the membrane menu to show and hide the 
+electrogram at the selected node on the heart surface.
+
+<p>
+
+<h3>
+<a name="maxrep"></a>
+Maximum repolarization time
+</h3>
+
+By default, the maximum value for the repolarization time of any node is 500
+ms. This is adequate for most cases, but in some cases, e.g. the
+simulation of the long QT syndrome, later depolarization times are needed.
+<p>
+
+By selecting <tt>Maximum repolarization time</tt> from the <tt>Membrane</tt>
+menu, a dialog window is opened that allows the user to choose between the
+values 500 ms and 1000 ms for the maximum repolarization time. All sliders
+involving depolarization time or action potential duration are adapted to
+the selected maximum repolarization time.
+<p>
+
+When reducing the maximum repolarization time from 1000 ms to 500 ms, there may
+be nodes that have a repolarization time beyond the new maximum. If such is the
+case, the user is prompted to consider
+whether these values should be clipped to 500 ms.
+<p>
+
+If a source parameter set loaded from file (see <a href="file.html#opensource">
+Open: Source parameters</a>) contains repolarization times beyond 500 ms, the
+maximum repolarization time is automatically set to 1000 ms.
+
+<p>
+
+<h3>
+<a name="statistics"></a>
+Statistics
+</h3>
+
+By selecting the <tt>Statistics</tt> item from the <tt>Membrane</tt> menu,
+a dialog window is opened that displays information about some basic
+statistics of the timing parameters. In addition it allows the user to scale 
+these statistics. This is effected by merely scaling and/or shifting the
+involved source parameters, while keeping the pattern of their distribution in
+tact.
+
+<p>
+
+The dialog window contains a table that displays the mean, standard deviation,
+minimum, and maximum of the depolarization times, repolarization
+times, and action potential durations.
+
+<p>
+
+The dialog window also contains sliders to scale the means and dispersions
+(standard deviations) of these timing parameters. The result of these changes
+are immediately visible in the various panes. Note that while this dialog
+window is being displayed, all controls outside the dialog window are inactive.
+
+<p>
+
+The size of the sliders and slider knobs are automatically adjusted to ensure
+that no non-valid values of the timing parameters are generated (i.e.
+depolarization before 0 ms, repolarization beyond 500 ms, or action potential
+duration less than 50 ms). Also, scaling of the depolarization dispersion will
+lead to changes in the action potential duration dispersion and vice versa
+(recall: for each node the repolarization time is equal to the depolarization
+time plus the action potential duration: rep = dep + apd).
+
+<p>
+
+<h3>
+<a name="shape"></a>
+Repolarization waveform
+</h3>
+
+When ECGSIM starts, the overall waveform of the repolarization is computed
+by integrating and averaging the T-wave of the reference ECG, as described in
+<a href=ref.html#gentwave>Genesis of the T-wave as based on an
+Equivalent Surface Source Model</a>, listed in the <a
+href="ref.html">references</a> section.
+Subsequently, this waveform is adapted to fit the depolarization and
+repolarization time of each node at the heart.
+
+<p>
+
+By selecting the <tt>Repolarization waveform</tt> item from the 
+<tt>Membrane</tt> menu, the overall waveform is recomputed from the
+dominant T wave estimated from the 
+current reference ECG (see <tt><a href="file.html#openref">File, Open: 
+Reference surface potentials</a></tt>). Furthermore, a dialog window appears
+containing a slider by which the steepness of the down slope may be changed,
+as percentage of the slope that was computed from the reference ECG.
+
+<p>
+
+<h3>
+Time instant selection
+</h3>
+
+If surface potentials are displayed in the <a href="heart.html">heart</a> or <a
+href="thorax.html">thorax</a> panes, a vertical yellow line in the membrane
+pane indicates the time instant for which the potentials are displayed.  If you
+click on the left mouse button within the membrane pane, the potentials for the
+corresponding time instant are displayed in the thorax pane.  You may also
+press the up and down arrow keys to in- and decrease the time by steps of
+milliseconds, and the page up and page down keys for in- and decrements with
+steps of ten milliseconds. 
+
+</body>
+</html>

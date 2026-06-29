@@ -1,0 +1,99 @@
+ECGSIM Manual: Alternative geometry
+|
+Contents
+|
+ecgsim home  |
+ECGSIM Manual
+Alternative geometry
+Introduction
+You can replace the default (heart and torso) geometry set built into ECGSIM by
+a set you constructed yourself. You will then also have to supply the
+corresponding transfer function , the distance matrices
+used to compute along the heart surface or through the myocardium (see range , and the nodes of the thorax that
+correspond to the standard ECG leads. You may also supply corresponding
+reference ECGs, and the nodes at the thorax that correspond to the Frank leads
+(in order to be able to display VCGs).
+This section of the manual describes how to incorporate you're alternative
+geometry data into ECGSIM, and the formats of the files involved.
+Examples of the files may be downloaded
+from www.ecgsim.org/downloadalt.html .
+At the time
+of writing, you will have to construct these files by yourself, but in the
+future tools may be available from www.ecgsim.org (e.g. tools to compute the
+transfer matrix and the distance matrices) .
+Loading alternative geometry data into ECGSIM
+In order to load the alternative geometry data in ECGSIM, you must specify the
+file names in the command line by starting ECGSIM in the following way:
+ecgsim -alt TransferFile SourceFile heartFile SurfDistFile VolDistFile
+ThoraxFile StdLeadsFile LungsFile
+with
+file
+format
+description
+TransferFile
+matrix
+contains the MCG transfer matrix
+SourceFile
+matrix
+contains initials source parameters
+heartFile
+geometry
+contains the triangulated heart
+SurfDistFile
+matrix
+contains the distance between nodes at the heart measured along the surface of
+the myocardium
+VolDistFile
+matrix
+contains the distance between nodes at the heart measured through the
+myocardium
+ThoraxFile
+geometry
+contains the triangulated torso
+StdLeadsFile
+see below
+contains
+LungsFile
+geometry
+contains the triangulated lungs (may be omitted)
+When using the -alt option, you also want to use the -ref
+option in order to supply an appropriate reference ECG (see below).
+Examples of the various files may be downloaded from www.ecgsim.org .
+Starting ECGSIM with an alternative reference ECG
+In order to start ECGSIM with an alternative reference ECG, you must specify the
+file name of the reference ecg in the command line in the following way:
+ecgsim -ref ReferenceFile
+ReferenceFile is the name of the file containing the reference ECG.
+Its format is the standard matrix format (as used
+by ECGSIM in saving surface potentials). Each row represents the ECG as a
+function of time at the corresponding vertex of the thorax. Consequently, the
+number of rows must match the number of vertices of the thorax.
+In the unix version you may just type the command line as described above.
+In the Windows version you must include the -alt command line option in
+a short-cut by which ECGSIM is started. For that purpose, right-click on the short-cut, and
+add the -alt option and its parameters to the command line (after
+ecgsim.exe ). You may want to create a separate short-cut for this
+purpose. If you don't give the full path of the files, ECGSIM will look for
+them in the " start in " folder defined in the short-cut.
+Format of "Standard Leads" files
+A "Standard Leads" file must have the following format:
+8
+1
+v(1)
+2
+v(2)
+.
+.
+.
+.
+8
+v(8)
+v(1) to v(6) indicate the index of the vertex at the thorax at which v1 to
+v6 are located. v(7) indicates the vertex to which VR is assigned, and v(8) the
+vertex to which VL is assigned (usually the tip op the right and left shoulder
+respectively).
+aVR and aVL are constructed by multiplying the potential at
+v(7) and v(8) by 1.5. aVF is constructed as follows: aVF=-aVR-aVL (note that
+this assumes the transfer matrix is referenced to Wilson Central Terminal).
+The potential at lead I is constructed by taking the potential at v(8) minus
+the one at v(7). Leads II and III are constructed in a simular fashion.

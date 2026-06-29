@@ -1,0 +1,134 @@
+<html>
+<head>
+<title>
+ECGSIM Manual: Introduction
+</title>
+<style type="text/css"><!--
+h3.fn,span.fn { margin-left: 1cm; text-indent: -1cm; }
+a:link { color: #0000ff; text-decoration: none }
+a:visited { color: #004faf; text-decoration: none }
+body { background: #ffffff; color: black; }
+--></style>
+</head>
+<body>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr bgcolor="#E5E5E5">
+<td valign=center>
+ &nbsp;&nbsp;| <a href="index.html">
+<font color="#0000ff">Contents</font></a>
+ | <a href="http://www.ecgsim.org">
+<font color="#0000ff">ecgsim&nbsp;home</font></a>&nbsp;|
+</td>
+<td valign="center">
+<b><font size="15">ECGSIM Manual</font></b>
+</td>
+<td align="right" valign="center">
+<img src="ecgsim_s.gif" align="right" border="0"></td></tr></table>      
+
+<h2>
+Introduction	
+</h2>
+
+ECGSIM is an interactive simulation program that enables its users
+to study the
+relationship between the electric sources of the ventricular myocardium
+and the resulting potentials on the thorax (QRST waveforms as well
+as body surface potential maps) and on the heart surface (electrograms,
+potential maps, and maps of the local transmembrane potential). Note that both
+the depolarization and the repolarization phase are covered, but not the
+electric activity of the atria.
+      
+<p>
+	
+One of our objectives for ECGSIM is to serve as a research
+tool for those interested in testing
+any hypothesis they may have regarding the manifestation of cardiac
+malfunctioning in the electrocardiographic waveforms on the thorax.
+	 
+<p>
+
+Another objective is for it to serve as an educational tool,
+to be used for students learning the basic aspects of the
+genesis of the electrocardiogram.
+
+<p>
+
+<b>Please note:</b> ECGSIM is not a diagnostic tool. Any diagnostic 
+application is only indirect; ECGSIM
+provides a forward simulation and does not solve the inverse problem.
+
+<p>
+
+ECGSIM simulates electrocardiographic potentials by
+specifying the distribution of the timing of depolarization, dep(n), and
+repolarization, rep(n), of the transmembrane potentials at nodes n, (n=1...N),
+where N is the number of nodes at the surface bounding the ventricles, referred
+to henceforth as the heart surface.
+For every node the difference apd(n)=rep(n)-dep(n) is taken a measure
+of the local action potential duration. 
+The ventricular surface is the closed surface bounding all ventricular
+mass, i.e., endocardium, epicardium and their connection at the base of the
+ventricles. The magnitude of the upstroke of the local transmembrane potential,
+str(n), representing the local source strength, is allowed to be non-uniform.  By
+setting pre-computed values for the parameters dep(n) and rep(n) for each node and
+using a uniform str(n) values, potentials are simulated that closely
+resemble the set of reference values recorded on a healthy subject.
+ 
+<p>
+
+The program allows the interactive changing of the local timing of
+depolarization and repolarization as well as the
+magnitude of the upstroke of the local transmembrane potentials.
+The former two sets of parameters allows one to study the effect of changes
+in local timing, the latter set, the manifestation of local ischemic regions.
+
+<p>
+
+The strength of the cardiac equivalent generator involved
+is the distribution on the heart surface of the local transmembrane potential.
+The transfer used to determine the expression of these sources as body
+surface potentials was computed by
+applying the laws of current flow to an inhomogeneous torso model,
+the geometry of which was based on MRI data.
+
+<p>
+
+The theory used has been developed over the last 30 years, about 20 years of
+which at the <a href="http://www.mbfys.ru.nl">Department of Medical
+Physics</a> of the University of Nijmegen. The simulation package has had
+two predecessors. The current version has been inspired by the enthusiastic
+reactions of the users to which these earlier versions were made available.
+
+<p>
+		  
+ECGSIM was introduced to the scientific community though the paper in HEART
+included in the reference list:
+<a href="ref.html#heartjournal">
+ECGSIM; an interactive tool for studying the genesis of QRST waveforms</a>.
+The theory behind ECGSIM is explained in the papers shown in the
+<a href="ref.html">reference</a> list.
+Whenever you would want to acknowledge the use of ECGSIM, please refer to the
+paper in HEART.
+
+
+<p>
+
+Any comments and suggestions for improvements will be greatly appreciated.
+Please e-mail your comments to 
+<a href="http://www.ecgsim.org/mail-form.php">
+<img src="adres.gif" align="center">
+</a>.
+
+<p>
+
+In response, the package will be developed to (even) greater perfection. Updates will be available from
+<a href="http://www.ecgsim.org">www.ecgsim.org</a>.
+Those of you that have
+indicated their wish during the downloading procedure 
+will be notified about updates.
+You can determine which version you are currently working with by
+selecting <tt>About ecgsim</tt> from the <tt>Help</tt> menu.
+
+</body>
+</html>

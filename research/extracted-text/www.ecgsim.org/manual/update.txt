@@ -1,0 +1,43 @@
+ECGSIM Manual: Update ECGSIM
+HOME INTRODUCTION DOWNLOADS MANUAL ABOUT US
+Introduction Basic Usage Heart Thorax TMP Leads Tools Focus Preferences Case Files Versions Download case files Update ECGSIM Publications License terms
+Update ECGSIM
+ECGSIM is being actively developed resulting in new versions being published on
+www.ecgsim.org .
+New versions can be downloaded and installed manually. Removing previous
+installation is not needed.
+Apart from manually checking and installing, there are two automated ways to check
+for updates and retrieve them.
+Check for updates
+You can check for updates from within the ECGSIM application. This is done by pressing
+the -check for updates- menu item. For Windows this item is located in the
+-Help- main menu item. For OS X it is located in the -application-
+menu.
+When you check for updates, status messages will be shown in the bottom-left corner
+of the application window for approximately 20 seconds.
+Possible message are:
+No update for ECGsim available.
+Unable to connect to the update server. Use ECGsimUpdater manualy.
+If this message is shown the connection failed for some reason. Using the
+ECGsimUpdater application manually may give
+more information.
+Update is disabled in the configuration file. See update.ini.
+If this message is shown you must edit the specified file that is located in
+the application directory and look for the check_for_updates tag.
+This tag must have the value '1'.
+Update or checking for updates failed.
+This message can be caused by a download error, failing to start the installer
+or a general installer error. Using the
+ECGsimUpdater application manually or download and
+perform the installer manually can help.
+If an update is found the following messagebox will popup.
+If <Yes> is pressed the update process will be started. Part of the process
+is that ECGSIM will be closed. To perform the update follow the steps of the update process.
+ECGSIM update
+Part of the ECGSIM package comes an extra standalone application that can be used to check
+for an update.
+When starting the application you are guided through the update process.
+The application will check for an update from the ECGSIM website. If an update is found
+it can be downloaded from one of the downloadlocation specified (if more then one).
+If the download is completed the installer will start automatically.
+HOME     CONTACT US     TOP OF THIS PAGE

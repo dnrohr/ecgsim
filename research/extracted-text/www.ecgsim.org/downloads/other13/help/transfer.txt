@@ -1,0 +1,41 @@
+ECGSIM Manual: Transfer function
+|
+Contents
+|
+ecgsim home  |
+ECGSIM Manual
+Transfer function
+According to the Equivalent Double Layer type of surface source model (see references section), the potential V ( y , t ) at position
+y on the body surface at time t is given by
+V ( y , t ) = int A ( x , y ) S ( x , t ),
+where 'int' denotes the integral of the surface of the ventricular
+myocardium, S ( x , t ) the transmembrane
+potential at position x at the surface of the ventricular
+myocardium at time t , and A ( x , y )
+the transfer function .
+The transfer function relates to the electric volume conductor properties of
+the thorax only. Its values follows from the laws of current flow. The transfer
+function used in ECGSIM has been computed for a heart-thorax model,
+including the inhomogeneities caused by the higher conductivity of blood in the
+cavities and the lower conductivity of the lungs. The relevant geometry is
+derived from the MRI data of the subject whose reference ECG is involved.
+The transfer function A ( x , y ) can be
+displayed on both the heart ( x ) and the thorax ( y ),
+in µV/cm².
+If you want to display the transfer function on the heart surface, you
+first have to select a node on the thorax. Then you can choose
+Transfer function from the surface function dialog from the
+Heart menu. The function displayed (a row of the transfer matrix)
+is the transfer from all points on the
+heart surface to the selected node on the thorax. This function
+can be interpreted as the amount by which the (local) elements
+of the heart surface contribute to the ECG at the node
+selected on the thorax.
+If you want to display the transfer function on the thorax, you
+first have to select a node on the heart surface. Then you may choose
+Transfer function from the surface function dialog from the
+thorax menu. The function displayed (a column of the transfer matrix)
+is the transfer to all points on the
+thorax from the node selected on the heart surface. It can be
+interpreted as the amount by which the selected node on the heart surface
+contributes to the ECG on the thorax.

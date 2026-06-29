@@ -1,0 +1,22 @@
+ECGSIM: The interactive ECG tool for research and education
+HOME INTRODUCTION DOWNLOADS MANUAL ABOUT US
+ECGSIM is an interactive simulation program that enables one to study the
+relationship between the electric activity of the heart
+and the resulting potentials on the thorax: PQRST wave forms as well
+as body surface potential maps.
+It is intended to serve as both an educational and a research tool. In
+education its main application is to help students understand the
+relation between the activity of the heart and the ECG. The typical
+use in research is testing any hypothesis one may have regarding the
+manifestation of cardiac malfunctioning in the electrocardiographic
+wave forms on the thorax.
+More...
+ECGSIM was developed at the Radboud University Medical
+Center , Nijmegen, the Netherlands. The main contributors are prof. dr. Adriaan van
+Oosterom , dr. Thom
+Oostendorp and dr. Peter van Dam .
+ECGSIM is distributed under the terms of the
+Creative Commons GNU general public license
+.
+Free downloads are available for Windows and MacOS X.
+HOME CONTACT US TOP OF THIS PAGE

@@ -1,0 +1,94 @@
+ECGSIM Manual: Thorax
+HOME INTRODUCTION DOWNLOADS MANUAL ABOUT US
+Introduction Basic Usage Heart Thorax TMP Leads Tools Focus Preferences Case Files Versions Download case files Update ECGSIM Publications License terms
+Thorax
+Surface function
+Show/Hide lungs
+Show/Hide electrodes
+Lock to heart
+Scale
+Movie
+Mouse actions
+Display options
+The thorax pane is used to display the geometry of the thorax and any of a
+range of functions on its surface. You may rotate the thorax by right mouse
+dragging, i.e. move the mouse while holding the right mouse button down.
+You may go back to the standard frontal AP view (natural frontal view) by a
+left double mouse click.
+If a node on the thorax is selected, it is shown by a black dot on the surface.
+The electrode positions of the selected lead system (see
+leads ) are shown as grey patches. The figure below
+shows the nine electrodes of the standard 12 lead system.
+The contents of the thorax pane is copied onto the clipboard
+by selecting -Copy- from the main menu item -Edit- and then choose
+-Thorax- , or by pressing <Ctrl> -C while the mouse is
+within the thorax pane.
+You may use the movie option to view the development in time of the
+activation of the heart as ... a movie.
+Surface function
+Default the geometries of the heart, lungs and thorax are shown. Additionally the body
+surface potentials (BSPM) at the selected time can be shown or the sensitivity map (see
+transfer function ).
+Body surface potentials can be displayed for the:
+Is used to show a semi transparent geometry of the thorax. Within this
+thorax the same heart with equal selected
+surface function as shown in the
+heart view is being shown. Default the lungs are shown
+as well but this can be disabled .
+Is used to show the measured Body Surface Potentials Map.
+Is used to show the simulated Body Surface Potentials Map with initial
+parameter settings.
+Is used to show the simulated Body Surface Potentials Map with
+adapted parameter settings.
+Is used to show the sensitivity map on the
+thorax for a probed point on the heart. The sensitivity map can only be shown
+when a probe position is selected on the heart. In
+case no valid probe postion is determined no surface function is displayed on the
+thorax. A notification is also given in the statusbar.
+When viewing a BSPM you may press the left and right arrow keys to step forward/backward in
+time. Alternatively, you may click in the TMP or in the
+ECGs view to select the time instant for which you wish the
+potentials to be displayed.
+Show/Hide lungs
+The lungs can be hidden by selecting this
+option in the -thorax- main menu item and shown again by unselecting this this same option,
+now showing ,
+again.
+Show/Hide electrodes
+The electrodes on the thorax and heart can be shown by selecting this
+option on the toolbar or within the -options- main menu item and hidden again by unselecting this
+same option, now showing ,
+again.
+Lock to heart
+The orientation and rotation of the heart and thorax can be linked by selecting this
+option in the -thorax- main menu item. If this option is enabled rotating the heart will also rotate
+the thorax in the same way and vice versa. Double clicking in the thorax or heart pane will restore the position
+of both the thorax and heart to the initial position.
+Scale
+The amplitude scale may be changed by scrolling with the mouse wheel or by the by the
+arrow up and arrow down keys.
+The arrow keys only work after the thorax pane has obtained the "focus" by
+a mouse click in the thorax pane.
+Movie
+The movie option can be used to view the development of the potentials in time
+as a movie. The movie may be started and stopped by pressing the play/stop button
+in the toolbar.
+The movie loops through the time starting at the beginning of the shown ECG signals up
+to the end of the shown signals (see leads ). When the
+depolarization times are shown on the heart surface the movie shows the progression of
+the activation wave over the heart surface, both in the thorax pane and the heart view.
+Mouse actions
+select thorax node
+This function is only available when a single lead ECG is shown in the
+leads view or when the contribution map
+is selected in the heart view.
+A node at the thorax is selected by clicking with the left mouse button on the thorax
+surface. The node nearest to the "click" is selected, as shown by a black patch on the
+surface. Only one node may be selected at a time.
+If you select another node, the previous one is deselected.
+Display options
+If you want to map a function on the thorax while also seeing through its
+surface, use iso function lines only.
+For selecting any of the available color-codings see
+preferences .
+HOME     CONTACT US     TOP OF THIS PAGE

@@ -1,0 +1,171 @@
+ECGSIM Manual: File
+HOME INTRODUCTION DOWNLOADS MANUAL ABOUT US
+Introduction Basic Usage Heart Thorax TMP Leads Tools Focus Preferences Case Files Versions Download case files Update ECGSIM Publications License terms
+Case Files
+Open
+Open Default
+Download case file
+Save
+open/save source info
+load ECG files
+Export
+Open
+The Open menu item starts up a file open dialog to open any of the available
+files with extension ECGsimcase in the documents folder of the user, e.g. for
+windows the home folder or any location the user navigated to.
+Open default
+The Open menu item starts up a file open dialog to open any of the available
+default ECGsimcase files with extension ECGsimcase in the ECGSIM
+application directory. These files are read only and should not be saved at its original
+location.
+download case files
+On the www.ecgsim.org website
+more case files for ECGSIM can be found and downloaded. To help you open this website
+location in a browser, you can open it from within ECGSIM. This is done by pressing
+the -download case files- menu item. For Windows this item is located in the
+-Help- main menu item. For OS X it is located in the -application-
+menu.
+Save
+The Save menu item saves the case file with extension ECGsimcase . In
+case some function values have been changed these changes are saved. When the file is
+loaded again these changes are visible again.
+It is not possible to save one of the default cases (read only).
+Any applied variation in the parameter settings (included in the case file) may be saved
+under a unique file name.
+Open/Save source info
+The Save Source Info menu item saves the source data (parameter values) of all
+sources within a case file to a seperated file with extension ECGsimsource .
+When the file is loaded again ( Open Source Info ) the stored source parameters
+replace the current ones. If the source file does not match the current case file, no data
+is loaded.
+load ECG file
+With the load ECG file menu item a new ECG file can be
+loaded. This loaded ECG will replace the measured ECG shown in the
+leads view. To reatore the original measured ECG a reload
+of the case file is necessary.
+Export
+This opens a directory dialog, in which all relevant parts of the case file are exported in separate files
+withing a directory structure.
+The following files are saved:
+ECG files
+The sample frequency is 1000 Hz. Generally the number of measured signals is less than the number of thorax nodes.
+The remaining signals were interpolated. The following files will be stored in the ecgs subdirectory:
+the measured ECG ( .refECG Matrix ),
+the simulated ECG with the adpated parameter values ( .adaptECG Matrix ),
+Triangulation files
+The triangulation files ( Geometry ) of:
+atria and ventricles,
+thorax,
+left and right lung.
+left and right blood cavaty.
+will be stored in the model subdirectory.
+Source parameters
+The values of the user adapted source parameters for the atria (if available) and ventricles (if available):
+depolarization times in ms .user.dep ( asci ),
+repolarization times in ms .user.rep ( asci ),
+amplitude in mV .user.ampl ( asci ),
+resting potential in mV .user.rest ( asci ),
+Slopes of depolarization, repolarization and plateau, .user.depslope, .user.repslope,
+and .user.platslope ( asci ).
+will be stored in a, per beat subdirectory ( beat[1-x] ) within the ventricular_beats or
+atrial_beats subdirectory.
+TMP waveforms
+The TMP waveforms at every node on the atria (if available) and ventricles (if available):
+the TMP computed with user adapted parameter settings,
+.user.source ( Matrix ).
+will be stored in a, per beat subdirectory ( beat[1-x] ) within the ventricular_beats or
+atrial_beats subdirectory.
+Lead loactions
+The electrode locations for all lead systems. For example, for the 12 leads system, the electrode positions are
+stored in the order of VR, VL, VF, V1-V6. The following files will be stored in the ecgs subdirectory:
+electrode positions for each lead system ( .elec asci ),
+File Formats
+Matrix
+The format of matrix files is:
+L ( long ),
+T ( long )
+=>
+p(1, 1),
+p(1, 2),
+...,
+p(1, T)
+p(2, 1),
+p(2, 2),
+...,
+p(2, T)
+...
+...
+...
+...
+...
+...
+...
+...
+p(L, 1),
+p(L, 2),
+...,
+p(L, T)
+where L is the number of rows that follow, T is the number of columns
+and p(l,t ) is the data ( float type )
+Asci files
+The format of asci (text) files is:
+L, 1
+=>
+p(1, 1)
+p(2, 1)
+...
+...
+p(L, 1)
+where L is the number of rows that follow and p(l, 1) is the data
+Geometry files
+The format of the files that describe triangulated geometries is as follows:
+npnt
+=>
+1
+x(1),
+y(1),
+z(1)
+2
+x(2),
+y(2),
+z(2)
+...
+...
+...
+...
+...
+...
+...
+...
+npnt
+x(npnt),
+y(npnt),
+z(npnt)
+ntri
+=>
+1
+ind(1, 1),
+ind(1, 2),
+ind(1, 3)
+2
+ind(2, 1),
+ind(2, 2),
+ind(2, 3)
+...
+...
+...
+...
+...
+...
+...
+...
+ntri
+ind(ntri, 1),
+ind(ntri, 2),
+ind(ntri, 3)
+where npnt is the number of nodes, x(i), y(i) and z(i) are the coordinates
+(in meters) of node i, ntri is the number of triangles, and ind(j,1), ind(j,2)
+and ind(j,3) are the indices of the nodes of triangle j. The order of the
+indices for a triangle defines the orientation of the triangle; when viewed from
+the outside the nodes are numbered clockwise.
+HOME     CONTACT US     TOP OF THIS PAGE

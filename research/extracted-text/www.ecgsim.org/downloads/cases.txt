@@ -1,0 +1,26 @@
+ECGSIM Downloads: Cases
+HOME INTRODUCTION DOWNLOADS MANUAL ABOUT US
+The Program (ECGSIM) Tutorial Cases Other Material
+CASES
+This page provides some interesting case
+files that can be opened by ECGSIM.
+WPW patient
+The data on which these cases are based were collected by Gerald Fisher
+(Institute for Biomedical Engineering, University for Health Sciences, Medical
+Informatics, and Technology, Tirol, Austria.)
+and Thomas Berger (Department of Internal Medicine, Division of Cardiology,
+Medical University Innsbruck, Innsbruck, Austria).
+See Berger et al:
+Single-Beat Noninvasive Imaging of Cardiac
+Electrophysiology of Ventricular Pre-Excitation . Journal of the American
+College of Cardiology 48 2045-2052, 2006.
+Combined sinus/WPW beat
+Kent bundle only beat
+ectopic beat
+Normal male
+This is a normal male, 25 years, 100 kg:
+Normal male 2
+User input
+If you have constructed ECGSIM case files that you would like to
+share, please contact us at info@ecgsim.org
+HOME CONTACT US TOP OF THIS PAGE

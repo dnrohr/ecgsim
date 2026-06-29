@@ -1,0 +1,33 @@
+ECGSIM Manual: Transfer function
+HOME INTRODUCTION DOWNLOADS MANUAL ABOUT US
+Introduction Basic Usage Heart Thorax TMP Leads Tools Focus Preferences Case Files Versions Download case files Update ECGSIM Publications License terms
+Transfer function
+The source model implied in ECGSIM is the Equivalent Double Layer (EDL) type of
+surface source model (see references section). Accordingly, the
+potential V(y, t) at position y on the body surface at time t is given by
+V(y,t) = int A(x,y) S(x,t)
+where 'int' denotes the integral over the surface of the ventricular (or atrial)
+myocardium, S(x,t) the
+transmembrane potential at position x at the surface of the ventricular
+myocardium at time t, and A(x,y) the transfer function .
+The transfer function quantifies the (passive) electric volume conductor properties of
+the thorax. Its values follows from the laws of electric current flow. The transfer
+function used in ECGSIM has been computed for a heart-thorax model, including
+the inhomogeneities caused by the higher conductivity of blood in the cavities
+and the lower conductivity of the lungs. The relevant geometry is derived from
+the MRI data of the subject whose reference ECG is involved.
+The transfer function A(x,y) can be displayed on both the
+heart ( x ) and the thorax ( y ), in ÂµV/cmÂ²:
+If you want to display the transfer function on the heart surface (atrial or ventricular), you
+first have to select a node on the thorax. The function displayed (a row of
+the transfer matrix) is the transfer from all points on the heart surface to
+the selected node on the thorax. This function can be interpreted as the
+amount by which the (local) source elements of the heart surface contribute to the
+ECG at the node selected on the thorax.
+If you want to display the transfer function on the thorax, you first have
+to select a node on the heart surface. The function displayed (a column of the
+transfer matrix) is the transfer to all points on the thorax from the node
+selected on the heart surface. It can be interpreted as the amount by which
+the (single) EDL source element at the selected node on the heart surface
+contributes to the potential on the body surface.
+HOME     CONTACT US     TOP OF THIS PAGE

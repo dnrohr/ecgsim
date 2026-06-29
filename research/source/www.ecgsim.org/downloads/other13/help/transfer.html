@@ -1,0 +1,88 @@
+<html>
+<head>
+<title>
+ECGSIM Manual: Transfer function
+</title>
+<style type="text/css"><!--
+h3.fn,span.fn { margin-left: 1cm; text-indent: -1cm; }
+a:link { color: #0000ff; text-decoration: none }
+a:visited { color: #004faf; text-decoration: none }
+body { background: #ffffff; color: black; }
+--></style>
+</head>
+<body>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr bgcolor="#E5E5E5">
+<td valign=center>
+ &nbsp;&nbsp;| <a href="index.html">
+<font color="#0000ff">Contents</font></a>
+ | <a href="http://www.ecgsim.org">
+<font color="#0000ff">ecgsim&nbsp;home</font></a>&nbsp;|
+</td>
+<td valign="center">
+<b><font size="15">ECGSIM Manual</font></b>
+</td>
+<td align="right" valign="center">
+<img src="ecgsim_s.gif" align="right" border="0"></td></tr></table>      
+
+<h2>
+Transfer function
+</h2>
+
+According to the Equivalent Double Layer type of surface source model (see <a
+href="ref.html">references</a> section), the potential <!--<em>-->V<!--</em>-->(<!--<em>-->y<!--</em>-->,<!--<em>-->t<!--</em>-->) at position
+y on the body surface at time t is given by
+
+<p>
+
+<!--<em>-->V<!--</em>-->(<!--<em>-->y<!--</em>-->,<!--<em>-->t<!--</em>-->) = int <!--<em>-->A<!--</em>-->(<!--<em>-->x<!--</em>-->,<!--<em>-->y<!--</em>-->) <!--<em>-->S<!--</em>-->(<!--<em>-->x<!--</em>-->,<!--<em>-->t<!--</em>-->),
+
+<p>
+	
+where 'int' denotes the integral of the surface of the ventricular
+myocardium, <!--<em>-->S<!--</em>-->(<!--<em>-->x<!--</em>-->,<!--<em>-->t<!--</em>-->) the transmembrane
+potential at position x at the surface of the ventricular
+myocardium at time <!--<em>-->t<!--</em>-->, and <!--<em>-->A<!--</em>-->(<!--<em>-->x<!--</em>-->,<!--<em>-->y<!--</em>-->)
+the <em>transfer function</em>.
+
+<p>
+
+The transfer function relates to the electric volume conductor properties of
+the thorax only. Its values follows from the laws of current flow. The transfer
+function used in ECGSIM has been computed for a heart-thorax model,
+including the inhomogeneities caused by the higher conductivity of blood in the
+cavities and the lower conductivity of the lungs. The relevant geometry is
+derived from the MRI data of the subject whose reference ECG is involved.
+
+<p>
+
+The transfer function <!--<em>-->A<!--</em>-->(<!--<em>-->x<!--</em>-->,<!--<em>-->y<!--</em>-->) can be
+displayed on both the heart (<!--<em>-->x<!--</em>-->) and the thorax (<!--<em>-->y<!--</em>-->),
+in µV/cm².
+
+<p>
+
+If you want to display the transfer function on the heart surface, you
+first have to select a node on the thorax. Then you can choose
+<tt>Transfer function</tt> from the surface function dialog from the
+<tt>Heart</tt> menu. The function displayed (a row of the transfer matrix)
+is the transfer from all points on the
+heart surface to the selected node on the thorax. This function
+can be interpreted as the amount by which the (local) elements
+of the heart surface contribute to the ECG at the node 
+selected on the thorax.
+
+<p>
+
+If you want to display the transfer function on the thorax, you
+first have to select a node on the heart surface. Then you may choose
+<tt>Transfer function</tt> from the surface function dialog from the
+thorax menu. The function displayed (a column of the transfer matrix)
+is the transfer to all points on the
+thorax from the node selected on the heart surface. It can be
+interpreted as the amount by which the selected node on the heart surface
+contributes to the ECG on the thorax.
+
+</body>
+</html>
