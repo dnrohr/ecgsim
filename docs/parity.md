@@ -28,7 +28,7 @@ Tests should state which reference they use. Do not compare a derived preview ag
 | ECG/surface-potential time axis | Sample count and sample rate | exact count, exact `1000 Hz` where documented | The ECGSIM manual states ECG sample frequency is `1000 Hz`; current surface-potential fixture is `300 x 1000`. |
 | ECG/surface-potential amplitudes | Values in millivolts | absolute error <= `1e-6 mV`, relative error <= `1e-6` | Current comparisons are against parsed float32 fixture data, not hand-digitized plots. |
 | TMP parameter vectors | Per-node parameter values | absolute error <= `1e-6`, relative error <= `1e-6` | Current data comes from float32 `PVector` payloads. Units remain parameter-specific. |
-| TMP generated waveforms | Full waveform samples | unknown | The current viewer waveform is parameter-derived and not yet parity-verified against legacy TMP generation. |
+| TMP generated waveforms | Full waveform samples | exact match to project fixture; legacy parity unknown | Task `0021` makes the provisional generator deterministic and tested against the current fixture. It is not yet a legacy `.user.source` parity claim. |
 | Rendered line plots | Canvas/SVG presence and rough bounds | no blank render; axes/traces visible inside viewport | Rendering tests should catch broken UI, not imply pixel-perfect scientific parity. |
 | Legacy screenshot | Whole-window visual smoke comparison | perceptual/snapshot review only until an image-diff harness exists | The captured screenshot is useful as a layout/reference oracle, but native app rendering varies by Windows scale, fonts, GPU, and window size. |
 
@@ -59,6 +59,6 @@ Current viewer fixtures expose these dimensions:
 
 - Raw legacy `File -> Export` outputs have not been captured from the Windows app in this environment.
 - `.adaptECG`, `.refECG`, and `.user.source` tolerances should be revisited once real exported files are available.
-- TMP generated waveform parity is intentionally unknown until the legacy TMP generation algorithm is implemented or exported `.user.source` matrices are captured.
+- TMP generated waveform parity against legacy ECGSIM is intentionally unknown until the legacy TMP generation algorithm is implemented or exported `.user.source` matrices are captured.
 - Visual comparison thresholds should become automated only after a stable browser screenshot harness is added.
 - Coordinate unit expectations for electrode files remain unknown until raw `.elec` exports are available.

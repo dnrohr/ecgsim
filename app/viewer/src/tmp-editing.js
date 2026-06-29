@@ -1,3 +1,5 @@
+import { generateTmpWaveform, tmpParametersFromVectors } from "./tmp-generation.js";
+
 export const EDITABLE_PARAMETERS = [
   { id: "depolarizationMs", label: "Depolarization", unit: "ms", step: 1 },
   { id: "repolarizationMs", label: "Repolarization", unit: "ms", step: 1 },
@@ -87,8 +89,16 @@ export function buildTmpPlotNodes(state) {
         },
       ]),
     ),
-    initial: generateTmpPreview(state.parameters, nodeIndex, "initial", state.sampleCount),
-    adapted: generateTmpPreview(state.parameters, nodeIndex, "adapted", state.sampleCount),
+    initial: generateTmpWaveform(
+      tmpParametersFromVectors(state.parameters, nodeIndex, "initial"),
+      state.sampleCount,
+      state.sampleRateHz,
+    ),
+    adapted: generateTmpWaveform(
+      tmpParametersFromVectors(state.parameters, nodeIndex, "adapted"),
+      state.sampleCount,
+      state.sampleRateHz,
+    ),
   }));
 }
 
@@ -103,36 +113,4 @@ function enforceSlopeConstraint(state, nodeIndexes) {
       repolarization[nodeIndex] = plateau[nodeIndex];
     }
   }
-}
-
-function generateTmpPreview(parameterVectors, node, state, sampleCount) {
-  const dep = parameterVectors.depolarizationMs[state][node];
-  const rep = parameterVectors.repolarizationMs[state][node];
-  const rest = parameterVectors.restingPotential[state][node];
-  const amplitude = parameterVectors.amplitude[state][node];
-  const depSlope = parameterVectors.depolarizationSlope[state][node];
-  const repSlope = parameterVectors.repolarizationSlope[state][node];
-  const plateauSlope = parameterVectors.plateauSlope[state][node];
-  const depWidth = Math.max(depSlope * 1000, 1);
-  const repWidth = Math.max(repSlope * 1000, 1);
-
-  const values = [];
-  for (let sample = 0; sample < sampleCount; sample += 1) {
-    const upstroke = sigmoid((sample - dep) / depWidth);
-    const recovery = sigmoid((sample - rep) / repWidth);
-    const plateauDecay = Math.max(0, sample - dep) * plateauSlope / 1000;
-    const value = rest + Math.max(0, amplitude - plateauDecay) * upstroke * (1 - recovery);
-    values.push(Math.round(value * 1000000) / 1000000);
-  }
-  return values;
-}
-
-function sigmoid(value) {
-  if (value < -60) {
-    return 0;
-  }
-  if (value > 60) {
-    return 1;
-  }
-  return 1 / (1 + Math.exp(-value));
 }

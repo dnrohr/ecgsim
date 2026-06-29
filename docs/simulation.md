@@ -102,7 +102,28 @@ plateauSlope <= repolarizationSlope
 
 Attribution: ECGSIM manual TMP page.
 
-Observed case payloads also include `depolarizationSlope`. The exact legacy waveform generator remains unknown. Until task `0021`, modern generated TMP previews must be labeled as previews and not treated as parity-verified `.user.source` output.
+Note: this constraint is enforced for modern edits, but the generator accepts parsed stored values as-is because current fixture data includes legacy slope combinations that may not satisfy the UI constraint.
+
+Observed case payloads also include `depolarizationSlope`. The exact legacy waveform generator remains unknown. Task `0021` implements a provisional deterministic generator for editing and recomputation plumbing, but generated TMPs must not be treated as parity-verified `.user.source` output until real exports are captured.
+
+Current provisional waveform, implemented in `ecgsim.core.tmp`:
+
+```text
+t_ms(sample) = 1000 * sample / sample_rate_hz
+dep_width_ms = max(depolarizationSlope * 1000, 1)
+rep_width_ms = max(repolarizationSlope * 1000, 1)
+upstroke = sigmoid((t_ms - depolarizationMs) / dep_width_ms)
+recovery = sigmoid((t_ms - repolarizationMs) / rep_width_ms)
+plateau_decay = max(0, t_ms - depolarizationMs) * plateauSlope / 1000
+TMP = restingPotential + max(0, amplitude - plateau_decay) * upstroke * (1 - recovery)
+```
+
+Numerical assumptions:
+
+- Parameter timing values are milliseconds.
+- Fixture/sample preview generation uses `1000 Hz` unless case data says otherwise.
+- Generated fixture values are rounded to six decimal places.
+- Slope units are still legacy-specific; the `* 1000` width conversion preserves the task-0012 preview behavior and is not yet source-attributed.
 
 Required data for real TMP generation:
 

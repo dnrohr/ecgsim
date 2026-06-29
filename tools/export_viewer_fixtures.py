@@ -10,6 +10,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from ecgsim.core import generate_tmp_waveform_from_vectors
 from ecgsim.io import (
     read_ecgsimcase_matrix,
     read_ecgsimcase_metadata,
@@ -81,6 +82,13 @@ def tmp_waveform_payload() -> dict[str, object]:
         }
         for name, offsets in TMP_PARAMETER_OFFSETS.items()
     }
+    parameter_value_vectors = {
+        name: {
+            "initial": vectors["initial"].values,
+            "adapted": vectors["adapted"].values,
+        }
+        for name, vectors in parameter_vectors.items()
+    }
     selected_nodes = (0, 143, 287, 431, 575)
     sample_count = 576
 
@@ -96,11 +104,8 @@ def tmp_waveform_payload() -> dict[str, object]:
             "exact legacy TMP generation remains a later parity task."
         ),
         "parameterVectors": {
-            name: {
-                "initial": vectors["initial"].values,
-                "adapted": vectors["adapted"].values,
-            }
-            for name, vectors in parameter_vectors.items()
+            name: vectors
+            for name, vectors in parameter_value_vectors.items()
         },
         "nodes": [
             {
@@ -113,43 +118,16 @@ def tmp_waveform_payload() -> dict[str, object]:
                     }
                     for name, vectors in parameter_vectors.items()
                 },
-                "initial": generate_tmp_preview(parameter_vectors, node, "initial", sample_count),
-                "adapted": generate_tmp_preview(parameter_vectors, node, "adapted", sample_count),
+                "initial": generate_tmp_waveform_from_vectors(
+                    parameter_value_vectors, node, "initial", sample_count
+                ),
+                "adapted": generate_tmp_waveform_from_vectors(
+                    parameter_value_vectors, node, "adapted", sample_count
+                ),
             }
             for node in selected_nodes
         ],
     }
-
-
-def generate_tmp_preview(
-    parameter_vectors: dict[str, dict[str, object]], node: int, state: str, sample_count: int
-) -> list[float]:
-    dep = parameter_vectors["depolarizationMs"][state].values[node]
-    rep = parameter_vectors["repolarizationMs"][state].values[node]
-    rest = parameter_vectors["restingPotential"][state].values[node]
-    amplitude = parameter_vectors["amplitude"][state].values[node]
-    dep_slope = parameter_vectors["depolarizationSlope"][state].values[node]
-    rep_slope = parameter_vectors["repolarizationSlope"][state].values[node]
-    plateau_slope = parameter_vectors["plateauSlope"][state].values[node]
-    dep_width = max(dep_slope * 1000.0, 1.0)
-    rep_width = max(rep_slope * 1000.0, 1.0)
-
-    values: list[float] = []
-    for sample in range(sample_count):
-        upstroke = sigmoid((sample - dep) / dep_width)
-        recovery = sigmoid((sample - rep) / rep_width)
-        plateau_decay = max(0.0, sample - dep) * plateau_slope / 1000.0
-        value = rest + max(0.0, amplitude - plateau_decay) * upstroke * (1.0 - recovery)
-        values.append(round(value, 6))
-    return values
-
-
-def sigmoid(value: float) -> float:
-    if value < -60.0:
-        return 0.0
-    if value > 60.0:
-        return 1.0
-    return 1.0 / (1.0 + pow(2.718281828459045, -value))
 
 
 def case_metadata_payload() -> dict[str, object]:
