@@ -161,4 +161,6 @@ The `.ECGsimcase` markers line up with that vocabulary: `PGeometry`, `PMatrix`, 
 
 It intentionally does not parse numeric payloads inside `PMatrix`, `PGeometry`, `PSource`, `PVector`, or lead objects yet. Those unsupported payload groups are exposed on the returned metadata so callers do not mistake marker inventory for full case loading.
 
+Task 0011 added `ecgsim.io.read_ecgsimcase_matrix(path, offset)` for known `PMatrix` payloads. It is deliberately offset-driven while the object graph is still being mapped. The first `PMatrix` in `normal_male2.ECGsimcase` is at offset `54` and parses as a `300 x 1000` row-major float32 matrix. This appears to be thorax-node surface-potential time data associated with the root `PECG` block, not yet a named standard 12-lead ECG matrix.
+
 The next `.ECGsimcase`-specific parser task is `docs/tasks/0007-add-case-metadata-cli.md`.

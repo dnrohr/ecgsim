@@ -24,7 +24,7 @@ Each task should end with:
 - [x] [0008 Select App Stack And Viewer Architecture](0008-select-app-stack-and-viewer-architecture.md)
 - [x] [0009 Render Heart Geometry Prototype](0009-render-heart-geometry-prototype.md)
 - [x] [0010 Render Thorax Geometry Prototype](0010-render-thorax-geometry-prototype.md)
-- [0011 Plot ECG Signals](0011-plot-ecg-signals.md)
+- [x] [0011 Plot ECG Signals](0011-plot-ecg-signals.md)
 - [0012 Plot TMP Waveforms](0012-plot-tmp-waveforms.md)
 - [0013 Build Read-Only Case Viewer Shell](0013-build-read-only-case-viewer-shell.md)
 

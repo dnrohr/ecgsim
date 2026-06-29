@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const fixture = JSON.parse(await readFile(new URL("../public/fixtures/heart.json", import.meta.url), "utf8"));
 const thoraxFixture = JSON.parse(await readFile(new URL("../public/fixtures/thorax.json", import.meta.url), "utf8"));
+const ecgFixture = JSON.parse(await readFile(new URL("../public/fixtures/ecg-signals.json", import.meta.url), "utf8"));
 const required = [
   "data-viewer-shell",
   "data-pane=\"heart\"",
@@ -11,6 +12,7 @@ const required = [
   "data-pane=\"leads\"",
   "data-heart-metadata",
   "data-thorax-metadata",
+  "data-leads-metadata",
   "data-toggle-mesh=\"thorax\"",
   "data-toggle-mesh=\"leftLung\"",
   "data-toggle-mesh=\"rightLung\"",
@@ -41,6 +43,20 @@ for (const [name, [points, triangles]] of Object.entries(expectedThorax)) {
     console.error(`Unexpected thorax fixture size for ${name}`);
     process.exit(1);
   }
+}
+
+if (
+  ecgFixture.rows !== 300 ||
+  ecgFixture.columns !== 1000 ||
+  ecgFixture.sampleRateHz !== 1000 ||
+  ecgFixture.traces.length !== 6
+) {
+  console.error("Unexpected ECG signal fixture metadata");
+  process.exit(1);
+}
+if (ecgFixture.traces.some((trace) => trace.values.length !== 1000)) {
+  console.error("Unexpected ECG signal trace length");
+  process.exit(1);
 }
 
 console.log("viewer smoke check passed");

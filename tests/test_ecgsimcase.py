@@ -2,7 +2,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from ecgsim.io import ECGsimCaseFormatError, read_ecgsimcase_metadata
+from ecgsim.io import ECGsimCaseFormatError, read_ecgsimcase_matrix, read_ecgsimcase_metadata
 
 
 class ECGsimCaseMetadataTests(unittest.TestCase):
@@ -99,3 +99,13 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
 
         with self.assertRaises(ECGsimCaseFormatError):
             read_ecgsimcase_metadata(path)
+
+    def test_reads_known_case_pmatrix_payload(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")
+        matrix = read_ecgsimcase_matrix(path, 54)
+
+        self.assertEqual(matrix.rows, 300)
+        self.assertEqual(matrix.columns, 1000)
+        self.assertEqual(matrix.storage_format, "ecgsimcase-pmatrix-v1")
+        self.assertAlmostEqual(matrix.values[0][0], 0.0104013, places=6)
+        self.assertAlmostEqual(matrix.values[0][999], -0.0166813, places=6)

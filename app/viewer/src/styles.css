@@ -91,6 +91,10 @@ h2 {
   white-space: nowrap;
 }
 
+.pane-leads .pane-header output {
+  max-width: 62%;
+}
+
 .layer-toggles {
   display: flex;
   flex-wrap: wrap;

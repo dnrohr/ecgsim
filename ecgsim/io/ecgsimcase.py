@@ -9,8 +9,11 @@ import math
 from pathlib import Path
 import struct
 
+from ecgsim.io.matrix import MatrixData
+
 
 ROOT_SIGNATURE = "PECGsimData"
+PMATRIX_SIGNATURE = "PMatrix"
 PRINTABLE_MIN = 0x20
 PRINTABLE_MAX = 0x7E
 
@@ -88,6 +91,60 @@ def read_ecgsimcase_metadata(path: str | Path) -> ECGsimCaseMetadata:
             "PActivationConstruction payloads",
             "PLead/PShowLead payloads",
         ),
+    )
+
+
+def read_ecgsimcase_matrix(path: str | Path, offset: int) -> MatrixData:
+    """Read a known ``PMatrix`` payload from an ECGsimcase file.
+
+    This is intentionally offset-driven while the full case object graph is
+    still being mapped. The payload shape observed so far is:
+    length-prefixed ``PMatrix`` marker, uint32 version, int32 rows, int32 columns,
+    then row-major little-endian float32 values.
+    """
+
+    source_path = Path(path)
+    data = source_path.read_bytes()
+    if offset < 0 or offset + 4 > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} PMatrix offset {offset} is outside the file")
+
+    byte_length = struct.unpack_from("<I", data, offset)[0]
+    text_start = offset + 4
+    text_end = text_start + byte_length
+    if text_end > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} PMatrix marker at {offset} overruns the file")
+    try:
+        marker = data[text_start:text_end].decode("utf-16le")
+    except UnicodeDecodeError as exc:
+        raise ECGsimCaseFormatError(f"{source_path} PMatrix marker at {offset} is not UTF-16LE") from exc
+    if marker != PMATRIX_SIGNATURE:
+        raise ECGsimCaseFormatError(f"{source_path} marker at {offset} is {marker!r}, not PMatrix")
+
+    header_offset = text_end
+    if header_offset + 12 > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} PMatrix header at {offset} overruns the file")
+    version, rows, columns = struct.unpack_from("<iii", data, header_offset)
+    if version <= 0:
+        raise ECGsimCaseFormatError(f"{source_path} PMatrix at {offset} has invalid version {version}")
+    if rows <= 0 or columns <= 0:
+        raise ECGsimCaseFormatError(f"{source_path} PMatrix at {offset} has invalid shape {rows}x{columns}")
+
+    values_offset = header_offset + 12
+    expected_bytes = rows * columns * 4
+    if values_offset + expected_bytes > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} PMatrix values at {offset} overrun the file")
+    flat = struct.unpack_from(f"<{rows * columns}f", data, values_offset)
+    values = tuple(
+        tuple(float(flat[row * columns + column]) for column in range(columns))
+        for row in range(rows)
+    )
+
+    return MatrixData(
+        rows=rows,
+        columns=columns,
+        values=values,
+        source_path=source_path,
+        storage_format=f"ecgsimcase-pmatrix-v{version}",
     )
 
 
