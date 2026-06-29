@@ -2,7 +2,7 @@
 
 Task: `docs/tasks/0014-capture-legacy-reference-exports.md`
 
-Status: export workflow investigation in progress. No legacy export baseline has been captured yet.
+Status: screenshot baseline captured for the bundled `normal_male.ECGsimcase`. File exports remain unresolved in this environment.
 
 ## Local App
 
@@ -24,6 +24,12 @@ After unblocking, the app opens the bundled default case:
 ECGsim-3.0.1/cases/normal_male.ECGsimcase
 ```
 
+It also accepts an explicit case path as a command-line argument. For example:
+
+```powershell
+Start-Process ECGsim-3.0.1/ECGsim.exe -ArgumentList ECGsim-3.0.1/cases/normal_male.ECGsimcase
+```
+
 ## Automation Findings
 
 - `ECGsim.exe --help` opens the GUI and does not print command-line help.
@@ -31,7 +37,28 @@ ECGsim-3.0.1/cases/normal_male.ECGsimcase
 - UI Automation can see the File menu and the `ECGsim.actionExport` menu item.
 - Selecting `File -> Export` by coordinate/UI probing terminates the app in this environment before a folder picker appears. No export files were written.
 
-## Manual Export Workflow To Try
+## Captured Baseline
+
+The tracked baseline screenshot is:
+
+```text
+research/legacy-exports/screenshots/normal-male-main-window.png
+```
+
+It shows the legacy app's initial `normal_male.ECGsimcase` view with the heart activation map, thorax view, and 12-lead ECG plots. The checksum is tracked in:
+
+```text
+research/legacy-exports/screenshots-manifest.json
+```
+
+Regenerate the screenshot with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/capture_legacy_screenshot.ps1
+python tools/summarize_legacy_export.py research/legacy-exports/screenshots > research/legacy-exports/screenshots-manifest.json
+```
+
+## Manual Export Workflow To Try Later
 
 1. Launch `ECGsim-3.0.1/ECGsim.exe`.
 2. Confirm the desired case is loaded.
@@ -45,6 +72,6 @@ python tools/summarize_legacy_export.py research/legacy-exports/raw/<case-name> 
 
 Commit only manifests and small, justified reference files. Keep large raw exports ignored unless a later task explicitly promotes a small fixture.
 
-## Next Evidence Needed
+## Remaining Export Gap
 
-Task `0014` is done only after at least one legacy app export or screenshot baseline is captured and can be reproduced from documented steps.
+The project has a reproducible screenshot baseline, so task `0014` has a known legacy-app reference point. Raw file exports are still useful for later parity work, but need either manual confirmation in a normal desktop session or deeper Windows UI debugging.
