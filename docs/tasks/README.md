@@ -49,5 +49,5 @@ Each task should end with:
 
 ## M6: Product Polish
 
-- [ ] [0024 Package Examples And User Docs](0024-package-examples-and-user-docs.md)
+- [x] [0024 Package Examples And User Docs](0024-package-examples-and-user-docs.md)
 - [ ] [0025 Cross-Platform Packaging Plan](0025-cross-platform-packaging-plan.md)

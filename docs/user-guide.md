@@ -1,0 +1,92 @@
+# User Guide
+
+Status: first modern viewer guide for the bundled `normal_male2` fixtures.
+
+## What Works Today
+
+The current app is a browser-based prototype with curated fixtures generated from:
+
+```text
+research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
+```
+
+Supported in the viewer:
+
+- Case metadata summary for the bundled fixture.
+- Heart geometry display with node and radius selection.
+- Thorax/lung geometry display with visibility toggles.
+- TMP waveform display for selected heart nodes.
+- TMP parameter edits for depolarization time, repolarization time, resting potential, amplitude, plateau slope, and repolarization slope.
+- Selected-parameter reset and beat reset.
+- Surface-potential/lead trace plot with Baseline, AC, and DC coupling modes.
+
+Supported from the Python package:
+
+- `.ECGsimcase` metadata inspection.
+- Known matrix/vector payload reads by offset.
+- Legacy `.tri`, matrix, and vector readers.
+- Provisional TMP waveform generation.
+- Transfer-function application and WCT row referencing.
+- ECG filtering/coupling helpers.
+
+## First Run
+
+From a clean checkout, install the viewer dependencies:
+
+```powershell
+npm --prefix app/viewer install
+```
+
+Start the local viewer:
+
+```powershell
+npm --prefix app/viewer run dev
+```
+
+Open:
+
+```text
+http://localhost:4173
+```
+
+The app loads the bundled `normal_male2` fixtures automatically.
+
+## Basic Walkthrough
+
+1. Confirm the top case summary shows `normal_male2.ECGsimcase`.
+2. In Heart, click the surface to select a node.
+3. Adjust the radius slider to change the selected region.
+4. In TMP, choose a parameter, change the value, and select Apply.
+5. Use Reset parameter to restore the selected parameter for the selected region.
+6. Use Reset beat to restore all adapted TMP parameters in the current fixture.
+7. In Thorax, toggle Thorax, Left lung, and Right lung visibility.
+8. In Leads, switch Coupling between Baseline, AC, and DC.
+
+## Case Metadata CLI
+
+Run:
+
+```powershell
+python -m ecgsim.cli.case_info research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
+```
+
+This prints the known marker inventory and unsupported payload categories for the case.
+
+## Unsupported Or Partial Features
+
+- Arbitrary `.ECGsimcase` files are not parsed in the browser yet. The file picker only compares selected file metadata with the bundled fixture.
+- Saving or exporting adapted cases is not implemented.
+- TMP generation is deterministic but provisional; it is not yet parity-verified against legacy `.user.source` exports.
+- ECG recomputation after TMP edits is not wired into the viewer yet.
+- Baseline coupling uses supplied fiducials when available and otherwise falls back to first/last sample correction; exact legacy P/T fiducial handling is still unknown.
+- Endocardial/epicardial switching, transmural edits, transition zones, accumulation modes, movie playback, and full lead-system selection are not implemented.
+- The original Windows and macOS app packages are reference binaries and intentionally ignored by git.
+
+## Developer Checks
+
+Run both checks before committing changes:
+
+```powershell
+python -m unittest discover -s tests
+npm --prefix app/viewer test
+```

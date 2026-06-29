@@ -5,6 +5,7 @@ ECGsim-3.0.1/
 *.exe
 ECGsim-*.zip
 ECGSim-*.zip
+downloads/
 
 # Python local/generated files.
 __pycache__/
