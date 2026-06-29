@@ -151,7 +151,7 @@ The `.ECGsimcase` markers line up with that vocabulary: `PGeometry`, `PMatrix`, 
 
 ## Next Parser Target
 
-The next `.ECGsimcase`-specific parser work should implement a metadata-only scanner that:
+`ecgsim.io.read_ecgsimcase_metadata` was added for task 0006. It:
 
 1. validates the `PECGsimData` root string,
 2. extracts all length-prefixed UTF-16LE strings with offsets,
@@ -159,4 +159,6 @@ The next `.ECGsimcase`-specific parser work should implement a metadata-only sca
 4. extracts lead-system names,
 5. reports major block offsets.
 
-That is enough to satisfy `docs/tasks/0006-implement-ecgsimcase-metadata-loader.md` before full numeric payload parsing.
+It intentionally does not parse numeric payloads inside `PMatrix`, `PGeometry`, `PSource`, `PVector`, or lead objects yet. Those unsupported payload groups are exposed on the returned metadata so callers do not mistake marker inventory for full case loading.
+
+The next `.ECGsimcase`-specific parser task is `docs/tasks/0007-add-case-metadata-cli.md`.
