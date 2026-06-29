@@ -20,6 +20,11 @@ Scientific parity should be measurable. Exact equality may not be realistic once
 - Define tolerances for geometry counts, coordinates, ECG signals, TMP waveforms, and rendered views.
 - Mark areas where tolerances are unknown.
 
+## Result
+
+- Added `docs/parity.md` with exact structural thresholds, float32 numeric thresholds, visual smoke thresholds, and unknowns for unverified raw exports/TMP generation.
+- Recorded current fixture dimensions so future tests can start from concrete expectations.
+
 ## Verification
 
 - Each tolerance includes rationale and units.

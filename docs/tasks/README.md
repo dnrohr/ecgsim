@@ -31,7 +31,7 @@ Each task should end with:
 ## M3: Legacy Parity Harness
 
 - [x] [0014 Capture Legacy Reference Exports](0014-capture-legacy-reference-exports.md)
-- [0015 Define Parity Tolerances](0015-define-parity-tolerances.md)
+- [x] [0015 Define Parity Tolerances](0015-define-parity-tolerances.md)
 - [0016 Add Regression Fixtures And Checks](0016-add-regression-fixtures-and-checks.md)
 
 ## M4: Parameter Editing
