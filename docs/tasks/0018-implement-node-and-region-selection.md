@@ -20,6 +20,12 @@ Legacy ECGSIM selects the nearest heart node and applies edits within a radius, 
 - Display selected node and region.
 - Add tests for selection math where possible.
 
+## Result
+
+- Added deterministic selection math in `app/viewer/src/selection.js`.
+- Added heart click selection, a radius control, selected-node highlighting, and region-node highlighting.
+- Extended the viewer smoke test with nearest-node and radius-membership checks.
+
 ## Verification
 
 - Selection works on known geometry.

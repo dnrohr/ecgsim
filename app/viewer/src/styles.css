@@ -146,6 +146,10 @@ h2 {
   grid-template-rows: auto auto minmax(0, 1fr);
 }
 
+.pane-heart {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
 .pane-header {
   min-width: 0;
   display: flex;
@@ -192,9 +196,41 @@ h2 {
   accent-color: #175c8a;
 }
 
+.selection-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.selection-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #52616b;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.selection-controls input {
+  width: min(180px, 32vw);
+  accent-color: #175c8a;
+}
+
+.selection-controls output {
+  min-width: 0;
+  overflow: hidden;
+  color: #52616b;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .viewport,
 canvas {
   width: 100%;
+  min-width: 0;
   min-height: 0;
   border: 1px solid #d9e0e3;
   background: #f8fafb;
@@ -241,5 +277,14 @@ canvas {
   .workspace {
     grid-template-columns: 1fr;
     grid-template-rows: repeat(4, minmax(220px, 1fr));
+  }
+
+  .selection-controls {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .selection-controls input {
+    width: min(240px, 72vw);
   }
 }

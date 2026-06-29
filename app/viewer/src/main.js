@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { computeRegionMembership } from "./selection.js";
 
 const status = document.querySelector("[data-case-status]");
 const shell = document.querySelector("[data-viewer-shell]");
@@ -10,6 +11,8 @@ const caseUnsupported = document.querySelector("[data-case-unsupported]");
 const caseNotice = document.querySelector("[data-case-notice]");
 const heartViewport = document.querySelector("[data-heart-viewport]");
 const heartMetadata = document.querySelector("[data-heart-metadata]");
+const heartRadius = document.querySelector("[data-heart-radius]");
+const heartSelection = document.querySelector("[data-heart-selection]");
 const thoraxViewport = document.querySelector("[data-thorax-viewport]");
 const thoraxMetadata = document.querySelector("[data-thorax-metadata]");
 const leadsMetadata = document.querySelector("[data-leads-metadata]");
@@ -42,6 +45,8 @@ function createScene(viewport, cameraDistance) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+  renderer.domElement.style.width = "100%";
+  renderer.domElement.style.height = "100%";
   viewport.appendChild(renderer.domElement);
 
   scene.add(new THREE.HemisphereLight(0xffffff, 0xb8c3c8, 2.6));
@@ -69,14 +74,19 @@ function observeViewport(viewport, camera, renderer, distanceForWidth) {
 }
 
 function mountHeart(fixture) {
-  if (!heartViewport || !heartMetadata) {
+  if (!heartViewport || !heartMetadata || !heartRadius || !heartSelection) {
     throw new Error("Heart viewport did not mount");
   }
 
   const { scene, camera, renderer } = createScene(heartViewport, 0.32);
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+  let selectedNodeIndex = -1;
+  let isAutoRotating = true;
 
+  const geometry = buildGeometry(fixture, { center: true });
   const mesh = new THREE.Mesh(
-    buildGeometry(fixture, { center: true }),
+    geometry,
     new THREE.MeshStandardMaterial({
       color: 0xb3261e,
       roughness: 0.72,
@@ -87,12 +97,100 @@ function mountHeart(fixture) {
   mesh.rotation.set(-0.35, 0.2, 0.08);
   scene.add(mesh);
 
-  observeViewport(heartViewport, camera, renderer, (width) => (width < 480 ? 0.42 : 0.32));
+  const regionGeometry = new THREE.BufferGeometry();
+  const regionPoints = new THREE.Points(
+    regionGeometry,
+    new THREE.PointsMaterial({
+      color: 0x175c8a,
+      size: 0.009,
+      sizeAttenuation: true,
+      depthTest: false,
+    }),
+  );
+  regionPoints.renderOrder = 2;
+  mesh.add(regionPoints);
+
+  const selectedMarker = new THREE.Mesh(
+    new THREE.SphereGeometry(0.0055, 16, 12),
+    new THREE.MeshStandardMaterial({
+      color: 0xf2b705,
+      emissive: 0x5c4100,
+      emissiveIntensity: 0.42,
+      roughness: 0.45,
+    }),
+  );
+  selectedMarker.visible = false;
+  selectedMarker.renderOrder = 3;
+  mesh.add(selectedMarker);
+
+  const nodePositions = [];
+  const positions = geometry.getAttribute("position");
+  for (let index = 0; index < positions.count; index += 1) {
+    nodePositions.push(new THREE.Vector3().fromBufferAttribute(positions, index));
+  }
+
+  function updateSelection() {
+    const radiusMm = Number.parseFloat(heartRadius.value);
+    if (selectedNodeIndex < 0) {
+      heartSelection.value = `Node -- / ${radiusMm} mm / 0 nodes`;
+      regionGeometry.setAttribute("position", new THREE.Float32BufferAttribute([], 3));
+      selectedMarker.visible = false;
+      return;
+    }
+
+    const region = computeRegionMembership(fixture.points, selectedNodeIndex, radiusMm / 1000);
+    const regionPositions = [];
+    region.forEach(({ index }) => {
+      const point = nodePositions[index];
+      regionPositions.push(point.x, point.y, point.z);
+    });
+
+    selectedMarker.position.copy(nodePositions[selectedNodeIndex]);
+    selectedMarker.visible = true;
+    regionGeometry.setAttribute("position", new THREE.Float32BufferAttribute(regionPositions, 3));
+    regionGeometry.computeBoundingSphere();
+    heartSelection.value = `Node ${selectedNodeIndex + 1} / ${radiusMm} mm / ${region.length} nodes`;
+  }
+
+  function selectFromPointer(event) {
+    const bounds = renderer.domElement.getBoundingClientRect();
+    pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+    pointer.y = -(((event.clientY - bounds.top) / bounds.height) * 2 - 1);
+    raycaster.setFromCamera(pointer, camera);
+    const [hit] = raycaster.intersectObject(mesh, false);
+    if (!hit?.face) {
+      return;
+    }
+
+    const candidates = [hit.face.a, hit.face.b, hit.face.c];
+    let nearest = candidates[0];
+    let nearestDistance = hit.point.distanceTo(nodePositions[nearest]);
+    candidates.slice(1).forEach((candidate) => {
+      const distance = hit.point.distanceTo(nodePositions[candidate]);
+      if (distance < nearestDistance) {
+        nearest = candidate;
+        nearestDistance = distance;
+      }
+    });
+    selectedNodeIndex = nearest;
+    isAutoRotating = false;
+    updateSelection();
+    renderer.render(scene, camera);
+  }
+
+  heartRadius.addEventListener("input", updateSelection);
+  renderer.domElement.addEventListener("pointerdown", selectFromPointer);
+  renderer.domElement.style.cursor = "crosshair";
+
+  observeViewport(heartViewport, camera, renderer, (width) => (width < 480 ? 0.5 : 0.32));
 
   heartMetadata.value = `${fixture.pointCount} nodes / ${fixture.triangleCount} triangles`;
+  updateSelection();
 
   function animate() {
-    mesh.rotation.y += 0.006;
+    if (isAutoRotating) {
+      mesh.rotation.y += 0.006;
+    }
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
   }

@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { computeRegionMembership, findNearestPointIndex } from "../src/selection.js";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const caseFixture = JSON.parse(await readFile(new URL("../public/fixtures/case-metadata.json", import.meta.url), "utf8"));
@@ -15,6 +16,8 @@ const required = [
   "data-pane=\"tmp\"",
   "data-pane=\"leads\"",
   "data-heart-metadata",
+  "data-heart-radius",
+  "data-heart-selection",
   "data-thorax-metadata",
   "data-tmp-metadata",
   "data-leads-metadata",
@@ -43,6 +46,16 @@ if (
 
 if (fixture.pointCount !== 257 || fixture.triangleCount !== 510) {
   console.error(`Unexpected heart fixture size: ${fixture.pointCount} / ${fixture.triangleCount}`);
+  process.exit(1);
+}
+
+if (findNearestPointIndex([[0, 0, 0], [0.01, 0, 0], [0.03, 0, 0]], [0.012, 0, 0]) !== 1) {
+  console.error("Nearest-node selection math failed");
+  process.exit(1);
+}
+const region = computeRegionMembership([[0, 0, 0], [0.01, 0, 0], [0.03, 0, 0]], 0, 0.011);
+if (region.length !== 2 || region[0].index !== 0 || region[1].index !== 1) {
+  console.error("Region membership math failed");
   process.exit(1);
 }
 
