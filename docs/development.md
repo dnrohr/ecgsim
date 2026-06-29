@@ -35,3 +35,23 @@ Run:
 ```powershell
 npm --prefix app/viewer test
 ```
+
+## Viewer Fixture Export
+
+Run:
+
+```powershell
+python tools/export_viewer_fixtures.py
+```
+
+This regenerates `app/viewer/public/fixtures/heart.json` from archived legacy geometry.
+
+## Viewer Dev Server
+
+Run:
+
+```powershell
+npm --prefix app/viewer run dev
+```
+
+Open `http://localhost:4173` to inspect the read-only viewer prototype.

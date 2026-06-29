@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ECGSIM Viewer</title>
     <link rel="stylesheet" href="./src/styles.css">
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./node_modules/three/build/three.module.js"
+        }
+      }
+    </script>
   </head>
   <body>
     <main class="viewer-shell" data-viewer-shell>
@@ -17,8 +24,11 @@
       </header>
       <section class="workspace" aria-label="ECGSIM views">
         <section class="pane pane-heart" data-pane="heart">
-          <h2>Heart</h2>
-          <div class="viewport" data-heart-viewport></div>
+          <div class="pane-header">
+            <h2>Heart</h2>
+            <output data-heart-metadata>--</output>
+          </div>
+          <div class="viewport heart-viewport" data-heart-viewport></div>
         </section>
         <section class="pane pane-thorax" data-pane="thorax">
           <h2>Thorax</h2>

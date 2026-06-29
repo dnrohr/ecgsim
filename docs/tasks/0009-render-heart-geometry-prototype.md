@@ -26,6 +26,12 @@ This is a prototype for visual correctness, not final UI polish. It should use p
 - Geometry appears nonblank and count metadata matches parser tests.
 - No unrelated UI polish work is bundled.
 
+Task result:
+
+- Heart fixture is exported from `research/source/www.ecgsim.org/downloads/other13/geometry/heart.tri`.
+- Viewer metadata reports `257 nodes / 510 triangles`.
+- Browser verification checked desktop and mobile screenshots for nonblank heart pixels and changed pixels during rotation.
+
 ## Done When
 
 A developer can visually inspect a heart mesh from legacy data.

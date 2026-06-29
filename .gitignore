@@ -14,3 +14,7 @@ __pycache__/
 # Node local/generated files.
 node_modules/
 dist/
+
+# Local verification scratch files.
+.tmp-verify/
+.tmp-viewer-server.pid

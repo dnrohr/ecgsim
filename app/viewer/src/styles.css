@@ -70,6 +70,23 @@ h2 {
   background: #ffffff;
 }
 
+.pane-header {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pane-header output {
+  min-width: 0;
+  overflow: hidden;
+  color: #52616b;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .viewport,
 canvas {
   width: 100%;
@@ -82,12 +99,17 @@ canvas {
   position: relative;
 }
 
-.viewport::before {
+.pane-thorax .viewport::before {
   content: "";
   position: absolute;
   inset: 18%;
   border: 2px solid #78909c;
   transform: skew(-12deg) rotate(-8deg);
+}
+
+.heart-viewport canvas {
+  display: block;
+  height: 100%;
 }
 
 canvas {
