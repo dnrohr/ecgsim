@@ -26,6 +26,13 @@ The thorax view eventually needs thorax, lungs, heart context, electrodes, BSPM,
 - Geometry appears nonblank and count metadata matches parser tests.
 - Visual orientation assumptions are documented.
 
+Task result:
+
+- Thorax fixture bundle is exported from `thorax.tri`, `llung.tri`, and `rlung.tri`.
+- Viewer metadata reports `thorax: 300/596 | leftLung: 116/228 | rightLung: 116/228`.
+- Browser verification checked desktop and mobile screenshots for nonblank thorax pixels and changed pixels during rotation.
+- Orientation preserves the legacy geometry coordinate frame, centers the rendered group for inspection, and uses a fixed camera plus slow y-axis rotation. Anatomical axis labels are not established yet.
+
 ## Done When
 
 A developer can visually inspect thorax and lung meshes from legacy data.

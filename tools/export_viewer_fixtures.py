@@ -13,29 +13,47 @@ sys.path.insert(0, str(ROOT))
 from ecgsim.io import read_geometry
 
 
-HEART_SOURCE = ROOT / "research/source/www.ecgsim.org/downloads/other13/geometry/heart.tri"
+GEOMETRY_SOURCE_DIR = ROOT / "research/source/www.ecgsim.org/downloads/other13/geometry"
+HEART_SOURCE = GEOMETRY_SOURCE_DIR / "heart.tri"
 HEART_TARGET = ROOT / "app/viewer/public/fixtures/heart.json"
+THORAX_TARGET = ROOT / "app/viewer/public/fixtures/thorax.json"
+
+
+def geometry_payload(source: Path) -> dict[str, object]:
+    geometry = read_geometry(source)
+    return {
+        "source": str(source.relative_to(ROOT)).replace("\\", "/"),
+        "units": geometry.units,
+        "pointCount": geometry.point_count,
+        "triangleCount": geometry.triangle_count,
+        "points": geometry.points,
+        "triangles": geometry.triangles,
+    }
 
 
 def main() -> int:
-    geometry = read_geometry(HEART_SOURCE)
     HEART_TARGET.parent.mkdir(parents=True, exist_ok=True)
     HEART_TARGET.write_text(
+        json.dumps(geometry_payload(HEART_SOURCE), separators=(",", ":"))
+        + "\n",
+        encoding="utf-8",
+    )
+    print(f"wrote {HEART_TARGET.relative_to(ROOT)}")
+    THORAX_TARGET.write_text(
         json.dumps(
             {
-                "source": str(HEART_SOURCE.relative_to(ROOT)).replace("\\", "/"),
-                "units": geometry.units,
-                "pointCount": geometry.point_count,
-                "triangleCount": geometry.triangle_count,
-                "points": geometry.points,
-                "triangles": geometry.triangles,
+                "meshes": {
+                    "thorax": geometry_payload(GEOMETRY_SOURCE_DIR / "thorax.tri"),
+                    "leftLung": geometry_payload(GEOMETRY_SOURCE_DIR / "llung.tri"),
+                    "rightLung": geometry_payload(GEOMETRY_SOURCE_DIR / "rlung.tri"),
+                }
             },
             separators=(",", ":"),
         )
         + "\n",
         encoding="utf-8",
     )
-    print(f"wrote {HEART_TARGET.relative_to(ROOT)}")
+    print(f"wrote {THORAX_TARGET.relative_to(ROOT)}")
     return 0
 
 

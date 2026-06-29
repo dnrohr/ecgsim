@@ -31,8 +31,16 @@
           <div class="viewport heart-viewport" data-heart-viewport></div>
         </section>
         <section class="pane pane-thorax" data-pane="thorax">
-          <h2>Thorax</h2>
-          <div class="viewport" data-thorax-viewport></div>
+          <div class="pane-header">
+            <h2>Thorax</h2>
+            <output data-thorax-metadata>--</output>
+          </div>
+          <div class="layer-toggles" aria-label="Thorax layers">
+            <label><input type="checkbox" data-toggle-mesh="thorax" checked> Thorax</label>
+            <label><input type="checkbox" data-toggle-mesh="leftLung" checked> Left lung</label>
+            <label><input type="checkbox" data-toggle-mesh="rightLung" checked> Right lung</label>
+          </div>
+          <div class="viewport thorax-viewport" data-thorax-viewport></div>
         </section>
         <section class="pane pane-tmp" data-pane="tmp">
           <h2>TMP</h2>
