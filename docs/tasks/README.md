@@ -14,7 +14,7 @@ Each task should end with:
 - [x] [0001 Inspect ECGsimcase Structure](0001-inspect-ecgsimcase-structure.md)
 - [x] [0002 Document Legacy Export Formats](0002-document-legacy-export-formats.md)
 - [x] [0003 Choose Runtime And Scaffold Parser Package](0003-choose-runtime-and-scaffold-parser-package.md)
-- [0004 Implement Matrix And Vector Readers](0004-implement-matrix-and-vector-readers.md)
+- [x] [0004 Implement Matrix And Vector Readers](0004-implement-matrix-and-vector-readers.md)
 - [0005 Implement Geometry Reader](0005-implement-geometry-reader.md)
 - [0006 Implement ECGsimcase Metadata Loader](0006-implement-ecgsimcase-metadata-loader.md)
 - [0007 Add Case Metadata CLI](0007-add-case-metadata-cli.md)

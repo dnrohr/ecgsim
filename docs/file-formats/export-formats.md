@@ -380,3 +380,17 @@ Beat files are discovered as `user.*` in beat directories.
 - Keep binary `;;mbfmat` and `;;mbftri` support as explicit follow-up paths unless binary fixtures are found.
 - Return matrix data in `(rows, columns)` order, matching manual terminology and MATLAB helper output after transposition.
 - Preserve original file path, detected format, dimensions, and units/unknown-unit metadata with parsed data.
+
+## Implemented Reader Notes
+
+`ecgsim.io.read_matrix` and `ecgsim.io.read_vector` were added for task 0004.
+
+Current behavior:
+
+- ASCII matrices require exactly `rows * columns` numeric values after the two-integer header.
+- Raw binary matrices are interpreted as little-endian `int32 rows`, `int32 columns`, then `float32` column-major payload.
+- `;;mbfmat` matrices are interpreted as little-endian headers with `float64` column-major payload.
+- Returned matrix values are immutable tuples in row-major `(rows, columns)` order.
+- `read_vector` accepts only one-column matrices and returns a flat immutable tuple.
+
+Numeric parsing does not apply tolerances while reading. Tests use approximate comparisons only for floating-point assertions.
