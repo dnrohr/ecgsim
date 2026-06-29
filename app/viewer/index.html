@@ -81,6 +81,19 @@
             <h2>TMP</h2>
             <output data-tmp-metadata>--</output>
           </div>
+          <div class="tmp-controls" aria-label="TMP parameter editing">
+            <label>
+              Parameter
+              <select data-tmp-parameter></select>
+            </label>
+            <label>
+              Value
+              <input type="number" data-tmp-value disabled>
+            </label>
+            <button type="button" data-tmp-apply disabled>Apply</button>
+            <button type="button" data-tmp-reset-parameter disabled>Reset parameter</button>
+            <button type="button" data-tmp-reset-beat>Reset beat</button>
+          </div>
           <canvas width="640" height="220" data-tmp-canvas></canvas>
         </section>
         <section class="pane pane-leads" data-pane="leads">

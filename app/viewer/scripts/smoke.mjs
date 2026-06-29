@@ -1,7 +1,15 @@
 import { readFile } from "node:fs/promises";
 import { computeRegionMembership, findNearestPointIndex } from "../src/selection.js";
+import {
+  applyParameterValue,
+  createTmpEditState,
+  nodeParameterValue,
+  resetBeat,
+  resetParameter,
+} from "../src/tmp-editing.js";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
+const mainSource = await readFile(new URL("../src/main.js", import.meta.url), "utf8");
 const caseFixture = JSON.parse(await readFile(new URL("../public/fixtures/case-metadata.json", import.meta.url), "utf8"));
 const fixture = JSON.parse(await readFile(new URL("../public/fixtures/heart.json", import.meta.url), "utf8"));
 const thoraxFixture = JSON.parse(await readFile(new URL("../public/fixtures/thorax.json", import.meta.url), "utf8"));
@@ -20,6 +28,11 @@ const required = [
   "data-heart-selection",
   "data-thorax-metadata",
   "data-tmp-metadata",
+  "data-tmp-parameter",
+  "data-tmp-value",
+  "data-tmp-apply",
+  "data-tmp-reset-parameter",
+  "data-tmp-reset-beat",
   "data-leads-metadata",
   "data-toggle-mesh=\"thorax\"",
   "data-toggle-mesh=\"leftLung\"",
@@ -32,6 +45,10 @@ const required = [
 const missing = required.filter((token) => !html.includes(token));
 if (missing.length) {
   console.error(`Missing viewer scaffold tokens: ${missing.join(", ")}`);
+  process.exit(1);
+}
+if (!mainSource.includes("Depol. slope (stored)")) {
+  console.error("Missing disabled stored-only TMP parameter label");
   process.exit(1);
 }
 
@@ -97,6 +114,34 @@ if (
 }
 if (tmpFixture.nodes.some((node) => node.initial.length !== 576 || node.adapted.length !== 576)) {
   console.error("Unexpected TMP waveform length");
+  process.exit(1);
+}
+if (
+  !tmpFixture.parameterVectors ||
+  tmpFixture.parameterVectors.depolarizationMs.initial.length !== 576 ||
+  tmpFixture.parameterVectors.repolarizationMs.adapted.length !== 576
+) {
+  console.error("Unexpected TMP parameter vectors");
+  process.exit(1);
+}
+const editState = createTmpEditState(tmpFixture);
+const originalDep = nodeParameterValue(editState, "depolarizationMs", 0, "adapted");
+if (applyParameterValue(editState, "depolarizationMs", [0, 1], originalDep + 5) !== 2) {
+  console.error("TMP parameter apply failed");
+  process.exit(1);
+}
+if (nodeParameterValue(editState, "depolarizationMs", 1, "adapted") !== originalDep + 5) {
+  console.error("TMP adapted value did not update");
+  process.exit(1);
+}
+resetParameter(editState, "depolarizationMs", [0]);
+if (nodeParameterValue(editState, "depolarizationMs", 0, "adapted") !== originalDep) {
+  console.error("TMP parameter reset failed");
+  process.exit(1);
+}
+resetBeat(editState);
+if (nodeParameterValue(editState, "depolarizationMs", 1, "adapted") !== editState.parameters.depolarizationMs.initial[1]) {
+  console.error("TMP beat reset failed");
   process.exit(1);
 }
 

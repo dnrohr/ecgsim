@@ -1,5 +1,14 @@
 import * as THREE from "three";
 import { computeRegionMembership } from "./selection.js";
+import {
+  EDITABLE_PARAMETERS,
+  applyParameterValue,
+  buildTmpPlotNodes,
+  createTmpEditState,
+  nodeParameterValue,
+  resetBeat,
+  resetParameter,
+} from "./tmp-editing.js";
 
 const status = document.querySelector("[data-case-status]");
 const shell = document.querySelector("[data-viewer-shell]");
@@ -17,6 +26,19 @@ const thoraxViewport = document.querySelector("[data-thorax-viewport]");
 const thoraxMetadata = document.querySelector("[data-thorax-metadata]");
 const leadsMetadata = document.querySelector("[data-leads-metadata]");
 const tmpMetadata = document.querySelector("[data-tmp-metadata]");
+const tmpParameter = document.querySelector("[data-tmp-parameter]");
+const tmpValue = document.querySelector("[data-tmp-value]");
+const tmpApply = document.querySelector("[data-tmp-apply]");
+const tmpResetParameter = document.querySelector("[data-tmp-reset-parameter]");
+const tmpResetBeat = document.querySelector("[data-tmp-reset-beat]");
+
+const selectionState = {
+  nodeIndex: -1,
+  region: [],
+  radiusMm: 20,
+};
+let tmpEditState = null;
+let tmpCanvas = null;
 
 function buildGeometry(fixture, { center = false } = {}) {
   const geometry = new THREE.BufferGeometry();
@@ -73,7 +95,7 @@ function observeViewport(viewport, camera, renderer, distanceForWidth) {
   resize();
 }
 
-function mountHeart(fixture) {
+function mountHeart(fixture, onSelectionChange) {
   if (!heartViewport || !heartMetadata || !heartRadius || !heartSelection) {
     throw new Error("Heart viewport did not mount");
   }
@@ -131,14 +153,20 @@ function mountHeart(fixture) {
 
   function updateSelection() {
     const radiusMm = Number.parseFloat(heartRadius.value);
+    selectionState.radiusMm = radiusMm;
     if (selectedNodeIndex < 0) {
       heartSelection.value = `Node -- / ${radiusMm} mm / 0 nodes`;
       regionGeometry.setAttribute("position", new THREE.Float32BufferAttribute([], 3));
       selectedMarker.visible = false;
+      selectionState.nodeIndex = -1;
+      selectionState.region = [];
+      onSelectionChange(selectionState);
       return;
     }
 
     const region = computeRegionMembership(fixture.points, selectedNodeIndex, radiusMm / 1000);
+    selectionState.nodeIndex = selectedNodeIndex;
+    selectionState.region = region.map((node) => node.index);
     const regionPositions = [];
     region.forEach(({ index }) => {
       const point = nodePositions[index];
@@ -150,6 +178,7 @@ function mountHeart(fixture) {
     regionGeometry.setAttribute("position", new THREE.Float32BufferAttribute(regionPositions, 3));
     regionGeometry.computeBoundingSphere();
     heartSelection.value = `Node ${selectedNodeIndex + 1} / ${radiusMm} mm / ${region.length} nodes`;
+    onSelectionChange(selectionState);
   }
 
   function selectFromPointer(event) {
@@ -362,7 +391,8 @@ function plotTmp(canvas, fixture) {
   const bottom = 34;
   const plotWidth = width - left - right;
   const plotHeight = height - top - bottom;
-  const nodeCount = fixture.nodes.length;
+  const nodes = fixture.nodes;
+  const nodeCount = nodes.length;
   const laneHeight = plotHeight / nodeCount;
 
   context.clearRect(0, 0, width, height);
@@ -374,7 +404,7 @@ function plotTmp(canvas, fixture) {
   context.font = "12px Segoe UI, Arial, sans-serif";
   context.textBaseline = "middle";
 
-  fixture.nodes.forEach((node, nodeIndex) => {
+  nodes.forEach((node, nodeIndex) => {
     const values = [...node.initial, ...node.adapted];
     const min = Math.min(...values);
     const max = Math.max(...values);
@@ -408,7 +438,7 @@ function plotTmp(canvas, fixture) {
   context.fillText(`${durationMs} ms`, width - right, height - 12);
   context.textAlign = "start";
 
-  tmpMetadata.value = `${fixture.nodes.length} nodes / ${fixture.sampleCount} samples / ${fixture.sampleRateHz} Hz`;
+  tmpMetadata.value = `${nodes.length} nodes / ${fixture.sampleCount} samples / ${fixture.sampleRateHz} Hz`;
 }
 
 function drawTmpLine(context, values, min, span, left, plotWidth, centerY, amplitude, color, width) {
@@ -426,6 +456,73 @@ function drawTmpLine(context, values, min, span, left, plotWidth, centerY, ampli
     }
   });
   context.stroke();
+}
+
+function mountTmpEditing(fixture) {
+  if (!tmpParameter || !tmpValue || !tmpApply || !tmpResetParameter || !tmpResetBeat) {
+    throw new Error("TMP editing controls did not mount");
+  }
+
+  tmpEditState = createTmpEditState(fixture);
+  EDITABLE_PARAMETERS.forEach((parameter) => {
+    const option = document.createElement("option");
+    option.value = parameter.id;
+    option.textContent = parameter.unit ? `${parameter.label} (${parameter.unit})` : parameter.label;
+    tmpParameter.appendChild(option);
+  });
+  const storedOnlyOption = document.createElement("option");
+  storedOnlyOption.value = "depolarizationSlope";
+  storedOnlyOption.textContent = "Depol. slope (stored)";
+  storedOnlyOption.disabled = true;
+  tmpParameter.appendChild(storedOnlyOption);
+
+  function selectedRegion() {
+    return selectionState.region.filter((nodeIndex) => nodeIndex >= 0 && nodeIndex < tmpEditState.nodeCount);
+  }
+
+  function redrawTmp() {
+    tmpEditState.selectedNode = selectionState.nodeIndex >= 0 && selectionState.nodeIndex < tmpEditState.nodeCount
+      ? selectionState.nodeIndex
+      : null;
+    plotTmp(tmpCanvas, {
+      sampleRateHz: tmpEditState.sampleRateHz,
+      sampleCount: tmpEditState.sampleCount,
+      nodes: buildTmpPlotNodes(tmpEditState),
+    });
+  }
+
+  function syncControls() {
+    const nodes = selectedRegion();
+    const parameter = EDITABLE_PARAMETERS.find((item) => item.id === tmpParameter.value) ?? EDITABLE_PARAMETERS[0];
+    const canEdit = nodes.length > 0;
+    tmpValue.disabled = !canEdit;
+    tmpApply.disabled = !canEdit;
+    tmpResetParameter.disabled = !canEdit;
+    tmpValue.step = String(parameter.step);
+    if (canEdit) {
+      const value = nodeParameterValue(tmpEditState, parameter.id, nodes[0], "adapted");
+      tmpValue.value = value === null ? "" : String(Math.round(value / parameter.step) * parameter.step);
+    } else {
+      tmpValue.value = "";
+    }
+    redrawTmp();
+  }
+
+  tmpParameter.addEventListener("change", syncControls);
+  tmpApply.addEventListener("click", () => {
+    applyParameterValue(tmpEditState, tmpParameter.value, selectedRegion(), Number.parseFloat(tmpValue.value));
+    syncControls();
+  });
+  tmpResetParameter.addEventListener("click", () => {
+    resetParameter(tmpEditState, tmpParameter.value, selectedRegion());
+    syncControls();
+  });
+  tmpResetBeat.addEventListener("click", () => {
+    resetBeat(tmpEditState);
+    syncControls();
+  });
+
+  return { syncControls };
 }
 
 function mountCaseMetadata(metadata) {
@@ -477,9 +574,11 @@ async function mount() {
   ]);
   shell.dataset.ready = "true";
   mountCaseMetadata(caseMetadata);
-  mountHeart(heartFixture);
+  tmpCanvas = document.querySelector("[data-tmp-canvas]");
+  const tmpEditing = mountTmpEditing(tmpFixture);
+  mountHeart(heartFixture, () => tmpEditing.syncControls());
   mountThorax(thoraxFixture);
-  plotTmp(document.querySelector("[data-tmp-canvas]"), tmpFixture);
+  tmpEditing.syncControls();
   plotSignals(document.querySelector("[data-leads-canvas]"), ecgFixture);
 }
 

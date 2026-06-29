@@ -95,6 +95,13 @@ def tmp_waveform_payload() -> dict[str, object]:
             "Preview waveform generated from stored source parameter vectors; "
             "exact legacy TMP generation remains a later parity task."
         ),
+        "parameterVectors": {
+            name: {
+                "initial": vectors["initial"].values,
+                "adapted": vectors["adapted"].values,
+            }
+            for name, vectors in parameter_vectors.items()
+        },
         "nodes": [
             {
                 "name": f"Heart node {node + 1}",

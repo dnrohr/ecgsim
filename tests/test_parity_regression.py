@@ -65,10 +65,16 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertEqual(fixture["sampleCount"], 576)
         self.assertEqual(fixture["sampleRateHz"], 1000)
         self.assertEqual(len(fixture["nodes"]), 5)
+        self.assertEqual(len(fixture["parameterVectors"]["depolarizationMs"]["initial"]), 576)
 
         path = Path(fixture["source"])
         depolarization = read_ecgsimcase_vector(path, 11272300)
         self.assertEqual(depolarization.length, fixture["nodeCount"])
+        self.assertAlmostEqual(
+            fixture["parameterVectors"]["depolarizationMs"]["initial"][0],
+            depolarization.values[0],
+            delta=1e-6,
+        )
         self.assertAlmostEqual(
             fixture["nodes"][0]["parameters"]["depolarizationMs"]["initial"],
             depolarization.values[0],

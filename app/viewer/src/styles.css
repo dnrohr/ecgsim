@@ -175,6 +175,10 @@ h2 {
   max-width: 62%;
 }
 
+.pane-tmp {
+  grid-template-rows: auto auto minmax(0, 1fr);
+}
+
 .layer-toggles {
   display: flex;
   flex-wrap: wrap;
@@ -225,6 +229,52 @@ h2 {
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.tmp-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tmp-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #52616b;
+  font-size: 12px;
+}
+
+.tmp-controls select,
+.tmp-controls input,
+.tmp-controls button {
+  min-height: 30px;
+  border: 1px solid #b8c3c8;
+  background: #ffffff;
+  color: #182026;
+  font: inherit;
+  font-size: 12px;
+}
+
+.tmp-controls select {
+  max-width: 150px;
+}
+
+.tmp-controls input {
+  width: 86px;
+}
+
+.tmp-controls button {
+  padding: 0 9px;
+  cursor: pointer;
+}
+
+.tmp-controls button:disabled,
+.tmp-controls input:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .viewport,
@@ -286,5 +336,10 @@ canvas {
 
   .selection-controls input {
     width: min(240px, 72vw);
+  }
+
+  .tmp-controls {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

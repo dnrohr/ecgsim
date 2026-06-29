@@ -38,7 +38,7 @@ Each task should end with:
 
 - [x] [0017 Design Source Editing Model](0017-design-source-editing-model.md)
 - [x] [0018 Implement Node And Region Selection](0018-implement-node-and-region-selection.md)
-- [0019 Implement TMP Parameter Editing](0019-implement-tmp-parameter-editing.md)
+- [x] [0019 Implement TMP Parameter Editing](0019-implement-tmp-parameter-editing.md)
 
 ## M5: Simulation/Recomputation
 

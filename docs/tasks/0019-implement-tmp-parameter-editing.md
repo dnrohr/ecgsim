@@ -20,6 +20,13 @@ This task changes data but does not need full ECG recomputation yet. It should m
 - Reset selected parameter or beat where supported.
 - Update TMP display after edits.
 
+## Result
+
+- Added full TMP parameter vectors to the viewer fixture.
+- Added browser-side TMP edit state helpers for apply, selected-parameter reset, beat reset, and preview regeneration.
+- Added TMP parameter controls that edit the selected heart region and redraw the TMP preview.
+- Extended smoke tests for edit and reset behavior.
+
 ## Verification
 
 - Tests cover data changes and reset behavior.
