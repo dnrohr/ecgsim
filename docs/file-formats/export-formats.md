@@ -394,3 +394,14 @@ Current behavior:
 - `read_vector` accepts only one-column matrices and returns a flat immutable tuple.
 
 Numeric parsing does not apply tolerances while reading. Tests use approximate comparisons only for floating-point assertions.
+
+`ecgsim.io.read_geometry` was added for task 0005.
+
+Current behavior:
+
+- ASCII `.tri` and binary `;;mbftri` files are supported.
+- Returned points are `(x, y, z)` float tuples with units recorded as `m`.
+- Returned triangles use zero-based indices for Python/rendering code.
+- `source_index_base` records the on-disk convention: `1` for ASCII `.tri`, `0` for `;;mbftri`.
+- Binary `;;mbftri` is interpreted as little-endian, matching the initial matrix-reader assumption.
+- ASCII `.tri` files may contain trailing metadata after the expected triangle rows; the mesh reader ignores that trailing text.
