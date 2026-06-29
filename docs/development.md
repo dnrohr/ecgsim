@@ -46,6 +46,8 @@ python tools/export_viewer_fixtures.py
 
 This regenerates `app/viewer/public/fixtures/heart.json` from archived legacy geometry.
 
+Regression tests also compare tracked viewer fixtures and the legacy screenshot manifest against the tolerances in `docs/parity.md`. When regenerating fixtures, run the Python test command before committing.
+
 ## Viewer Dev Server
 
 Run:

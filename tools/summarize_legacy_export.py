@@ -38,11 +38,20 @@ def build_manifest(root: Path) -> dict[str, object]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("export_dir", type=Path)
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="Write the manifest as UTF-8 JSON instead of printing to stdout.",
+    )
     args = parser.parse_args()
     export_dir = args.export_dir
     if not export_dir.is_dir():
         parser.error(f"{export_dir} is not a directory")
-    print(json.dumps(build_manifest(export_dir), indent=2))
+    manifest = json.dumps(build_manifest(export_dir), indent=2) + "\n"
+    if args.output:
+        args.output.write_text(manifest, encoding="utf-8")
+    else:
+        print(manifest, end="")
     return 0
 
 

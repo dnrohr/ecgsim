@@ -20,6 +20,11 @@ This task should turn the parity work into repeatable tests. Keep fixtures small
 - Add fixture generation notes.
 - Update task/check docs if a new verification command is introduced.
 
+## Result
+
+- Added `tests/test_parity_regression.py` for screenshot manifest integrity, viewer fixture dimensions, rounded geometry parity, parsed surface-potential samples, and TMP parameter-vector samples.
+- Updated `docs/development.md` with fixture-regeneration verification notes.
+
 ## Verification
 
 - Regression command passes.

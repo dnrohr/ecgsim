@@ -55,7 +55,7 @@ Regenerate the screenshot with:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/capture_legacy_screenshot.ps1
-python tools/summarize_legacy_export.py research/legacy-exports/screenshots > research/legacy-exports/screenshots-manifest.json
+python tools/summarize_legacy_export.py research/legacy-exports/screenshots --output research/legacy-exports/screenshots-manifest.json
 ```
 
 ## Manual Export Workflow To Try Later
@@ -67,7 +67,7 @@ python tools/summarize_legacy_export.py research/legacy-exports/screenshots > re
 5. Run:
 
 ```powershell
-python tools/summarize_legacy_export.py research/legacy-exports/raw/<case-name> > research/legacy-exports/<case-name>-manifest.json
+python tools/summarize_legacy_export.py research/legacy-exports/raw/<case-name> --output research/legacy-exports/<case-name>-manifest.json
 ```
 
 Commit only manifests and small, justified reference files. Keep large raw exports ignored unless a later task explicitly promotes a small fixture.
