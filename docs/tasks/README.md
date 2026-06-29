@@ -11,7 +11,7 @@ Each task should end with:
 
 ## M1: Data Inventory And Parsers
 
-- [0001 Inspect ECGsimcase Structure](0001-inspect-ecgsimcase-structure.md)
+- [x] [0001 Inspect ECGsimcase Structure](0001-inspect-ecgsimcase-structure.md)
 - [0002 Document Legacy Export Formats](0002-document-legacy-export-formats.md)
 - [0003 Choose Runtime And Scaffold Parser Package](0003-choose-runtime-and-scaffold-parser-package.md)
 - [0004 Implement Matrix And Vector Readers](0004-implement-matrix-and-vector-readers.md)
