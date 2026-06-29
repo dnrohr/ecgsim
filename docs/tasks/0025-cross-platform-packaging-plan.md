@@ -20,6 +20,12 @@ Legacy ECGSIM shipped Windows and Mac packages. The modern project should decide
 - Document target platforms, build artifacts, signing/notarization needs if applicable, and release process.
 - Add packaging scripts only if the app is ready enough.
 
+## Result
+
+- Added `docs/packaging.md` covering current stack, staged targets, static preview needs, Python package artifacts, desktop wrapper options, signing/notarization, and release checklist.
+- Linked the packaging plan from `README.md`.
+- Added no packaging scripts because the current viewer is still fixture-backed and not ready for release artifact automation.
+
 ## Verification
 
 - Packaging plan matches actual app technology.
