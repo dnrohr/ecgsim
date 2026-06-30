@@ -57,7 +57,7 @@ Each task should end with:
 ## FP0: Parity Definition
 
 - [x] [0026 Inventory Legacy UI And Workflows](0026-inventory-legacy-ui-and-workflows.md)
-- [ ] [0027 Define Feature Parity Matrix And Golden Workflows](0027-define-feature-parity-matrix-and-golden-workflows.md)
+- [x] [0027 Define Feature Parity Matrix And Golden Workflows](0027-define-feature-parity-matrix-and-golden-workflows.md)
 - [ ] [0028 Expand Legacy Reference Capture Plan](0028-expand-legacy-reference-capture-plan.md)
 
 ## FP1: Real Case Loading

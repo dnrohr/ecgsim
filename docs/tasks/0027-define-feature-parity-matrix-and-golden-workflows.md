@@ -30,3 +30,9 @@ Feature parity must be measurable. The matrix should track status across legacy 
 ## Done When
 
 The team can prioritize work by parity gap instead of by intuition.
+
+## Result
+
+Added `docs/feature-parity/matrix.md` with one row for every feature in the legacy workflow inventory, normalized status definitions, priorities, and next-roadmap-task pointers.
+
+Added `docs/feature-parity/golden-workflows.md` with normal male and WPW reference cases plus repeatable workflow targets for case loading, view controls, TMP editing, lead switching, time playback, export, and help/reference behavior.
