@@ -8,11 +8,15 @@ import {
 } from "../src/selection.js";
 import {
   applyParameterValue,
+  applyWeightedParameterTransaction,
   applyWeightedParameterValue,
   createTmpEditState,
   nodeParameterValue,
+  redoLastTransaction,
   resetBeat,
   resetParameter,
+  resetWeightedParameterTransaction,
+  undoLastTransaction,
 } from "../src/tmp-editing.js";
 
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
@@ -72,6 +76,8 @@ const required = [
   "data-tmp-apply",
   "data-tmp-reset-parameter",
   "data-tmp-reset-beat",
+  "data-tmp-undo",
+  "data-tmp-redo",
   "data-tmp-combine-handlers",
   "data-tmp-keep-apd",
   "data-tmp-show-egm",
@@ -257,6 +263,34 @@ if (nodeParameterValue(editState, "depolarizationMs", 0, "adapted") !== original
 resetBeat(editState);
 if (nodeParameterValue(editState, "depolarizationMs", 1, "adapted") !== editState.parameters.depolarizationMs.initial[1]) {
   console.error("TMP beat reset failed");
+  process.exit(1);
+}
+const transactionalState = createTmpEditState(tmpFixture);
+const transactionalOriginal = nodeParameterValue(transactionalState, "depolarizationMs", 0, "adapted");
+const transaction = applyWeightedParameterTransaction(
+  transactionalState,
+  "depolarizationMs",
+  [{ index: 0, weight: 1 }],
+  transactionalOriginal + 12,
+  { mode: "singleNode", centerNodeIndex: 0 },
+);
+if (!transaction || transactionalState.undoStack.length !== 1 || transactionalState.redoStack.length !== 0) {
+  console.error("TMP transaction was not recorded");
+  process.exit(1);
+}
+undoLastTransaction(transactionalState);
+if (nodeParameterValue(transactionalState, "depolarizationMs", 0, "adapted") !== transactionalOriginal) {
+  console.error("TMP undo failed");
+  process.exit(1);
+}
+redoLastTransaction(transactionalState);
+if (nodeParameterValue(transactionalState, "depolarizationMs", 0, "adapted") !== transactionalOriginal + 12) {
+  console.error("TMP redo failed");
+  process.exit(1);
+}
+resetWeightedParameterTransaction(transactionalState, "depolarizationMs", [{ index: 0, weight: 1 }]);
+if (transactionalState.undoStack.length !== 2 || transactionalState.redoStack.length !== 0) {
+  console.error("TMP reset transaction stack failed");
   process.exit(1);
 }
 

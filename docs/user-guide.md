@@ -80,7 +80,7 @@ This prints the known marker inventory and unsupported payload categories for th
 - TMP generation is deterministic but provisional; it is not yet parity-verified against legacy `.user.source` exports.
 - ECG recomputation after TMP edits is not wired into the viewer yet.
 - Baseline coupling uses supplied fiducials when available and otherwise falls back to first/last sample correction; exact legacy P/T fiducial handling is still unknown.
-- Endocardial/epicardial switching and transmural edits are disabled per case until explicit wall pairings are parsed. Accumulation undo/redo, movie playback, and full legacy lead layout semantics are not implemented.
+- Endocardial/epicardial switching and transmural edits are disabled per case until explicit wall pairings are parsed. TMP edit undo/redo is in-memory; source edit export/write-back, movie playback, and full legacy lead layout semantics are not implemented.
 - The original Windows and macOS app packages are reference binaries and intentionally ignored by git.
 
 ## Developer Checks

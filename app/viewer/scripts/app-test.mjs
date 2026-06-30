@@ -292,10 +292,14 @@ async function assertHeartSelectionAndTmpEditing(page) {
   const applyButton = page.locator("[data-tmp-apply]");
   const resetParameter = page.locator("[data-tmp-reset-parameter]");
   const resetBeat = page.locator("[data-tmp-reset-beat]");
+  const undoButton = page.locator("[data-tmp-undo]");
+  const redoButton = page.locator("[data-tmp-redo]");
 
   assert.equal(await valueInput.isEnabled(), true, "TMP value should enable after heart selection");
   assert.equal(await incrementButton.isEnabled(), true, "TMP increment should enable after heart selection");
   assert.equal(await applyButton.isEnabled(), true, "TMP apply should enable after heart selection");
+  assert.equal(await undoButton.isDisabled(), true, "Undo should start disabled");
+  assert.equal(await redoButton.isDisabled(), true, "Redo should start disabled");
   assert.equal(await page.locator("[data-tmp-combine-handlers]").isDisabled(), true, "combined TMP handlers should be unavailable");
   assert.equal(await page.locator("[data-tmp-keep-apd]").isDisabled(), true, "constant APD mode should be unavailable");
   assert.equal(await page.locator("[data-tmp-show-egm]").isDisabled(), true, "electrogram toggle should be unavailable");
@@ -316,6 +320,7 @@ async function assertHeartSelectionAndTmpEditing(page) {
   const originalValue = Number(await valueInput.inputValue());
   await incrementButton.click();
   assert.equal(Number(await valueInput.inputValue()), originalValue + 1, "TMP increment should nudge by parameter step");
+  assert.equal(await undoButton.isEnabled(), true, "Undo should enable after TMP edit");
   await resetParameter.click();
   assert.equal(Number(await valueInput.inputValue()), originalValue, "Reset parameter should restore nudged value");
 
@@ -327,6 +332,14 @@ async function assertHeartSelectionAndTmpEditing(page) {
   assert.equal(Number(await valueInput.inputValue()), editedValue, "Apply should keep the edited TMP value");
   const tmpEdited = await canvasSignature(page, "[data-tmp-canvas]");
   assert.notEqual(tmpEdited, tmpBefore, "TMP canvas should redraw after parameter edit");
+
+  await undoButton.click();
+  assert.equal(Number(await valueInput.inputValue()), originalValue, "Undo should restore prior TMP value");
+  assert.equal(await redoButton.isEnabled(), true, "Redo should enable after undo");
+
+  await redoButton.click();
+  assert.equal(Number(await valueInput.inputValue()), editedValue, "Redo should restore edited TMP value");
+  assert.equal(await redoButton.isDisabled(), true, "Redo should disable after replay");
 
   await resetParameter.click();
   assert.equal(Number(await valueInput.inputValue()), originalValue, "Reset parameter should restore initial value");

@@ -28,3 +28,7 @@ The source editing model already names edit policies, but the viewer only applie
 ## Done When
 
 Users can reproduce multi-region edit workflows deterministically.
+
+## Completion Note
+
+Completed by adding in-memory TMP edit transactions with undo/redo stacks. Apply, increment/decrement, selected-parameter reset, and beat reset now record concrete adapted-value changes; single and expand selection modes preserve node-weight metadata for deterministic multi-region edits.

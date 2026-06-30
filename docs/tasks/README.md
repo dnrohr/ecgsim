@@ -85,7 +85,7 @@ Each task should end with:
 
 - [x] [0044 Implement Selection Modes And Transition Zones](0044-implement-selection-modes-and-transition-zones.md)
 - [x] [0045 Implement Endocardial Epicardial And Transmural Mapping](0045-implement-endocardial-epicardial-and-transmural-mapping.md)
-- [ ] [0046 Implement Accumulation Modes Undo And Redo](0046-implement-accumulation-modes-undo-and-redo.md)
+- [x] [0046 Implement Accumulation Modes Undo And Redo](0046-implement-accumulation-modes-undo-and-redo.md)
 - [ ] [0047 Implement Source Edit Persistence Model](0047-implement-source-edit-persistence-model.md)
 
 ## FP4: Scientific Recomputation Parity

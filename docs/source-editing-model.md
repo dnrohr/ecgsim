@@ -116,6 +116,8 @@ Undo:
 - Undo restores each `previousAdapted` value in reverse transaction order.
 - Redo can replay `nextAdapted` values if implemented.
 
+Current web-viewer status: ventricular TMP edits, selected-parameter reset, beat reset, undo, and redo use this transaction shape in memory. Persisting those transactions to case export is deferred.
+
 Reset selected parameter:
 
 - Double-clicking a TMP handler resets that parameter for the active selection by creating a normal transaction with `nextAdapted = initial`.

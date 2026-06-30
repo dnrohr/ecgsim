@@ -3,12 +3,14 @@ import { buildRmsTrace, filterTraces } from "./filtering.js";
 import { computeWeightedRegionMembership, mergeWeightedRegions } from "./selection.js";
 import {
   EDITABLE_PARAMETERS,
-  applyWeightedParameterValue,
+  applyWeightedParameterTransaction,
   buildTmpPlotNodes,
   createTmpEditState,
   nodeParameterValue,
-  resetBeat,
-  resetWeightedParameter,
+  redoLastTransaction,
+  resetBeatTransaction,
+  resetWeightedParameterTransaction,
+  undoLastTransaction,
 } from "./tmp-editing.js";
 
 const status = document.querySelector("[data-case-status]");
@@ -69,6 +71,8 @@ const tmpIncrement = document.querySelector("[data-tmp-increment]");
 const tmpApply = document.querySelector("[data-tmp-apply]");
 const tmpResetParameter = document.querySelector("[data-tmp-reset-parameter]");
 const tmpResetBeat = document.querySelector("[data-tmp-reset-beat]");
+const tmpUndo = document.querySelector("[data-tmp-undo]");
+const tmpRedo = document.querySelector("[data-tmp-redo]");
 const tmpCombineHandlers = document.querySelector("[data-tmp-combine-handlers]");
 const tmpKeepApd = document.querySelector("[data-tmp-keep-apd]");
 const tmpShowEgm = document.querySelector("[data-tmp-show-egm]");
@@ -1154,6 +1158,8 @@ function mountTmpEditing(fixture) {
     !tmpApply ||
     !tmpResetParameter ||
     !tmpResetBeat ||
+    !tmpUndo ||
+    !tmpRedo ||
     !tmpParameterStatus
   ) {
     throw new Error("TMP editing controls did not mount");
@@ -1218,6 +1224,8 @@ function mountTmpEditing(fixture) {
     tmpIncrement.disabled = !canEdit;
     tmpApply.disabled = !canEdit;
     tmpResetParameter.disabled = !canEdit;
+    tmpUndo.disabled = tmpEditState.undoStack.length === 0;
+    tmpRedo.disabled = tmpEditState.redoStack.length === 0;
     tmpValue.step = String(parameter.step);
     if (canEdit) {
       const initial = nodeParameterValue(tmpEditState, parameter.id, weightedNodes[0].index, "initial");
@@ -1248,8 +1256,18 @@ function mountTmpEditing(fixture) {
       return;
     }
     tmpValue.value = String(Math.round((current + direction * parameter.step) / parameter.step) * parameter.step);
-    applyWeightedParameterValue(tmpEditState, tmpParameter.value, selectedWeightedRegion(), Number.parseFloat(tmpValue.value));
+    applyWeightedParameterTransaction(tmpEditState, tmpParameter.value, selectedWeightedRegion(), Number.parseFloat(tmpValue.value), selectionMetadata());
+    setTmpStatus("TMP parameter edit recorded.");
     syncControls();
+  }
+
+  function selectionMetadata() {
+    return {
+      mode: selectionState.mode === "expand" ? "expandRegion" : "replaceWithPreviousAdapted",
+      centerNodeIndex: selectionState.nodeIndex,
+      radiusMm: selectionState.radiusMm,
+      transitionMm: selectionState.transitionMm,
+    };
   }
 
   tmpParameter.onchange = syncControls;
@@ -1259,19 +1277,42 @@ function mountTmpEditing(fixture) {
   tmpDecrement.onclick = () => nudgeParameter(-1);
   tmpIncrement.onclick = () => nudgeParameter(1);
   tmpApply.onclick = () => {
-    applyWeightedParameterValue(tmpEditState, tmpParameter.value, selectedWeightedRegion(), Number.parseFloat(tmpValue.value));
+    applyWeightedParameterTransaction(tmpEditState, tmpParameter.value, selectedWeightedRegion(), Number.parseFloat(tmpValue.value), selectionMetadata());
+    setTmpStatus("TMP parameter edit recorded.");
     syncControls();
   };
   tmpResetParameter.onclick = () => {
-    resetWeightedParameter(tmpEditState, tmpParameter.value, selectedWeightedRegion());
+    resetWeightedParameterTransaction(tmpEditState, tmpParameter.value, selectedWeightedRegion(), selectionMetadata());
+    setTmpStatus("TMP parameter reset recorded.");
     syncControls();
   };
   tmpResetBeat.onclick = () => {
-    resetBeat(tmpEditState);
+    resetBeatTransaction(tmpEditState);
+    setTmpStatus("TMP beat reset recorded.");
+    syncControls();
+  };
+  tmpUndo.onclick = () => {
+    const transaction = undoLastTransaction(tmpEditState);
+    if (transaction) {
+      setTmpStatus(`Undid ${transaction.kind}.`);
+    }
+    syncControls();
+  };
+  tmpRedo.onclick = () => {
+    const transaction = redoLastTransaction(tmpEditState);
+    if (transaction) {
+      setTmpStatus(`Redid ${transaction.kind}.`);
+    }
     syncControls();
   };
 
   return { syncControls, redrawTmp };
+}
+
+function setTmpStatus(message) {
+  if (statusMessage) {
+    statusMessage.value = message;
+  }
 }
 
 function updateCaseMetadata(metadata, noticeText) {
