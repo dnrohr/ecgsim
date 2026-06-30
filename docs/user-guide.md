@@ -97,6 +97,8 @@ python -m ecgsim.cli.export_case research/source/www.ecgsim.org/downloads/cases/
 
 This writes a legacy-style directory with supported geometry, source-vector, surface-potential, and metadata files. The export is a useful modern subset; `metadata.json` records unsupported legacy members.
 
+See `docs/import-export-compatibility.md` for the complete compatibility table and current limitations.
+
 ## Unsupported Or Partial Features
 
 - Arbitrary `.ECGsimcase` files are not parsed in the browser yet. The file picker loads only cases present in the generated supported-case manifest and leaves the current case visible when a file is unsupported.
