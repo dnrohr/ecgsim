@@ -21,6 +21,12 @@ The current web app is a prototype. Feature parity needs a factual inventory bef
 - Cover Heart, Thorax, TMP, Leads/ECG, File, Options, Help, and export workflows.
 - Mark evidence source for each item: app observation, manual page, screenshot, or export.
 
+## Result
+
+- Added `docs/feature-parity/inventory.md`.
+- Inventoried main layout, File/case/export workflows, Heart, Thorax, TMP, Leads/ECG, Tools, Focus, Preferences, clipboard, visual output, screenshot evidence, and unknowns.
+- Marked each row with evidence source IDs and current modern status.
+
 ## Verification
 
 - Inventory references at least one source for each major legacy view.
