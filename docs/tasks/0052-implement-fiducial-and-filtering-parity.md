@@ -29,3 +29,7 @@ Current baseline mode falls back to first/last sample correction. Legacy behavio
 ## Done When
 
 Filtering modes are parity-tested rather than approximate.
+
+## Progress Note
+
+Partially implemented by making baseline fiducial availability explicit in case metadata and fixtures, exposing whether baseline correction uses parsed P/T fiducials or fallback signal endpoints, and verifying AC/DC/baseline mode switching in core and app tests. Full parity remains blocked by missing raw legacy exports from task `0048` and by unlocated P-wave/T-wave sample fields.

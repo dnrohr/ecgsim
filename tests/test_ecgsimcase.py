@@ -284,7 +284,10 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
         self.assertEqual((signal.rows, signal.columns), (300, 1000))
         self.assertEqual(signal.sample_rate_hz, 1000)
         self.assertEqual(signal.signal_kind, "thorax-node surface potentials")
-        self.assertIsNone(signal.fiducials)
+        self.assertEqual(signal.fiducials.status, "unavailable")
+        self.assertIsNone(signal.fiducials.baseline_start_index)
+        self.assertIsNone(signal.fiducials.baseline_end_index)
+        self.assertIn("P-wave start", signal.fiducials.interpretation)
         self.assertIn("fiducial", signal.unsupported_fields[1])
 
     def test_load_case_returns_normalized_case_object(self) -> None:

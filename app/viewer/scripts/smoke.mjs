@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { buildRmsTrace, filterSignal } from "../src/filtering.js";
+import { baselineWindowForSignal, buildRmsTrace, filterSignal } from "../src/filtering.js";
 import {
   computeRegionMembership,
   computeWeightedRegionMembership,
@@ -190,7 +190,8 @@ if (
   ecgFixture.sampleRateHz !== 1000 ||
   ecgFixture.traces.length !== 6 ||
   ecgFixture.surfaceMap.nodeCount !== 300 ||
-  ecgFixture.surfaceMap.sampleCount !== 576
+  ecgFixture.surfaceMap.sampleCount !== 576 ||
+  ecgFixture.fiducials?.status !== "unavailable"
 ) {
   console.error("Unexpected ECG signal fixture metadata");
   process.exit(1);
@@ -214,6 +215,10 @@ if (acFiltered[0] !== -1 || acFiltered[1] !== 0 || acFiltered[2] !== 1) {
 const baselineFiltered = filterSignal([5, 7, 9], "baseline");
 if (baselineFiltered.some((value) => value !== 0)) {
   console.error("Baseline filtering failed");
+  process.exit(1);
+}
+if (baselineWindowForSignal(3).source !== "signal-ends" || baselineWindowForSignal(3, 0, 2).source !== "fiducials") {
+  console.error("Baseline window source tracking failed");
   process.exit(1);
 }
 const rmsTrace = buildRmsTrace([{ values: [3, 4] }, { values: [0, 3] }]);

@@ -196,6 +196,7 @@ async function assertHeartViewControls(page) {
 
 async function assertLeadsFiltering(page) {
   const canvas = "[data-leads-canvas]";
+  await expectText(page, "[data-leads-status]", "Baseline fallback uses signal endpoints");
   await expectText(page, "[data-leads-status]", "measured/initial/adapted classification unavailable");
   assert.equal(await page.locator("[data-leads-measured]").isDisabled(), true, "measured overlay should be unavailable");
   assert.equal(await page.locator("[data-leads-initial]").isDisabled(), true, "initial overlay should be unavailable");
@@ -227,15 +228,18 @@ async function assertLeadsFiltering(page) {
 
   await page.locator("[data-leads-filter]").selectOption("ac");
   await expectText(page, "[data-leads-metadata]", "/ AC");
+  await expectText(page, "[data-leads-status]", "AC coupling, time mean removed");
   const acSignature = await canvasSignature(page, canvas);
   assert.notEqual(acSignature, noGridSignature, "AC coupling should redraw leads");
 
   await page.locator("[data-leads-filter]").selectOption("dc");
   await expectText(page, "[data-leads-metadata]", "/ DC");
+  await expectText(page, "[data-leads-status]", "DC coupling, unfiltered");
   assert.equal(await page.locator("[data-leads-filter]").inputValue(), "dc", "DC coupling should be selected");
 
   await page.locator("[data-leads-filter]").selectOption("baseline");
   await expectText(page, "[data-leads-metadata]", "/ BASELINE");
+  await expectText(page, "[data-leads-status]", "Baseline fallback uses signal endpoints");
   await page.locator("[data-leads-system]").selectOption("standard_12");
   await setRangeValue(page, "[data-leads-scale]", "100");
   await page.locator("[data-leads-rms]").uncheck();

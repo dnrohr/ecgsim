@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { buildRmsTrace, filterTraces } from "./filtering.js";
+import { baselineWindowForSignal, buildRmsTrace, filterTraces } from "./filtering.js";
 import { computeWeightedRegionMembership, mergeWeightedRegions } from "./selection.js";
 import {
   EDITABLE_PARAMETERS,
@@ -889,11 +889,12 @@ function plotSignals(
   const plotWidth = width - left - right;
   const plotHeight = height - top - bottom;
   const signalSet = leadSystemTraces(fixture, leadSystem);
+  const fiducials = fixture.fiducials ?? {};
   const filteredTraces = filterTraces(
     signalSet.traces,
     mode,
-    fixture.baselineStartIndex ?? null,
-    fixture.baselineEndIndex ?? null,
+    fiducials.baselineStartIndex ?? null,
+    fiducials.baselineEndIndex ?? null,
   );
   const traces = showRms
     ? [...filteredTraces, buildRmsTrace(filteredTraces)]
@@ -993,8 +994,25 @@ function plotSignals(
   leadsMetadata.value =
     `${systemText} / plotted ${traces.length} / ${signalSet.sampleCount} samples / ${signalSet.sampleRateHz} Hz / ${mode.toUpperCase()} / ${Math.round(scale * 100)}%`;
   if (leadsStatus) {
-    leadsStatus.value = `${signalSet.signalKind}; measured/initial/adapted classification unavailable`;
+    leadsStatus.value = `${signalSet.signalKind}; ${filteringStatus(mode, signalSet.sampleCount, fiducials)}; measured/initial/adapted classification unavailable`;
   }
+}
+
+function filteringStatus(mode, sampleCount, fiducials) {
+  if (mode === "dc") {
+    return "DC coupling, unfiltered";
+  }
+  if (mode === "ac") {
+    return "AC coupling, time mean removed";
+  }
+  const window = baselineWindowForSignal(
+    sampleCount,
+    fiducials?.baselineStartIndex ?? null,
+    fiducials?.baselineEndIndex ?? null,
+  );
+  return window.source === "fiducials"
+    ? `Baseline P/T fiducials ${window.startIndex}-${window.endIndex}`
+    : "Baseline fallback uses signal endpoints";
 }
 
 function leadSystemTraces(fixture, leadSystem) {

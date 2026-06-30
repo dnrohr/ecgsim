@@ -79,7 +79,7 @@ This prints the known marker inventory and unsupported payload categories for th
 - Saving or exporting adapted cases is not implemented.
 - TMP generation is deterministic but provisional; it is not yet parity-verified against legacy `.user.source` exports.
 - ECG recomputation after TMP edits is not wired into the viewer yet.
-- Baseline coupling uses supplied fiducials when available and otherwise falls back to first/last sample correction; exact legacy P/T fiducial handling is still unknown.
+- Baseline coupling reports whether it uses parsed fiducials or fallback signal endpoints. Bundled cases currently use the fallback because legacy P/T fiducial samples have not been located.
 - Endocardial/epicardial switching and transmural edits are disabled per case until explicit wall pairings are parsed. TMP edits can be saved as modern sidecar state; source edit `.ECGsimcase` write-back, movie playback, and full legacy lead layout semantics are not implemented.
 - The original Windows and macOS app packages are reference binaries and intentionally ignored by git.
 

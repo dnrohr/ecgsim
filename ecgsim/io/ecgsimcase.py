@@ -186,6 +186,16 @@ class ECGsimCaseLeadSystem:
 
 
 @dataclass(frozen=True)
+class ECGsimCaseFiducials:
+    """Fiducial samples used by legacy baseline coupling when known."""
+
+    status: str
+    baseline_start_index: int | None
+    baseline_end_index: int | None
+    interpretation: str
+
+
+@dataclass(frozen=True)
 class ECGsimCaseSignalMetadata:
     """Known ECG/surface-potential matrix metadata."""
 
@@ -195,7 +205,7 @@ class ECGsimCaseSignalMetadata:
     sample_rate_hz: int
     signal_kind: str
     units: str
-    fiducials: None
+    fiducials: ECGsimCaseFiducials
     unsupported_fields: tuple[str, ...]
 
 
@@ -444,7 +454,15 @@ def read_ecgsimcase_signal_metadata(path: str | Path) -> ECGsimCaseSignalMetadat
         sample_rate_hz=1000,
         signal_kind="thorax-node surface potentials",
         units="mV",
-        fiducials=None,
+        fiducials=ECGsimCaseFiducials(
+            status="unavailable",
+            baseline_start_index=None,
+            baseline_end_index=None,
+            interpretation=(
+                "Legacy baseline coupling should use P-wave start and T-wave termination; "
+                "these samples have not been located in the parsed case payload."
+            ),
+        ),
         unsupported_fields=(
             "measured/initial/adapted signal classification",
             "P-wave/T-wave fiducial samples for baseline correction",

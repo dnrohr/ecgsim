@@ -18,6 +18,19 @@ export function filterTraces(traces, mode, baselineStartIndex = null, baselineEn
   }));
 }
 
+export function baselineWindowForSignal(sampleCount, baselineStartIndex = null, baselineEndIndex = null) {
+  if (sampleCount <= 0) {
+    throw new Error("Signal must contain at least one sample");
+  }
+  const source = baselineStartIndex !== null && baselineEndIndex !== null ? "fiducials" : "signal-ends";
+  const start = baselineStartIndex ?? 0;
+  const end = baselineEndIndex ?? sampleCount - 1;
+  if (start < 0 || start >= sampleCount || end < 0 || end >= sampleCount) {
+    throw new Error("Baseline fiducials are outside the signal");
+  }
+  return { startIndex: start, endIndex: end, source };
+}
+
 export function buildRmsTrace(traces, name = "RMS") {
   if (!traces.length) {
     return { name, sourceRow: null, values: [] };
@@ -42,11 +55,11 @@ function acCoupled(values) {
 }
 
 function baselineCorrected(values, baselineStartIndex, baselineEndIndex) {
-  const start = baselineStartIndex ?? 0;
-  const end = baselineEndIndex ?? values.length - 1;
-  if (start < 0 || start >= values.length || end < 0 || end >= values.length) {
-    throw new Error("Baseline fiducials are outside the signal");
-  }
+  const { startIndex: start, endIndex: end } = baselineWindowForSignal(
+    values.length,
+    baselineStartIndex,
+    baselineEndIndex,
+  );
   if (start === end) {
     return values.map((value) => value - values[start]);
   }

@@ -93,6 +93,12 @@ def ecg_signal_payload(case, case_path: Path) -> dict[str, object]:
         "rows": matrix.rows,
         "columns": matrix.columns,
         "units": signal.units,
+        "fiducials": {
+            "status": signal.fiducials.status,
+            "baselineStartIndex": signal.fiducials.baseline_start_index,
+            "baselineEndIndex": signal.fiducials.baseline_end_index,
+            "interpretation": signal.fiducials.interpretation,
+        },
         "unsupportedFields": signal.unsupported_fields,
         "surfaceMap": {
             "kind": "measured",

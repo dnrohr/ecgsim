@@ -2,12 +2,44 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Literal, Sequence
 
 from ecgsim.io import MatrixData
 
 
 FilteringMode = Literal["baseline", "ac", "dc"]
+
+
+@dataclass(frozen=True)
+class BaselineWindow:
+    """Sample window used for baseline coupling."""
+
+    start_index: int
+    end_index: int
+    source: Literal["fiducials", "signal-ends"]
+
+
+def baseline_window_for_signal(
+    sample_count: int,
+    *,
+    baseline_start_index: int | None = None,
+    baseline_end_index: int | None = None,
+) -> BaselineWindow:
+    """Resolve baseline fiducials or the documented fallback window."""
+
+    if sample_count <= 0:
+        raise ValueError("signal must contain at least one sample")
+    source: Literal["fiducials", "signal-ends"] = (
+        "fiducials" if baseline_start_index is not None and baseline_end_index is not None else "signal-ends"
+    )
+    start = 0 if baseline_start_index is None else baseline_start_index
+    end = sample_count - 1 if baseline_end_index is None else baseline_end_index
+    if start < 0 or start >= sample_count:
+        raise ValueError("baseline_start_index is outside the signal")
+    if end < 0 or end >= sample_count:
+        raise ValueError("baseline_end_index is outside the signal")
+    return BaselineWindow(start_index=start, end_index=end, source=source)
 
 
 def filter_signal(
@@ -67,14 +99,13 @@ def _baseline_corrected(
     baseline_start_index: int | None,
     baseline_end_index: int | None,
 ) -> tuple[float, ...]:
-    if not values:
-        raise ValueError("signal must contain at least one sample")
-    start = 0 if baseline_start_index is None else baseline_start_index
-    end = len(values) - 1 if baseline_end_index is None else baseline_end_index
-    if start < 0 or start >= len(values):
-        raise ValueError("baseline_start_index is outside the signal")
-    if end < 0 or end >= len(values):
-        raise ValueError("baseline_end_index is outside the signal")
+    window = baseline_window_for_signal(
+        len(values),
+        baseline_start_index=baseline_start_index,
+        baseline_end_index=baseline_end_index,
+    )
+    start = window.start_index
+    end = window.end_index
     if start == end:
         offset = float(values[start])
         return tuple(float(value) - offset for value in values)

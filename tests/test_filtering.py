@@ -1,6 +1,6 @@
 import unittest
 
-from ecgsim.core import filter_matrix, filter_signal
+from ecgsim.core import baseline_window_for_signal, filter_matrix, filter_signal
 from ecgsim.io import MatrixData
 
 
@@ -30,6 +30,19 @@ class FilteringTests(unittest.TestCase):
         filtered = filter_signal((5.0, 7.0, 9.0), "baseline")
 
         self.assertEqual(filtered, (0.0, 0.0, 0.0))
+
+    def test_baseline_window_reports_fiducial_or_fallback_source(self) -> None:
+        fiducial_window = baseline_window_for_signal(
+            100,
+            baseline_start_index=10,
+            baseline_end_index=90,
+        )
+        fallback_window = baseline_window_for_signal(100)
+
+        self.assertEqual((fiducial_window.start_index, fiducial_window.end_index), (10, 90))
+        self.assertEqual(fiducial_window.source, "fiducials")
+        self.assertEqual((fallback_window.start_index, fallback_window.end_index), (0, 99))
+        self.assertEqual(fallback_window.source, "signal-ends")
 
     def test_filter_matrix_applies_mode_per_row(self) -> None:
         matrix = MatrixData(

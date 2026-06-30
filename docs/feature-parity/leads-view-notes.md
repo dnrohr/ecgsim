@@ -11,6 +11,7 @@ Status: task `0039` parity notes for the modern Leads pane.
 - Grid visibility toggle.
 - RMS trace overlay computed from currently plotted traces.
 - Plot metadata shows selected lead-system counts, plotted trace count, sample count, sample rate, coupling mode, and scale.
+- Coupling status reports AC/DC behavior or whether baseline mode uses parsed fiducials versus signal-end fallback.
 - Measured, initial, and adapted signal overlays are visible but disabled when the current fixture lacks signal classification.
 
 ## Current Limitations
@@ -19,4 +20,4 @@ Status: task `0039` parity notes for the modern Leads pane.
 - Current lead-system plots are electrode surface-potential traces, not transformed clinical lead signals.
 - Measured, initial, adapted, and selected-heart-node electrogram overlays require parsed signal classification and matrix mapping.
 - Beat zoom, interval selection, shared time cursor, VCG loop rendering, and clipboard export remain future parity work.
-- Baseline correction remains approximate until P-wave and T-wave fiducial samples are parsed.
+- Bundled cases use signal-end fallback for baseline correction until P-wave and T-wave fiducial samples are parsed.
