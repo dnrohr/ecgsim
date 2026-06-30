@@ -40,5 +40,6 @@ Added raw-export intake diagnostics while capture remains blocked.
 - `tools/summarize_legacy_export.py` now classifies legacy export files, records matrix/vector/geometry shapes when readable, and reports whether `.user.source`, `.adaptECG`, and `.refECG` artifacts are present.
 - `tools/validate_legacy_capture.py` now produces JSON or Markdown capture handoff reports with the manifest, optional modern-export comparison, and readiness for downstream tasks `0049`, `0051`, `0052`, and `0053`.
 - The validator supports `--require-ready` for full downstream readiness and `--require-task <id>` for accepting a partial capture that unblocks a specific next task, such as `0049`.
+- `tools/promote_legacy_parity_fixtures.py` can copy reviewed `.user.source`, `.refECG`, or `.adaptECG` artifacts from an ignored raw capture into a curated fixture directory with a checksum/shape manifest.
 - Added tests with a synthetic export tree to prove manifest classification, checksum, shape, and parity-readiness behavior.
 - Raw legacy export capture is still required before tasks `0049`, `0051`, `0052`, and full `0053` can claim scientific parity.

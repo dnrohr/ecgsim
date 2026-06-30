@@ -138,6 +138,14 @@ Use `--require-ready` when the command should fail unless all required downstrea
 python tools/validate_legacy_capture.py research/legacy-exports/raw/<case-name>/export-directory --format markdown --require-task 0049 --output research/legacy-exports/<case-name>-0049-handoff.md
 ```
 
+After review, promote only the small raw artifacts needed for automated parity tests:
+
+```powershell
+python tools/promote_legacy_parity_fixtures.py research/legacy-exports/raw/<case-name>/export-directory tests/fixtures/legacy-parity/<case-name> --case-id <case-name> --artifact tmpSource
+```
+
+The promotion command copies selected artifacts such as `.user.source`, `.refECG`, or `.adaptECG` and writes a fixture manifest with checksums and numeric summaries. Keep full raw exports ignored; commit promoted fixtures only when a focused parity task needs them.
+
 Commit only manifests and small, justified reference files. Keep large raw exports ignored unless a later task explicitly promotes a small fixture.
 
 ## Screenshot Manual Workflow
