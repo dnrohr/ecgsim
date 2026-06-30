@@ -143,13 +143,22 @@ if (
   ecgFixture.rows !== 300 ||
   ecgFixture.columns !== 1000 ||
   ecgFixture.sampleRateHz !== 1000 ||
-  ecgFixture.traces.length !== 6
+  ecgFixture.traces.length !== 6 ||
+  ecgFixture.surfaceMap.nodeCount !== 300 ||
+  ecgFixture.surfaceMap.sampleCount !== 576
 ) {
   console.error("Unexpected ECG signal fixture metadata");
   process.exit(1);
 }
 if (ecgFixture.traces.some((trace) => trace.values.length !== 1000)) {
   console.error("Unexpected ECG signal trace length");
+  process.exit(1);
+}
+if (
+  ecgFixture.surfaceMap.valuesByNode.length !== 300 ||
+  ecgFixture.surfaceMap.valuesByNode[0].length !== 576
+) {
+  console.error("Unexpected ECG surface map dimensions");
   process.exit(1);
 }
 const acFiltered = filterSignal([1, 2, 3], "ac");

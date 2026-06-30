@@ -29,6 +29,7 @@ TMP_TARGET = ROOT / "app/viewer/public/fixtures/tmp-waveforms.json"
 CASE_METADATA_TARGET = ROOT / "app/viewer/public/fixtures/case-metadata.json"
 CASE_BUNDLE_DIR = ROOT / "app/viewer/public/fixtures/cases"
 CASE_MANIFEST_TARGET = CASE_BUNDLE_DIR / "manifest.json"
+SURFACE_MAP_SAMPLE_COUNT = 576
 
 
 def case_path_text(case_path: Path) -> str:
@@ -62,6 +63,13 @@ def ecg_signal_payload(case, case_path: Path) -> dict[str, object]:
         selected_rows = (0, 50, 100, 150, 200, 250)
     else:
         selected_rows = tuple(range(matrix.rows))
+    surface_map_sample_count = min(matrix.columns, SURFACE_MAP_SAMPLE_COUNT)
+    surface_map_values = tuple(
+        tuple(round(matrix.values[row][column], 6) for column in range(surface_map_sample_count))
+        for row in range(matrix.rows)
+    )
+    surface_map_min = min(min(row) for row in surface_map_values)
+    surface_map_max = max(max(row) for row in surface_map_values)
     return {
         "source": case_path_text(case_path),
         "sourceMatrixOffset": signal.matrix_offset,
@@ -72,6 +80,18 @@ def ecg_signal_payload(case, case_path: Path) -> dict[str, object]:
         "columns": matrix.columns,
         "units": signal.units,
         "unsupportedFields": signal.unsupported_fields,
+        "surfaceMap": {
+            "kind": "measured",
+            "nodeCount": matrix.rows,
+            "sampleCount": surface_map_sample_count,
+            "sampleRateHz": signal.sample_rate_hz,
+            "units": signal.units,
+            "valueRange": {
+                "min": surface_map_min,
+                "max": surface_map_max,
+            },
+            "valuesByNode": surface_map_values,
+        },
         "traces": [
             {
                 "name": f"Node {row + 1}",

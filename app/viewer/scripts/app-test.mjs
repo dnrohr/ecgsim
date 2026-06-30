@@ -113,17 +113,25 @@ async function assertImportNotices(page) {
 
 async function assertThoraxControls(page) {
   const canvas = ".thorax-viewport canvas";
-  await expectText(page, "[data-thorax-surface-status]", "Geometry / 100% / maps unavailable");
+  await expectText(page, "[data-thorax-surface-status]", "Geometry / 100% / measured map available");
   await expectText(page, "[data-thorax-selection]", "electrodes parsed; positions unavailable");
   assert.equal(await page.locator("[data-thorax-electrodes]").isDisabled(), true, "electrode toggle should show unavailable state");
   assert.equal(await page.locator("[data-thorax-lock-heart]").isDisabled(), true, "lock-to-heart should show unavailable state");
+  assert.equal(await page.locator("[data-thorax-surface] option[value='measured']").isDisabled(), false, "measured BSPM should be available");
 
   const before = await canvasSignature(page, canvas);
+  await page.locator("[data-thorax-surface]").selectOption("measured");
+  await expectText(page, "[data-thorax-surface-status]", "Measured BSPM / 100% / 0 ms");
+  await expectText(page, "[data-status-message]", "Measured thorax BSPM map shown");
+  await page.waitForTimeout(150);
+  const mapped = await canvasSignature(page, canvas);
+  assert.notEqual(mapped, before, "Measured BSPM should recolor the thorax canvas");
+
   await setRangeValue(page, "[data-thorax-scale]", "120");
-  await expectText(page, "[data-thorax-surface-status]", "Geometry / 120% / maps unavailable");
+  await expectText(page, "[data-thorax-surface-status]", "Measured BSPM / 120% / 0 ms");
   await page.waitForTimeout(150);
   const scaled = await canvasSignature(page, canvas);
-  assert.notEqual(scaled, before, "Thorax scale control should change canvas output");
+  assert.notEqual(scaled, mapped, "Thorax scale control should change canvas output");
 
   await page.locator("[data-thorax-ap]").click();
   await expectText(page, "[data-status-message]", "Thorax view reset to AP orientation");
@@ -219,9 +227,11 @@ async function assertLeadsFiltering(page) {
 async function assertLinkedTimeCursor(page) {
   const leadsCanvas = "[data-leads-canvas]";
   const tmpCanvas = "[data-tmp-canvas]";
+  const thoraxCanvas = ".thorax-viewport canvas";
   await expectText(page, "[data-time-status]", "0 ms / 575 ms");
   const leadsCursorBefore = await yellowCursorX(page, leadsCanvas);
   const tmpCursorBefore = await yellowCursorX(page, tmpCanvas);
+  const thoraxBefore = await canvasSignature(page, thoraxCanvas);
 
   await page.locator("[data-time-step-forward]").click();
   await expectText(page, "[data-time-status]", "2 ms / 575 ms");
@@ -230,6 +240,7 @@ async function assertLinkedTimeCursor(page) {
   await expectText(page, "[data-time-status]", "120 ms / 575 ms");
   assert.ok(await yellowCursorX(page, leadsCanvas) > leadsCursorBefore + 20, "Time range should move Leads cursor line");
   assert.ok(await yellowCursorX(page, tmpCanvas) > tmpCursorBefore + 20, "Time range should move TMP cursor line");
+  assert.notEqual(await canvasSignature(page, thoraxCanvas), thoraxBefore, "Time range should update measured Thorax BSPM colors");
 
   await page.locator(tmpCanvas).focus();
   await page.keyboard.press("ArrowRight");

@@ -442,7 +442,7 @@ function mountHeart(fixture, tmpFixture, onSelectionChange) {
   animate();
 }
 
-function mountThorax(fixture) {
+function mountThorax(fixture, signalFixture) {
   if (
     !thoraxViewport ||
     !thoraxMetadata ||
@@ -473,6 +473,7 @@ function mountThorax(fixture) {
       side: THREE.DoubleSide,
       transparent: true,
       depthWrite: false,
+      vertexColors: true,
     }),
     leftLung: new THREE.MeshStandardMaterial({
       color: 0x2f7d9b,
@@ -491,7 +492,12 @@ function mountThorax(fixture) {
   };
 
   for (const [name, meshFixture] of Object.entries(fixture.meshes)) {
-    const mesh = new THREE.Mesh(buildGeometry(meshFixture), materials[name]);
+    const geometry = buildGeometry(meshFixture);
+    if (name === "thorax") {
+      const colors = new Float32Array(geometry.getAttribute("position").count * 3);
+      geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    }
+    const mesh = new THREE.Mesh(geometry, materials[name]);
     meshes.set(name, mesh);
     if (name === "thorax") {
       thoraxMesh = mesh;
@@ -539,7 +545,12 @@ function mountThorax(fixture) {
   function updateSurfaceStatus() {
     const scale = Number.parseFloat(thoraxScale.value);
     const label = thoraxSurface.selectedOptions[0]?.textContent ?? "Geometry";
-    const mapStatus = thoraxSurface.value === "geometry" ? "maps unavailable" : "map data unavailable";
+    if (thoraxSurface.value === "measured" && signalFixture?.surfaceMap) {
+      const sampleMs = Math.round((timeState.sample / signalFixture.surfaceMap.sampleRateHz) * 1000);
+      thoraxSurfaceStatus.value = `${label} / ${scale}% / ${sampleMs} ms`;
+      return;
+    }
+    const mapStatus = signalFixture?.surfaceMap ? "measured map available" : "maps unavailable";
     thoraxSurfaceStatus.value = `${label} / ${scale}% / ${mapStatus}`;
   }
 
@@ -560,6 +571,58 @@ function mountThorax(fixture) {
   function applyThoraxScale() {
     const scale = Number.parseFloat(thoraxScale.value) / 100;
     group.scale.setScalar(scale);
+    updateSurfaceStatus();
+    renderThorax();
+  }
+
+  function potentialColor(value, min, span) {
+    const ratio = Math.max(0, Math.min(1, (value - min) / span));
+    return new THREE.Color().setHSL((1 - ratio) * 0.66, 0.82, 0.48);
+  }
+
+  function applyGeometryColors() {
+    if (!thoraxMesh) {
+      return;
+    }
+    const colorAttribute = thoraxMesh.geometry.getAttribute("color");
+    for (let index = 0; index < colorAttribute.count; index += 1) {
+      colorAttribute.setXYZ(index, 0.44, 0.53, 0.56);
+    }
+    colorAttribute.needsUpdate = true;
+    materials.thorax.opacity = 0.18;
+    materials.thorax.depthWrite = false;
+  }
+
+  function applyMeasuredSurfaceMap() {
+    if (!thoraxMesh || !signalFixture?.surfaceMap) {
+      return;
+    }
+    const map = signalFixture.surfaceMap;
+    const sample = Math.max(0, Math.min(map.sampleCount - 1, timeState.sample));
+    const colorAttribute = thoraxMesh.geometry.getAttribute("color");
+    const min = map.valueRange.min;
+    const span = Math.max(map.valueRange.max - min, 1e-9);
+    for (let index = 0; index < colorAttribute.count; index += 1) {
+      const value = map.valuesByNode[index]?.[sample];
+      if (Number.isFinite(value)) {
+        const color = potentialColor(value, min, span);
+        colorAttribute.setXYZ(index, color.r, color.g, color.b);
+      } else {
+        colorAttribute.setXYZ(index, 0.48, 0.52, 0.54);
+      }
+    }
+    colorAttribute.needsUpdate = true;
+    materials.thorax.opacity = 0.82;
+    materials.thorax.depthWrite = true;
+  }
+
+  function applyThoraxSurface() {
+    if (thoraxSurface.value === "measured" && signalFixture?.surfaceMap) {
+      applyMeasuredSurfaceMap();
+    } else {
+      thoraxSurface.value = "geometry";
+      applyGeometryColors();
+    }
     updateSurfaceStatus();
     renderThorax();
   }
@@ -641,6 +704,13 @@ function mountThorax(fixture) {
     .join(" | ");
   thoraxMetadata.value = countText;
   thoraxSurface.value = "geometry";
+  [...thoraxSurface.options].forEach((option) => {
+    if (option.value === "measured") {
+      option.disabled = !signalFixture?.surfaceMap;
+    } else if (option.value !== "geometry") {
+      option.disabled = true;
+    }
+  });
   thoraxScale.value = "100";
   thoraxRotate.checked = true;
   if (thoraxElectrodes) {
@@ -648,7 +718,7 @@ function mountThorax(fixture) {
     thoraxElectrodes.disabled = true;
     thoraxElectrodes.title = electrodeStatusText();
   }
-  updateSurfaceStatus();
+  applyThoraxSurface();
   updateSelectionStatus();
 
   thoraxAp.onclick = () => {
@@ -663,9 +733,13 @@ function mountThorax(fixture) {
     isAutoRotating = thoraxRotate.checked;
   };
   thoraxSurface.onchange = () => {
-    thoraxSurface.value = "geometry";
-    updateSurfaceStatus();
-    if (statusMessage) {
+    if (thoraxSurface.value !== "measured") {
+      thoraxSurface.value = "geometry";
+    }
+    applyThoraxSurface();
+    if (statusMessage && thoraxSurface.value === "measured") {
+      statusMessage.value = "Measured thorax BSPM map shown at shared time cursor.";
+    } else if (statusMessage) {
       statusMessage.value = "Thorax BSPM and sensitivity map data are unavailable in current fixtures.";
     }
   };
@@ -683,6 +757,10 @@ function mountThorax(fixture) {
     requestAnimationFrame(animate);
   }
   animate();
+
+  return {
+    redrawThoraxMap: applyThoraxSurface,
+  };
 }
 
 function plotSignals(
@@ -1145,7 +1223,7 @@ function applyCaseBundle(bundle, noticeText) {
   tmpCanvas = document.querySelector("[data-tmp-canvas]");
   const tmpEditing = mountTmpEditing(bundle.tmpWaveforms);
   mountHeart(bundle.heart, bundle.tmpWaveforms, () => tmpEditing.syncControls());
-  mountThorax(bundle.thorax);
+  const thoraxView = mountThorax(bundle.thorax, bundle.ecgSignals);
   tmpEditing.syncControls();
   const leadsCanvas = document.querySelector("[data-leads-canvas]");
   const redrawSignals = () => plotSignals(leadsCanvas, bundle.ecgSignals, {
@@ -1184,6 +1262,7 @@ function applyCaseBundle(bundle, noticeText) {
   redrawTimeDependents = () => {
     redrawSignals();
     tmpEditing.redrawTmp();
+    thoraxView.redrawThoraxMap();
     if (statusMessage) {
       statusMessage.value = `Shared time cursor set to ${timeStatus?.value ?? "current sample"}.`;
     }

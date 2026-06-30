@@ -57,12 +57,19 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertEqual(fixture["units"], "mV")
         self.assertEqual(len(fixture["traces"]), 6)
         self.assertEqual(len(fixture["traces"][0]["values"]), 1000)
+        self.assertEqual(fixture["surfaceMap"]["kind"], "measured")
+        self.assertEqual(fixture["surfaceMap"]["nodeCount"], 300)
+        self.assertEqual(fixture["surfaceMap"]["sampleCount"], 576)
+        self.assertEqual(len(fixture["surfaceMap"]["valuesByNode"]), 300)
+        self.assertEqual(len(fixture["surfaceMap"]["valuesByNode"][0]), 576)
 
         matrix = read_ecgsimcase_matrix(Path(fixture["source"]), fixture["sourceMatrixOffset"])
         self.assertEqual(matrix.rows, fixture["rows"])
         self.assertEqual(matrix.columns, fixture["columns"])
         self.assertAlmostEqual(fixture["traces"][0]["values"][0], matrix.values[0][0], delta=1e-6)
         self.assertAlmostEqual(fixture["traces"][0]["values"][999], matrix.values[0][999], delta=1e-6)
+        self.assertAlmostEqual(fixture["surfaceMap"]["valuesByNode"][0][0], matrix.values[0][0], delta=1e-6)
+        self.assertAlmostEqual(fixture["surfaceMap"]["valuesByNode"][299][575], matrix.values[299][575], delta=1e-6)
 
     def test_tmp_fixture_matches_known_parameter_vectors(self) -> None:
         fixture = json.loads(Path("app/viewer/public/fixtures/tmp-waveforms.json").read_text(encoding="utf-8"))

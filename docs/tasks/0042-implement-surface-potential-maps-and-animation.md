@@ -28,3 +28,11 @@ Legacy ECGSIM visualizes surface potentials over time. Current app only plots tr
 ## Done When
 
 Thorax map workflows are available for supported cases.
+
+## Result
+
+- Added a compact measured thorax surface-potential map to viewer ECG fixtures from the parsed `300 x 1000` PMatrix payload.
+- Enabled the Thorax measured BSPM surface mode when map data exists.
+- Colored the thorax mesh from measured map values at the shared time cursor sample.
+- Added fixture regression, smoke, and browser workflow coverage for measured BSPM dimensions, canvas recoloring, and time-linked map updates.
+- Documented supported map behavior and remaining initial/adapted/sensitivity blockers in `docs/feature-parity/surface-potential-map-notes.md`.
