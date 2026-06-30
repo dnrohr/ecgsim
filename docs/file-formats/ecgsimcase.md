@@ -166,3 +166,17 @@ Task 0011 added `ecgsim.io.read_ecgsimcase_matrix(path, offset)` for known `PMat
 Task 0012 added `ecgsim.io.read_ecgsimcase_vector(path, offset)` for known `PVector` payloads. The ventricular source block in `normal_male2.ECGsimcase` contains paired `576`-value vectors for initial/adapted parameters. Observed offsets include depolarization time (`11272300`, `11274630`), repolarization time (`11277000`, `11279330`), plateau slope (`11281700`, `11284030`), resting potential (`11286400`, `11288730`), amplitude (`11291100`, `11293430`), depolarization slope (`11295800`, `11298130`), and repolarization slope (`11300500`, `11302830`). These offsets are fixtures for current development, not a full object-graph parser.
 
 Future `.ECGsimcase` parser work should replace the current offset-driven matrix/vector fixture readers with an object-graph reader that names source, signal, lead-system, and geometry payloads directly.
+
+Task 0030 added `ecgsim.io.read_ecgsimcase_geometries(path)` for `PGeometry` payloads. The observed geometry payload layout is:
+
+```text
+length-prefixed UTF-16LE marker `PGeometry`
+int32 version
+int32 flags_or_reserved
+int32 point_count
+float32 x/y/z triplets, zero-based row order
+int32 triangle_count
+int32 triangle index triplets, zero-based
+```
+
+The initial names are order-based and conservative: `thorax`, `heart`, two empty placeholders, `right_lung`, `left_lung`, and two auxiliary geometries. Coordinates are exposed with units `case-coordinate-units` until the case-internal scale is confirmed against raw exports or a legacy source reference.

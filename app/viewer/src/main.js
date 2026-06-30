@@ -187,12 +187,22 @@ function mountHeart(fixture, onSelectionChange) {
     const bounds = renderer.domElement.getBoundingClientRect();
     pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
     pointer.y = -(((event.clientY - bounds.top) / bounds.height) * 2 - 1);
+    mesh.updateMatrixWorld(true);
     raycaster.setFromCamera(pointer, camera);
     const [hit] = raycaster.intersectObject(mesh, false);
-    if (!hit?.face) {
+    const nearest = hit?.face
+      ? nearestFaceVertex(hit)
+      : nearestProjectedNode(pointer);
+    if (nearest < 0) {
       return;
     }
+    selectedNodeIndex = nearest;
+    isAutoRotating = false;
+    updateSelection();
+    renderer.render(scene, camera);
+  }
 
+  function nearestFaceVertex(hit) {
     const candidates = [hit.face.a, hit.face.b, hit.face.c];
     let nearest = candidates[0];
     let nearestDistance = hit.point.distanceTo(nodePositions[nearest]);
@@ -203,10 +213,24 @@ function mountHeart(fixture, onSelectionChange) {
         nearestDistance = distance;
       }
     });
-    selectedNodeIndex = nearest;
-    isAutoRotating = false;
-    updateSelection();
-    renderer.render(scene, camera);
+    return nearest;
+  }
+
+  function nearestProjectedNode(targetPointer) {
+    const projected = new THREE.Vector3();
+    let nearest = -1;
+    let nearestDistance = 0.035;
+    nodePositions.forEach((position, index) => {
+      projected.copy(position).applyMatrix4(mesh.matrixWorld).project(camera);
+      const dx = projected.x - targetPointer.x;
+      const dy = projected.y - targetPointer.y;
+      const distance = dx * dx + dy * dy;
+      if (distance < nearestDistance) {
+        nearest = index;
+        nearestDistance = distance;
+      }
+    });
+    return nearest;
   }
 
   heartRadius.addEventListener("input", updateSelection);

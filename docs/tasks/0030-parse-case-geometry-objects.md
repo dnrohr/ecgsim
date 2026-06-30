@@ -29,3 +29,7 @@ Current viewer geometry comes from archived `.tri` files. Real case loading need
 ## Done When
 
 Viewer fixtures no longer need external `.tri` files for supported case geometry.
+
+## Result
+
+Added `ecgsim.io.read_ecgsimcase_geometries(path)` and `ECGsimCaseGeometry` for named `PGeometry` payloads. The parser now reads case-contained thorax, heart, lung, empty, and auxiliary geometry blocks for normal and WPW cases with clear offset-specific errors for malformed geometry payloads.

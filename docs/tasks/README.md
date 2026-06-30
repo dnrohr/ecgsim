@@ -63,7 +63,7 @@ Each task should end with:
 ## FP1: Real Case Loading
 
 - [x] [0029 Design ECGsimcase Object Model](0029-design-ecgsimcase-object-model.md)
-- [ ] [0030 Parse Case Geometry Objects](0030-parse-case-geometry-objects.md)
+- [x] [0030 Parse Case Geometry Objects](0030-parse-case-geometry-objects.md)
 - [ ] [0031 Parse Source Parameters Beats And Activation Objects](0031-parse-source-parameters-beats-and-activation-objects.md)
 - [ ] [0032 Parse Lead Systems Electrodes And Signal Metadata](0032-parse-lead-systems-electrodes-and-signal-metadata.md)
 - [ ] [0033 Build Case Loader API And Fixture Adapter](0033-build-case-loader-api-and-fixture-adapter.md)

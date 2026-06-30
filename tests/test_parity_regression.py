@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 import unittest
 
-from ecgsim.io import read_ecgsimcase_matrix, read_ecgsimcase_vector, read_geometry
+from ecgsim.io import read_ecgsimcase_geometries, read_ecgsimcase_matrix, read_ecgsimcase_vector
 
 
 class ParityRegressionTests(unittest.TestCase):
@@ -22,25 +22,29 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(payload).hexdigest(), entry["sha256"])
 
     def test_viewer_geometry_fixtures_match_source_counts_and_rounding(self) -> None:
-        root = Path("research/source/www.ecgsim.org/downloads/other13/geometry")
+        case_path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")
+        case_geometries = {item.name: item for item in read_ecgsimcase_geometries(case_path)}
         fixture_expectations = [
-            ("app/viewer/public/fixtures/heart.json", "heart.tri", None),
-            ("app/viewer/public/fixtures/thorax.json", "thorax.tri", "thorax"),
-            ("app/viewer/public/fixtures/thorax.json", "llung.tri", "leftLung"),
-            ("app/viewer/public/fixtures/thorax.json", "rlung.tri", "rightLung"),
+            ("app/viewer/public/fixtures/heart.json", "heart", None),
+            ("app/viewer/public/fixtures/thorax.json", "thorax", "thorax"),
+            ("app/viewer/public/fixtures/thorax.json", "left_lung", "leftLung"),
+            ("app/viewer/public/fixtures/thorax.json", "right_lung", "rightLung"),
         ]
 
-        for fixture_path, source_name, mesh_name in fixture_expectations:
-            with self.subTest(source=source_name):
-                source = read_geometry(root / source_name)
+        for fixture_path, geometry_name, mesh_name in fixture_expectations:
+            with self.subTest(source=geometry_name):
+                source = case_geometries[geometry_name]
                 fixture = json.loads(Path(fixture_path).read_text(encoding="utf-8"))
                 mesh = fixture["meshes"][mesh_name] if mesh_name else fixture
 
+                self.assertEqual(mesh["source"], case_path.as_posix())
+                self.assertEqual(mesh["sourceGeometryName"], source.name)
+                self.assertEqual(mesh["sourceGeometryOffset"], source.marker_offset)
                 self.assertEqual(mesh["pointCount"], source.point_count)
                 self.assertEqual(mesh["triangleCount"], source.triangle_count)
-                self.assertEqual(tuple(mesh["triangles"][0]), source.triangles[0])
-                for actual, expected in zip(mesh["points"][0], source.points[0]):
-                    self.assertAlmostEqual(actual, expected, delta=5e-5)
+                self.assertEqual(tuple(mesh["triangles"][0]), source.geometry.triangles[0])
+                for actual, expected in zip(mesh["points"][0], source.geometry.points[0]):
+                    self.assertAlmostEqual(actual, expected / 1000, delta=5e-5)
 
     def test_signal_fixture_matches_known_case_payload_shape_and_samples(self) -> None:
         fixture = json.loads(Path("app/viewer/public/fixtures/ecg-signals.json").read_text(encoding="utf-8"))

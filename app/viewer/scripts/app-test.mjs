@@ -54,7 +54,7 @@ try {
 async function assertInitialState(page) {
   await expectText(page, "[data-case-status]", "normal_male2.ECGsimcase");
   await expectText(page, "[data-case-leads]", "standard_12");
-  await expectText(page, "[data-heart-metadata]", "257 nodes / 510 triangles");
+  await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
   await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz");
   await expectText(page, "[data-leads-metadata]", "6 node leads / 1000 samples / 1000 Hz / BASELINE");
 
@@ -164,6 +164,14 @@ async function selectHeartNode(page) {
     [0.58, 0.48],
     [0.5, 0.38],
     [0.5, 0.62],
+    [0.35, 0.35],
+    [0.5, 0.35],
+    [0.65, 0.35],
+    [0.35, 0.5],
+    [0.65, 0.5],
+    [0.35, 0.65],
+    [0.5, 0.65],
+    [0.65, 0.65],
   ];
   for (const [xRatio, yRatio] of points) {
     await page.mouse.click(box.x + box.width * xRatio, box.y + box.height * yRatio);

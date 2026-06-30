@@ -4,10 +4,12 @@ import unittest
 
 from ecgsim.io import (
     ECGsimCaseFormatError,
+    read_ecgsimcase_geometries,
     read_ecgsimcase_matrix,
     read_ecgsimcase_metadata,
     read_ecgsimcase_vector,
 )
+from ecgsim.io.ecgsimcase import _read_ecgsimcase_geometry_payload
 
 
 class ECGsimCaseMetadataTests(unittest.TestCase):
@@ -123,3 +125,47 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
         self.assertEqual(vector.storage_format, "ecgsimcase-pvector-v1")
         self.assertAlmostEqual(vector.values[0], 27.2001, places=4)
         self.assertAlmostEqual(vector.values[575], 95.2450, places=4)
+
+    def test_reads_normal_case_geometry_payloads(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")
+        geometries = read_ecgsimcase_geometries(path)
+
+        self.assertEqual(
+            [(item.name, item.point_count, item.triangle_count) for item in geometries],
+            [
+                ("thorax", 300, 596),
+                ("heart", 912, 1696),
+                ("empty_geometry_1", 0, 0),
+                ("empty_geometry_2", 0, 0),
+                ("right_lung", 132, 260),
+                ("left_lung", 124, 244),
+                ("auxiliary_geometry_1", 222, 440),
+                ("auxiliary_geometry_2", 162, 320),
+            ],
+        )
+        self.assertEqual(geometries[0].marker_offset, 1203728)
+        self.assertEqual(geometries[0].geometry.source_index_base, 0)
+        self.assertEqual(geometries[0].geometry.storage_format, "ecgsimcase-pgeometry-v1")
+        self.assertEqual(geometries[0].geometry.units, "case-coordinate-units")
+        self.assertAlmostEqual(geometries[0].geometry.points[0][0], -20.5, places=4)
+        self.assertEqual(geometries[0].geometry.triangles[0], (132, 227, 280))
+
+    def test_reads_wpw_case_geometry_payloads(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/WPW_Bundleonly.ECGsimcase")
+        geometries = read_ecgsimcase_geometries(path)
+
+        self.assertEqual(len(geometries), 8)
+        self.assertEqual(geometries[0].name, "thorax")
+        self.assertEqual((geometries[0].point_count, geometries[0].triangle_count), (500, 996))
+        self.assertEqual(geometries[1].name, "heart")
+        self.assertEqual((geometries[1].point_count, geometries[1].triangle_count), (1216, 2272))
+        self.assertEqual(geometries[4].name, "right_lung")
+        self.assertEqual((geometries[4].point_count, geometries[4].triangle_count), (400, 796))
+        self.assertEqual(geometries[5].name, "left_lung")
+        self.assertEqual((geometries[5].point_count, geometries[5].triangle_count), (349, 694))
+
+    def test_rejects_unsupported_geometry_payload_offset(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")
+
+        with self.assertRaisesRegex(ECGsimCaseFormatError, "not PGeometry"):
+            _read_ecgsimcase_geometry_payload(path.read_bytes(), path, 54)

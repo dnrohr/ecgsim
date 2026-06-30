@@ -63,7 +63,7 @@ if (
   process.exit(1);
 }
 
-if (fixture.pointCount !== 257 || fixture.triangleCount !== 510) {
+if (fixture.pointCount !== 912 || fixture.triangleCount !== 1696) {
   console.error(`Unexpected heart fixture size: ${fixture.pointCount} / ${fixture.triangleCount}`);
   process.exit(1);
 }
@@ -80,8 +80,8 @@ if (region.length !== 2 || region[0].index !== 0 || region[1].index !== 1) {
 
 const expectedThorax = {
   thorax: [300, 596],
-  leftLung: [116, 228],
-  rightLung: [116, 228],
+  leftLung: [124, 244],
+  rightLung: [132, 260],
 };
 for (const [name, [points, triangles]] of Object.entries(expectedThorax)) {
   const mesh = thoraxFixture.meshes[name];

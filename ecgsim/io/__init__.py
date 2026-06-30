@@ -2,8 +2,10 @@
 
 from ecgsim.io.ecgsimcase import (
     ECGsimCaseFormatError,
+    ECGsimCaseGeometry,
     ECGsimCaseMetadata,
     StringEntry,
+    read_ecgsimcase_geometries,
     read_ecgsimcase_matrix,
     read_ecgsimcase_metadata,
     read_ecgsimcase_vector,
@@ -13,6 +15,7 @@ from ecgsim.io.matrix import MatrixData, MatrixFormatError, VectorData, read_mat
 
 __all__ = [
     "ECGsimCaseFormatError",
+    "ECGsimCaseGeometry",
     "ECGsimCaseMetadata",
     "GeometryData",
     "GeometryFormatError",
@@ -20,6 +23,7 @@ __all__ = [
     "MatrixFormatError",
     "StringEntry",
     "VectorData",
+    "read_ecgsimcase_geometries",
     "read_ecgsimcase_matrix",
     "read_ecgsimcase_metadata",
     "read_ecgsimcase_vector",

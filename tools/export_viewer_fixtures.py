@@ -12,15 +12,13 @@ sys.path.insert(0, str(ROOT))
 
 from ecgsim.core import generate_tmp_waveform_from_vectors
 from ecgsim.io import (
+    read_ecgsimcase_geometries,
     read_ecgsimcase_matrix,
     read_ecgsimcase_metadata,
     read_ecgsimcase_vector,
-    read_geometry,
 )
 
 
-GEOMETRY_SOURCE_DIR = ROOT / "research/source/www.ecgsim.org/downloads/other13/geometry"
-HEART_SOURCE = GEOMETRY_SOURCE_DIR / "heart.tri"
 SIGNAL_SOURCE = ROOT / "research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase"
 SIGNAL_MATRIX_OFFSET = 54
 HEART_TARGET = ROOT / "app/viewer/public/fixtures/heart.json"
@@ -39,14 +37,22 @@ TMP_PARAMETER_OFFSETS = {
 }
 
 
-def geometry_payload(source: Path) -> dict[str, object]:
-    geometry = read_geometry(source)
+def case_geometry_payload(name: str) -> dict[str, object]:
+    geometry_object = next(
+        geometry for geometry in read_ecgsimcase_geometries(SIGNAL_SOURCE) if geometry.name == name
+    )
+    geometry = geometry_object.geometry
     return {
-        "source": str(source.relative_to(ROOT)).replace("\\", "/"),
-        "units": geometry.units,
+        "source": str(SIGNAL_SOURCE.relative_to(ROOT)).replace("\\", "/"),
+        "sourceGeometryOffset": geometry_object.marker_offset,
+        "sourceGeometryName": geometry_object.name,
+        "units": "m",
         "pointCount": geometry.point_count,
         "triangleCount": geometry.triangle_count,
-        "points": geometry.points,
+        "points": tuple(
+            (point[0] / 1000, point[1] / 1000, point[2] / 1000)
+            for point in geometry.points
+        ),
         "triangles": geometry.triangles,
     }
 
@@ -153,7 +159,7 @@ def case_metadata_payload() -> dict[str, object]:
 def main() -> int:
     HEART_TARGET.parent.mkdir(parents=True, exist_ok=True)
     HEART_TARGET.write_text(
-        json.dumps(geometry_payload(HEART_SOURCE), separators=(",", ":"))
+        json.dumps(case_geometry_payload("heart"), separators=(",", ":"))
         + "\n",
         encoding="utf-8",
     )
@@ -162,9 +168,9 @@ def main() -> int:
         json.dumps(
             {
                 "meshes": {
-                    "thorax": geometry_payload(GEOMETRY_SOURCE_DIR / "thorax.tri"),
-                    "leftLung": geometry_payload(GEOMETRY_SOURCE_DIR / "llung.tri"),
-                    "rightLung": geometry_payload(GEOMETRY_SOURCE_DIR / "rlung.tri"),
+                    "thorax": case_geometry_payload("thorax"),
+                    "leftLung": case_geometry_payload("left_lung"),
+                    "rightLung": case_geometry_payload("right_lung"),
                 }
             },
             separators=(",", ":"),

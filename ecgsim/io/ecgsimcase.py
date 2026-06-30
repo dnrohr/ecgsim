@@ -9,13 +9,25 @@ import math
 from pathlib import Path
 import struct
 
+from ecgsim.io.geometry import GeometryData
 from ecgsim.io.matrix import MatrixData, VectorData
 
 
 ROOT_SIGNATURE = "PECGsimData"
 PMATRIX_SIGNATURE = "PMatrix"
+PGEOMETRY_SIGNATURE = "PGeometry"
 PRINTABLE_MIN = 0x20
 PRINTABLE_MAX = 0x7E
+GEOMETRY_NAMES_BY_INDEX = (
+    "thorax",
+    "heart",
+    "empty_geometry_1",
+    "empty_geometry_2",
+    "right_lung",
+    "left_lung",
+    "auxiliary_geometry_1",
+    "auxiliary_geometry_2",
+)
 
 
 class ECGsimCaseFormatError(ValueError):
@@ -45,6 +57,23 @@ class ECGsimCaseMetadata:
     marker_offsets: dict[str, tuple[int, ...]]
     lead_systems: tuple[str, ...]
     unsupported_payloads: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ECGsimCaseGeometry:
+    """A named ``PGeometry`` payload parsed from an ECGsimcase file."""
+
+    name: str
+    marker_offset: int
+    geometry: GeometryData
+
+    @property
+    def point_count(self) -> int:
+        return self.geometry.point_count
+
+    @property
+    def triangle_count(self) -> int:
+        return self.geometry.triangle_count
 
 
 def read_ecgsimcase_metadata(path: str | Path) -> ECGsimCaseMetadata:
@@ -92,6 +121,32 @@ def read_ecgsimcase_metadata(path: str | Path) -> ECGsimCaseMetadata:
             "PLead/PShowLead payloads",
         ),
     )
+
+
+def read_ecgsimcase_geometries(path: str | Path) -> tuple[ECGsimCaseGeometry, ...]:
+    """Read all known ``PGeometry`` payloads from an ECGsimcase file.
+
+    The observed payload shape is a marker, ``int32`` version, ``int32`` flag,
+    ``int32`` point count, row-major float32 XYZ triplets, ``int32`` triangle
+    count, then zero-based int32 triangle triplets.
+    """
+
+    source_path = Path(path)
+    data = source_path.read_bytes()
+    metadata = read_ecgsimcase_metadata(source_path)
+    geometries: list[ECGsimCaseGeometry] = []
+
+    for index, offset in enumerate(metadata.marker_offsets.get(PGEOMETRY_SIGNATURE, ())):
+        name = GEOMETRY_NAMES_BY_INDEX[index] if index < len(GEOMETRY_NAMES_BY_INDEX) else f"geometry_{index}"
+        geometries.append(
+            ECGsimCaseGeometry(
+                name=name,
+                marker_offset=offset,
+                geometry=_read_ecgsimcase_geometry_payload(data, source_path, offset),
+            )
+        )
+
+    return tuple(geometries)
 
 
 def read_ecgsimcase_matrix(path: str | Path, offset: int) -> MatrixData:
@@ -176,6 +231,73 @@ def read_ecgsimcase_vector(path: str | Path, offset: int) -> VectorData:
         values=tuple(float(value) for value in values),
         source_path=source_path,
         storage_format=f"ecgsimcase-pvector-v{version}",
+    )
+
+
+def _read_ecgsimcase_geometry_payload(data: bytes, source_path: Path, offset: int) -> GeometryData:
+    marker, values_offset = _read_marker(data, source_path, offset)
+    if marker != PGEOMETRY_SIGNATURE:
+        raise ECGsimCaseFormatError(f"{source_path} marker at {offset} is {marker!r}, not PGeometry")
+
+    if values_offset + 12 > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} PGeometry header at {offset} overruns the file")
+    version, _flags, point_count = struct.unpack_from("<iii", data, values_offset)
+    if version <= 0:
+        raise ECGsimCaseFormatError(f"{source_path} PGeometry at {offset} has invalid version {version}")
+    if point_count < 0:
+        raise ECGsimCaseFormatError(f"{source_path} PGeometry at {offset} has invalid point count {point_count}")
+
+    point_start = values_offset + 12
+    point_bytes = point_count * 3 * 4
+    triangle_count_offset = point_start + point_bytes
+    if triangle_count_offset + 4 > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} PGeometry points at {offset} overrun the file")
+    flat_points = struct.unpack_from(f"<{point_count * 3}f", data, point_start) if point_count else ()
+    points = tuple(
+        (
+            float(flat_points[row * 3]),
+            float(flat_points[row * 3 + 1]),
+            float(flat_points[row * 3 + 2]),
+        )
+        for row in range(point_count)
+    )
+
+    (triangle_count,) = struct.unpack_from("<i", data, triangle_count_offset)
+    if triangle_count < 0:
+        raise ECGsimCaseFormatError(
+            f"{source_path} PGeometry at {offset} has invalid triangle count {triangle_count}"
+        )
+
+    triangle_start = triangle_count_offset + 4
+    triangle_bytes = triangle_count * 3 * 4
+    if triangle_start + triangle_bytes > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} PGeometry triangles at {offset} overrun the file")
+    flat_triangles = (
+        struct.unpack_from(f"<{triangle_count * 3}i", data, triangle_start) if triangle_count else ()
+    )
+    triangles = tuple(
+        (
+            int(flat_triangles[row * 3]),
+            int(flat_triangles[row * 3 + 1]),
+            int(flat_triangles[row * 3 + 2]),
+        )
+        for row in range(triangle_count)
+    )
+    for triangle in triangles:
+        for point_index in triangle:
+            if point_index < 0 or point_index >= point_count:
+                raise ECGsimCaseFormatError(
+                    f"{source_path} PGeometry at {offset} has triangle index {point_index} "
+                    f"outside point range 0..{point_count - 1}"
+                )
+
+    return GeometryData(
+        points=points,
+        triangles=triangles,
+        units="case-coordinate-units",
+        source_index_base=0,
+        source_path=source_path,
+        storage_format=f"ecgsimcase-pgeometry-v{version}",
     )
 
 
