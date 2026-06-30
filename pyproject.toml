@@ -11,6 +11,7 @@ requires-python = ">=3.11"
 
 [project.scripts]
 ecgsim-case-info = "ecgsim.cli.case_info:main"
+ecgsim-export-case = "ecgsim.cli.export_case:main"
 
 [tool.setuptools.packages.find]
 include = ["ecgsim*"]

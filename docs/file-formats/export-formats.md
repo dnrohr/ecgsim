@@ -4,6 +4,8 @@ Task: `docs/tasks/0002-document-legacy-export-formats.md`
 
 Status: implementation reference for the first parser tasks. This document summarizes the ECGSIM manual plus the MATLAB helpers in `research/source/www.ecgsim.org/downloads/`.
 
+Implementation status: task `0054` adds a supported-subset writer in `ecgsim.io.export_case_directory()`. It emits documented ASCII matrix/vector/`.tri` files plus `metadata.json`; unsupported legacy export members remain documented in `docs/feature-parity/export-directory-writer-notes.md`.
+
 ## Export Directory Shape
 
 The ECGSIM manual describes an export operation that writes a directory tree:

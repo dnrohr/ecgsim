@@ -99,7 +99,7 @@ Each task should end with:
 
 ## FP5: Import Export And Interop
 
-- [ ] [0054 Implement Export Directory Writer](0054-implement-export-directory-writer.md)
+- [x] [0054 Implement Export Directory Writer](0054-implement-export-directory-writer.md)
 - [ ] [0055 Implement Case Save Or Adaptation Sidecar](0055-implement-case-save-or-adaptation-sidecar.md)
 - [ ] [0056 Implement Clipboard Image And Movie Exports](0056-implement-clipboard-image-and-movie-exports.md)
 - [ ] [0057 Document Import Export Compatibility](0057-document-import-export-compatibility.md)

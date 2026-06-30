@@ -28,3 +28,15 @@ Legacy File -> Export writes structured model/source/ECG outputs. Modern app cur
 ## Done When
 
 Users can export useful data from modern ECGSIM for supported cases.
+
+## Progress
+
+Completed the first useful export-directory writer slice.
+
+- Added `ecgsim.io.export_case_directory()` plus ASCII matrix, vector, and `.tri` writer helpers.
+- Added `python -m ecgsim.cli.export_case <case-file> <output-dir>` and the installed `ecgsim-export-case` script entry.
+- Exported supported parsed content into legacy-style directories: model geometry `.tri` files, source parameter `user.*` vectors, `ecgs/thorax.refECG`, and `metadata.json`.
+- Documented unsupported legacy export members in `docs/feature-parity/export-directory-writer-notes.md`.
+- Added regression coverage that exports `normal_male2.ECGsimcase` to a temp directory and reads exported files back through project readers.
+
+This is a supported modern subset, not a full legacy `File -> Export` clone. Exact raw legacy export parity remains dependent on task `0048`.

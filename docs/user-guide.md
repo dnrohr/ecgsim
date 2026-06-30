@@ -26,6 +26,7 @@ Supported from the Python package:
 - `.ECGsimcase` metadata inspection.
 - Known matrix/vector payload reads by offset.
 - Legacy `.tri`, matrix, and vector readers.
+- Supported-subset ECGSIM export-directory writer and CLI.
 - Provisional TMP waveform generation.
 - Transfer-function application and WCT row referencing.
 - ECG filtering/coupling helpers.
@@ -73,10 +74,20 @@ python -m ecgsim.cli.case_info research/source/www.ecgsim.org/downloads/cases/no
 
 This prints the known marker inventory and unsupported payload categories for the case.
 
+## Export Directory CLI
+
+Run:
+
+```powershell
+python -m ecgsim.cli.export_case research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase scratch/normal-export
+```
+
+This writes a legacy-style directory with supported geometry, source-vector, surface-potential, and metadata files. The export is a useful modern subset; `metadata.json` records unsupported legacy members.
+
 ## Unsupported Or Partial Features
 
 - Arbitrary `.ECGsimcase` files are not parsed in the browser yet. The file picker loads only cases present in the generated supported-case manifest and leaves the current case visible when a file is unsupported.
-- Saving or exporting adapted cases is not implemented.
+- Exporting adapted cases from the browser is not implemented. The Python export-directory CLI writes a supported subset from parsed case data.
 - TMP generation is deterministic but provisional; it is not yet parity-verified against legacy `.user.source` exports.
 - ECG recomputation after TMP edits is not wired into the viewer yet.
 - Baseline coupling reports whether it uses parsed fiducials or fallback signal endpoints. Bundled cases currently use the fallback because legacy P/T fiducial samples have not been located.
