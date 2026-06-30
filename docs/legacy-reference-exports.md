@@ -108,6 +108,8 @@ Store large raw captures under ignored `research/legacy-exports/raw/`. Commit ma
 python tools/summarize_legacy_export.py research/legacy-exports/raw/<case-name> --output research/legacy-exports/<case-name>-manifest.json
 ```
 
+The manifest records checksums, file classifications, readable matrix/vector/geometry shapes, and a `readyForNumericalParity` flag. For downstream numerical parity work, confirm the manifest reports `.user.source`, `.adaptECG`, and `.refECG` artifacts under `parityArtifacts`.
+
 Commit only manifests and small, justified reference files. Keep large raw exports ignored unless a later task explicitly promotes a small fixture.
 
 ## Screenshot Manual Workflow
