@@ -28,3 +28,15 @@ Feature parity can be unusable if large matrix operations or WebGL views block i
 ## Done When
 
 Performance is acceptable for supported cases and workflows.
+
+## Progress
+
+Completed the first profiling and optimization pass for supported cases.
+
+- Added `tools/profile_supported_workflows.py` to measure `load_case()`, first signal matrix reads, and export-directory writes.
+- Added `docs/performance.md` with performance targets, profiling commands, measured baselines, and remaining hot spots.
+- Optimized repeated case loading by adding an mtime/size-aware metadata cache to `read_ecgsimcase_metadata()`.
+- Reduced supported-case `load_case()` profiling from roughly 9-14 seconds to roughly 1.9-2.9 seconds on this workspace.
+- Preserved existing parser, export, numerical, and browser workflow verification.
+
+Future recomputation, transfer-matrix multiplication, and movie export still need separate profiling once implemented.

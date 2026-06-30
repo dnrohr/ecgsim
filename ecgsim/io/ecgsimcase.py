@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
+from functools import lru_cache
 import hashlib
 import math
 from pathlib import Path
@@ -245,9 +246,18 @@ def read_ecgsimcase_metadata(path: str | Path) -> ECGsimCaseMetadata:
     """Read metadata and object markers without parsing numeric payloads."""
 
     source_path = Path(path)
+    stat = source_path.stat()
+    return _read_ecgsimcase_metadata_cached(str(source_path), stat.st_mtime_ns, stat.st_size)
+
+
+@lru_cache(maxsize=16)
+def _read_ecgsimcase_metadata_cached(path: str, mtime_ns: int, byte_size: int) -> ECGsimCaseMetadata:
+    source_path = Path(path)
     data = source_path.read_bytes()
     if not data:
         raise ECGsimCaseFormatError(f"{source_path} is empty")
+    if len(data) != byte_size:
+        raise ECGsimCaseFormatError(f"{source_path} size changed while reading")
 
     strings = tuple(find_length_prefixed_utf16le(data, min_chars=2))
     if not strings or strings[0].offset != 0 or strings[0].text != ROOT_SIGNATURE:

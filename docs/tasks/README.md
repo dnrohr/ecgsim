@@ -106,7 +106,7 @@ Each task should end with:
 
 ## FP6: Productization
 
-- [ ] [0058 Profile And Optimize Large Case Workflows](0058-profile-and-optimize-large-case-workflows.md)
+- [x] [0058 Profile And Optimize Large Case Workflows](0058-profile-and-optimize-large-case-workflows.md)
 - [ ] [0059 Implement Desktop Packaging](0059-implement-desktop-packaging.md)
 - [ ] [0060 Add End-To-End Release Validation](0060-add-end-to-end-release-validation.md)
 - [ ] [0061 Update User Documentation For Feature Parity](0061-update-user-documentation-for-feature-parity.md)
