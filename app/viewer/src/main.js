@@ -77,6 +77,8 @@ const tmpUndo = document.querySelector("[data-tmp-undo]");
 const tmpRedo = document.querySelector("[data-tmp-redo]");
 const tmpSaveEdits = document.querySelector("[data-tmp-save-edits]");
 const tmpLoadEdits = document.querySelector("[data-tmp-load-edits]");
+const tmpExportEdits = document.querySelector("[data-tmp-export-edits]");
+const tmpImportEdits = document.querySelector("[data-tmp-import-edits]");
 const tmpCombineHandlers = document.querySelector("[data-tmp-combine-handlers]");
 const tmpKeepApd = document.querySelector("[data-tmp-keep-apd]");
 const tmpShowEgm = document.querySelector("[data-tmp-show-egm]");
@@ -1252,6 +1254,8 @@ function mountTmpEditing(fixture) {
     tmpRedo.disabled = tmpEditState.redoStack.length === 0;
     tmpSaveEdits.disabled = tmpEditState.undoStack.length === 0;
     tmpLoadEdits.disabled = !hasSavedTmpEdits();
+    tmpExportEdits.disabled = tmpEditState.undoStack.length === 0;
+    tmpImportEdits.disabled = !currentCaseMetadata;
     tmpValue.step = String(parameter.step);
     if (canEdit) {
       const initial = nodeParameterValue(tmpEditState, parameter.id, weightedNodes[0].index, "initial");
@@ -1328,6 +1332,27 @@ function mountTmpEditing(fixture) {
     setTmpStatus("TMP edits loaded for this case.");
   }
 
+  function exportTmpEditSidecar() {
+    const snapshot = serializeTmpEditState(tmpEditState, currentCaseMetadata);
+    const fileName = sidecarFileName(currentCaseMetadata);
+    downloadTextFile(fileName, JSON.stringify(snapshot, null, 2) + "\n", "application/json");
+    setTmpStatus("TMP edit sidecar exported.");
+  }
+
+  async function importTmpEditSidecar(file) {
+    if (!file) {
+      return;
+    }
+    const snapshot = JSON.parse(await file.text());
+    applyTmpEditSnapshot(tmpEditState, snapshot, currentCaseMetadata);
+    const key = storageKey();
+    if (key) {
+      window.localStorage.setItem(key, JSON.stringify(snapshot));
+    }
+    tmpImportEdits.value = "";
+    setTmpStatus("TMP edit sidecar imported.");
+  }
+
   tmpParameter.onchange = syncControls;
   tmpShowInitial.onchange = redrawTmp;
   tmpShowAdapted.onchange = redrawTmp;
@@ -1375,8 +1400,41 @@ function mountTmpEditing(fixture) {
     }
     syncControls();
   };
+  tmpExportEdits.onclick = () => {
+    exportTmpEditSidecar();
+    syncControls();
+  };
+  tmpImportEdits.onchange = async () => {
+    try {
+      await importTmpEditSidecar(tmpImportEdits.files?.[0]);
+    } catch (error) {
+      tmpImportEdits.value = "";
+      setTmpStatus(error instanceof Error ? error.message : "Unable to import TMP edit sidecar.");
+    }
+    syncControls();
+  };
 
   return { syncControls, redrawTmp };
+}
+
+function sidecarFileName(metadata) {
+  const baseName = metadata?.fileName
+    ? metadata.fileName.replace(/\.[^.]+$/, "")
+    : "ecgsim-case";
+  const safeName = baseName.replace(/[^a-zA-Z0-9._-]+/g, "-") || "ecgsim-case";
+  return `${safeName}.source-edits.json`;
+}
+
+function downloadTextFile(fileName, text, type) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 function setTmpStatus(message) {

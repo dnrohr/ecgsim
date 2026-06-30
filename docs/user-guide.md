@@ -19,6 +19,7 @@ Supported in the viewer:
 - TMP waveform display for selected heart nodes.
 - TMP parameter edits for depolarization time, repolarization time, resting potential, amplitude, plateau slope, and repolarization slope.
 - Selected-parameter reset and beat reset.
+- Local TMP edit save/load plus portable `.source-edits.json` export/import.
 - Surface-potential/lead trace plot with Baseline, AC, and DC coupling modes.
 
 Supported from the Python package:
@@ -63,6 +64,12 @@ The app loads the bundled `normal_male2` fixtures automatically. The current sup
 6. Use Reset beat to restore all adapted TMP parameters in the current fixture.
 7. In Thorax, toggle Thorax, Left lung, and Right lung visibility.
 8. In Leads, switch Coupling between Baseline, AC, and DC.
+
+TMP edit persistence options:
+
+- Save edits and Load edits use browser local storage for the current case.
+- Export edits downloads a portable `.source-edits.json` sidecar.
+- Import edits applies a sidecar after validating it belongs to the current case.
 
 ## Case Metadata CLI
 

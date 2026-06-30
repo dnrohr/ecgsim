@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { existsSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -303,6 +303,8 @@ async function assertHeartSelectionAndTmpEditing(page) {
   const redoButton = page.locator("[data-tmp-redo]");
   const saveEdits = page.locator("[data-tmp-save-edits]");
   const loadEdits = page.locator("[data-tmp-load-edits]");
+  const exportEdits = page.locator("[data-tmp-export-edits]");
+  const importEdits = page.locator("[data-tmp-import-edits]");
 
   assert.equal(await valueInput.isEnabled(), true, "TMP value should enable after heart selection");
   assert.equal(await incrementButton.isEnabled(), true, "TMP increment should enable after heart selection");
@@ -311,6 +313,8 @@ async function assertHeartSelectionAndTmpEditing(page) {
   assert.equal(await redoButton.isDisabled(), true, "Redo should start disabled");
   assert.equal(await saveEdits.isDisabled(), true, "Save edits should start disabled");
   assert.equal(await loadEdits.isDisabled(), true, "Load edits should start disabled without a saved snapshot");
+  assert.equal(await exportEdits.isDisabled(), true, "Export edits should start disabled");
+  assert.equal(await importEdits.isEnabled(), true, "Import edits should be available for the loaded case");
   assert.equal(await page.locator("[data-tmp-combine-handlers]").isDisabled(), true, "combined TMP handlers should be unavailable");
   assert.equal(await page.locator("[data-tmp-keep-apd]").isDisabled(), true, "constant APD mode should be unavailable");
   assert.equal(await page.locator("[data-tmp-show-egm]").isDisabled(), true, "electrogram toggle should be unavailable");
@@ -353,9 +357,20 @@ async function assertHeartSelectionAndTmpEditing(page) {
   assert.equal(await redoButton.isDisabled(), true, "Redo should disable after replay");
 
   assert.equal(await saveEdits.isEnabled(), true, "Save edits should enable after a transaction");
+  assert.equal(await exportEdits.isEnabled(), true, "Export edits should enable after a transaction");
   await saveEdits.click();
   await expectText(page, "[data-status-message]", "TMP edits saved");
   assert.equal(await loadEdits.isEnabled(), true, "Load edits should enable after saving");
+
+  const downloadPromise = page.waitForEvent("download");
+  await exportEdits.click();
+  const download = await downloadPromise;
+  assert.match(download.suggestedFilename(), /\.source-edits\.json$/, "Exported sidecar should use JSON sidecar suffix");
+  const sidecarPath = await download.path();
+  const sidecar = JSON.parse(readFileSync(sidecarPath, "utf8"));
+  assert.equal(sidecar.schema, "org.ecgsim.source-edits", "Exported sidecar should use source-edit schema");
+  assert.equal(sidecar.adaptedValues.depolarizationMs.length > 0, true, "Exported sidecar should include adapted values");
+  await expectText(page, "[data-status-message]", "TMP edit sidecar exported");
 
   await resetParameter.click();
   assert.equal(Number(await valueInput.inputValue()), originalValue, "Reset parameter should restore initial value");
@@ -366,6 +381,13 @@ async function assertHeartSelectionAndTmpEditing(page) {
 
   await resetParameter.click();
   assert.equal(Number(await valueInput.inputValue()), originalValue, "Reset parameter should restore initial value after load");
+
+  await importEdits.setInputFiles(sidecarPath);
+  await expectText(page, "[data-status-message]", "TMP edit sidecar imported");
+  assert.equal(Number(await valueInput.inputValue()), editedValue, "Import edits should restore exported adapted value");
+
+  await resetParameter.click();
+  assert.equal(Number(await valueInput.inputValue()), originalValue, "Reset parameter should restore initial value after import");
 
   await valueInput.fill(String(editedValue));
   await applyButton.click();

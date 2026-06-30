@@ -116,7 +116,7 @@ Undo:
 - Undo restores each `previousAdapted` value in reverse transaction order.
 - Redo can replay `nextAdapted` values if implemented.
 
-Current web-viewer status: ventricular TMP edits, selected-parameter reset, beat reset, undo, redo, and modern sidecar persistence use this transaction shape. `.ECGsimcase` write-back is deferred.
+Current web-viewer status: ventricular TMP edits, selected-parameter reset, beat reset, undo, redo, local sidecar persistence, and portable `.source-edits.json` import/export use this transaction shape. `.ECGsimcase` write-back is deferred.
 
 Reset selected parameter:
 
