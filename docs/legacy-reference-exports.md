@@ -118,6 +118,14 @@ python tools/compare_export_directories.py research/legacy-exports/raw/<case-nam
 
 The comparison only checks relative paths the modern supported export writer currently emits. Missing legacy files, shape mismatches, and value mismatches are reported explicitly.
 
+Run the full capture handoff validator with:
+
+```powershell
+python tools/validate_legacy_capture.py research/legacy-exports/raw/<case-name>/export-directory --case research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase --output research/legacy-exports/<case-name>-validation.json
+```
+
+The validation report embeds the checksum/shape manifest, optional modern-export comparison, and `taskReadiness` for tasks `0049`, `0051`, `0052`, and `0053`.
+
 Commit only manifests and small, justified reference files. Keep large raw exports ignored unless a later task explicitly promotes a small fixture.
 
 ## Screenshot Manual Workflow

@@ -38,5 +38,6 @@ Blocked in the current automation environment. A 2026-06-29 probe launched `ECGs
 Added raw-export intake diagnostics while capture remains blocked.
 
 - `tools/summarize_legacy_export.py` now classifies legacy export files, records matrix/vector/geometry shapes when readable, and reports whether `.user.source`, `.adaptECG`, and `.refECG` artifacts are present.
+- `tools/validate_legacy_capture.py` now produces one capture handoff report with the manifest, optional modern-export comparison, and readiness for downstream tasks `0049`, `0051`, `0052`, and `0053`.
 - Added tests with a synthetic export tree to prove manifest classification, checksum, shape, and parity-readiness behavior.
 - Raw legacy export capture is still required before tasks `0049`, `0051`, `0052`, and full `0053` can claim scientific parity.
