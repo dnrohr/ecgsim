@@ -29,3 +29,7 @@ The current parser reads metadata and known offsets. Feature parity needs named 
 ## Done When
 
 Parser implementation can proceed without inventing object names ad hoc.
+
+## Result
+
+Added `docs/file-formats/ecgsimcase-object-model.md` with the target `load_case` API, stable dataclass names, enum naming, marker coverage for every group currently reported by `ecgsim-case-info`, unknown-field fallback behavior, and a migration path from offset-driven viewer fixtures to parsed case objects.
