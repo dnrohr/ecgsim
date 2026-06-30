@@ -1,6 +1,6 @@
 # Feature Parity Matrix
 
-Status: initial parity tracking matrix generated from `docs/feature-parity/inventory.md`.
+Status: parity tracking matrix synced with implemented tasks through `0061`. Scientific rows are intentionally conservative where raw legacy export evidence is still missing.
 
 ## Status Definitions
 
@@ -23,98 +23,98 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 
 | Category | Feature | Status | Priority | Next task | Notes |
 | --- | --- | --- | --- | --- | --- |
-| Main Window And Global Layout | Four-pane workspace | partial | P0 | `0036` | Needs legacy-recognizable shell and resizable workspace. |
-| Main Window And Global Layout | Menu-per-pane model | unsupported | P1 | `0036` | Confirm exact menu entries during expanded reference capture. |
-| Main Window And Global Layout | Toolbar | unsupported | P2 | `0036` | Add only for controls that survive parity triage. |
-| Main Window And Global Layout | Status bar | partial | P1 | `0036` | Needs transient interaction and validation messages. |
+| Main Window And Global Layout | Four-pane workspace | supported | P0 | `0036` | Static viewer has the four primary panes; resizable legacy splitter parity is not implemented. |
+| Main Window And Global Layout | Menu-per-pane model | partial | P1 | `0036` | Menu strip is visible; most legacy menu commands remain represented by pane controls or unsupported. |
+| Main Window And Global Layout | Toolbar | partial | P2 | `0036` | Compact toolbar exists for case, workspace, lead-system, and time controls. |
+| Main Window And Global Layout | Status bar | supported | P1 | `0036` | Status messages report case loading, edits, time cursor, exports, and validation errors. |
 | Main Window And Global Layout | Mouse-driven interaction | partial | P0 | `0037` | Core selection/editing interactions remain incomplete. |
 | File, Case, And Export Workflows | Open case | partial | P0 | `0034` | Must load arbitrary `.ECGsimcase` files. |
-| File, Case, And Export Workflows | Open default case | partial | P0 | `0033` | Needs catalog/default behavior backed by real loader. |
-| File, Case, And Export Workflows | Download case files | unsupported | P2 | `0061` | Could be a docs or Help action. |
-| File, Case, And Export Workflows | Save case | unsupported | P1 | `0055` | Prefer adaptation sidecar until safe write-back is proven. |
-| File, Case, And Export Workflows | Open/save source info | unsupported | P1 | `0055` | Requires source persistence and compatibility evidence. |
+| File, Case, And Export Workflows | Open default case | supported | P0 | `0033` | Bundled normal case loads by default from generated fixtures. |
+| File, Case, And Export Workflows | Download case files | partial | P2 | `0061` | User docs identify archived case locations; in-app Help/download action is not implemented. |
+| File, Case, And Export Workflows | Save case | partial | P1 | `0055` | Modern `.source-edits.json` sidecar is supported; legacy `.ECGsimcase` write-back is unsupported. |
+| File, Case, And Export Workflows | Open/save source info | partial | P1 | `0055` | Modern sidecar import/export is supported; legacy `.ECGsimsource` compatibility is unsupported. |
 | File, Case, And Export Workflows | Load ECG file | unsupported | P1 | `0032` | Requires ECG import format and measured/simulated model. |
-| File, Case, And Export Workflows | Export directory | unsupported | P0 | `0054` | Needed for interop and numerical parity references. |
-| File, Case, And Export Workflows | Export ECG files | unsupported | P0 | `0054` | Required for legacy-style signal output. |
-| File, Case, And Export Workflows | Export triangulation files | partial | P1 | `0054` | Readers exist; writer needs real geometry model. |
-| File, Case, And Export Workflows | Export source parameters | partial | P0 | `0054` | Critical for edit parity and legacy comparison. |
+| File, Case, And Export Workflows | Export directory | partial | P0 | `0054` | Python writer emits supported legacy-style subset; full legacy `File -> Export` parity awaits raw exports. |
+| File, Case, And Export Workflows | Export ECG files | partial | P0 | `0054` | `ecgs/thorax.refECG` surface-potential matrix is exported; adapted ECG recomputation is unsupported. |
+| File, Case, And Export Workflows | Export triangulation files | supported | P1 | `0054` | Heart, thorax, and lung `.tri` files export in documented ASCII format. |
+| File, Case, And Export Workflows | Export source parameters | supported | P0 | `0054` | Supported source parameter vectors export as legacy-style `user.*` files when present. |
 | File, Case, And Export Workflows | Export TMP waveforms | unsupported | P0 | `0054` | Needed to replace provisional TMP generator evidence. |
 | File, Case, And Export Workflows | Export electrode locations | unsupported | P1 | `0054` | Depends on lead/electrode parser. |
-| Heart View | Geometry and surface functions | partial | P0 | `0037` | Needs real case geometry and surface-function coloring. |
-| Heart View | Rotate/AP reset | partial | P1 | `0037` | Add explicit camera controls and tests. |
+| Heart View | Geometry and surface functions | partial | P0 | `0037` | Geometry and parameter surface coloring are implemented for supported cases; parity colormaps remain approximate. |
+| Heart View | Rotate/AP reset | supported | P1 | `0037` | AP reset and auto-rotation controls are implemented and tested. |
 | Heart View | Cross plane | unsupported | P1 | `0037` | Requires geometry clipping. |
 | Heart View | Select node | partial | P0 | `0037` | Needs real source-node mapping. |
-| Heart View | Radius/selected zone | partial | P0 | `0044` | Needs contour/transition-zone behavior. |
+| Heart View | Radius/selected zone | partial | P0 | `0044` | Radius, transition zone, and weighted region selection are implemented; exact legacy contour behavior is unverified. |
 | Heart View | Probe mode | unsupported | P1 | `0042` | Requires sensitivity map and transfer data. |
-| Heart View | Foci edit mode | unsupported | P1 | `0050` | Requires activation model. |
-| Heart View | Atria/ventricles source switch | unsupported | P1 | `0031` | Requires source inventory per case. |
+| Heart View | Foci edit mode | partial | P1 | `0050` | Activation/focus payloads are parsed and graph solver exists; interactive focus editing is not implemented. |
+| Heart View | Atria/ventricles source switch | partial | P1 | `0031` | Source inventory is parsed; viewer editing remains ventricular-only. |
 | Heart View | Initial/adapted display | partial | P0 | `0037` | Heart view must switch visual state, not only TMP plot. |
-| Heart View | Depolarization surface function | unsupported | P0 | `0037` | Needs parsed source parameters and colormap. |
-| Heart View | Repolarization surface function | unsupported | P0 | `0037` | Needs parsed source parameters and colormap. |
+| Heart View | Depolarization surface function | partial | P0 | `0037` | Implemented from parsed source parameters for supported cases; legacy colormap parity unverified. |
+| Heart View | Repolarization surface function | partial | P0 | `0037` | Implemented from parsed source parameters for supported cases; legacy colormap parity unverified. |
 | Heart View | ARI surface function | unsupported | P1 | `0037` | Computed from repolarization minus depolarization. |
-| Heart View | Amplitude surface function | unsupported | P1 | `0037` | Needs parameter colormap. |
-| Heart View | Resting-potential surface function | unsupported | P1 | `0037` | Needs parameter colormap. |
+| Heart View | Amplitude surface function | partial | P1 | `0037` | Implemented from parsed source parameters for supported cases; legacy colormap parity unverified. |
+| Heart View | Resting-potential surface function | partial | P1 | `0037` | Implemented from parsed source parameters for supported cases; legacy colormap parity unverified. |
 | Heart View | TMP-at-time surface function | unsupported | P0 | `0041` | Requires shared time cursor and TMP matrices. |
 | Heart View | Geometry/nodes function | partial | P1 | `0037` | Needs node overlay mode. |
 | Heart View | Heart contribution map | unsupported | P1 | `0042` | Requires thorax node selection and transfer data. |
 | Heart View | Potential field strength | unsupported | P2 | `0042` | Data/equation source still needs confirmation. |
-| Heart View | Endocardial/epicardial switch | unsupported | P1 | `0045` | Requires wall-side mapping. |
-| Heart View | Transmural toggle | unsupported | P1 | `0045` | Requires transmural mapping and edit semantics. |
-| Heart View | Accumulation modes | unsupported | P1 | `0046` | Needed for legacy edit behavior. |
+| Heart View | Endocardial/epicardial switch | deferred | P1 | `0045` | Control is explicitly disabled per case until wall-side mappings are parsed. |
+| Heart View | Transmural toggle | deferred | P1 | `0045` | Control is explicitly disabled per case until transmural mappings and edit semantics are known. |
+| Heart View | Accumulation modes | partial | P1 | `0046` | Replace/expand-style weighted selection, undo, and redo exist; legacy named modes remain incomplete. |
 | Heart View | Heart vector | unsupported | P2 | `0042` | Requires vector computation/data and shared time. |
-| Heart View | Electrode visibility | unsupported | P1 | `0032` | Requires parsed electrodes. |
+| Heart View | Electrode visibility | unsupported | P1 | `0032` | Electrode positions are parsed and shown in Thorax; Heart electrode display is not implemented. |
 | Heart View | Clipboard copy | partial | P2 | `0056` | PNG download supported; clipboard depends on browser permission/API support. |
 | Heart View | Movie | unsupported | P2 | `0056` | Requires time cursor/playback and map frames. |
-| Thorax View | Geometry display | partial | P0 | `0038` | Add embedded heart context and real case geometry. |
-| Thorax View | Rotate/AP reset | partial | P1 | `0038` | Share camera controls with Heart. |
-| Thorax View | Select thorax node | unsupported | P1 | `0038` | Needed for leads and contribution maps. |
-| Thorax View | Surface function: default geometry | partial | P1 | `0038` | Needs linked heart function and transparency mode. |
-| Thorax View | Surface function: measured BSPM | unsupported | P0 | `0042` | Requires parsed measured surface potentials. |
+| Thorax View | Geometry display | supported | P0 | `0038` | Parsed thorax and lung geometry render for supported cases. |
+| Thorax View | Rotate/AP reset | supported | P1 | `0038` | AP reset and auto-rotation controls are implemented and tested. |
+| Thorax View | Select thorax node | partial | P1 | `0038` | Thorax node selection is implemented; downstream contribution maps are not. |
+| Thorax View | Surface function: default geometry | supported | P1 | `0038` | Default geometry/transparency mode is implemented for supported cases. |
+| Thorax View | Surface function: measured BSPM | partial | P0 | `0042` | Measured surface-potential map from parsed fixture is shown; classification and legacy parity remain incomplete. |
 | Thorax View | Surface function: initial BSPM | unsupported | P0 | `0042` | Requires recompute or parsed initial matrices. |
 | Thorax View | Surface function: adapted BSPM | unsupported | P0 | `0042` | Requires recompute pipeline. |
 | Thorax View | Surface function: sensitivity map | unsupported | P1 | `0042` | Requires probe mode and transfer visualization. |
-| Thorax View | Time stepping | unsupported | P0 | `0041` | Shared time cursor dependency. |
+| Thorax View | Time stepping | partial | P0 | `0041` | Shared time cursor updates measured BSPM maps; movie/frame parity remains incomplete. |
 | Thorax View | Show/hide lungs | supported | P2 | `0038` | Prototype works; menu parity still missing. |
-| Thorax View | Show/hide electrodes | unsupported | P1 | `0032` | Requires parsed electrodes. |
+| Thorax View | Show/hide electrodes | partial | P1 | `0032` | Parsed electrode coordinate markers can be toggled where available; exact patch geometry is not implemented. |
 | Thorax View | Lock to heart | unsupported | P2 | `0038` | Requires shared camera/orientation state. |
-| Thorax View | Scale | unsupported | P1 | `0042` | Needed for BSPM map parity. |
+| Thorax View | Scale | supported | P1 | `0042` | Thorax scale control is implemented and covered by app workflow tests. |
 | Thorax View | Movie | unsupported | P2 | `0056` | Requires linked playback. |
 | Thorax View | Isofunction display | unsupported | P1 | `0042` | Map renderer should support contour and color modes. |
 | Thorax View | Clipboard copy | partial | P2 | `0056` | PNG download supported; clipboard depends on browser permission/API support. |
-| TMP View | Selected-node TMP display | partial | P0 | `0040` | Needs exact source data and display styling. |
-| TMP View | Parameter handlers | partial | P0 | `0040` | Need legacy handler-equivalent interaction. |
-| TMP View | Timing/amplitude parameters | partial | P0 | `0040` | Needs legacy constraints and parser-backed values. |
+| TMP View | Selected-node TMP display | partial | P0 | `0040` | Selected-node TMP display is implemented with provisional waveform generation; legacy `.user.source` parity is missing. |
+| TMP View | Parameter handlers | partial | P0 | `0040` | Numeric controls implement parameter edits; legacy drag-handler equivalence is incomplete. |
+| TMP View | Timing/amplitude parameters | partial | P0 | `0040` | Parser-backed parameters can be edited; legacy constraints and waveform parity are incomplete. |
 | TMP View | Slope parameters | partial | P0 | `0040` | Provisional waveform behavior must be replaced. |
-| TMP View | Initial/adapted handler reset | partial | P1 | `0040` | Decide double-click parity or documented modern alternative. |
-| TMP View | Reset beat | partial | P0 | `0040` | Needs real beat/source scope. |
-| TMP View | Time bar | unsupported | P0 | `0041` | Shared time cursor dependency. |
+| TMP View | Initial/adapted handler reset | partial | P1 | `0040` | Reset parameter and undo/redo are implemented; double-click handler parity is not. |
+| TMP View | Reset beat | supported | P0 | `0040` | Reset beat restores adapted vectors for the current supported beat. |
+| TMP View | Time bar | supported | P0 | `0041` | Shared time cursor is implemented on TMP and Leads canvases. |
 | TMP View | Interval highlight | unsupported | P1 | `0041` | Needs interval model. |
-| TMP View | Grid display | unsupported | P2 | `0040` | Plot rendering option. |
+| TMP View | Grid display | supported | P2 | `0040` | TMP grid toggle is implemented and tested. |
 | TMP View | Combined resting/amplitude handlers | unsupported | P1 | `0040` | Needs handler implementation. |
 | TMP View | Keep constant APD option | unsupported | P1 | `0040` | Needs edit semantics. |
 | TMP View | Show/hide electrogram | unsupported | P1 | `0032` | Requires electrogram data or derivation. |
 | TMP View | Clipboard copy | partial | P2 | `0056` | PNG download supported; clipboard depends on browser permission/API support. |
-| Leads / ECG View | Lead systems | partial | P0 | `0043` | Requires parser and switcher. |
+| Leads / ECG View | Lead systems | partial | P0 | `0043` | Lead-system metadata and switching are implemented; exact lead transform semantics remain incomplete. |
 | Leads / ECG View | Signal overlays | unsupported | P0 | `0039` | Requires signal classification and controls. |
 | Leads / ECG View | Coupling/filtering | partial | P0 | `0052` | Exact fiducial behavior unknown. |
-| Leads / ECG View | Time bar | unsupported | P0 | `0041` | Shared time cursor dependency. |
-| Leads / ECG View | Arrow-key time stepping | unsupported | P1 | `0041` | Requires keyboard focus and time state. |
+| Leads / ECG View | Time bar | supported | P0 | `0041` | Shared time cursor is implemented on Leads and TMP canvases. |
+| Leads / ECG View | Arrow-key time stepping | supported | P1 | `0041` | Arrow-key stepping works when waveform canvases have focus. |
 | Leads / ECG View | Beat zoom | unsupported | P1 | `0039` | Requires beat inventory and plot interval model. |
 | Leads / ECG View | Interval selection | unsupported | P1 | `0041` | Needs linked interval state. |
 | Leads / ECG View | VCG display | unsupported | P2 | `0039` | Requires VCG lead data and plot mode. |
-| Leads / ECG View | Scale | unsupported | P1 | `0039` | Current plots autoscale per trace. |
-| Leads / ECG View | Grid display | unsupported | P2 | `0039` | Plot rendering option. |
+| Leads / ECG View | Scale | supported | P1 | `0039` | Leads scale control is implemented and tested. |
+| Leads / ECG View | Grid display | supported | P2 | `0039` | Leads grid toggle is implemented and tested. |
 | Leads / ECG View | Clipboard copy | partial | P2 | `0056` | PNG download supported; clipboard depends on browser permission/API support. |
 | Tools, Focus, And Preferences | Dockable Tools view | unsupported | P2 | `0036` | Modern panels may replace dockable windows. |
 | Tools, Focus, And Preferences | Standard orientation tools | unsupported | P1 | `0037` | Needed for Heart/Thorax view parity. |
-| Tools, Focus, And Preferences | Create rhythm | unsupported | P2 | `0050` | Requires multi-beat source model. |
+| Tools, Focus, And Preferences | Create rhythm | deferred | P2 | `0050` | Multi-beat creation is not implemented; activation/focus parsing groundwork exists. |
 | Tools, Focus, And Preferences | Global TMP timing statistics | unsupported | P1 | `0040` | Requires source parameter model and validation. |
 | Tools, Focus, And Preferences | Global TMP shape adjustments | unsupported | P1 | `0040` | Requires edit transaction model. |
 | Tools, Focus, And Preferences | Timing supervision | unsupported | P1 | `0040` | Add validation when global edits exist. |
-| Tools, Focus, And Preferences | Transition zone editor | unsupported | P1 | `0044` | Needed for source editing parity. |
-| Tools, Focus, And Preferences | Foci edit dock | unsupported | P1 | `0050` | Requires activation parsing/simulation. |
-| Tools, Focus, And Preferences | Focus opposite wall | unsupported | P1 | `0050` | Requires wall mapping. |
-| Tools, Focus, And Preferences | Focus propagation velocity | unsupported | P1 | `0050` | Requires graph/activation model. |
+| Tools, Focus, And Preferences | Transition zone editor | partial | P1 | `0044` | Transition-zone radius control exists in Heart selection; legacy tool panel parity is incomplete. |
+| Tools, Focus, And Preferences | Foci edit dock | partial | P1 | `0050` | Activation payload parser and graph solver exist; UI dock editing is not implemented. |
+| Tools, Focus, And Preferences | Focus opposite wall | deferred | P1 | `0050` | Requires confirmed wall mapping before enabling. |
+| Tools, Focus, And Preferences | Focus propagation velocity | partial | P1 | `0050` | Fastest-route solver accepts graph weights; legacy focus velocity UI is not implemented. |
 | Tools, Focus, And Preferences | Global repolarization | unsupported | P1 | `0049` | Needs equations and parity data. |
 | Tools, Focus, And Preferences | Preferences modal | unsupported | P2 | `0036` | Modern settings may replace modal behavior. |
 | Tools, Focus, And Preferences | Color scale preferences | unsupported | P1 | `0042` | Needed for map/surface views. |
@@ -123,8 +123,8 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | Clipboard And Visual Output | Pane image copy | partial | P2 | `0056` | PNG download supported for all primary panes; clipboard is best-effort by browser capability. |
 | Clipboard And Visual Output | App must remain open for paste | deferred | Deferred | `0056` | Modern clipboard writes are independent once the browser/OS accepts the image. |
 | Clipboard And Visual Output | Movie output | unsupported | P2 | `0056` | Need legacy reference for save versus playback behavior. |
-| Help, About, References, And Updates | About/version discovery | unsupported | P2 | `0059` | Needed before packaged release. |
+| Help, About, References, And Updates | About/version discovery | partial | P2 | `0059` | Static package manifest and release validation exist; in-app About view is not implemented. |
 | Help, About, References, And Updates | Check for updates | unsupported | P2 | `0059` | Likely replaced by release/release-notes strategy. |
 | Help, About, References, And Updates | Standalone updater | unsupported | P2 | `0059` | Relevant only if desktop packaging uses auto-update. |
-| Help, About, References, And Updates | Download case files link | unsupported | P2 | `0061` | Add after external source policy is decided. |
-| Help, About, References, And Updates | References/publications | partial | P2 | `0061` | Research papers are archived; app/docs need a user-facing reference view. |
+| Help, About, References, And Updates | Download case files link | partial | P2 | `0061` | User guide documents archived case paths; in-app link is not implemented. |
+| Help, About, References, And Updates | References/publications | partial | P2 | `0061` | Research papers are archived and documented; in-app reference view is not implemented. |
