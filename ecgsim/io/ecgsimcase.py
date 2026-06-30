@@ -20,6 +20,10 @@ PVECTOR_SIGNATURE = "PVector"
 PSOURCE_SIGNATURE = "PSource"
 PSOURCE_PARAMETER_SIGNATURE = "PSourceParameter"
 PACTIVATION_CONSTRUCTION_SIGNATURE = "PActivationConstruction"
+PLEAD_SYSTEM_SIGNATURE = "PLeadSystem"
+PLEAD_SIGNATURE = "PLead"
+PLEAD_REFERENCE_SIGNATURE = "PLeadReference"
+PSHOW_LEAD_SIGNATURE = "PShowLead"
 PRINTABLE_MIN = 0x20
 PRINTABLE_MAX = 0x7E
 GEOMETRY_NAMES_BY_INDEX = (
@@ -142,6 +146,46 @@ class ECGsimCaseSource:
     beats: tuple[ECGsimCaseSourceBeat, ...]
     activation: ECGsimCaseActivation | None
     unknown_vectors: tuple[ECGsimCaseVector, ...]
+
+
+@dataclass(frozen=True)
+class ECGsimCaseElectrode:
+    """Electrode position parsed from a lead-system block."""
+
+    id: str
+    label: str
+    position: tuple[float, float, float]
+    units: str
+    thorax_node_index: int | None = None
+
+
+@dataclass(frozen=True)
+class ECGsimCaseLeadSystem:
+    """Lead-system metadata and confirmed electrode positions."""
+
+    id: str
+    name: str
+    source_offset: int
+    electrodes: tuple[ECGsimCaseElectrode, ...]
+    lead_labels: tuple[str, ...]
+    reference_labels: tuple[str, ...]
+    shown_lead_labels: tuple[str, ...]
+    matrix_offsets: tuple[int, ...]
+    unsupported_fields: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ECGsimCaseSignalMetadata:
+    """Known ECG/surface-potential matrix metadata."""
+
+    matrix_offset: int
+    rows: int
+    columns: int
+    sample_rate_hz: int
+    signal_kind: str
+    units: str
+    fiducials: None
+    unsupported_fields: tuple[str, ...]
 
 
 def read_ecgsimcase_metadata(path: str | Path) -> ECGsimCaseMetadata:
@@ -278,6 +322,91 @@ def read_ecgsimcase_sources(path: str | Path) -> tuple[ECGsimCaseSource, ...]:
         )
 
     return tuple(sources)
+
+
+def read_ecgsimcase_lead_systems(path: str | Path) -> tuple[ECGsimCaseLeadSystem, ...]:
+    """Read lead-system names, electrodes, and nested lead-label summaries."""
+
+    source_path = Path(path)
+    data = source_path.read_bytes()
+    metadata = read_ecgsimcase_metadata(source_path)
+    lead_offsets = metadata.marker_offsets.get(PLEAD_SYSTEM_SIGNATURE, ())
+    lead_systems: list[ECGsimCaseLeadSystem] = []
+
+    for index, offset in enumerate(lead_offsets):
+        name_entry = _next_string_after(metadata, offset)
+        if name_entry is None:
+            raise ECGsimCaseFormatError(f"{source_path} PLeadSystem at {offset} has no name string")
+        values_offset = name_entry.offset + 4 + name_entry.byte_length
+        if values_offset + 4 > len(data):
+            raise ECGsimCaseFormatError(f"{source_path} PLeadSystem at {offset} has no electrode count")
+        (electrode_count,) = struct.unpack_from("<i", data, values_offset)
+        if electrode_count < 0:
+            raise ECGsimCaseFormatError(
+                f"{source_path} PLeadSystem at {offset} has invalid electrode count {electrode_count}"
+            )
+        electrode_start = values_offset + 4
+        electrode_bytes = electrode_count * 3 * 4
+        if electrode_start + electrode_bytes > len(data):
+            raise ECGsimCaseFormatError(f"{source_path} PLeadSystem electrodes at {offset} overrun the file")
+        flat = struct.unpack_from(f"<{electrode_count * 3}f", data, electrode_start) if electrode_count else ()
+        electrodes = tuple(
+            ECGsimCaseElectrode(
+                id=f"{_slug(name_entry.text)}-electrode-{electrode_index + 1}",
+                label=f"E{electrode_index + 1}",
+                position=(
+                    float(flat[electrode_index * 3]),
+                    float(flat[electrode_index * 3 + 1]),
+                    float(flat[electrode_index * 3 + 2]),
+                ),
+                units="case-coordinate-units",
+            )
+            for electrode_index in range(electrode_count)
+        )
+        end = lead_offsets[index + 1] if index + 1 < len(lead_offsets) else len(data)
+        lead_systems.append(
+            ECGsimCaseLeadSystem(
+                id=f"leadSystem{index + 1}",
+                name=name_entry.text,
+                source_offset=offset,
+                electrodes=electrodes,
+                lead_labels=_labels_for_nested_markers(metadata, PLEAD_SIGNATURE, offset, end, "lead"),
+                reference_labels=_labels_for_nested_markers(
+                    metadata, PLEAD_REFERENCE_SIGNATURE, offset, end, "reference"
+                ),
+                shown_lead_labels=_labels_for_nested_markers(metadata, PSHOW_LEAD_SIGNATURE, offset, end, "shown"),
+                matrix_offsets=_marker_offsets_in_range(metadata, PMATRIX_SIGNATURE, offset, end),
+                unsupported_fields=(
+                    "lead polarity/reference electrode fields",
+                    "shown-lead layout fields",
+                    "fiducial/time-base fields",
+                ),
+            )
+        )
+
+    return tuple(lead_systems)
+
+
+def read_ecgsimcase_signal_metadata(path: str | Path) -> ECGsimCaseSignalMetadata:
+    """Read metadata for the first known case signal matrix."""
+
+    source_path = Path(path)
+    metadata = read_ecgsimcase_metadata(source_path)
+    matrix_offset = metadata.marker_offsets[PMATRIX_SIGNATURE][0]
+    matrix = read_ecgsimcase_matrix(source_path, matrix_offset)
+    return ECGsimCaseSignalMetadata(
+        matrix_offset=matrix_offset,
+        rows=matrix.rows,
+        columns=matrix.columns,
+        sample_rate_hz=1000,
+        signal_kind="thorax-node surface potentials",
+        units="mV",
+        fiducials=None,
+        unsupported_fields=(
+            "measured/initial/adapted signal classification",
+            "P-wave/T-wave fiducial samples for baseline correction",
+        ),
+    )
 
 
 def read_ecgsimcase_matrix(path: str | Path, offset: int) -> MatrixData:
@@ -472,6 +601,28 @@ def _marker_offsets_in_range(
     metadata: ECGsimCaseMetadata, marker: str, start: int, end: int
 ) -> tuple[int, ...]:
     return tuple(offset for offset in metadata.marker_offsets.get(marker, ()) if start <= offset < end)
+
+
+def _next_string_after(metadata: ECGsimCaseMetadata, offset: int) -> StringEntry | None:
+    return next((entry for entry in metadata.strings if entry.offset > offset), None)
+
+
+def _labels_for_nested_markers(
+    metadata: ECGsimCaseMetadata, marker: str, start: int, end: int, fallback_prefix: str
+) -> tuple[str, ...]:
+    labels: list[str] = []
+    offsets = _marker_offsets_in_range(metadata, marker, start, end)
+    for index, offset in enumerate(offsets):
+        next_string = _next_string_after(metadata, offset)
+        if next_string is not None and next_string.offset < end and not next_string.text.startswith("P"):
+            labels.append(next_string.text)
+        else:
+            labels.append(f"{fallback_prefix}{index + 1}")
+    return tuple(labels)
+
+
+def _slug(value: str) -> str:
+    return "".join(ch.lower() if ch.isalnum() else "-" for ch in value).strip("-") or "lead-system"
 
 
 def _source_parameter_units(name: str) -> str:

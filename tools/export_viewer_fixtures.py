@@ -13,14 +13,15 @@ sys.path.insert(0, str(ROOT))
 from ecgsim.core import generate_tmp_waveform_from_vectors
 from ecgsim.io import (
     read_ecgsimcase_geometries,
+    read_ecgsimcase_lead_systems,
     read_ecgsimcase_matrix,
     read_ecgsimcase_metadata,
+    read_ecgsimcase_signal_metadata,
     read_ecgsimcase_sources,
 )
 
 
 SIGNAL_SOURCE = ROOT / "research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase"
-SIGNAL_MATRIX_OFFSET = 54
 HEART_TARGET = ROOT / "app/viewer/public/fixtures/heart.json"
 THORAX_TARGET = ROOT / "app/viewer/public/fixtures/thorax.json"
 ECG_SIGNAL_TARGET = ROOT / "app/viewer/public/fixtures/ecg-signals.json"
@@ -47,17 +48,19 @@ def case_geometry_payload(name: str) -> dict[str, object]:
 
 
 def ecg_signal_payload() -> dict[str, object]:
-    matrix = read_ecgsimcase_matrix(SIGNAL_SOURCE, SIGNAL_MATRIX_OFFSET)
+    signal = read_ecgsimcase_signal_metadata(SIGNAL_SOURCE)
+    matrix = read_ecgsimcase_matrix(SIGNAL_SOURCE, signal.matrix_offset)
     selected_rows = (0, 50, 100, 150, 200, 250)
     return {
         "source": str(SIGNAL_SOURCE.relative_to(ROOT)).replace("\\", "/"),
-        "sourceMatrixOffset": SIGNAL_MATRIX_OFFSET,
-        "signalKind": "thorax-node surface potentials",
-        "sampleRateHz": 1000,
+        "sourceMatrixOffset": signal.matrix_offset,
+        "signalKind": signal.signal_kind,
+        "sampleRateHz": signal.sample_rate_hz,
         "sampleRateSource": "ECGSIM manual 12-lead ECG and surface-potential export formats",
         "rows": matrix.rows,
         "columns": matrix.columns,
-        "units": "mV",
+        "units": signal.units,
+        "unsupportedFields": signal.unsupported_fields,
         "traces": [
             {
                 "name": f"Node {row + 1}",
@@ -131,13 +134,26 @@ def tmp_waveform_payload() -> dict[str, object]:
 
 def case_metadata_payload() -> dict[str, object]:
     metadata = read_ecgsimcase_metadata(SIGNAL_SOURCE)
+    lead_systems = read_ecgsimcase_lead_systems(SIGNAL_SOURCE)
     return {
         "source": str(SIGNAL_SOURCE.relative_to(ROOT)).replace("\\", "/"),
         "fileName": SIGNAL_SOURCE.name,
         "byteSize": metadata.byte_size,
         "sha256": metadata.sha256,
         "rootSignature": metadata.root_signature,
-        "leadSystems": metadata.lead_systems,
+        "leadSystems": tuple(system.name for system in lead_systems),
+        "leadSystemDetails": [
+            {
+                "id": system.id,
+                "name": system.name,
+                "electrodeCount": len(system.electrodes),
+                "leadCount": len(system.lead_labels),
+                "shownLeadCount": len(system.shown_lead_labels),
+                "referenceCount": len(system.reference_labels),
+                "unsupportedFields": system.unsupported_fields,
+            }
+            for system in lead_systems
+        ],
         "markerCounts": metadata.marker_counts,
         "unsupportedPayloads": metadata.unsupported_payloads,
         "loadedFixtures": {

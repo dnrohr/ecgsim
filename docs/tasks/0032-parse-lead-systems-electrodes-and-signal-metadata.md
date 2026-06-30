@@ -29,3 +29,7 @@ The viewer currently shows representative thorax-node traces, not real standard 
 ## Done When
 
 The app can choose real case lead systems instead of hard-coded representative traces.
+
+## Result
+
+Added lead-system and signal metadata parser output. The parser now exposes lead-system names, electrode coordinate triplets, nested lead/reference/shown-lead labels where available, matrix offsets, and explicit unsupported fields for lead polarity, shown-lead layout, fiducials, and signal classification. Viewer fixtures now include parsed lead-system details and signal metadata.

@@ -5,8 +5,10 @@ import unittest
 from ecgsim.io import (
     ECGsimCaseFormatError,
     read_ecgsimcase_geometries,
+    read_ecgsimcase_lead_systems,
     read_ecgsimcase_matrix,
     read_ecgsimcase_metadata,
+    read_ecgsimcase_signal_metadata,
     read_ecgsimcase_sources,
     read_ecgsimcase_vector,
 )
@@ -238,3 +240,38 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
             parameters["repolarizationSlope"].initial.length,
             parameters["repolarizationSlope"].adapted.length,
         )
+
+    def test_reads_normal_case_lead_systems(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")
+        systems = read_ecgsimcase_lead_systems(path)
+
+        self.assertEqual([system.name for system in systems], list(self.CASES[path.name]["lead_systems"]))
+        self.assertEqual([len(system.electrodes) for system in systems], [9, 7, 65, 9])
+        self.assertEqual([len(system.lead_labels) for system in systems], [12, 10, 64, 12])
+        self.assertEqual([len(system.shown_lead_labels) for system in systems], [12, 6, 64, 9])
+        self.assertEqual(systems[0].lead_labels[:4], ("lead1", "II", "III", "V1"))
+        self.assertEqual(systems[0].reference_labels, ("Zeromean", "extremities", "vr", "vl"))
+        self.assertEqual(systems[1].shown_lead_labels[:3], ("horizontal", "frontal", "left sagital"))
+        self.assertEqual(systems[0].matrix_offsets, (11312384,))
+        self.assertAlmostEqual(systems[0].electrodes[0].position[0], 109.0, places=4)
+        self.assertIn("fiducial/time-base fields", systems[0].unsupported_fields)
+
+    def test_reads_wpw_lead_system_inventory(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/WPW_fusionbeat.ECGsimcase")
+        systems = read_ecgsimcase_lead_systems(path)
+
+        self.assertEqual([system.name for system in systems], list(self.CASES[path.name]["lead_systems"]))
+        self.assertEqual([len(system.electrodes) for system in systems], [9, 7, 65, 9])
+        self.assertEqual(systems[2].name, "BSM_(amsterdam_64)")
+        self.assertEqual(len(systems[2].shown_lead_labels), 65)
+
+    def test_reads_signal_metadata(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")
+        signal = read_ecgsimcase_signal_metadata(path)
+
+        self.assertEqual(signal.matrix_offset, 54)
+        self.assertEqual((signal.rows, signal.columns), (300, 1000))
+        self.assertEqual(signal.sample_rate_hz, 1000)
+        self.assertEqual(signal.signal_kind, "thorax-node surface potentials")
+        self.assertIsNone(signal.fiducials)
+        self.assertIn("fiducial", signal.unsupported_fields[1])
