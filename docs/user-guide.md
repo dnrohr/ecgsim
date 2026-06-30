@@ -1,47 +1,22 @@
 # User Guide
 
-Status: first modern viewer guide for the bundled `normal_male2` fixtures.
+Status: current guide for the modern ECGSIM static viewer, Python tools, and known feature-parity limits.
 
-## What Works Today
+## What This App Is Today
 
-The current app is a browser-based prototype with curated fixtures generated from:
+Modern ECGSIM is currently a static browser viewer plus Python parser/export tools. It can inspect supported legacy case data, render the main ECGSIM workspaces, edit ventricular TMP source parameters in a modern sidecar workflow, export useful data subsets, and validate release candidates.
 
-```text
-research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
-```
+It is not yet a full scientific replacement for the legacy ECGSIM application. Full TMP generation parity, recomputation after edits, arbitrary browser-side `.ECGsimcase` parsing, and legacy `.ECGsimcase` write-back remain unsupported.
 
-Supported in the viewer:
+## Install And Run
 
-- Case metadata summary for the bundled fixture.
-- Opening supported web-bundled `.ECGsimcase` files by selecting the original local file. The browser verifies supported files by SHA-256 and loads the matching generated bundle.
-- Heart geometry display with node and radius selection.
-- Thorax/lung geometry display with visibility toggles.
-- TMP waveform display for selected heart nodes.
-- TMP parameter edits for depolarization time, repolarization time, resting potential, amplitude, plateau slope, and repolarization slope.
-- Selected-parameter reset and beat reset.
-- Local TMP edit save/load plus portable `.source-edits.json` export/import.
-- Surface-potential/lead trace plot with Baseline, AC, and DC coupling modes.
-- PNG download and browser-permitted clipboard copy for Heart, Thorax, TMP, and Leads views.
-
-Supported from the Python package:
-
-- `.ECGsimcase` metadata inspection.
-- Known matrix/vector payload reads by offset.
-- Legacy `.tri`, matrix, and vector readers.
-- Supported-subset ECGSIM export-directory writer and CLI.
-- Provisional TMP waveform generation.
-- Transfer-function application and WCT row referencing.
-- ECG filtering/coupling helpers.
-
-## First Run
-
-From a clean checkout, install the viewer dependencies:
+Install viewer dependencies:
 
 ```powershell
 npm --prefix app/viewer install
 ```
 
-Start the local viewer:
+Run the local viewer:
 
 ```powershell
 npm --prefix app/viewer run dev
@@ -53,69 +28,162 @@ Open:
 http://localhost:4173
 ```
 
-The app loads the bundled `normal_male2` fixtures automatically. The current supported web-open cases are `normal_male2.ECGsimcase` and `WPW_ectopicbeat.ECGsimcase`.
+Build and test the static package:
 
-## Basic Walkthrough
+```powershell
+npm --prefix app/viewer run test:package
+```
 
-1. Confirm the top case summary shows `normal_male2.ECGsimcase`.
-2. In Heart, click the surface to select a node.
-3. Adjust the radius slider to change the selected region.
-4. In TMP, choose a parameter, change the value, and select Apply.
-5. Use Reset parameter to restore the selected parameter for the selected region.
-6. Use Reset beat to restore all adapted TMP parameters in the current fixture.
-7. In Thorax, toggle Thorax, Left lung, and Right lung visibility.
-8. In Leads, switch Coupling between Baseline, AC, and DC.
+The static package is written to:
 
-TMP edit persistence options:
+```text
+app/viewer/dist/viewer-static/
+```
 
-- Save edits and Load edits use browser local storage for the current case.
-- Export edits downloads a portable `.source-edits.json` sidecar.
-- Import edits applies a sidecar after validating it belongs to the current case.
+`dist/` is ignored by git.
 
-Visual export options:
+## Supported Browser Cases
 
-- Use each pane's PNG button to download the current Heart, Thorax, TMP, or Leads canvas.
-- Use Copy to copy the current pane image when the browser allows image clipboard writes.
+The browser can open only cases listed in:
 
-## Case Metadata CLI
+```text
+app/viewer/public/fixtures/cases/manifest.json
+```
 
-Run:
+Current supported browser-open cases:
+
+- `normal_male2.ECGsimcase`
+- `WPW_ectopicbeat.ECGsimcase`
+
+Use the Open case control and select the original local `.ECGsimcase` file. The browser checks SHA-256 and byte size, then loads the matching generated bundle. Unsupported files leave the current case visible and show a notice.
+
+## Normal Case Walkthrough
+
+Use:
+
+```text
+research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
+```
+
+1. Confirm the case status shows `normal_male2.ECGsimcase`.
+2. In Heart, switch Surface between Geometry, Depolarization, Repolarization, Amplitude, and Resting potential.
+3. Click the Heart surface to select a node.
+4. Adjust Radius and Transition to change the weighted source region.
+5. In TMP, choose a parameter and change Value.
+6. Select Apply, then use Undo, Redo, Reset parameter, and Reset beat.
+7. Use Save edits and Load edits for browser-local persistence.
+8. Use Export edits to download a `.source-edits.json` sidecar.
+9. Use Import edits to reload that sidecar into the same case.
+10. In Thorax, switch between geometry and measured BSPM where available, toggle lungs/electrodes, and adjust Scale.
+11. In Leads, switch Coupling between Baseline, AC, and DC; change Scale; toggle Grid and RMS.
+12. Use the shared time cursor or arrow keys on TMP/Leads canvases to step through time.
+13. Use each pane's PNG button to download the current Heart, Thorax, TMP, or Leads image.
+
+## WPW Case Walkthrough
+
+Use:
+
+```text
+research/source/www.ecgsim.org/downloads/cases/WPW_ectopicbeat.ECGsimcase
+```
+
+1. Open the WPW case with the Open case control.
+2. Confirm the case status changes to `WPW_ectopicbeat.ECGsimcase`.
+3. Review Heart and Thorax geometry counts and lead-system metadata.
+4. Repeat the Heart selection and TMP edit workflow.
+5. Save a `.source-edits.json` sidecar for the WPW case.
+6. Switch back to `normal_male2.ECGsimcase` and confirm the sidecar is rejected if imported into the wrong case.
+
+## Python CLI Tools
+
+Inspect legacy case metadata:
 
 ```powershell
 python -m ecgsim.cli.case_info research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
 ```
 
-This prints the known marker inventory and unsupported payload categories for the case.
-
-## Export Directory CLI
-
-Run:
+Export a supported legacy-style directory subset:
 
 ```powershell
 python -m ecgsim.cli.export_case research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase scratch/normal-export
 ```
 
-This writes a legacy-style directory with supported geometry, source-vector, surface-potential, and metadata files. The export is a useful modern subset; `metadata.json` records unsupported legacy members.
+Profile supported workflows:
 
-See `docs/import-export-compatibility.md` for the complete compatibility table and current limitations.
+```powershell
+python tools/profile_supported_workflows.py --skip-export
+```
 
-## Unsupported Or Partial Features
+Run release validation:
 
-- Arbitrary `.ECGsimcase` files are not parsed in the browser yet. The file picker loads only cases present in the generated supported-case manifest and leaves the current case visible when a file is unsupported.
-- Exporting adapted cases from the browser is not implemented. The Python export-directory CLI writes a supported subset from parsed case data.
-- TMP generation is deterministic but provisional; it is not yet parity-verified against legacy `.user.source` exports.
-- ECG recomputation after TMP edits is not wired into the viewer yet.
-- Movie export is not implemented; current visual export captures still PNG frames.
-- Baseline coupling reports whether it uses parsed fiducials or fallback signal endpoints. Bundled cases currently use the fallback because legacy P/T fiducial samples have not been located.
-- Endocardial/epicardial switching and transmural edits are disabled per case until explicit wall pairings are parsed. TMP edits can be saved as modern sidecar state; source edit `.ECGsimcase` write-back, movie playback, and full legacy lead layout semantics are not implemented.
-- The original Windows and macOS app packages are reference binaries and intentionally ignored by git.
+```powershell
+python tools/run_release_validation.py
+```
+
+Release evidence is written to:
+
+```text
+dist/release-validation/latest/
+```
+
+## Import And Export Compatibility
+
+See `docs/import-export-compatibility.md` for the full compatibility table.
+
+Current supported outputs:
+
+- Static viewer package under `app/viewer/dist/viewer-static/`.
+- Legacy-style export-directory subset from Python.
+- Modern `.source-edits.json` sidecars from the browser.
+- PNG captures for Heart, Thorax, TMP, and Leads.
+- Browser-permitted image clipboard copy.
+
+Current unsupported outputs:
+
+- Full legacy `File -> Export` parity.
+- Legacy `.ECGsimcase` write-back.
+- `.ECGsimsource` import/export.
+- ECG file import.
+- Movie export.
+- Signed native installers.
+
+## Scientific Assumptions And Limits
+
+- TMP waveform generation is deterministic but provisional; it is not parity-verified against legacy `.user.source` exports.
+- ECG/BSPM recomputation after TMP edits is not wired into the viewer yet.
+- Baseline coupling reports whether parsed fiducials are available. Bundled cases currently use fallback signal endpoints because P-wave/T-wave samples have not been located.
+- Endocardial/epicardial and transmural controls are disabled until explicit wall pairings are parsed.
+- Surface-potential matrix values are parsed and displayed, but measured/initial/adapted signal classification remains incomplete.
+- Raw legacy export parity remains blocked until task `0048` can capture legacy export directories from a normal interactive Windows session or deeper native automation.
+
+## Validation Status
+
+Automated coverage includes:
+
+- Python parser/core/export regression tests.
+- Viewer smoke tests.
+- Full browser workflow tests against the source viewer.
+- Full browser workflow tests against the static package.
+- PNG export checks for all primary panes.
+- Source edit sidecar download/import checks.
+- Release validation logs and packaged screenshot capture.
+
+No workflow is currently marked `parity-tested` against raw legacy numerical exports.
 
 ## Developer Checks
 
-Run these checks before committing changes:
+Run before committing:
 
 ```powershell
 python -m unittest discover -s tests
 npm --prefix app/viewer test
 npm --prefix app/viewer run test:app
+git diff --check
+```
+
+For package/release work, also run:
+
+```powershell
+npm --prefix app/viewer run test:package
+python tools/run_release_validation.py
 ```

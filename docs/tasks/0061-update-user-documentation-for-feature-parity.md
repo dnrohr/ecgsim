@@ -29,3 +29,12 @@ The current user guide documents a prototype. Feature parity will require real u
 ## Done When
 
 A new user can install/open/use/export from modern ECGSIM without reading internal project notes.
+
+## Progress
+
+Completed the current feature-parity user guide refresh.
+
+- Rewrote `docs/user-guide.md` around install/run, static package use, supported browser cases, normal and WPW tutorials, Python CLI tools, import/export compatibility, scientific limits, validation status, and developer checks.
+- Documented only currently available browser-open cases: `normal_male2.ECGsimcase` and `WPW_ectopicbeat.ECGsimcase`.
+- Linked user workflows to implemented commands and controls without claiming unsupported recomputation, write-back, movie export, or raw legacy numerical parity.
+- Included release validation and package validation commands.
