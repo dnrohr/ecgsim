@@ -4,10 +4,31 @@ from pathlib import Path
 import unittest
 
 from ecgsim.io import load_case, read_ecgsimcase_geometries, read_ecgsimcase_matrix, read_ecgsimcase_sources
+from tools.promote_legacy_parity_fixtures import verify_fixture_manifest
 
 
 class ParityRegressionTests(unittest.TestCase):
     CASE_ROOT = Path("research/source/www.ecgsim.org/downloads/cases")
+    LEGACY_PARITY_FIXTURE_ROOT = Path("tests/fixtures/legacy-parity")
+
+    def test_promoted_legacy_parity_fixture_manifests_match_files(self) -> None:
+        if not self.LEGACY_PARITY_FIXTURE_ROOT.exists():
+            self.skipTest("no promoted legacy parity fixtures have been committed yet")
+
+        fixture_dirs = sorted(
+            path
+            for path in self.LEGACY_PARITY_FIXTURE_ROOT.rglob("*")
+            if (path / "manifest.json").is_file()
+        )
+        if not fixture_dirs:
+            self.skipTest("no promoted legacy parity fixture manifests have been committed yet")
+
+        for fixture_dir in fixture_dirs:
+            with self.subTest(fixture=fixture_dir.as_posix()):
+                verification = verify_fixture_manifest(fixture_dir)
+
+                self.assertEqual(verification["status"], "passed")
+                self.assertEqual(verification["failedCount"], 0)
 
     def test_legacy_screenshot_manifest_matches_tracked_file(self) -> None:
         manifest_path = Path("research/legacy-exports/screenshots-manifest.json")
