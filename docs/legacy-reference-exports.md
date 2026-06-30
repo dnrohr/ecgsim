@@ -146,6 +146,12 @@ python tools/promote_legacy_parity_fixtures.py research/legacy-exports/raw/<case
 
 The promotion command copies selected artifacts such as `.user.source`, `.refECG`, or `.adaptECG` and writes a fixture manifest with checksums and numeric summaries. Keep full raw exports ignored; commit promoted fixtures only when a focused parity task needs them.
 
+Before committing promoted fixtures, verify their manifest:
+
+```powershell
+python tools/promote_legacy_parity_fixtures.py --verify tests/fixtures/legacy-parity/<case-name>
+```
+
 Commit only manifests and small, justified reference files. Keep large raw exports ignored unless a later task explicitly promotes a small fixture.
 
 ## Screenshot Manual Workflow

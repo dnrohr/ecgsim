@@ -2,7 +2,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from tools.promote_legacy_parity_fixtures import promote_fixtures
+from tools.promote_legacy_parity_fixtures import promote_fixtures, verify_fixture_manifest
 
 
 class PromoteLegacyParityFixturesTests(unittest.TestCase):
@@ -25,6 +25,30 @@ class PromoteLegacyParityFixturesTests(unittest.TestCase):
             self.assertEqual(manifest["files"][0]["path"], "ventricular_beats/beat1/user.source")
             self.assertEqual(manifest["files"][0]["numericSummary"]["rows"], 2)
             self.assertTrue((output / "manifest.json").exists())
+
+            verification = verify_fixture_manifest(output)
+
+        self.assertEqual(verification["status"], "passed")
+        self.assertEqual(verification["checkedCount"], 1)
+        self.assertEqual(verification["failedCount"], 0)
+
+    def test_fixture_manifest_verification_fails_on_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            capture = root / "capture"
+            output = root / "fixtures"
+            write_capture(capture)
+            promote_fixtures(capture, output, artifacts=("tmpSource",))
+            (output / "ventricular_beats" / "beat1" / "user.source").write_text(
+                "2 2\n-80 -79\n20 99\n",
+                encoding="ascii",
+            )
+
+            verification = verify_fixture_manifest(output)
+
+        self.assertEqual(verification["status"], "failed")
+        self.assertEqual(verification["failedCount"], 1)
+        self.assertIn("sha256", verification["checks"][0]["message"])
 
     def test_requires_requested_artifacts_to_exist(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
