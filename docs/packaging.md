@@ -140,6 +140,7 @@ Current commands:
 ```powershell
 npm --prefix app/viewer run build:static
 npm --prefix app/viewer run test:package
+python tools/run_release_validation.py
 ```
 
 The current artifact is still a fixture preview rather than a complete modern ECGSIM distribution.

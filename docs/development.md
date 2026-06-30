@@ -69,3 +69,13 @@ npm --prefix app/viewer run dev
 ```
 
 Open `http://localhost:4173` to inspect the read-only viewer prototype.
+
+## Release Validation
+
+Run:
+
+```powershell
+python tools/run_release_validation.py
+```
+
+This runs the Python suite, viewer smoke check, packaged app workflow, packaged screenshot capture, and whitespace check. Evidence is written under `dist/release-validation/latest/`.
