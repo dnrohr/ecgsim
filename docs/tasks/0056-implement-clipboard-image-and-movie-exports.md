@@ -28,3 +28,15 @@ Legacy ECGSIM supports clipboard/image/movie workflows. Modern app currently has
 ## Done When
 
 Users can capture modern app outputs for reports and teaching workflows.
+
+## Progress
+
+Completed the first high-value visual export slice.
+
+- Added PNG download controls for Heart, Thorax, TMP, and Leads canvases.
+- Added clipboard copy controls for those same panes when the browser supports image clipboard writes.
+- Captures use the current visible canvas state, including view controls, time cursor state, and selected overlays.
+- Added browser workflow tests that download all four PNGs and verify signature, dimensions, and file size.
+- Documented clipboard limitations and deferred movie export in `docs/feature-parity/visual-export-notes.md`.
+
+Movie export remains deferred until frame sequencing and legacy behavior are confirmed.

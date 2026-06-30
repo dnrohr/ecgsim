@@ -21,6 +21,7 @@ Supported in the viewer:
 - Selected-parameter reset and beat reset.
 - Local TMP edit save/load plus portable `.source-edits.json` export/import.
 - Surface-potential/lead trace plot with Baseline, AC, and DC coupling modes.
+- PNG download and browser-permitted clipboard copy for Heart, Thorax, TMP, and Leads views.
 
 Supported from the Python package:
 
@@ -71,6 +72,11 @@ TMP edit persistence options:
 - Export edits downloads a portable `.source-edits.json` sidecar.
 - Import edits applies a sidecar after validating it belongs to the current case.
 
+Visual export options:
+
+- Use each pane's PNG button to download the current Heart, Thorax, TMP, or Leads canvas.
+- Use Copy to copy the current pane image when the browser allows image clipboard writes.
+
 ## Case Metadata CLI
 
 Run:
@@ -97,6 +103,7 @@ This writes a legacy-style directory with supported geometry, source-vector, sur
 - Exporting adapted cases from the browser is not implemented. The Python export-directory CLI writes a supported subset from parsed case data.
 - TMP generation is deterministic but provisional; it is not yet parity-verified against legacy `.user.source` exports.
 - ECG recomputation after TMP edits is not wired into the viewer yet.
+- Movie export is not implemented; current visual export captures still PNG frames.
 - Baseline coupling reports whether it uses parsed fiducials or fallback signal endpoints. Bundled cases currently use the fallback because legacy P/T fiducial samples have not been located.
 - Endocardial/epicardial switching and transmural edits are disabled per case until explicit wall pairings are parsed. TMP edits can be saved as modern sidecar state; source edit `.ECGsimcase` write-back, movie playback, and full legacy lead layout semantics are not implemented.
 - The original Windows and macOS app packages are reference binaries and intentionally ignored by git.

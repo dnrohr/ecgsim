@@ -71,6 +71,7 @@ async function assertInitialState(page) {
   assert.ok(await canvasHasContent(page, "[data-tmp-canvas]"), "TMP canvas should be nonblank");
   assert.ok(await canvasHasContent(page, ".heart-viewport canvas"), "heart WebGL canvas should be nonblank");
   assert.ok(await canvasHasContent(page, ".thorax-viewport canvas"), "thorax WebGL canvas should be nonblank");
+  await assertVisualPngExports(page);
   await expectText(page, "[data-time-status]", "0 ms / 575 ms");
 }
 
@@ -393,6 +394,28 @@ async function assertHeartSelectionAndTmpEditing(page) {
   await applyButton.click();
   await resetBeat.click();
   assert.equal(Number(await valueInput.inputValue()), originalValue, "Reset beat should restore initial value");
+}
+
+async function assertVisualPngExports(page) {
+  for (const target of ["heart", "thorax", "tmp", "leads"]) {
+    const downloadPromise = page.waitForEvent("download");
+    await page.locator(`[data-export-image='${target}']`).click();
+    const download = await downloadPromise;
+    assert.match(download.suggestedFilename(), new RegExp(`-${target}\\.png$`), `${target} export should name a PNG`);
+    const imagePath = await download.path();
+    const image = readFileSync(imagePath);
+    assertPngImage(image, `${target} PNG`);
+    await expectText(page, "[data-status-message]", "PNG exported");
+  }
+}
+
+function assertPngImage(buffer, label) {
+  assert.equal(buffer.subarray(0, 8).toString("hex"), "89504e470d0a1a0a", `${label} should have PNG signature`);
+  const width = buffer.readUInt32BE(16);
+  const height = buffer.readUInt32BE(20);
+  assert.ok(width >= 300, `${label} width should be useful`);
+  assert.ok(height >= 200, `${label} height should be useful`);
+  assert.ok(buffer.length > 1000, `${label} should contain image data`);
 }
 
 async function assertResponsiveLayout(page) {

@@ -269,12 +269,34 @@ h2 {
   white-space: nowrap;
 }
 
+.pane-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
+.pane-actions button {
+  min-height: 28px;
+  border: 1px solid #aebbc2;
+  border-radius: 6px;
+  padding: 0 8px;
+  background: #ffffff;
+  color: #24323a;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.pane-actions button:hover {
+  border-color: #175c8a;
+  color: #175c8a;
+}
+
 .pane-leads .pane-header output {
-  max-width: 62%;
+  max-width: 46%;
 }
 
 .pane-tmp .pane-header output {
-  max-width: 62%;
+  max-width: 46%;
 }
 
 .pane-tmp {

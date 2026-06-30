@@ -63,7 +63,7 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | Heart View | Accumulation modes | unsupported | P1 | `0046` | Needed for legacy edit behavior. |
 | Heart View | Heart vector | unsupported | P2 | `0042` | Requires vector computation/data and shared time. |
 | Heart View | Electrode visibility | unsupported | P1 | `0032` | Requires parsed electrodes. |
-| Heart View | Clipboard copy | unsupported | P2 | `0056` | Browser image export can cover this. |
+| Heart View | Clipboard copy | partial | P2 | `0056` | PNG download supported; clipboard depends on browser permission/API support. |
 | Heart View | Movie | unsupported | P2 | `0056` | Requires time cursor/playback and map frames. |
 | Thorax View | Geometry display | partial | P0 | `0038` | Add embedded heart context and real case geometry. |
 | Thorax View | Rotate/AP reset | partial | P1 | `0038` | Share camera controls with Heart. |
@@ -80,7 +80,7 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | Thorax View | Scale | unsupported | P1 | `0042` | Needed for BSPM map parity. |
 | Thorax View | Movie | unsupported | P2 | `0056` | Requires linked playback. |
 | Thorax View | Isofunction display | unsupported | P1 | `0042` | Map renderer should support contour and color modes. |
-| Thorax View | Clipboard copy | unsupported | P2 | `0056` | Browser image export can cover this. |
+| Thorax View | Clipboard copy | partial | P2 | `0056` | PNG download supported; clipboard depends on browser permission/API support. |
 | TMP View | Selected-node TMP display | partial | P0 | `0040` | Needs exact source data and display styling. |
 | TMP View | Parameter handlers | partial | P0 | `0040` | Need legacy handler-equivalent interaction. |
 | TMP View | Timing/amplitude parameters | partial | P0 | `0040` | Needs legacy constraints and parser-backed values. |
@@ -93,7 +93,7 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | TMP View | Combined resting/amplitude handlers | unsupported | P1 | `0040` | Needs handler implementation. |
 | TMP View | Keep constant APD option | unsupported | P1 | `0040` | Needs edit semantics. |
 | TMP View | Show/hide electrogram | unsupported | P1 | `0032` | Requires electrogram data or derivation. |
-| TMP View | Clipboard copy | unsupported | P2 | `0056` | Browser image export can cover this. |
+| TMP View | Clipboard copy | partial | P2 | `0056` | PNG download supported; clipboard depends on browser permission/API support. |
 | Leads / ECG View | Lead systems | partial | P0 | `0043` | Requires parser and switcher. |
 | Leads / ECG View | Signal overlays | unsupported | P0 | `0039` | Requires signal classification and controls. |
 | Leads / ECG View | Coupling/filtering | partial | P0 | `0052` | Exact fiducial behavior unknown. |
@@ -104,7 +104,7 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | Leads / ECG View | VCG display | unsupported | P2 | `0039` | Requires VCG lead data and plot mode. |
 | Leads / ECG View | Scale | unsupported | P1 | `0039` | Current plots autoscale per trace. |
 | Leads / ECG View | Grid display | unsupported | P2 | `0039` | Plot rendering option. |
-| Leads / ECG View | Clipboard copy | unsupported | P2 | `0056` | Browser image export can cover this. |
+| Leads / ECG View | Clipboard copy | partial | P2 | `0056` | PNG download supported; clipboard depends on browser permission/API support. |
 | Tools, Focus, And Preferences | Dockable Tools view | unsupported | P2 | `0036` | Modern panels may replace dockable windows. |
 | Tools, Focus, And Preferences | Standard orientation tools | unsupported | P1 | `0037` | Needed for Heart/Thorax view parity. |
 | Tools, Focus, And Preferences | Create rhythm | unsupported | P2 | `0050` | Requires multi-beat source model. |
@@ -120,8 +120,8 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | Tools, Focus, And Preferences | Color scale preferences | unsupported | P1 | `0042` | Needed for map/surface views. |
 | Tools, Focus, And Preferences | Thorax isofunction preference | unsupported | P1 | `0042` | Map renderer feature. |
 | Tools, Focus, And Preferences | Arc ball rotation preference | deferred | Deferred | none | Legacy itself marks this as future/unavailable. |
-| Clipboard And Visual Output | Pane image copy | unsupported | P2 | `0056` | Browser can support copy/download image. |
-| Clipboard And Visual Output | App must remain open for paste | deferred | Deferred | `0056` | Modern clipboard behavior should be documented when implemented. |
+| Clipboard And Visual Output | Pane image copy | partial | P2 | `0056` | PNG download supported for all primary panes; clipboard is best-effort by browser capability. |
+| Clipboard And Visual Output | App must remain open for paste | deferred | Deferred | `0056` | Modern clipboard writes are independent once the browser/OS accepts the image. |
 | Clipboard And Visual Output | Movie output | unsupported | P2 | `0056` | Need legacy reference for save versus playback behavior. |
 | Help, About, References, And Updates | About/version discovery | unsupported | P2 | `0059` | Needed before packaged release. |
 | Help, About, References, And Updates | Check for updates | unsupported | P2 | `0059` | Likely replaced by release/release-notes strategy. |

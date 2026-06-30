@@ -1426,7 +1426,11 @@ function sidecarFileName(metadata) {
 }
 
 function downloadTextFile(fileName, text, type) {
-  const url = URL.createObjectURL(new Blob([text], { type }));
+  downloadBlobFile(fileName, new Blob([text], { type }));
+}
+
+function downloadBlobFile(fileName, blob) {
+  const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
   link.download = fileName;
@@ -1435,6 +1439,82 @@ function downloadTextFile(fileName, text, type) {
   link.click();
   link.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+const VISUAL_EXPORT_TARGETS = {
+  heart: { selector: ".heart-viewport canvas", label: "Heart" },
+  thorax: { selector: ".thorax-viewport canvas", label: "Thorax" },
+  tmp: { selector: "[data-tmp-canvas]", label: "TMP" },
+  leads: { selector: "[data-leads-canvas]", label: "Leads" },
+};
+
+function mountVisualExportControls() {
+  document.querySelectorAll("[data-export-image]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await exportVisualImage(button.dataset.exportImage);
+      } catch (error) {
+        setTmpStatus(error instanceof Error ? error.message : "Unable to export image.");
+      }
+    });
+  });
+  document.querySelectorAll("[data-copy-image]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await copyVisualImage(button.dataset.copyImage);
+      } catch (error) {
+        setTmpStatus(error instanceof Error ? error.message : "Unable to copy image.");
+      }
+    });
+  });
+}
+
+async function exportVisualImage(targetId) {
+  const target = visualExportTarget(targetId);
+  const blob = await canvasToPngBlob(target.canvas);
+  downloadBlobFile(visualExportFileName(targetId), blob);
+  setTmpStatus(`${target.label} PNG exported (${target.canvas.width} x ${target.canvas.height}).`);
+}
+
+async function copyVisualImage(targetId) {
+  const target = visualExportTarget(targetId);
+  if (!navigator.clipboard?.write || typeof ClipboardItem === "undefined") {
+    setTmpStatus("Clipboard image copy unavailable in this browser.");
+    return;
+  }
+  const blob = await canvasToPngBlob(target.canvas);
+  await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+  setTmpStatus(`${target.label} image copied to clipboard.`);
+}
+
+function visualExportTarget(targetId) {
+  const target = VISUAL_EXPORT_TARGETS[targetId];
+  const canvas = target ? document.querySelector(target.selector) : null;
+  if (!target || !(canvas instanceof HTMLCanvasElement)) {
+    throw new Error("Visual export target is not available.");
+  }
+  return { ...target, canvas };
+}
+
+function canvasToPngBlob(canvas) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        resolve(blob);
+      } else {
+        reject(new Error("Canvas could not be encoded as PNG."));
+      }
+    }, "image/png");
+  });
+}
+
+function visualExportFileName(targetId) {
+  const baseName = currentCaseMetadata?.fileName
+    ? currentCaseMetadata.fileName.replace(/\.[^.]+$/, "")
+    : "ecgsim-case";
+  const safeBase = baseName.replace(/[^a-zA-Z0-9._-]+/g, "-") || "ecgsim-case";
+  const safeTarget = String(targetId ?? "view").replace(/[^a-zA-Z0-9._-]+/g, "-") || "view";
+  return `${safeBase}-${safeTarget}.png`;
 }
 
 function setTmpStatus(message) {
@@ -1673,6 +1753,7 @@ async function mount() {
     `Loaded bundled supported case fixture from ${caseMetadata.source}.`,
   );
   caseFile?.addEventListener("change", () => openSelectedCase(caseFile.files?.[0]));
+  mountVisualExportControls();
 }
 
 mount();
