@@ -29,3 +29,7 @@ Current legacy export automation has screenshot coverage, but raw File -> Export
 ## Done When
 
 Future numerical and visual parity tasks know exactly which legacy artifacts to collect.
+
+## Result
+
+Updated `docs/legacy-reference-exports.md` with a capture matrix covering screenshots, raw exports, clipboard output, movies, and help/reference evidence. The plan now maps every golden workflow to required legacy reference artifacts and documents manual fallback steps for raw exports, screenshots, clipboard images, and movies.
