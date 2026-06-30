@@ -2,7 +2,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from tools.validate_legacy_capture import render_markdown_report, validate_capture
+from tools.validate_legacy_capture import render_markdown_report, required_tasks_ready, validate_capture
 
 
 class LegacyCaptureValidationTests(unittest.TestCase):
@@ -36,6 +36,26 @@ class LegacyCaptureValidationTests(unittest.TestCase):
         )
         self.assertFalse(validation["taskReadiness"]["0052"]["ready"])
         self.assertEqual(validation["taskReadiness"]["0052"]["missingArtifacts"], ["adaptedEcg"])
+
+    def test_task_specific_readiness_allows_partial_capture(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            capture = Path(tmp)
+            write_capture(capture, include_tmp=True, include_ref=False, include_adapted=False)
+
+            validation = validate_capture(capture)
+
+        self.assertTrue(required_tasks_ready(validation, ["0049"]))
+        self.assertFalse(required_tasks_ready(validation, ["0049", "0053"]))
+
+    def test_task_specific_readiness_rejects_unknown_task(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            capture = Path(tmp)
+            write_capture(capture, include_tmp=True, include_ref=True, include_adapted=True)
+
+            validation = validate_capture(capture)
+
+        with self.assertRaisesRegex(ValueError, "unknown task id"):
+            required_tasks_ready(validation, ["9999"])
 
     def test_markdown_report_summarizes_ready_capture(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

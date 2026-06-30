@@ -132,7 +132,11 @@ For a human-readable handoff summary to paste into task notes, write Markdown in
 python tools/validate_legacy_capture.py research/legacy-exports/raw/<case-name>/export-directory --case research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase --format markdown --output research/legacy-exports/<case-name>-validation.md
 ```
 
-Use `--require-ready` when the command should fail unless all required downstream artifacts are present.
+Use `--require-ready` when the command should fail unless all required downstream artifacts are present. Use `--require-task` for a narrower gate when a capture is intended to unblock one downstream task before the full export set is available:
+
+```powershell
+python tools/validate_legacy_capture.py research/legacy-exports/raw/<case-name>/export-directory --format markdown --require-task 0049 --output research/legacy-exports/<case-name>-0049-handoff.md
+```
 
 Commit only manifests and small, justified reference files. Keep large raw exports ignored unless a later task explicitly promotes a small fixture.
 

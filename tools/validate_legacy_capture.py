@@ -83,6 +83,15 @@ def task_readiness(manifest: dict[str, object]) -> dict[str, dict[str, object]]:
     return readiness
 
 
+def required_tasks_ready(validation: dict[str, object], task_ids: list[str]) -> bool:
+    readiness = validation["taskReadiness"]
+    unknown = [task_id for task_id in task_ids if task_id not in readiness]
+    if unknown:
+        known = ", ".join(sorted(readiness))
+        raise ValueError(f"unknown task id(s): {', '.join(unknown)}; known task ids: {known}")
+    return all(readiness[task_id]["ready"] for task_id in task_ids)
+
+
 def render_markdown_report(validation: dict[str, object]) -> str:
     manifest = validation["manifest"]
     parity_artifacts = manifest["parityArtifacts"]
@@ -165,6 +174,14 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Exit nonzero unless all tracked downstream task requirements are ready.",
     )
+    parser.add_argument(
+        "--require-task",
+        action="append",
+        choices=sorted(TASK_REQUIREMENTS),
+        default=[],
+        metavar="TASK_ID",
+        help="Exit nonzero unless a specific downstream task is ready. May be passed more than once.",
+    )
     return parser
 
 
@@ -191,6 +208,8 @@ def main(argv: list[str] | None = None) -> int:
         print(text, end="")
 
     if args.require_ready and not all(item["ready"] for item in validation["taskReadiness"].values()):
+        return 1
+    if args.require_task and not required_tasks_ready(validation, args.require_task):
         return 1
     return 0
 
