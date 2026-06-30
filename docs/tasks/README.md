@@ -68,7 +68,7 @@ Each task should end with:
 - [x] [0032 Parse Lead Systems Electrodes And Signal Metadata](0032-parse-lead-systems-electrodes-and-signal-metadata.md)
 - [x] [0033 Build Case Loader API And Fixture Adapter](0033-build-case-loader-api-and-fixture-adapter.md)
 - [x] [0034 Implement Real Viewer Case Open](0034-implement-real-viewer-case-open.md)
-- [ ] [0035 Add Multi-Case Regression Fixtures](0035-add-multi-case-regression-fixtures.md)
+- [x] [0035 Add Multi-Case Regression Fixtures](0035-add-multi-case-regression-fixtures.md)
 
 ## FP2: View Parity
 

@@ -201,3 +201,5 @@ nested PMatrix/PLead/PLeadReference/PShowLead payloads
 ```
 
 The parser exposes lead-system names, electrode positions, nested lead/reference/shown-lead labels where string labels are present, and stable fallback labels where they are absent. Lead polarity, shown-lead layout fields, fiducials, and exact measured/initial/adapted signal classification remain unsupported fields.
+
+Task 0035 added compact regression summaries in `tests/fixtures/case-summaries.json` for the normal case and all three WPW cases. The summaries pin case size/checksum, signal shape, key geometry counts, ventricular source dimensions, representative parameter values, lead-system dimensions, and case-level unsupported fields. The current unsupported fields are the same across those fixtures: lead polarity/reference electrode semantics, shown-lead layout fields, fiducial/time-base fields, measured/initial/adapted signal classification, and P-wave/T-wave fiducial samples for baseline correction.

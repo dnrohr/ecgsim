@@ -28,3 +28,7 @@ Feature parity needs confidence across normal and abnormal/variant cases, not on
 ## Done When
 
 Parser regressions are caught across the initial supported case set.
+
+## Result
+
+Added `tests/fixtures/case-summaries.json` with compact parser-derived summaries for `normal_male2.ECGsimcase`, `WPW_Bundleonly.ECGsimcase`, `WPW_ectopicbeat.ECGsimcase`, and `WPW_fusionbeat.ECGsimcase`. Added regression coverage that verifies metadata, signal shapes, geometry/source/lead dimensions, representative source parameter values, activation entry counts, and documented unsupported fields against the current parser.

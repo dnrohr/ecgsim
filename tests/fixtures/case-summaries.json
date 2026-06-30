@@ -1,0 +1,128 @@
+{
+  "cases": [
+    {
+      "fileName": "normal_male2.ECGsimcase",
+      "byteSize": 11323178,
+      "sha256": "4da15b759b8bc4880843bc647a257f66e36b64042583d0ad1c3e11bdc6169c4a",
+      "signalShape": [300, 1000],
+      "geometryCounts": {
+        "thorax": [300, 596],
+        "heart": [912, 1696],
+        "right_lung": [132, 260],
+        "left_lung": [124, 244]
+      },
+      "ventricularSource": {
+        "nodeCount": 576,
+        "activationEntryCount": 576,
+        "depolarizationMs": [27.20005989074707, 95.24503326416016],
+        "repolarizationSlopeAdapted": [0.03183000162243843, 0.03183000162243843]
+      },
+      "leadSystems": [
+        ["standard_12", 9, 12, 12],
+        ["VCG_(Frank)", 7, 10, 6],
+        ["BSM_(nijmegen_64)", 65, 64, 64],
+        ["minimap_montage", 9, 12, 9]
+      ],
+      "unsupportedFields": [
+        "lead polarity/reference electrode fields",
+        "shown-lead layout fields",
+        "fiducial/time-base fields",
+        "measured/initial/adapted signal classification",
+        "P-wave/T-wave fiducial samples for baseline correction"
+      ]
+    },
+    {
+      "fileName": "WPW_Bundleonly.ECGsimcase",
+      "byteSize": 16809796,
+      "sha256": "2ec84bb53ea60e564ce6ff495e88ac6343047cea8a76db9dd69973b18e38f5c4",
+      "signalShape": [500, 817],
+      "geometryCounts": {
+        "thorax": [500, 996],
+        "heart": [1216, 2272],
+        "right_lung": [400, 796],
+        "left_lung": [349, 694]
+      },
+      "ventricularSource": {
+        "nodeCount": 697,
+        "activationEntryCount": 697,
+        "depolarizationMs": [111.80573272705078, 107.90109252929688],
+        "repolarizationSlopeAdapted": [0.03446799889206886, 0.03446799889206886]
+      },
+      "leadSystems": [
+        ["standard_12", 9, 12, 12],
+        ["VCG_(Frank)", 7, 10, 6],
+        ["BSM_(amsterdam_64)", 65, 65, 65],
+        ["minimap_montage", 9, 12, 9]
+      ],
+      "unsupportedFields": [
+        "lead polarity/reference electrode fields",
+        "shown-lead layout fields",
+        "fiducial/time-base fields",
+        "measured/initial/adapted signal classification",
+        "P-wave/T-wave fiducial samples for baseline correction"
+      ]
+    },
+    {
+      "fileName": "WPW_ectopicbeat.ECGsimcase",
+      "byteSize": 17451796,
+      "sha256": "869412d681c9860837117ce7a98a62cf381ce92b64ae5b68aecfc3b735f22749",
+      "signalShape": [500, 1138],
+      "geometryCounts": {
+        "thorax": [500, 996],
+        "heart": [1216, 2272],
+        "right_lung": [400, 796],
+        "left_lung": [349, 694]
+      },
+      "ventricularSource": {
+        "nodeCount": 697,
+        "activationEntryCount": 697,
+        "depolarizationMs": [121.81124114990234, 71.53861236572266],
+        "repolarizationSlopeAdapted": [0.02889999933540821, 0.02889999933540821]
+      },
+      "leadSystems": [
+        ["standard_12", 9, 12, 12],
+        ["VCG_(Frank)", 7, 10, 6],
+        ["BSM_(amsterdam_64)", 65, 65, 65],
+        ["minimap_montage", 9, 12, 9]
+      ],
+      "unsupportedFields": [
+        "lead polarity/reference electrode fields",
+        "shown-lead layout fields",
+        "fiducial/time-base fields",
+        "measured/initial/adapted signal classification",
+        "P-wave/T-wave fiducial samples for baseline correction"
+      ]
+    },
+    {
+      "fileName": "WPW_fusionbeat.ECGsimcase",
+      "byteSize": 16875796,
+      "sha256": "09dc777f2b8eca47e893c5a6ae2e1ae9daf34f64436eebf03ceb7ec0eda1f970",
+      "signalShape": [500, 850],
+      "geometryCounts": {
+        "thorax": [500, 996],
+        "heart": [1216, 2272],
+        "right_lung": [400, 796],
+        "left_lung": [349, 694]
+      },
+      "ventricularSource": {
+        "nodeCount": 697,
+        "activationEntryCount": 697,
+        "depolarizationMs": [91.99859619140625, 99.70420837402344],
+        "repolarizationSlopeAdapted": [0.04871999844908714, 0.04871999844908714]
+      },
+      "leadSystems": [
+        ["standard_12", 9, 12, 12],
+        ["VCG_(Frank)", 7, 10, 6],
+        ["BSM_(amsterdam_64)", 65, 65, 65],
+        ["minimap_montage", 9, 12, 9]
+      ],
+      "unsupportedFields": [
+        "lead polarity/reference electrode fields",
+        "shown-lead layout fields",
+        "fiducial/time-base fields",
+        "measured/initial/adapted signal classification",
+        "P-wave/T-wave fiducial samples for baseline correction"
+      ]
+    }
+  ]
+}

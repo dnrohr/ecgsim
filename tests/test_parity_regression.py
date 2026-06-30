@@ -3,10 +3,12 @@ import json
 from pathlib import Path
 import unittest
 
-from ecgsim.io import read_ecgsimcase_geometries, read_ecgsimcase_matrix, read_ecgsimcase_sources
+from ecgsim.io import load_case, read_ecgsimcase_geometries, read_ecgsimcase_matrix, read_ecgsimcase_sources
 
 
 class ParityRegressionTests(unittest.TestCase):
+    CASE_ROOT = Path("research/source/www.ecgsim.org/downloads/cases")
+
     def test_legacy_screenshot_manifest_matches_tracked_file(self) -> None:
         manifest_path = Path("research/legacy-exports/screenshots-manifest.json")
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -94,3 +96,64 @@ class ParityRegressionTests(unittest.TestCase):
             depolarization.initial.values[575],
             delta=1e-6,
         )
+
+    def test_compact_case_summaries_match_parser_outputs(self) -> None:
+        fixture = json.loads(Path("tests/fixtures/case-summaries.json").read_text(encoding="utf-8"))
+
+        for expected in fixture["cases"]:
+            with self.subTest(case=expected["fileName"]):
+                case = load_case(self.CASE_ROOT / expected["fileName"])
+                geometries = {geometry.name: geometry for geometry in case.geometries}
+                ventricles = next(source for source in case.sources if source.kind == "ventricles")
+                parameters = {
+                    parameter.name: parameter
+                    for parameter in ventricles.beats[0].parameters
+                }
+
+                self.assertEqual(case.metadata.byte_size, expected["byteSize"])
+                self.assertEqual(case.metadata.sha256, expected["sha256"])
+                self.assertEqual(
+                    [case.signal_metadata.rows, case.signal_metadata.columns],
+                    expected["signalShape"],
+                )
+                for name, counts in expected["geometryCounts"].items():
+                    self.assertEqual([geometries[name].point_count, geometries[name].triangle_count], counts)
+
+                source = expected["ventricularSource"]
+                self.assertEqual(parameters["depolarizationMs"].initial.length, source["nodeCount"])
+                self.assertEqual(ventricles.activation.entry_count, source["activationEntryCount"])
+                self.assertAlmostEqual(
+                    parameters["depolarizationMs"].initial.values[0],
+                    source["depolarizationMs"][0],
+                    delta=1e-6,
+                )
+                self.assertAlmostEqual(
+                    parameters["depolarizationMs"].initial.values[-1],
+                    source["depolarizationMs"][1],
+                    delta=1e-6,
+                )
+                self.assertAlmostEqual(
+                    parameters["repolarizationSlope"].adapted.values[0],
+                    source["repolarizationSlopeAdapted"][0],
+                    delta=1e-6,
+                )
+                self.assertAlmostEqual(
+                    parameters["repolarizationSlope"].adapted.values[-1],
+                    source["repolarizationSlopeAdapted"][1],
+                    delta=1e-6,
+                )
+                self.assertEqual(
+                    [
+                        [
+                            system.name,
+                            len(system.electrodes),
+                            len(system.lead_labels),
+                            len(system.shown_lead_labels),
+                        ]
+                        for system in case.lead_systems
+                    ],
+                    expected["leadSystems"],
+                )
+                unsupported = set(case.lead_systems[0].unsupported_fields)
+                unsupported.update(case.signal_metadata.unsupported_fields)
+                self.assertEqual(unsupported, set(expected["unsupportedFields"]))
