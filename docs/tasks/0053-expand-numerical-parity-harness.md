@@ -28,3 +28,7 @@ Existing regression tests cover fixture integrity and small samples. Feature par
 ## Done When
 
 Scientific regressions are caught before UI or packaging work ships.
+
+## Progress Note
+
+Partially implemented by adding reusable numerical sequence comparison helpers with absolute/relative tolerances and diagnostic failure messages, plus tests that prove injected differences fail and current surface-potential/TMP fixtures match parsed source samples. Full scenario coverage for legacy `.adaptECG`, `.refECG`, `.user.source`, export directories, and filtering outputs remains blocked by missing raw exports from task `0048`.
