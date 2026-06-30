@@ -29,3 +29,7 @@ Core helpers exist for TMP previews, transfer application, and filtering, but th
 ## Done When
 
 Source edits produce scientifically meaningful downstream output changes.
+
+## Blocker Note
+
+Blocked after task `0050`. TMP preview traces update after edits, but ECG/BSPM/lead recomputation should not be enabled until task `0049` has parity-tested TMP/source output and source-to-thorax/lead transfer matrices are parsed with confirmed roles. See `docs/feature-parity/recompute-pipeline-notes.md`.
