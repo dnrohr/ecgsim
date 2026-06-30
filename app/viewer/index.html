@@ -53,6 +53,13 @@
           <output>TMP</output>
           <output>ECGs</output>
         </div>
+        <div class="toolbar-group time-toolbar" aria-label="Shared time cursor">
+          <button type="button" data-time-step-back>-2</button>
+          <button type="button" data-time-play>Play</button>
+          <button type="button" data-time-step-forward>+2</button>
+          <input type="range" min="0" max="575" step="1" value="0" data-time-cursor>
+          <output data-time-status>0 ms</output>
+        </div>
       </section>
       <section class="case-summary" aria-label="Loaded case metadata">
         <dl>
@@ -177,7 +184,7 @@
             <label><input type="checkbox" data-tmp-show-egm disabled> EGM</label>
             <output data-tmp-parameter-status>Select heart node</output>
           </div>
-          <canvas width="640" height="220" data-tmp-canvas></canvas>
+          <canvas width="640" height="220" tabindex="0" data-tmp-canvas></canvas>
         </section>
         <section class="pane pane-leads" data-pane="leads">
           <div class="pane-header">
@@ -208,7 +215,7 @@
             </label>
             <output data-leads-status>Representative traces</output>
           </div>
-          <canvas width="640" height="220" data-leads-canvas></canvas>
+          <canvas width="640" height="220" tabindex="0" data-leads-canvas></canvas>
         </section>
       </section>
       <footer class="statusbar" aria-label="ECGSIM status">

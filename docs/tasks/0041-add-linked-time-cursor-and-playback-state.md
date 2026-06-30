@@ -28,3 +28,11 @@ Legacy ECGSIM links time-dependent maps and waveforms. The current viewer has st
 ## Done When
 
 Users can inspect the same time point across all time-dependent views.
+
+## Result
+
+- Added shared time cursor state based on the overlapping TMP and ECG sample window.
+- Added toolbar controls for range selection, -2/+2 ms stepping, and play/pause.
+- Rendered synchronized yellow cursor lines in TMP and Leads plots.
+- Added click and keyboard stepping behavior for waveform canvases.
+- Documented current support and blocked map-frame parity in `docs/feature-parity/time-cursor-notes.md`.

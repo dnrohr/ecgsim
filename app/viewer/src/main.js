@@ -21,6 +21,11 @@ const caseUnsupported = document.querySelector("[data-case-unsupported]");
 const caseNotice = document.querySelector("[data-case-notice]");
 const statusMessage = document.querySelector("[data-status-message]");
 const toolbarLeadSystem = document.querySelector("[data-toolbar-lead-system]");
+const timeStepBack = document.querySelector("[data-time-step-back]");
+const timePlay = document.querySelector("[data-time-play]");
+const timeStepForward = document.querySelector("[data-time-step-forward]");
+const timeCursor = document.querySelector("[data-time-cursor]");
+const timeStatus = document.querySelector("[data-time-status]");
 const heartViewport = document.querySelector("[data-heart-viewport]");
 const heartMetadata = document.querySelector("[data-heart-metadata]");
 const heartRadius = document.querySelector("[data-heart-radius]");
@@ -74,6 +79,15 @@ let tmpEditState = null;
 let tmpCanvas = null;
 let supportedCaseManifest = null;
 let currentCaseMetadata = null;
+let timeTimer = null;
+let redrawTimeDependents = () => {};
+
+const timeState = {
+  sample: 0,
+  sampleCount: 576,
+  sampleRateHz: 1000,
+  isPlaying: false,
+};
 
 function buildGeometry(fixture, { center = false } = {}) {
   const geometry = new THREE.BufferGeometry();
@@ -128,6 +142,77 @@ function observeViewport(viewport, camera, renderer, distanceForWidth) {
   const observer = new ResizeObserver(resize);
   observer.observe(viewport);
   resize();
+}
+
+function configureTimeState({ sampleCount, sampleRateHz }) {
+  stopTimePlayback();
+  timeState.sampleCount = Math.max(1, sampleCount);
+  timeState.sampleRateHz = sampleRateHz;
+  timeState.sample = 0;
+  if (timeCursor) {
+    timeCursor.min = "0";
+    timeCursor.max = String(timeState.sampleCount - 1);
+    timeCursor.value = "0";
+  }
+  syncTimeControls();
+}
+
+function setTimeSample(nextSample, { redraw = true } = {}) {
+  const clamped = Math.max(0, Math.min(timeState.sampleCount - 1, Math.round(nextSample)));
+  timeState.sample = clamped;
+  syncTimeControls();
+  if (redraw) {
+    redrawTimeDependents();
+  }
+}
+
+function stepTime(deltaSamples) {
+  setTimeSample(timeState.sample + deltaSamples);
+}
+
+function syncTimeControls() {
+  const ms = Math.round((timeState.sample / timeState.sampleRateHz) * 1000);
+  const maxMs = Math.round(((timeState.sampleCount - 1) / timeState.sampleRateHz) * 1000);
+  if (timeCursor) {
+    timeCursor.value = String(timeState.sample);
+  }
+  if (timeStatus) {
+    timeStatus.value = `${ms} ms / ${maxMs} ms`;
+  }
+  if (timePlay) {
+    timePlay.textContent = timeState.isPlaying ? "Pause" : "Play";
+  }
+}
+
+function startTimePlayback() {
+  if (timeState.isPlaying) {
+    return;
+  }
+  timeState.isPlaying = true;
+  syncTimeControls();
+  timeTimer = window.setInterval(() => {
+    const next = timeState.sample >= timeState.sampleCount - 1 ? 0 : timeState.sample + 2;
+    setTimeSample(next);
+  }, 80);
+}
+
+function stopTimePlayback() {
+  if (timeTimer) {
+    window.clearInterval(timeTimer);
+    timeTimer = null;
+  }
+  timeState.isPlaying = false;
+  syncTimeControls();
+}
+
+function sampleFromCanvasEvent(canvas, event, leftPaddingPx) {
+  const bounds = canvas.getBoundingClientRect();
+  const leftPaddingRatio = leftPaddingPx / canvas.width;
+  const rightPaddingRatio = 12 / canvas.width;
+  const plotLeft = bounds.left + bounds.width * leftPaddingRatio;
+  const plotRight = bounds.right - bounds.width * rightPaddingRatio;
+  const ratio = Math.max(0, Math.min(1, (event.clientX - plotLeft) / (plotRight - plotLeft)));
+  return ratio * (timeState.sampleCount - 1);
 }
 
 function mountHeart(fixture, tmpFixture, onSelectionChange) {
@@ -609,6 +694,7 @@ function plotSignals(
     scale = 1,
     showGrid = true,
     showRms = false,
+    selectedSample = 0,
   } = {},
 ) {
   if (!canvas || !leadsMetadata) {
@@ -712,6 +798,8 @@ function plotSignals(
   context.lineTo(width - right, height - bottom + 7);
   context.stroke();
 
+  drawTimeCursor(context, selectedSample, fixture.columns, left, width - right, top, height - bottom);
+
   context.fillStyle = "#52616b";
   context.textAlign = "left";
   context.fillText("0 ms", left, height - 12);
@@ -737,6 +825,7 @@ function plotTmp(
     showInitial = true,
     showAdapted = true,
     showGrid = true,
+    selectedSample = 0,
   } = {},
 ) {
   if (!canvas || !tmpMetadata) {
@@ -813,6 +902,7 @@ function plotTmp(
   context.moveTo(left, height - bottom + 7);
   context.lineTo(width - right, height - bottom + 7);
   context.stroke();
+  drawTimeCursor(context, selectedSample, fixture.sampleCount, left, width - right, top, height - bottom);
   context.fillStyle = "#52616b";
   context.textAlign = "left";
   context.fillText("0 ms", left, height - 12);
@@ -826,6 +916,17 @@ function plotTmp(
     showAdapted ? "adapted" : null,
   ].filter(Boolean).join("+") || "none";
   tmpMetadata.value = `${nodes.length} nodes / ${fixture.sampleCount} samples / ${fixture.sampleRateHz} Hz / ${traceModes}`;
+}
+
+function drawTimeCursor(context, selectedSample, sampleCount, left, right, top, bottom) {
+  const sample = Math.max(0, Math.min(sampleCount - 1, selectedSample));
+  const x = left + (sample / (sampleCount - 1)) * (right - left);
+  context.strokeStyle = "#f2b705";
+  context.lineWidth = 2;
+  context.beginPath();
+  context.moveTo(x, top);
+  context.lineTo(x, bottom);
+  context.stroke();
 }
 
 function drawTmpLine(context, values, min, span, left, plotWidth, centerY, amplitude, color, width) {
@@ -903,6 +1004,7 @@ function mountTmpEditing(fixture) {
       showInitial: tmpShowInitial.checked,
       showAdapted: tmpShowAdapted.checked,
       showGrid: tmpGrid.checked,
+      selectedSample: timeState.sample,
     });
   }
 
@@ -968,7 +1070,7 @@ function mountTmpEditing(fixture) {
     syncControls();
   };
 
-  return { syncControls };
+  return { syncControls, redrawTmp };
 }
 
 function updateCaseMetadata(metadata, noticeText) {
@@ -1034,6 +1136,10 @@ function applyCaseBundle(bundle, noticeText) {
   selectionState.nodeIndex = -1;
   selectionState.region = [];
   updateCaseMetadata(bundle.caseMetadata, noticeText);
+  configureTimeState({
+    sampleCount: Math.min(bundle.tmpWaveforms.sampleCount, bundle.ecgSignals.columns),
+    sampleRateHz: Math.min(bundle.tmpWaveforms.sampleRateHz, bundle.ecgSignals.sampleRateHz),
+  });
   syncLeadSystemOptions();
   syncUnavailableLeadOverlayControls();
   tmpCanvas = document.querySelector("[data-tmp-canvas]");
@@ -1048,6 +1154,7 @@ function applyCaseBundle(bundle, noticeText) {
     scale: Number.parseFloat(leadsScale?.value ?? "100") / 100,
     showGrid: leadsGrid?.checked ?? true,
     showRms: leadsRms?.checked ?? false,
+    selectedSample: timeState.sample,
   });
   if (leadsScale) {
     leadsScale.value = "100";
@@ -1074,6 +1181,45 @@ function applyCaseBundle(bundle, noticeText) {
   if (leadsRms) {
     leadsRms.onchange = redrawSignals;
   }
+  redrawTimeDependents = () => {
+    redrawSignals();
+    tmpEditing.redrawTmp();
+    if (statusMessage) {
+      statusMessage.value = `Shared time cursor set to ${timeStatus?.value ?? "current sample"}.`;
+    }
+  };
+  if (timeCursor) {
+    timeCursor.oninput = () => setTimeSample(Number.parseFloat(timeCursor.value));
+  }
+  if (timeStepBack) {
+    timeStepBack.onclick = () => stepTime(-2);
+  }
+  if (timeStepForward) {
+    timeStepForward.onclick = () => stepTime(2);
+  }
+  if (timePlay) {
+    timePlay.onclick = () => {
+      if (timeState.isPlaying) {
+        stopTimePlayback();
+      } else {
+        startTimePlayback();
+      }
+    };
+  }
+  tmpCanvas.onpointerdown = (event) => setTimeSample(sampleFromCanvasEvent(tmpCanvas, event, 72));
+  tmpCanvas.onkeydown = (event) => {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      event.preventDefault();
+      stepTime(event.key === "ArrowLeft" ? -2 : 2);
+    }
+  };
+  leadsCanvas.onpointerdown = (event) => setTimeSample(sampleFromCanvasEvent(leadsCanvas, event, 54));
+  leadsCanvas.onkeydown = (event) => {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      event.preventDefault();
+      stepTime(event.key === "ArrowLeft" ? -2 : 2);
+    }
+  };
   redrawSignals();
 }
 

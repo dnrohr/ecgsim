@@ -42,6 +42,7 @@ try {
   await assertHeartViewControls(page);
   await assertThoraxControls(page);
   await assertLeadsFiltering(page);
+  await assertLinkedTimeCursor(page);
   await assertHeartSelectionAndTmpEditing(page);
   await assertResponsiveLayout(page);
   assertNoUnexpectedConsoleErrors(consoleMessages);
@@ -67,6 +68,7 @@ async function assertInitialState(page) {
   assert.ok(await canvasHasContent(page, "[data-tmp-canvas]"), "TMP canvas should be nonblank");
   assert.ok(await canvasHasContent(page, ".heart-viewport canvas"), "heart WebGL canvas should be nonblank");
   assert.ok(await canvasHasContent(page, ".thorax-viewport canvas"), "thorax WebGL canvas should be nonblank");
+  await expectText(page, "[data-time-status]", "0 ms / 575 ms");
 }
 
 async function assertShellLayout(page) {
@@ -212,6 +214,35 @@ async function assertLeadsFiltering(page) {
   await page.locator("[data-leads-system]").selectOption("standard_12");
   await setRangeValue(page, "[data-leads-scale]", "100");
   await page.locator("[data-leads-rms]").uncheck();
+}
+
+async function assertLinkedTimeCursor(page) {
+  const leadsCanvas = "[data-leads-canvas]";
+  const tmpCanvas = "[data-tmp-canvas]";
+  await expectText(page, "[data-time-status]", "0 ms / 575 ms");
+  const leadsCursorBefore = await yellowCursorX(page, leadsCanvas);
+  const tmpCursorBefore = await yellowCursorX(page, tmpCanvas);
+
+  await page.locator("[data-time-step-forward]").click();
+  await expectText(page, "[data-time-status]", "2 ms / 575 ms");
+
+  await setRangeValue(page, "[data-time-cursor]", "120");
+  await expectText(page, "[data-time-status]", "120 ms / 575 ms");
+  assert.ok(await yellowCursorX(page, leadsCanvas) > leadsCursorBefore + 20, "Time range should move Leads cursor line");
+  assert.ok(await yellowCursorX(page, tmpCanvas) > tmpCursorBefore + 20, "Time range should move TMP cursor line");
+
+  await page.locator(tmpCanvas).focus();
+  await page.keyboard.press("ArrowRight");
+  await expectText(page, "[data-time-status]", "122 ms / 575 ms");
+
+  await page.locator("[data-time-play]").click();
+  await expectText(page, "[data-time-play]", "Pause");
+  await page.waitForFunction(() => document.querySelector("[data-time-cursor]")?.value !== "122");
+  await page.locator("[data-time-play]").click();
+  await expectText(page, "[data-time-play]", "Play");
+
+  await setRangeValue(page, "[data-time-cursor]", "0");
+  await expectText(page, "[data-time-status]", "0 ms / 575 ms");
 }
 
 async function assertHeartSelectionAndTmpEditing(page) {
@@ -388,6 +419,31 @@ async function canvasSignature(page, selector) {
       }
     }
     return signature;
+  });
+}
+
+async function yellowCursorX(page, selector) {
+  return await page.locator(selector).evaluate((canvas) => {
+    const width = canvas.width;
+    const height = canvas.height;
+    const scratch = document.createElement("canvas");
+    scratch.width = width;
+    scratch.height = height;
+    const context = scratch.getContext("2d");
+    context.drawImage(canvas, 0, 0, width, height);
+    const { data } = context.getImageData(0, 0, width, height);
+    let weightedX = 0;
+    let count = 0;
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const index = (y * width + x) * 4;
+        if (data[index] > 210 && data[index + 1] > 150 && data[index + 2] < 40) {
+          weightedX += x;
+          count += 1;
+        }
+      }
+    }
+    return count ? weightedX / count : -1;
   });
 }
 
