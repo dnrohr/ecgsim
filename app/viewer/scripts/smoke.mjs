@@ -19,6 +19,10 @@ const ecgFixture = JSON.parse(await readFile(new URL("../public/fixtures/ecg-sig
 const tmpFixture = JSON.parse(await readFile(new URL("../public/fixtures/tmp-waveforms.json", import.meta.url), "utf8"));
 const required = [
   "data-viewer-shell",
+  "data-shell-menu",
+  "data-shell-toolbar",
+  "data-status-message",
+  "data-toolbar-lead-system",
   "data-case-file",
   "data-case-unsupported",
   "data-pane=\"heart\"",

@@ -28,3 +28,7 @@ The current layout is a modern prototype and does not visually or operationally 
 ## Done When
 
 A legacy ECGSIM user can recognize where the core workflows live.
+
+## Result
+
+Added a legacy-inspired shell with title area, menu strip, compact toolbar, case summary, four-pane workspace, and persistent status bar. The toolbar exposes real case opening plus read-only lead/workspace indicators, and `docs/feature-parity/shell-visual-notes.md` records the remaining visual differences from the captured legacy screenshot.

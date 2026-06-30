@@ -19,6 +19,8 @@ const caseLeads = document.querySelector("[data-case-leads]");
 const caseMarkers = document.querySelector("[data-case-markers]");
 const caseUnsupported = document.querySelector("[data-case-unsupported]");
 const caseNotice = document.querySelector("[data-case-notice]");
+const statusMessage = document.querySelector("[data-status-message]");
+const toolbarLeadSystem = document.querySelector("[data-toolbar-lead-system]");
 const heartViewport = document.querySelector("[data-heart-viewport]");
 const heartMetadata = document.querySelector("[data-heart-metadata]");
 const heartRadius = document.querySelector("[data-heart-radius]");
@@ -576,6 +578,18 @@ function updateCaseMetadata(metadata, noticeText) {
   ].join(" / ");
   caseUnsupported.textContent = metadata.unsupportedPayloads.join(", ");
   caseNotice.textContent = noticeText ?? `Loaded supported case bundle from ${metadata.source}.`;
+  if (toolbarLeadSystem) {
+    toolbarLeadSystem.replaceChildren();
+    metadata.leadSystems.forEach((name) => {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      toolbarLeadSystem.appendChild(option);
+    });
+  }
+  if (statusMessage) {
+    statusMessage.value = noticeText ?? `Ready: ${metadata.fileName}`;
+  }
 }
 
 function applyCaseBundle(bundle, noticeText) {
@@ -613,7 +627,11 @@ async function openSelectedCase(file) {
     return;
   }
 
-  caseNotice.textContent = `Checking ${file.name} against supported case bundles...`;
+  const checkingMessage = `Checking ${file.name} against supported case bundles...`;
+  caseNotice.textContent = checkingMessage;
+  if (statusMessage) {
+    statusMessage.value = checkingMessage;
+  }
   try {
     const sha256 = await sha256Hex(file);
     const entry = supportedCaseManifest.cases.find(

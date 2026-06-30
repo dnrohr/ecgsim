@@ -37,6 +37,7 @@ try {
   await page.waitForSelector("[data-viewer-shell][data-ready='true']");
 
   await assertInitialState(page);
+  await assertShellLayout(page);
   await assertImportNotices(page);
   await assertThoraxControls(page);
   await assertLeadsFiltering(page);
@@ -55,6 +56,8 @@ try {
 async function assertInitialState(page) {
   await expectText(page, "[data-case-status]", "normal_male2.ECGsimcase");
   await expectText(page, "[data-case-leads]", "standard_12");
+  await expectText(page, "[data-toolbar-lead-system]", "standard_12");
+  await expectText(page, "[data-status-message]", "normal_male2.ECGsimcase");
   await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
   await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz");
   await expectText(page, "[data-leads-metadata]", "6 node leads / 1000 samples / 1000 Hz / BASELINE");
@@ -63,6 +66,20 @@ async function assertInitialState(page) {
   assert.ok(await canvasHasContent(page, "[data-tmp-canvas]"), "TMP canvas should be nonblank");
   assert.ok(await canvasHasContent(page, ".heart-viewport canvas"), "heart WebGL canvas should be nonblank");
   assert.ok(await canvasHasContent(page, ".thorax-viewport canvas"), "thorax WebGL canvas should be nonblank");
+}
+
+async function assertShellLayout(page) {
+  const shell = await page.evaluate(() => ({
+    menu: [...document.querySelectorAll("[data-shell-menu] span")].map((item) => item.textContent),
+    modes: [...document.querySelectorAll(".toolbar-mode-group output")].map((item) => item.textContent),
+    workspaceColumns: getComputedStyle(document.querySelector(".workspace")).gridTemplateColumns,
+    statusHeight: document.querySelector(".statusbar").getBoundingClientRect().height,
+  }));
+
+  assert.deepEqual(shell.menu, ["File", "Edit", "Heart", "Thorax", "ECGs", "Options", "Help"]);
+  assert.deepEqual(shell.modes, ["Heart", "Thorax", "TMP", "ECGs"]);
+  assert.ok(shell.workspaceColumns.includes("px"), "workspace should render as a visible grid");
+  assert.ok(shell.statusHeight >= 20, "status bar should remain visible");
 }
 
 async function assertImportNotices(page) {
@@ -75,6 +92,8 @@ async function assertImportNotices(page) {
   await expectText(page, "[data-case-status]", "WPW_ectopicbeat.ECGsimcase");
   await expectText(page, "[data-case-notice]", "WPW_ectopicbeat.ECGsimcase loaded from a supported web case bundle");
   await expectText(page, "[data-case-leads]", "BSM_(amsterdam_64)");
+  await expectText(page, "[data-toolbar-lead-system]", "BSM_(amsterdam_64)");
+  await expectText(page, "[data-status-message]", "WPW_ectopicbeat.ECGsimcase loaded");
   await expectText(page, "[data-heart-metadata]", "1216 nodes / 2272 triangles");
   await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz");
 

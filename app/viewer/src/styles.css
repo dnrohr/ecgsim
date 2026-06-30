@@ -16,18 +16,18 @@ body {
 .viewer-shell {
   min-height: 100vh;
   display: grid;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto auto auto auto 1fr auto;
 }
 
 .topbar {
-  min-height: 72px;
+  min-height: 38px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 14px 18px;
+  padding: 7px 12px;
   border-bottom: 1px solid #cfd8dc;
-  background: #ffffff;
+  background: #eef2f4;
 }
 
 h1,
@@ -37,7 +37,7 @@ p {
 }
 
 h1 {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 650;
 }
 
@@ -65,6 +65,70 @@ h2 {
   gap: 12px;
 }
 
+.menu-strip {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 12px;
+  border-bottom: 1px solid #cfd8dc;
+  background: #ffffff;
+  color: #182026;
+  font-size: 13px;
+}
+
+.toolbar {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-bottom: 1px solid #b8c3c8;
+  background: #e5e9eb;
+}
+
+.toolbar-group {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  border-right: 1px solid #b8c3c8;
+}
+
+.toolbar-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #52616b;
+  font-size: 12px;
+}
+
+.toolbar select {
+  min-height: 28px;
+  min-width: 150px;
+  border: 1px solid #a9b5bb;
+  background: #ffffff;
+  color: #182026;
+  font: inherit;
+  font-size: 12px;
+}
+
+.toolbar-mode-group {
+  flex-wrap: wrap;
+  border-right: 0;
+}
+
+.toolbar-mode-group output {
+  min-width: 48px;
+  padding: 3px 7px;
+  border: 1px solid #a9b5bb;
+  background: #f8fafb;
+  color: #27343b;
+  font-size: 12px;
+  text-align: center;
+}
+
 .case-open {
   position: relative;
   display: inline-flex;
@@ -88,6 +152,17 @@ h2 {
   padding: 8px 18px 10px;
   border-bottom: 1px solid #cfd8dc;
   background: #f8fafb;
+}
+
+.statusbar {
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-top: 1px solid #b8c3c8;
+  background: #eef2f4;
+  color: #52616b;
+  font-size: 12px;
 }
 
 .case-summary dl {
@@ -322,6 +397,23 @@ canvas {
 
   .case-status {
     max-width: 100%;
+  }
+
+  .menu-strip {
+    gap: 10px;
+    overflow-x: auto;
+  }
+
+  .toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .toolbar-group {
+    width: 100%;
+    border-right: 0;
+    border-bottom: 1px solid #cfd8dc;
+    padding: 4px 0;
   }
 
   .case-summary dl {

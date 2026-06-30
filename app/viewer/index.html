@@ -21,14 +21,39 @@
           <h1>ECGSIM Viewer</h1>
           <p>Read-only compatibility workspace</p>
         </div>
-        <div class="case-actions">
+        <output class="case-status" data-case-status>normal_male2.ECGsimcase</output>
+      </header>
+      <nav class="menu-strip" aria-label="ECGSIM menu groups" data-shell-menu>
+        <span>File</span>
+        <span>Edit</span>
+        <span>Heart</span>
+        <span>Thorax</span>
+        <span>ECGs</span>
+        <span>Options</span>
+        <span>Help</span>
+      </nav>
+      <section class="toolbar" aria-label="ECGSIM toolbar" data-shell-toolbar>
+        <div class="toolbar-group">
           <label class="case-open">
             <input type="file" accept=".ECGsimcase" data-case-file>
             Open case
           </label>
-          <output class="case-status" data-case-status>normal_male2.ECGsimcase</output>
         </div>
-      </header>
+        <div class="toolbar-group">
+          <label>
+            Lead system
+            <select data-toolbar-lead-system disabled>
+              <option>standard_12</option>
+            </select>
+          </label>
+        </div>
+        <div class="toolbar-group toolbar-mode-group" aria-label="Available workspace modes">
+          <output>Heart</output>
+          <output>Thorax</output>
+          <output>TMP</output>
+          <output>ECGs</output>
+        </div>
+      </section>
       <section class="case-summary" aria-label="Loaded case metadata">
         <dl>
           <div>
@@ -115,6 +140,9 @@
           <canvas width="640" height="220" data-leads-canvas></canvas>
         </section>
       </section>
+      <footer class="statusbar" aria-label="ECGSIM status">
+        <output data-status-message>Ready</output>
+      </footer>
     </main>
     <script type="module" src="./src/main.js"></script>
   </body>

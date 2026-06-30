@@ -72,7 +72,7 @@ Each task should end with:
 
 ## FP2: View Parity
 
-- [ ] [0036 Implement Legacy-Inspired App Shell](0036-implement-legacy-inspired-app-shell.md)
+- [x] [0036 Implement Legacy-Inspired App Shell](0036-implement-legacy-inspired-app-shell.md)
 - [ ] [0037 Implement Heart View Controls](0037-implement-heart-view-controls.md)
 - [ ] [0038 Implement Thorax View Controls](0038-implement-thorax-view-controls.md)
 - [ ] [0039 Implement Leads View Controls](0039-implement-leads-view-controls.md)
