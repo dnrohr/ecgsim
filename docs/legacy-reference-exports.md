@@ -36,6 +36,7 @@ Start-Process ECGsim-3.0.1/ECGsim.exe -ArgumentList ECGsim-3.0.1/cases/normal_ma
 - Embedded executable strings include `actionExport`, `on_actionExport_triggered`, `.refECG`, and `user.source`, but no usage text.
 - UI Automation can see the File menu and the `ECGsim.actionExport` menu item.
 - Selecting `File -> Export` by coordinate/UI probing terminates the app in this environment before a folder picker appears. No export files were written.
+- A 2026-06-29 bounded retry launched the app successfully, but UI Automation and `Alt+F` keyboard probing exposed only top-level menu shells. The `Export` action was not invokable and `research/legacy-exports/raw/normal-male/export-probe/` stayed empty. See `docs/feature-parity/raw-legacy-export-capture-notes.md`.
 
 ## Captured Baseline
 

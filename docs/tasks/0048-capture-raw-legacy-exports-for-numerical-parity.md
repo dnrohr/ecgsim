@@ -28,3 +28,7 @@ Several scientific algorithms remain provisional because raw `.source`, `.adaptE
 ## Done When
 
 Numerical parity tasks have concrete legacy outputs to compare against.
+
+## Blocker Note
+
+Blocked in the current automation environment. A 2026-06-29 probe launched `ECGsim-3.0.1/ECGsim.exe`, but UI Automation and keyboard menu probing could not expose or invoke `File -> Export`; no files were written under the ignored raw export probe directory. Complete this task from a normal interactive legacy-app session or with deeper native Qt automation, then commit manifests/checksums.
