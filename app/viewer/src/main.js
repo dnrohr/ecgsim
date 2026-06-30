@@ -25,6 +25,11 @@ const heartViewport = document.querySelector("[data-heart-viewport]");
 const heartMetadata = document.querySelector("[data-heart-metadata]");
 const heartRadius = document.querySelector("[data-heart-radius]");
 const heartSelection = document.querySelector("[data-heart-selection]");
+const heartAp = document.querySelector("[data-heart-ap]");
+const heartRotate = document.querySelector("[data-heart-rotate]");
+const heartSurface = document.querySelector("[data-heart-surface]");
+const heartValues = document.querySelector("[data-heart-values]");
+const heartSurfaceStatus = document.querySelector("[data-heart-surface-status]");
 const thoraxViewport = document.querySelector("[data-thorax-viewport]");
 const thoraxMetadata = document.querySelector("[data-thorax-metadata]");
 const leadsMetadata = document.querySelector("[data-leads-metadata]");
@@ -101,8 +106,16 @@ function observeViewport(viewport, camera, renderer, distanceForWidth) {
   resize();
 }
 
-function mountHeart(fixture, onSelectionChange) {
-  if (!heartViewport || !heartMetadata || !heartRadius || !heartSelection) {
+function mountHeart(fixture, tmpFixture, onSelectionChange) {
+  if (
+    !heartViewport ||
+    !heartMetadata ||
+    !heartRadius ||
+    !heartSelection ||
+    !heartAp ||
+    !heartSurface ||
+    !heartValues
+  ) {
     throw new Error("Heart viewport did not mount");
   }
   heartViewport.replaceChildren();
@@ -114,6 +127,8 @@ function mountHeart(fixture, onSelectionChange) {
   let isAutoRotating = true;
 
   const geometry = buildGeometry(fixture, { center: true });
+  const colors = new Float32Array(geometry.getAttribute("position").count * 3);
+  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
   const mesh = new THREE.Mesh(
     geometry,
     new THREE.MeshStandardMaterial({
@@ -121,6 +136,7 @@ function mountHeart(fixture, onSelectionChange) {
       roughness: 0.72,
       metalness: 0.04,
       side: THREE.DoubleSide,
+      vertexColors: true,
     }),
   );
   mesh.rotation.set(-0.35, 0.2, 0.08);
@@ -156,6 +172,45 @@ function mountHeart(fixture, onSelectionChange) {
   const positions = geometry.getAttribute("position");
   for (let index = 0; index < positions.count; index += 1) {
     nodePositions.push(new THREE.Vector3().fromBufferAttribute(positions, index));
+  }
+
+  function setMeshRotationAP() {
+    mesh.rotation.set(-0.35, 0.2, 0.08);
+    renderer.render(scene, camera);
+  }
+
+  function valueColor(value, min, span) {
+    const ratio = Math.max(0, Math.min(1, (value - min) / span));
+    return new THREE.Color().setHSL((1 - ratio) * 0.62, 0.78, 0.48);
+  }
+
+  function applySurfaceFunction() {
+    const surface = heartSurface.value;
+    const valueState = heartValues.value;
+    const colorAttribute = geometry.getAttribute("color");
+    if (surface === "geometry") {
+      for (let index = 0; index < colorAttribute.count; index += 1) {
+        colorAttribute.setXYZ(index, 0.7, 0.15, 0.1);
+      }
+      heartSurfaceStatus.value = "Geometry";
+    } else {
+      const values = tmpFixture.parameterVectors?.[surface]?.[valueState] ?? [];
+      const finite = values.filter((value) => Number.isFinite(value));
+      const min = Math.min(...finite);
+      const span = Math.max(Math.max(...finite) - min, 1e-9);
+      for (let index = 0; index < colorAttribute.count; index += 1) {
+        if (index < values.length) {
+          const color = valueColor(values[index], min, span);
+          colorAttribute.setXYZ(index, color.r, color.g, color.b);
+        } else {
+          colorAttribute.setXYZ(index, 0.48, 0.52, 0.54);
+        }
+      }
+      const label = heartSurface.selectedOptions[0]?.textContent ?? surface;
+      heartSurfaceStatus.value = `${label} / ${valueState}`;
+    }
+    colorAttribute.needsUpdate = true;
+    renderer.render(scene, camera);
   }
 
   function updateSelection() {
@@ -239,12 +294,33 @@ function mountHeart(fixture, onSelectionChange) {
   }
 
   heartRadius.addEventListener("input", updateSelection);
+  heartAp.onclick = () => {
+    isAutoRotating = false;
+    if (heartRotate) {
+      heartRotate.checked = false;
+    }
+    setMeshRotationAP();
+    if (statusMessage) {
+      statusMessage.value = "Heart view reset to AP orientation.";
+    }
+  };
+  heartRotate.onchange = () => {
+    isAutoRotating = heartRotate.checked;
+  };
+  heartSurface.onchange = applySurfaceFunction;
+  heartValues.onchange = applySurfaceFunction;
   renderer.domElement.addEventListener("pointerdown", selectFromPointer);
   renderer.domElement.style.cursor = "crosshair";
 
   observeViewport(heartViewport, camera, renderer, (width) => (width < 480 ? 0.5 : 0.32));
 
   heartMetadata.value = `${fixture.pointCount} nodes / ${fixture.triangleCount} triangles`;
+  heartSurface.value = "geometry";
+  heartValues.value = "adapted";
+  if (heartRotate) {
+    heartRotate.checked = true;
+  }
+  applySurfaceFunction();
   updateSelection();
 
   function animate() {
@@ -598,7 +674,7 @@ function applyCaseBundle(bundle, noticeText) {
   updateCaseMetadata(bundle.caseMetadata, noticeText);
   tmpCanvas = document.querySelector("[data-tmp-canvas]");
   const tmpEditing = mountTmpEditing(bundle.tmpWaveforms);
-  mountHeart(bundle.heart, () => tmpEditing.syncControls());
+  mountHeart(bundle.heart, bundle.tmpWaveforms, () => tmpEditing.syncControls());
   mountThorax(bundle.thorax);
   tmpEditing.syncControls();
   const leadsCanvas = document.querySelector("[data-leads-canvas]");

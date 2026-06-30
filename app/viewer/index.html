@@ -81,6 +81,30 @@
             <h2>Heart</h2>
             <output data-heart-metadata>--</output>
           </div>
+          <div class="heart-controls" aria-label="Heart view controls">
+            <button type="button" data-heart-ap>AP</button>
+            <label><input type="checkbox" data-heart-rotate checked> Rotate</label>
+            <label>
+              Surface
+              <select data-heart-surface>
+                <option value="geometry">Geometry</option>
+                <option value="depolarizationMs">Depolarization</option>
+                <option value="repolarizationMs">Repolarization</option>
+                <option value="amplitude">Amplitude</option>
+                <option value="restingPotential">Resting potential</option>
+              </select>
+            </label>
+            <label>
+              Values
+              <select data-heart-values>
+                <option value="adapted">Adapted</option>
+                <option value="initial">Initial</option>
+              </select>
+            </label>
+            <button type="button" data-heart-wall disabled>Endo/Epi</button>
+            <button type="button" data-heart-transmural disabled>Transmural</button>
+            <output data-heart-surface-status>Geometry</output>
+          </div>
           <div class="selection-controls" aria-label="Heart selection controls">
             <label>
               Radius

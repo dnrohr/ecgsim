@@ -29,3 +29,7 @@ Current Heart view supports rotation and basic node/radius selection only.
 ## Done When
 
 Heart view parity gaps are limited to explicitly documented advanced editing modes.
+
+## Result
+
+Added Heart pane controls for AP orientation reset, auto-rotation, surface function selection, and initial/adapted value previews. Added visible disabled controls for endocardial/epicardial and transmural modes, app workflow coverage for visible state changes, and `docs/feature-parity/heart-view-notes.md` to document remaining unsupported Heart modes.

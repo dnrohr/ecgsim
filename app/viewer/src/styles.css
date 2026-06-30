@@ -222,7 +222,7 @@ h2 {
 }
 
 .pane-heart {
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto minmax(0, 1fr);
 }
 
 .pane-header {
@@ -263,6 +263,56 @@ h2 {
   flex-wrap: wrap;
   gap: 8px 14px;
   min-width: 0;
+}
+
+.heart-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.heart-controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #52616b;
+  font-size: 12px;
+}
+
+.heart-controls select,
+.heart-controls button {
+  min-height: 28px;
+  border: 1px solid #b8c3c8;
+  background: #ffffff;
+  color: #182026;
+  font: inherit;
+  font-size: 12px;
+}
+
+.heart-controls button {
+  min-width: 34px;
+  padding: 0 8px;
+  cursor: pointer;
+}
+
+.heart-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.heart-controls input {
+  accent-color: #175c8a;
+}
+
+.heart-controls output {
+  min-width: 0;
+  overflow: hidden;
+  color: #52616b;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .layer-toggles label {
@@ -430,6 +480,11 @@ canvas {
   }
 
   .selection-controls {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .heart-controls {
     align-items: flex-start;
     flex-direction: column;
   }

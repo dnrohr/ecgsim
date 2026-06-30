@@ -39,6 +39,7 @@ try {
   await assertInitialState(page);
   await assertShellLayout(page);
   await assertImportNotices(page);
+  await assertHeartViewControls(page);
   await assertThoraxControls(page);
   await assertLeadsFiltering(page);
   await assertHeartSelectionAndTmpEditing(page);
@@ -119,6 +120,30 @@ async function assertThoraxControls(page) {
 
   await leftLung.check();
   assert.equal(await leftLung.isChecked(), true, "left lung toggle should re-check");
+}
+
+async function assertHeartViewControls(page) {
+  const canvas = ".heart-viewport canvas";
+  const geometrySignature = await canvasSignature(page, canvas);
+
+  await page.locator("[data-heart-surface]").selectOption("depolarizationMs");
+  await expectText(page, "[data-heart-surface-status]", "Depolarization / adapted");
+  await page.waitForTimeout(150);
+  const depolarizationSignature = await canvasSignature(page, canvas);
+  assert.notEqual(depolarizationSignature, geometrySignature, "Heart surface function should recolor mesh");
+
+  await page.locator("[data-heart-values]").selectOption("initial");
+  await expectText(page, "[data-heart-surface-status]", "Depolarization / initial");
+
+  await page.locator("[data-heart-ap]").click();
+  await expectText(page, "[data-status-message]", "Heart view reset to AP orientation");
+  assert.equal(await page.locator("[data-heart-rotate]").isChecked(), false, "AP reset should stop auto-rotation");
+
+  await page.locator("[data-heart-rotate]").check();
+  assert.equal(await page.locator("[data-heart-rotate]").isChecked(), true, "Rotate toggle should re-enable");
+
+  await page.locator("[data-heart-surface]").selectOption("geometry");
+  await expectText(page, "[data-heart-surface-status]", "Geometry");
 }
 
 async function assertLeadsFiltering(page) {
