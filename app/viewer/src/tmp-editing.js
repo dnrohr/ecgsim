@@ -185,6 +185,46 @@ export function redoLastTransaction(state) {
   return transaction;
 }
 
+export function serializeTmpEditState(state, caseMetadata = {}) {
+  return {
+    schema: "org.ecgsim.source-edits",
+    version: 1,
+    case: {
+      fileName: caseMetadata.fileName ?? null,
+      sha256: caseMetadata.sha256 ?? null,
+    },
+    sourceKind: "ventricles",
+    beatId: "beat1",
+    nodeCount: state.nodeCount,
+    sampleCount: state.sampleCount,
+    sampleRateHz: state.sampleRateHz,
+    adaptedValues: Object.fromEntries(
+      Object.entries(state.parameters).map(([parameter, vectors]) => [
+        parameter,
+        [...vectors.adapted],
+      ]),
+    ),
+    undoStack: cloneTransactions(state.undoStack),
+    redoStack: cloneTransactions(state.redoStack),
+    nextTransactionId: state.nextTransactionId,
+  };
+}
+
+export function applyTmpEditSnapshot(state, snapshot, caseMetadata = {}) {
+  validateTmpEditSnapshot(state, snapshot, caseMetadata);
+  Object.entries(snapshot.adaptedValues).forEach(([parameter, values]) => {
+    if (state.parameters[parameter]) {
+      state.parameters[parameter].adapted = [...values];
+    }
+  });
+  state.undoStack = cloneTransactions(snapshot.undoStack ?? []);
+  state.redoStack = cloneTransactions(snapshot.redoStack ?? []);
+  state.nextTransactionId = Number.isInteger(snapshot.nextTransactionId)
+    ? snapshot.nextTransactionId
+    : nextTransactionIdFromStacks(state.undoStack, state.redoStack);
+  return state;
+}
+
 export function nodeParameterValue(state, parameter, nodeIndex, kind = "adapted") {
   return state.parameters[parameter]?.[kind]?.[nodeIndex] ?? null;
 }
@@ -297,4 +337,37 @@ function applyTransactionValues(state, transaction, valueKey) {
 function uniqueNodeIndexes(nodeIndexes, nodeCount) {
   return [...new Set(nodeIndexes)]
     .filter((index) => Number.isInteger(index) && index >= 0 && index < nodeCount);
+}
+
+function validateTmpEditSnapshot(state, snapshot, caseMetadata) {
+  if (!snapshot || snapshot.schema !== "org.ecgsim.source-edits" || snapshot.version !== 1) {
+    throw new Error("Unsupported source-edit snapshot format.");
+  }
+  if (snapshot.case?.sha256 && caseMetadata.sha256 && snapshot.case.sha256 !== caseMetadata.sha256) {
+    throw new Error("Source-edit snapshot belongs to a different case.");
+  }
+  if (snapshot.nodeCount !== state.nodeCount) {
+    throw new Error("Source-edit snapshot node count does not match this case.");
+  }
+  Object.entries(state.parameters).forEach(([parameter, vectors]) => {
+    const values = snapshot.adaptedValues?.[parameter];
+    if (!Array.isArray(values) || values.length !== vectors.adapted.length) {
+      throw new Error(`Source-edit snapshot is missing adapted values for ${parameter}.`);
+    }
+  });
+}
+
+function cloneTransactions(transactions) {
+  return transactions.map((transaction) => ({
+    ...transaction,
+    selection: transaction.selection ? { ...transaction.selection } : transaction.selection,
+    changes: transaction.changes.map((change) => ({ ...change })),
+  }));
+}
+
+function nextTransactionIdFromStacks(...stacks) {
+  const maxId = stacks
+    .flat()
+    .reduce((highest, transaction) => Math.max(highest, transaction.id ?? 0), 0);
+  return maxId + 1;
 }

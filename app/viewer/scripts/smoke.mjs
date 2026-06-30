@@ -8,6 +8,7 @@ import {
 } from "../src/selection.js";
 import {
   applyParameterValue,
+  applyTmpEditSnapshot,
   applyWeightedParameterTransaction,
   applyWeightedParameterValue,
   createTmpEditState,
@@ -16,6 +17,7 @@ import {
   resetBeat,
   resetParameter,
   resetWeightedParameterTransaction,
+  serializeTmpEditState,
   undoLastTransaction,
 } from "../src/tmp-editing.js";
 
@@ -78,6 +80,8 @@ const required = [
   "data-tmp-reset-beat",
   "data-tmp-undo",
   "data-tmp-redo",
+  "data-tmp-save-edits",
+  "data-tmp-load-edits",
   "data-tmp-combine-handlers",
   "data-tmp-keep-apd",
   "data-tmp-show-egm",
@@ -292,6 +296,36 @@ resetWeightedParameterTransaction(transactionalState, "depolarizationMs", [{ ind
 if (transactionalState.undoStack.length !== 2 || transactionalState.redoStack.length !== 0) {
   console.error("TMP reset transaction stack failed");
   process.exit(1);
+}
+const persistedState = createTmpEditState(tmpFixture);
+applyWeightedParameterTransaction(
+  persistedState,
+  "depolarizationMs",
+  [{ index: 0, weight: 1 }],
+  transactionalOriginal + 21,
+  { mode: "singleNode", centerNodeIndex: 0 },
+);
+const snapshot = serializeTmpEditState(persistedState, caseFixture);
+const restoredState = createTmpEditState(tmpFixture);
+applyTmpEditSnapshot(restoredState, JSON.parse(JSON.stringify(snapshot)), caseFixture);
+if (
+  snapshot.schema !== "org.ecgsim.source-edits" ||
+  snapshot.version !== 1 ||
+  nodeParameterValue(restoredState, "depolarizationMs", 0, "adapted") !== transactionalOriginal + 21 ||
+  restoredState.undoStack.length !== 1
+) {
+  console.error("TMP edit snapshot round trip failed");
+  process.exit(1);
+}
+try {
+  applyTmpEditSnapshot(createTmpEditState(tmpFixture), snapshot, { ...caseFixture, sha256: "different" });
+  console.error("TMP edit snapshot accepted a different case");
+  process.exit(1);
+} catch (error) {
+  if (!String(error.message).includes("different case")) {
+    console.error("TMP edit snapshot mismatch failed unexpectedly");
+    process.exit(1);
+  }
 }
 
 console.log("viewer smoke check passed");

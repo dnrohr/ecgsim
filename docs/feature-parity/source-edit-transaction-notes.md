@@ -8,11 +8,12 @@ Status: task `0046` parity notes for source-edit transactions.
 - Undo restores each transaction's previous adapted values.
 - Redo reapplies each transaction's next adapted values.
 - Single-selection and expand-selection modes store concrete node weights in transaction metadata.
+- Save/Load edits persists adapted values and transaction stacks through the modern sidecar format.
 
 ## Current Limitations
 
 - The legacy `resetPreviousThenApply` and independent named-region workflows are not exposed as separate controls yet.
-- Transactions are in-memory only. Export/write-back is deferred to task `0047`.
+- `.ECGsimcase` export/write-back is deferred to later export tasks.
 - Undo/redo currently covers ventricular TMP parameter edits in the web viewer.
 
 ## Data Model

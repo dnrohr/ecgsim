@@ -35,6 +35,9 @@ try {
 
   await page.goto(baseUrl, { waitUntil: "networkidle" });
   await page.waitForSelector("[data-viewer-shell][data-ready='true']");
+  await page.evaluate(() => window.localStorage.clear());
+  await page.reload({ waitUntil: "networkidle" });
+  await page.waitForSelector("[data-viewer-shell][data-ready='true']");
 
   await assertInitialState(page);
   await assertShellLayout(page);
@@ -294,12 +297,16 @@ async function assertHeartSelectionAndTmpEditing(page) {
   const resetBeat = page.locator("[data-tmp-reset-beat]");
   const undoButton = page.locator("[data-tmp-undo]");
   const redoButton = page.locator("[data-tmp-redo]");
+  const saveEdits = page.locator("[data-tmp-save-edits]");
+  const loadEdits = page.locator("[data-tmp-load-edits]");
 
   assert.equal(await valueInput.isEnabled(), true, "TMP value should enable after heart selection");
   assert.equal(await incrementButton.isEnabled(), true, "TMP increment should enable after heart selection");
   assert.equal(await applyButton.isEnabled(), true, "TMP apply should enable after heart selection");
   assert.equal(await undoButton.isDisabled(), true, "Undo should start disabled");
   assert.equal(await redoButton.isDisabled(), true, "Redo should start disabled");
+  assert.equal(await saveEdits.isDisabled(), true, "Save edits should start disabled");
+  assert.equal(await loadEdits.isDisabled(), true, "Load edits should start disabled without a saved snapshot");
   assert.equal(await page.locator("[data-tmp-combine-handlers]").isDisabled(), true, "combined TMP handlers should be unavailable");
   assert.equal(await page.locator("[data-tmp-keep-apd]").isDisabled(), true, "constant APD mode should be unavailable");
   assert.equal(await page.locator("[data-tmp-show-egm]").isDisabled(), true, "electrogram toggle should be unavailable");
@@ -341,8 +348,20 @@ async function assertHeartSelectionAndTmpEditing(page) {
   assert.equal(Number(await valueInput.inputValue()), editedValue, "Redo should restore edited TMP value");
   assert.equal(await redoButton.isDisabled(), true, "Redo should disable after replay");
 
+  assert.equal(await saveEdits.isEnabled(), true, "Save edits should enable after a transaction");
+  await saveEdits.click();
+  await expectText(page, "[data-status-message]", "TMP edits saved");
+  assert.equal(await loadEdits.isEnabled(), true, "Load edits should enable after saving");
+
   await resetParameter.click();
   assert.equal(Number(await valueInput.inputValue()), originalValue, "Reset parameter should restore initial value");
+
+  await loadEdits.click();
+  assert.equal(Number(await valueInput.inputValue()), editedValue, "Load edits should restore persisted adapted value");
+  await expectText(page, "[data-status-message]", "TMP edits loaded");
+
+  await resetParameter.click();
+  assert.equal(Number(await valueInput.inputValue()), originalValue, "Reset parameter should restore initial value after load");
 
   await valueInput.fill(String(editedValue));
   await applyButton.click();

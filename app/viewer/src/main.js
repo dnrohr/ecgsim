@@ -3,6 +3,7 @@ import { buildRmsTrace, filterTraces } from "./filtering.js";
 import { computeWeightedRegionMembership, mergeWeightedRegions } from "./selection.js";
 import {
   EDITABLE_PARAMETERS,
+  applyTmpEditSnapshot,
   applyWeightedParameterTransaction,
   buildTmpPlotNodes,
   createTmpEditState,
@@ -10,6 +11,7 @@ import {
   redoLastTransaction,
   resetBeatTransaction,
   resetWeightedParameterTransaction,
+  serializeTmpEditState,
   undoLastTransaction,
 } from "./tmp-editing.js";
 
@@ -73,6 +75,8 @@ const tmpResetParameter = document.querySelector("[data-tmp-reset-parameter]");
 const tmpResetBeat = document.querySelector("[data-tmp-reset-beat]");
 const tmpUndo = document.querySelector("[data-tmp-undo]");
 const tmpRedo = document.querySelector("[data-tmp-redo]");
+const tmpSaveEdits = document.querySelector("[data-tmp-save-edits]");
+const tmpLoadEdits = document.querySelector("[data-tmp-load-edits]");
 const tmpCombineHandlers = document.querySelector("[data-tmp-combine-handlers]");
 const tmpKeepApd = document.querySelector("[data-tmp-keep-apd]");
 const tmpShowEgm = document.querySelector("[data-tmp-show-egm]");
@@ -1160,6 +1164,8 @@ function mountTmpEditing(fixture) {
     !tmpResetBeat ||
     !tmpUndo ||
     !tmpRedo ||
+    !tmpSaveEdits ||
+    !tmpLoadEdits ||
     !tmpParameterStatus
   ) {
     throw new Error("TMP editing controls did not mount");
@@ -1226,6 +1232,8 @@ function mountTmpEditing(fixture) {
     tmpResetParameter.disabled = !canEdit;
     tmpUndo.disabled = tmpEditState.undoStack.length === 0;
     tmpRedo.disabled = tmpEditState.redoStack.length === 0;
+    tmpSaveEdits.disabled = tmpEditState.undoStack.length === 0;
+    tmpLoadEdits.disabled = !hasSavedTmpEdits();
     tmpValue.step = String(parameter.step);
     if (canEdit) {
       const initial = nodeParameterValue(tmpEditState, parameter.id, weightedNodes[0].index, "initial");
@@ -1270,6 +1278,38 @@ function mountTmpEditing(fixture) {
     };
   }
 
+  function storageKey() {
+    return currentCaseMetadata?.sha256
+      ? `ecgsim:source-edits:${currentCaseMetadata.sha256}`
+      : null;
+  }
+
+  function hasSavedTmpEdits() {
+    const key = storageKey();
+    return key ? window.localStorage.getItem(key) !== null : false;
+  }
+
+  function saveTmpEdits() {
+    const key = storageKey();
+    if (!key) {
+      return;
+    }
+    const snapshot = serializeTmpEditState(tmpEditState, currentCaseMetadata);
+    window.localStorage.setItem(key, JSON.stringify(snapshot));
+    setTmpStatus("TMP edits saved for this case.");
+  }
+
+  function loadTmpEdits() {
+    const key = storageKey();
+    const stored = key ? window.localStorage.getItem(key) : null;
+    if (!stored) {
+      setTmpStatus("No saved TMP edits for this case.");
+      return;
+    }
+    applyTmpEditSnapshot(tmpEditState, JSON.parse(stored), currentCaseMetadata);
+    setTmpStatus("TMP edits loaded for this case.");
+  }
+
   tmpParameter.onchange = syncControls;
   tmpShowInitial.onchange = redrawTmp;
   tmpShowAdapted.onchange = redrawTmp;
@@ -1302,6 +1342,18 @@ function mountTmpEditing(fixture) {
     const transaction = redoLastTransaction(tmpEditState);
     if (transaction) {
       setTmpStatus(`Redid ${transaction.kind}.`);
+    }
+    syncControls();
+  };
+  tmpSaveEdits.onclick = () => {
+    saveTmpEdits();
+    syncControls();
+  };
+  tmpLoadEdits.onclick = () => {
+    try {
+      loadTmpEdits();
+    } catch (error) {
+      setTmpStatus(error instanceof Error ? error.message : "Unable to load TMP edits.");
     }
     syncControls();
   };
