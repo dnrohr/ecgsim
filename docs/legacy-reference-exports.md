@@ -126,6 +126,14 @@ python tools/validate_legacy_capture.py research/legacy-exports/raw/<case-name>/
 
 The validation report embeds the checksum/shape manifest, optional modern-export comparison, and `taskReadiness` for tasks `0049`, `0051`, `0052`, and `0053`.
 
+For a human-readable handoff summary to paste into task notes, write Markdown instead:
+
+```powershell
+python tools/validate_legacy_capture.py research/legacy-exports/raw/<case-name>/export-directory --case research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase --format markdown --output research/legacy-exports/<case-name>-validation.md
+```
+
+Use `--require-ready` when the command should fail unless all required downstream artifacts are present.
+
 Commit only manifests and small, justified reference files. Keep large raw exports ignored unless a later task explicitly promotes a small fixture.
 
 ## Screenshot Manual Workflow

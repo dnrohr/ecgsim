@@ -83,12 +83,83 @@ def task_readiness(manifest: dict[str, object]) -> dict[str, dict[str, object]]:
     return readiness
 
 
+def render_markdown_report(validation: dict[str, object]) -> str:
+    manifest = validation["manifest"]
+    parity_artifacts = manifest["parityArtifacts"]
+    task_status = validation["taskReadiness"]
+    comparison = validation["comparison"]
+
+    lines = [
+        "# Legacy Capture Validation",
+        "",
+        f"- Capture directory: `{validation['captureDir']}`",
+        f"- Files: {manifest['fileCount']}",
+        f"- Total bytes: {manifest['totalBytes']}",
+        f"- Ready for numerical parity: {yes_no(manifest['readyForNumericalParity'])}",
+        "",
+        "## Required Artifacts",
+        "",
+        "| Artifact | Present | Paths |",
+        "| --- | --- | --- |",
+    ]
+    for artifact_name, artifact in parity_artifacts.items():
+        paths = ", ".join(f"`{path}`" for path in artifact["paths"]) if artifact["paths"] else "missing"
+        lines.append(f"| `{artifact_name}` | {yes_no(artifact['present'])} | {paths} |")
+
+    lines.extend(
+        [
+            "",
+            "## Task Readiness",
+            "",
+            "| Task | Ready | Missing artifacts |",
+            "| --- | --- | --- |",
+        ]
+    )
+    for task_id, readiness in task_status.items():
+        missing = ", ".join(f"`{artifact}`" for artifact in readiness["missingArtifacts"]) or "none"
+        lines.append(f"| `{task_id}` {readiness['label']} | {yes_no(readiness['ready'])} | {missing} |")
+
+    if comparison is not None:
+        lines.extend(
+            [
+                "",
+                "## Modern Export Comparison",
+                "",
+                f"- Status: `{comparison['status']}`",
+                f"- Compared files: {comparison['comparedCount']}",
+                f"- Failed files: {comparison['failedCount']}",
+                f"- Extra legacy files: {len(comparison['extraLegacyFiles'])}",
+            ]
+        )
+        failed = [item for item in comparison["comparisons"] if item["status"] != "passed"]
+        if failed:
+            lines.extend(["", "| Path | Status | Message |", "| --- | --- | --- |"])
+            for item in failed[:10]:
+                message = str(item.get("message", "")).replace("\n", " ")
+                lines.append(f"| `{item['path']}` | `{item['status']}` | {message} |")
+            if len(failed) > 10:
+                lines.append(f"| ... | ... | {len(failed) - 10} more failures omitted from summary. |")
+
+    lines.append("")
+    return "\n".join(lines)
+
+
+def yes_no(value: object) -> str:
+    return "yes" if value else "no"
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("capture_dir", type=Path)
     parser.add_argument("--case", type=Path, help="Case used to generate a temporary modern export comparison.")
     parser.add_argument("--modern-export-dir", type=Path, help="Existing modern export directory to compare.")
-    parser.add_argument("--output", type=Path, help="Write validation JSON to this path.")
+    parser.add_argument("--output", type=Path, help="Write the validation report to this path.")
+    parser.add_argument(
+        "--format",
+        choices=("json", "markdown"),
+        default="json",
+        help="Output JSON for automation or Markdown for human handoff notes.",
+    )
     parser.add_argument(
         "--require-ready",
         action="store_true",
@@ -109,7 +180,10 @@ def main(argv: list[str] | None = None) -> int:
         case_path=args.case,
         modern_export_dir=args.modern_export_dir,
     )
-    text = json.dumps(validation, indent=2) + "\n"
+    if args.format == "markdown":
+        text = render_markdown_report(validation)
+    else:
+        text = json.dumps(validation, indent=2) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(text, encoding="utf-8")
