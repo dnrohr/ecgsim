@@ -41,6 +41,8 @@ const selectionState = {
 };
 let tmpEditState = null;
 let tmpCanvas = null;
+let supportedCaseManifest = null;
+let currentCaseMetadata = null;
 
 function buildGeometry(fixture, { center = false } = {}) {
   const geometry = new THREE.BufferGeometry();
@@ -101,6 +103,7 @@ function mountHeart(fixture, onSelectionChange) {
   if (!heartViewport || !heartMetadata || !heartRadius || !heartSelection) {
     throw new Error("Heart viewport did not mount");
   }
+  heartViewport.replaceChildren();
 
   const { scene, camera, renderer } = createScene(heartViewport, 0.32);
   const raycaster = new THREE.Raycaster();
@@ -256,6 +259,7 @@ function mountThorax(fixture) {
   if (!thoraxViewport || !thoraxMetadata) {
     throw new Error("Thorax viewport did not mount");
   }
+  thoraxViewport.replaceChildren();
 
   const { scene, camera, renderer } = createScene(thoraxViewport, 0.75);
   const group = new THREE.Group();
@@ -497,6 +501,7 @@ function mountTmpEditing(fixture) {
   }
 
   tmpEditState = createTmpEditState(fixture);
+  tmpParameter.replaceChildren();
   EDITABLE_PARAMETERS.forEach((parameter) => {
     const option = document.createElement("option");
     option.value = parameter.id;
@@ -541,24 +546,25 @@ function mountTmpEditing(fixture) {
     redrawTmp();
   }
 
-  tmpParameter.addEventListener("change", syncControls);
-  tmpApply.addEventListener("click", () => {
+  tmpParameter.onchange = syncControls;
+  tmpApply.onclick = () => {
     applyParameterValue(tmpEditState, tmpParameter.value, selectedRegion(), Number.parseFloat(tmpValue.value));
     syncControls();
-  });
-  tmpResetParameter.addEventListener("click", () => {
+  };
+  tmpResetParameter.onclick = () => {
     resetParameter(tmpEditState, tmpParameter.value, selectedRegion());
     syncControls();
-  });
-  tmpResetBeat.addEventListener("click", () => {
+  };
+  tmpResetBeat.onclick = () => {
     resetBeat(tmpEditState);
     syncControls();
-  });
+  };
 
   return { syncControls };
 }
 
-function mountCaseMetadata(metadata) {
+function updateCaseMetadata(metadata, noticeText) {
+  currentCaseMetadata = metadata;
   status.value = metadata.fileName;
   caseSize.textContent = `${metadata.byteSize.toLocaleString()} bytes`;
   caseLeads.textContent = metadata.leadSystems.join(", ");
@@ -569,22 +575,64 @@ function mountCaseMetadata(metadata) {
     `PVector ${metadata.markerCounts.PVector}`,
   ].join(" / ");
   caseUnsupported.textContent = metadata.unsupportedPayloads.join(", ");
-  caseNotice.textContent = `Loaded bundled read-only fixtures from ${metadata.source}.`;
+  caseNotice.textContent = noticeText ?? `Loaded supported case bundle from ${metadata.source}.`;
+}
 
-  if (caseFile) {
-    caseFile.addEventListener("change", () => {
-      const file = caseFile.files?.[0];
-      if (!file) {
-        return;
-      }
-      status.value = file.name;
-      if (file.name === metadata.fileName && file.size === metadata.byteSize) {
-        caseNotice.textContent = `${file.name} matches the bundled fixture metadata; read-only views are active.`;
-      } else {
-        caseNotice.textContent =
-          `${file.name} is not parsed in-browser yet; showing bundled ${metadata.fileName} fixtures.`;
-      }
-    });
+function applyCaseBundle(bundle, noticeText) {
+  selectionState.nodeIndex = -1;
+  selectionState.region = [];
+  updateCaseMetadata(bundle.caseMetadata, noticeText);
+  tmpCanvas = document.querySelector("[data-tmp-canvas]");
+  const tmpEditing = mountTmpEditing(bundle.tmpWaveforms);
+  mountHeart(bundle.heart, () => tmpEditing.syncControls());
+  mountThorax(bundle.thorax);
+  tmpEditing.syncControls();
+  const leadsCanvas = document.querySelector("[data-leads-canvas]");
+  const redrawSignals = () => plotSignals(leadsCanvas, bundle.ecgSignals, leadsFilter?.value ?? "baseline");
+  leadsFilter.onchange = redrawSignals;
+  redrawSignals();
+}
+
+async function loadSupportedCaseBundle(entry) {
+  const response = await fetch(`./public/fixtures/cases/${entry.bundle}`);
+  if (!response.ok) {
+    throw new Error(`Unable to load supported case bundle ${entry.bundle}: ${response.status}`);
+  }
+  return response.json();
+}
+
+async function sha256Hex(file) {
+  const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function openSelectedCase(file) {
+  if (!file || !supportedCaseManifest || !currentCaseMetadata) {
+    return;
+  }
+
+  caseNotice.textContent = `Checking ${file.name} against supported case bundles...`;
+  try {
+    const sha256 = await sha256Hex(file);
+    const entry = supportedCaseManifest.cases.find(
+      (candidate) => candidate.sha256 === sha256 && candidate.byteSize === file.size,
+    );
+    if (!entry) {
+      updateCaseMetadata(
+        currentCaseMetadata,
+        `${file.name} is not in the supported web bundle manifest; still showing ${currentCaseMetadata.fileName}.`,
+      );
+      return;
+    }
+    const bundle = await loadSupportedCaseBundle(entry);
+    applyCaseBundle(bundle, `${file.name} loaded from a supported web case bundle.`);
+  } catch (error) {
+    updateCaseMetadata(
+      currentCaseMetadata,
+      `${file.name} could not be opened: ${error.message}; still showing ${currentCaseMetadata.fileName}.`,
+    );
   }
 }
 
@@ -598,24 +646,27 @@ async function mount() {
     }
     return response.json();
   });
-  const [caseMetadata, heartFixture, thoraxFixture, ecgFixture, tmpFixture] = await Promise.all([
+  const [caseMetadata, heartFixture, thoraxFixture, ecgFixture, tmpFixture, manifest] = await Promise.all([
     loadFixture("./public/fixtures/case-metadata.json"),
     loadFixture("./public/fixtures/heart.json"),
     loadFixture("./public/fixtures/thorax.json"),
     loadFixture("./public/fixtures/ecg-signals.json"),
     loadFixture("./public/fixtures/tmp-waveforms.json"),
+    loadFixture("./public/fixtures/cases/manifest.json"),
   ]);
+  supportedCaseManifest = manifest;
   shell.dataset.ready = "true";
-  mountCaseMetadata(caseMetadata);
-  tmpCanvas = document.querySelector("[data-tmp-canvas]");
-  const tmpEditing = mountTmpEditing(tmpFixture);
-  mountHeart(heartFixture, () => tmpEditing.syncControls());
-  mountThorax(thoraxFixture);
-  tmpEditing.syncControls();
-  const leadsCanvas = document.querySelector("[data-leads-canvas]");
-  const redrawSignals = () => plotSignals(leadsCanvas, ecgFixture, leadsFilter?.value ?? "baseline");
-  leadsFilter?.addEventListener("change", redrawSignals);
-  redrawSignals();
+  applyCaseBundle(
+    {
+      caseMetadata,
+      heart: heartFixture,
+      thorax: thoraxFixture,
+      ecgSignals: ecgFixture,
+      tmpWaveforms: tmpFixture,
+    },
+    `Loaded bundled supported case fixture from ${caseMetadata.source}.`,
+  );
+  caseFile?.addEventListener("change", () => openSelectedCase(caseFile.files?.[0]));
 }
 
 mount();

@@ -30,3 +30,7 @@ The current browser file picker keeps displaying bundled fixtures. Real loading 
 ## Done When
 
 Users can open real supported legacy cases in the modern app.
+
+## Result
+
+Chose a supported-case bundle architecture for the web app: Python parses supported `.ECGsimcase` files with `load_case`, writes app-ready JSON bundles plus a SHA-256 manifest, and the browser file picker hashes selected files to load matching bundles. The viewer now swaps case metadata, geometry, TMP, thorax, and lead preview data for supported normal and WPW cases, while unsupported files keep the current loaded case visible with a clear unsupported notice.

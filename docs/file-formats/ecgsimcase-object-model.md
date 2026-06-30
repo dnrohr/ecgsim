@@ -24,6 +24,8 @@ def load_case(path: str | Path, *, strict: bool = False) -> ECGsimCase:
 
 Task 0033 added this API as `ecgsim.io.load_case(path, strict=False)`. The returned object currently contains metadata, geometries, sources, lead systems, and signal metadata. Later tasks should add new parsed payloads to this object instead of creating parallel fixture-only reader paths.
 
+Task 0034 uses `load_case` to generate browser-ready supported-case bundles. The web app does not parse arbitrary binary `.ECGsimcase` files directly; it hashes selected files and loads a pre-generated bundle only when the file matches the supported-case manifest.
+
 ## Stable Data Structures
 
 These are the intended Python dataclass names and field semantics. Implementation may add helper fields, but public names should remain stable once introduced.

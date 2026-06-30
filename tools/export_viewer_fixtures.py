@@ -18,20 +18,30 @@ from ecgsim.io import (
 
 
 SIGNAL_SOURCE = ROOT / "research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase"
+SUPPORTED_CASE_SOURCES = (
+    ROOT / "research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase",
+    ROOT / "research/source/www.ecgsim.org/downloads/cases/WPW_ectopicbeat.ECGsimcase",
+)
 HEART_TARGET = ROOT / "app/viewer/public/fixtures/heart.json"
 THORAX_TARGET = ROOT / "app/viewer/public/fixtures/thorax.json"
 ECG_SIGNAL_TARGET = ROOT / "app/viewer/public/fixtures/ecg-signals.json"
 TMP_TARGET = ROOT / "app/viewer/public/fixtures/tmp-waveforms.json"
 CASE_METADATA_TARGET = ROOT / "app/viewer/public/fixtures/case-metadata.json"
+CASE_BUNDLE_DIR = ROOT / "app/viewer/public/fixtures/cases"
+CASE_MANIFEST_TARGET = CASE_BUNDLE_DIR / "manifest.json"
 
 
-def case_geometry_payload(case, name: str) -> dict[str, object]:
+def case_path_text(case_path: Path) -> str:
+    return str(case_path.relative_to(ROOT)).replace("\\", "/")
+
+
+def case_geometry_payload(case, case_path: Path, name: str) -> dict[str, object]:
     geometry_object = next(
         geometry for geometry in case.geometries if geometry.name == name
     )
     geometry = geometry_object.geometry
     return {
-        "source": str(SIGNAL_SOURCE.relative_to(ROOT)).replace("\\", "/"),
+        "source": case_path_text(case_path),
         "sourceGeometryOffset": geometry_object.marker_offset,
         "sourceGeometryName": geometry_object.name,
         "units": "m",
@@ -45,12 +55,15 @@ def case_geometry_payload(case, name: str) -> dict[str, object]:
     }
 
 
-def ecg_signal_payload(case) -> dict[str, object]:
+def ecg_signal_payload(case, case_path: Path) -> dict[str, object]:
     signal = case.signal_metadata
-    matrix = read_ecgsimcase_matrix(SIGNAL_SOURCE, signal.matrix_offset)
-    selected_rows = (0, 50, 100, 150, 200, 250)
+    matrix = read_ecgsimcase_matrix(case_path, signal.matrix_offset)
+    if matrix.rows > 250:
+        selected_rows = (0, 50, 100, 150, 200, 250)
+    else:
+        selected_rows = tuple(range(matrix.rows))
     return {
-        "source": str(SIGNAL_SOURCE.relative_to(ROOT)).replace("\\", "/"),
+        "source": case_path_text(case_path),
         "sourceMatrixOffset": signal.matrix_offset,
         "signalKind": signal.signal_kind,
         "sampleRateHz": signal.sample_rate_hz,
@@ -70,7 +83,7 @@ def ecg_signal_payload(case) -> dict[str, object]:
     }
 
 
-def tmp_waveform_payload(case) -> dict[str, object]:
+def tmp_waveform_payload(case, case_path: Path) -> dict[str, object]:
     ventricles = next(source for source in case.sources if source.kind == "ventricles")
     beat = ventricles.beats[0]
     parameter_vectors = {
@@ -88,15 +101,19 @@ def tmp_waveform_payload(case) -> dict[str, object]:
         }
         for name, vectors in parameter_vectors.items()
     }
-    selected_nodes = (0, 143, 287, 431, 575)
+    node_count = parameter_vectors["depolarizationMs"]["initial"].length
+    if node_count >= 576:
+        selected_nodes = (0, 143, 287, 431, 575)
+    else:
+        selected_nodes = tuple(round(index * (node_count - 1) / 4) for index in range(5))
     sample_count = 576
 
     return {
-        "source": str(SIGNAL_SOURCE.relative_to(ROOT)).replace("\\", "/"),
+        "source": case_path_text(case_path),
         "signalKind": "parameter-derived TMP preview",
         "sampleRateHz": 1000,
         "sampleCount": sample_count,
-        "nodeCount": parameter_vectors["depolarizationMs"]["initial"].length,
+        "nodeCount": node_count,
         "units": "legacy TMP parameter units",
         "generationNote": (
             "Preview waveform generated from stored source parameter vectors; "
@@ -129,12 +146,12 @@ def tmp_waveform_payload(case) -> dict[str, object]:
     }
 
 
-def case_metadata_payload(case) -> dict[str, object]:
+def case_metadata_payload(case, case_path: Path) -> dict[str, object]:
     metadata = case.metadata
     lead_systems = case.lead_systems
     return {
-        "source": str(SIGNAL_SOURCE.relative_to(ROOT)).replace("\\", "/"),
-        "fileName": SIGNAL_SOURCE.name,
+        "source": case_path_text(case_path),
+        "fileName": case_path.name,
         "byteSize": metadata.byte_size,
         "sha256": metadata.sha256,
         "rootSignature": metadata.root_signature,
@@ -162,45 +179,52 @@ def case_metadata_payload(case) -> dict[str, object]:
     }
 
 
+def case_bundle(case_path: Path) -> dict[str, object]:
+    case = load_case(case_path)
+    return {
+        "caseMetadata": case_metadata_payload(case, case_path),
+        "heart": case_geometry_payload(case, case_path, "heart"),
+        "thorax": {
+            "meshes": {
+                "thorax": case_geometry_payload(case, case_path, "thorax"),
+                "leftLung": case_geometry_payload(case, case_path, "left_lung"),
+                "rightLung": case_geometry_payload(case, case_path, "right_lung"),
+            }
+        },
+        "ecgSignals": ecg_signal_payload(case, case_path),
+        "tmpWaveforms": tmp_waveform_payload(case, case_path),
+    }
+
+
+def write_json(path: Path, payload: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, separators=(",", ":")) + "\n", encoding="utf-8")
+    print(f"wrote {path.relative_to(ROOT)}")
+
+
 def main() -> int:
-    case = load_case(SIGNAL_SOURCE)
-    HEART_TARGET.parent.mkdir(parents=True, exist_ok=True)
-    HEART_TARGET.write_text(
-        json.dumps(case_geometry_payload(case, "heart"), separators=(",", ":"))
-        + "\n",
-        encoding="utf-8",
-    )
-    print(f"wrote {HEART_TARGET.relative_to(ROOT)}")
-    THORAX_TARGET.write_text(
-        json.dumps(
+    normal_bundle = case_bundle(SIGNAL_SOURCE)
+    write_json(HEART_TARGET, normal_bundle["heart"])
+    write_json(THORAX_TARGET, normal_bundle["thorax"])
+    write_json(ECG_SIGNAL_TARGET, normal_bundle["ecgSignals"])
+    write_json(TMP_TARGET, normal_bundle["tmpWaveforms"])
+    write_json(CASE_METADATA_TARGET, normal_bundle["caseMetadata"])
+
+    manifest = {"cases": []}
+    for case_path in SUPPORTED_CASE_SOURCES:
+        bundle = case_bundle(case_path)
+        metadata = bundle["caseMetadata"]
+        bundle_name = f"{metadata['sha256']}.json"
+        write_json(CASE_BUNDLE_DIR / bundle_name, bundle)
+        manifest["cases"].append(
             {
-                "meshes": {
-                    "thorax": case_geometry_payload(case, "thorax"),
-                    "leftLung": case_geometry_payload(case, "left_lung"),
-                    "rightLung": case_geometry_payload(case, "right_lung"),
-                }
-            },
-            separators=(",", ":"),
+                "fileName": metadata["fileName"],
+                "byteSize": metadata["byteSize"],
+                "sha256": metadata["sha256"],
+                "bundle": bundle_name,
+            }
         )
-        + "\n",
-        encoding="utf-8",
-    )
-    print(f"wrote {THORAX_TARGET.relative_to(ROOT)}")
-    ECG_SIGNAL_TARGET.write_text(
-        json.dumps(ecg_signal_payload(case), separators=(",", ":")) + "\n",
-        encoding="utf-8",
-    )
-    print(f"wrote {ECG_SIGNAL_TARGET.relative_to(ROOT)}")
-    TMP_TARGET.write_text(
-        json.dumps(tmp_waveform_payload(case), separators=(",", ":")) + "\n",
-        encoding="utf-8",
-    )
-    print(f"wrote {TMP_TARGET.relative_to(ROOT)}")
-    CASE_METADATA_TARGET.write_text(
-        json.dumps(case_metadata_payload(case), separators=(",", ":")) + "\n",
-        encoding="utf-8",
-    )
-    print(f"wrote {CASE_METADATA_TARGET.relative_to(ROOT)}")
+    write_json(CASE_MANIFEST_TARGET, manifest)
     return 0
 
 

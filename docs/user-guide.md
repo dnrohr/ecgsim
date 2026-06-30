@@ -13,6 +13,7 @@ research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
 Supported in the viewer:
 
 - Case metadata summary for the bundled fixture.
+- Opening supported web-bundled `.ECGsimcase` files by selecting the original local file. The browser verifies supported files by SHA-256 and loads the matching generated bundle.
 - Heart geometry display with node and radius selection.
 - Thorax/lung geometry display with visibility toggles.
 - TMP waveform display for selected heart nodes.
@@ -49,7 +50,7 @@ Open:
 http://localhost:4173
 ```
 
-The app loads the bundled `normal_male2` fixtures automatically.
+The app loads the bundled `normal_male2` fixtures automatically. The current supported web-open cases are `normal_male2.ECGsimcase` and `WPW_ectopicbeat.ECGsimcase`.
 
 ## Basic Walkthrough
 
@@ -74,7 +75,7 @@ This prints the known marker inventory and unsupported payload categories for th
 
 ## Unsupported Or Partial Features
 
-- Arbitrary `.ECGsimcase` files are not parsed in the browser yet. The file picker only compares selected file metadata with the bundled fixture.
+- Arbitrary `.ECGsimcase` files are not parsed in the browser yet. The file picker loads only cases present in the generated supported-case manifest and leaves the current case visible when a file is unsupported.
 - Saving or exporting adapted cases is not implemented.
 - TMP generation is deterministic but provisional; it is not yet parity-verified against legacy `.user.source` exports.
 - ECG recomputation after TMP edits is not wired into the viewer yet.

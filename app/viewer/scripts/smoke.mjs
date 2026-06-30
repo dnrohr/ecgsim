@@ -12,6 +12,7 @@ import {
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const mainSource = await readFile(new URL("../src/main.js", import.meta.url), "utf8");
 const caseFixture = JSON.parse(await readFile(new URL("../public/fixtures/case-metadata.json", import.meta.url), "utf8"));
+const caseManifest = JSON.parse(await readFile(new URL("../public/fixtures/cases/manifest.json", import.meta.url), "utf8"));
 const fixture = JSON.parse(await readFile(new URL("../public/fixtures/heart.json", import.meta.url), "utf8"));
 const thoraxFixture = JSON.parse(await readFile(new URL("../public/fixtures/thorax.json", import.meta.url), "utf8"));
 const ecgFixture = JSON.parse(await readFile(new URL("../public/fixtures/ecg-signals.json", import.meta.url), "utf8"));
@@ -60,6 +61,14 @@ if (
   !caseFixture.unsupportedPayloads.includes("unnamed PVector payloads")
 ) {
   console.error("Unexpected case metadata fixture");
+  process.exit(1);
+}
+if (
+  !Array.isArray(caseManifest.cases) ||
+  !caseManifest.cases.some((entry) => entry.fileName === "normal_male2.ECGsimcase") ||
+  !caseManifest.cases.some((entry) => entry.fileName === "WPW_ectopicbeat.ECGsimcase")
+) {
+  console.error("Unexpected supported case manifest");
   process.exit(1);
 }
 

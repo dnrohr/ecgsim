@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
@@ -67,11 +68,25 @@ async function assertInitialState(page) {
 async function assertImportNotices(page) {
   const caseInput = page.locator("[data-case-file]");
   await caseInput.setInputFiles(resolve(repoRoot, "research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase"));
-  await expectText(page, "[data-case-notice]", "matches the bundled fixture metadata");
+  await expectText(page, "[data-case-notice]", "normal_male2.ECGsimcase loaded from a supported web case bundle");
+  await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
 
   await caseInput.setInputFiles(resolve(repoRoot, "research/source/www.ecgsim.org/downloads/cases/WPW_ectopicbeat.ECGsimcase"));
   await expectText(page, "[data-case-status]", "WPW_ectopicbeat.ECGsimcase");
-  await expectText(page, "[data-case-notice]", "is not parsed in-browser yet");
+  await expectText(page, "[data-case-notice]", "WPW_ectopicbeat.ECGsimcase loaded from a supported web case bundle");
+  await expectText(page, "[data-case-leads]", "BSM_(amsterdam_64)");
+  await expectText(page, "[data-heart-metadata]", "1216 nodes / 2272 triangles");
+  await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz");
+
+  const unsupportedPath = resolve(tmpdir(), "unsupported.ECGsimcase");
+  writeFileSync(unsupportedPath, "not an ecgsim case");
+  await caseInput.setInputFiles(unsupportedPath);
+  await expectText(page, "[data-case-status]", "WPW_ectopicbeat.ECGsimcase");
+  await expectText(page, "[data-case-notice]", "unsupported.ECGsimcase is not in the supported web bundle manifest");
+
+  await caseInput.setInputFiles(resolve(repoRoot, "research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase"));
+  await expectText(page, "[data-case-status]", "normal_male2.ECGsimcase");
+  await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
 }
 
 async function assertThoraxControls(page) {

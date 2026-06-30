@@ -40,6 +40,14 @@ Early flow:
 3. The browser layer owns interaction and rendering only; it should not parse `.ECGsimcase` binary data directly.
 4. Rendering tasks add view-specific modules for heart geometry, thorax geometry, ECG plots, and TMP plots.
 
+Current supported-case web loading:
+
+1. `tools/export_viewer_fixtures.py` parses supported `.ECGsimcase` files with `ecgsim.io.load_case`.
+2. It writes app-ready case bundles under `app/viewer/public/fixtures/cases/` plus a SHA-256 manifest.
+3. The browser file picker hashes the selected local file with WebCrypto.
+4. If the hash and size match the manifest, the viewer loads the corresponding bundle and redraws all panes.
+5. Unsupported files leave the current loaded case visible and show an explicit unsupported notice.
+
 This keeps legacy parsing testable in Python while allowing the UI to evolve independently.
 
 ## Design Bias
