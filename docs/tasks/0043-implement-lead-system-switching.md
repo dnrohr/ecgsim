@@ -28,3 +28,11 @@ Metadata currently lists standard 12, Frank VCG, BSPM, and minimap systems, but 
 ## Done When
 
 Lead-system switching is functional and tested for supported cases.
+
+## Result
+
+- Promoted parsed lead-system electrode positions and nearest thorax-node indices into viewer fixtures.
+- Leads switching now redraws electrode surface-potential traces for the selected system while preserving coupling, scale, grid, RMS, and time state.
+- Thorax electrode markers update from the selected lead system.
+- Added regression, smoke, and browser workflow coverage for electrode fixture data, trace counts, and Thorax marker redraws.
+- Documented current support and remaining clinical lead-transform blockers in `docs/feature-parity/lead-system-switching-notes.md`.

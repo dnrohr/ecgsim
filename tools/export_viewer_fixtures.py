@@ -56,6 +56,20 @@ def case_geometry_payload(case, case_path: Path, name: str) -> dict[str, object]
     }
 
 
+def nearest_point_index(points: tuple[tuple[float, float, float], ...], target: tuple[float, float, float]) -> int:
+    nearest = 0
+    nearest_distance = float("inf")
+    for index, point in enumerate(points):
+        dx = point[0] - target[0]
+        dy = point[1] - target[1]
+        dz = point[2] - target[2]
+        distance = dx * dx + dy * dy + dz * dz
+        if distance < nearest_distance:
+            nearest = index
+            nearest_distance = distance
+    return nearest
+
+
 def ecg_signal_payload(case, case_path: Path) -> dict[str, object]:
     signal = case.signal_metadata
     matrix = read_ecgsimcase_matrix(case_path, signal.matrix_offset)
@@ -169,6 +183,7 @@ def tmp_waveform_payload(case, case_path: Path) -> dict[str, object]:
 def case_metadata_payload(case, case_path: Path) -> dict[str, object]:
     metadata = case.metadata
     lead_systems = case.lead_systems
+    thorax_points = next(geometry for geometry in case.geometries if geometry.name == "thorax").geometry.points
     return {
         "source": case_path_text(case_path),
         "fileName": case_path.name,
@@ -184,6 +199,15 @@ def case_metadata_payload(case, case_path: Path) -> dict[str, object]:
                 "leadCount": len(system.lead_labels),
                 "shownLeadCount": len(system.shown_lead_labels),
                 "referenceCount": len(system.reference_labels),
+                "electrodes": [
+                    {
+                        "id": electrode.id,
+                        "label": electrode.label,
+                        "position": tuple(value / 1000 for value in electrode.position),
+                        "thoraxNodeIndex": nearest_point_index(thorax_points, electrode.position),
+                    }
+                    for electrode in system.electrodes
+                ],
                 "unsupportedFields": system.unsupported_fields,
             }
             for system in lead_systems

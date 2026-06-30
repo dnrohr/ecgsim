@@ -4,7 +4,8 @@ Status: task `0039` parity notes for the modern Leads pane.
 
 ## Supported In Current Viewer
 
-- Lead-system selector populated from parsed case metadata.
+- Lead-system selector populated from parsed case metadata and electrode positions.
+- Switching lead systems redraws electrode surface-potential traces sampled from the measured thorax map at each system's nearest thorax nodes.
 - Coupling selector for baseline, AC, and DC modes.
 - Amplitude scale control for plotted traces.
 - Grid visibility toggle.
@@ -14,8 +15,8 @@ Status: task `0039` parity notes for the modern Leads pane.
 
 ## Current Limitations
 
-- The browser fixture still contains representative thorax-node surface-potential traces, not full real lead-system matrices.
-- Switching lead systems updates metadata and plot labeling, but does not yet remap plotted values to each system's real leads.
+- Exact standard 12-lead, Frank VCG, BSPM, and minimap lead transforms remain unsupported until lead polarity/reference semantics are parsed.
+- Current lead-system plots are electrode surface-potential traces, not transformed clinical lead signals.
 - Measured, initial, adapted, and selected-heart-node electrogram overlays require parsed signal classification and matrix mapping.
 - Beat zoom, interval selection, shared time cursor, VCG loop rendering, and clipboard export remain future parity work.
 - Baseline correction remains approximate until P-wave and T-wave fiducial samples are parsed.

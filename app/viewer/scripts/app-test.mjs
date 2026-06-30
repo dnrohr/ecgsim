@@ -62,7 +62,7 @@ async function assertInitialState(page) {
   await expectText(page, "[data-status-message]", "normal_male2.ECGsimcase");
   await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
   await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz / initial+adapted");
-  await expectText(page, "[data-leads-metadata]", "standard_12: 12/12 leads / plotted 6 / 1000 samples / 1000 Hz / BASELINE / 100%");
+  await expectText(page, "[data-leads-metadata]", "standard_12: 9 electrode traces / 12 leads / plotted 9 / 576 samples / 1000 Hz / BASELINE / 100%");
 
   assert.ok(await canvasHasContent(page, "[data-leads-canvas]"), "leads canvas should be nonblank");
   assert.ok(await canvasHasContent(page, "[data-tmp-canvas]"), "TMP canvas should be nonblank");
@@ -114,18 +114,23 @@ async function assertImportNotices(page) {
 async function assertThoraxControls(page) {
   const canvas = ".thorax-viewport canvas";
   await expectText(page, "[data-thorax-surface-status]", "Geometry / 100% / measured map available");
-  await expectText(page, "[data-thorax-selection]", "electrodes parsed; positions unavailable");
-  assert.equal(await page.locator("[data-thorax-electrodes]").isDisabled(), true, "electrode toggle should show unavailable state");
+  await expectText(page, "[data-thorax-selection]", "9 electrodes");
+  assert.equal(await page.locator("[data-thorax-electrodes]").isEnabled(), true, "electrode toggle should be available");
   assert.equal(await page.locator("[data-thorax-lock-heart]").isDisabled(), true, "lock-to-heart should show unavailable state");
   assert.equal(await page.locator("[data-thorax-surface] option[value='measured']").isDisabled(), false, "measured BSPM should be available");
 
   const before = await canvasSignature(page, canvas);
+  await page.locator("[data-thorax-electrodes]").check();
+  await page.waitForTimeout(150);
+  const electrodesShown = await canvasSignature(page, canvas);
+  assert.notEqual(electrodesShown, before, "Thorax electrode toggle should draw selected lead-system markers");
+
   await page.locator("[data-thorax-surface]").selectOption("measured");
   await expectText(page, "[data-thorax-surface-status]", "Measured BSPM / 100% / 0 ms");
   await expectText(page, "[data-status-message]", "Measured thorax BSPM map shown");
   await page.waitForTimeout(150);
   const mapped = await canvasSignature(page, canvas);
-  assert.notEqual(mapped, before, "Measured BSPM should recolor the thorax canvas");
+  assert.notEqual(mapped, electrodesShown, "Measured BSPM should recolor the thorax canvas");
 
   await setRangeValue(page, "[data-thorax-scale]", "120");
   await expectText(page, "[data-thorax-surface-status]", "Measured BSPM / 120% / 0 ms");
@@ -151,7 +156,7 @@ async function assertThoraxControls(page) {
   assert.equal(await leftLung.isChecked(), true, "left lung toggle should re-check");
 
   const selected = await selectThoraxNode(page);
-  assert.match(selected, /Node \d+ \/ \d+ electrodes parsed; positions unavailable \/ maps unavailable/, "thorax click should select a node");
+  assert.match(selected, /Node \d+ \/ \d+ electrodes \/ maps unavailable/, "thorax click should select a node");
   await expectText(page, "[data-status-message]", "Thorax node");
 }
 
@@ -189,9 +194,11 @@ async function assertLeadsFiltering(page) {
   const baselineSignature = await canvasSignature(page, canvas);
 
   await page.locator("[data-leads-system]").selectOption("VCG_(Frank)");
-  await expectText(page, "[data-leads-metadata]", "VCG_(Frank): 6/10 leads");
+  await expectText(page, "[data-leads-metadata]", "VCG_(Frank): 7 electrode traces / 10 leads");
   const vcgSignature = await canvasSignature(page, canvas);
   assert.notEqual(vcgSignature, baselineSignature, "Lead-system metadata switch should redraw leads");
+
+  await expectText(page, "[data-thorax-selection]", "7 electrodes");
 
   await setRangeValue(page, "[data-leads-scale]", "150");
   await expectText(page, "[data-leads-metadata]", "/ 150%");
@@ -199,7 +206,7 @@ async function assertLeadsFiltering(page) {
   assert.notEqual(scaledSignature, vcgSignature, "Lead scale should redraw leads");
 
   await page.locator("[data-leads-rms]").check();
-  await expectText(page, "[data-leads-metadata]", "plotted 7");
+  await expectText(page, "[data-leads-metadata]", "plotted 8");
   const rmsSignature = await canvasSignature(page, canvas);
   assert.notEqual(rmsSignature, scaledSignature, "RMS overlay should add a plotted trace");
 

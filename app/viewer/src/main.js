@@ -461,6 +461,7 @@ function mountThorax(fixture, signalFixture) {
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   const group = new THREE.Group();
+  const electrodeGroup = new THREE.Group();
   const meshes = new Map();
   let thoraxMesh = null;
   let isAutoRotating = true;
@@ -530,15 +531,16 @@ function mountThorax(fixture, signalFixture) {
   const center = bounds.getCenter(new THREE.Vector3());
   group.position.sub(center);
   group.rotation.set(-0.2, 0.18, 0);
+  group.add(electrodeGroup);
   scene.add(group);
 
   function electrodeStatusText() {
     const selectedLeadSystem = currentCaseMetadata?.leadSystemDetails?.find(
       (item) => item.name === toolbarLeadSystem?.value,
     );
-    const count = selectedLeadSystem?.electrodeCount ?? 0;
+    const count = selectedLeadSystem?.electrodes?.length ?? selectedLeadSystem?.electrodeCount ?? 0;
     return count > 0
-      ? `${count} electrodes parsed; positions unavailable`
+      ? `${count} electrodes`
       : "Electrodes unavailable";
   }
 
@@ -624,6 +626,38 @@ function mountThorax(fixture, signalFixture) {
       applyGeometryColors();
     }
     updateSurfaceStatus();
+    renderThorax();
+  }
+
+  function syncElectrodeMarkers() {
+    electrodeGroup.clear();
+    const selectedLeadSystem = currentCaseMetadata?.leadSystemDetails?.find(
+      (item) => item.name === toolbarLeadSystem?.value,
+    );
+    const electrodes = selectedLeadSystem?.electrodes ?? [];
+    if (thoraxElectrodes) {
+      thoraxElectrodes.disabled = electrodes.length === 0;
+      thoraxElectrodes.title = electrodes.length
+        ? `${electrodes.length} parsed electrode positions`
+        : "No parsed electrode positions for selected lead system.";
+    }
+    if (thoraxElectrodes?.checked) {
+      electrodes.forEach((electrode) => {
+        const marker = new THREE.Mesh(
+          new THREE.SphereGeometry(0.0075, 14, 10),
+          new THREE.MeshStandardMaterial({
+            color: 0xf2f4f5,
+            emissive: 0x3f4a50,
+            emissiveIntensity: 0.25,
+            roughness: 0.36,
+          }),
+        );
+        marker.position.set(electrode.position[0], electrode.position[1], electrode.position[2]);
+        marker.renderOrder = 5;
+        electrodeGroup.add(marker);
+      });
+    }
+    updateSelectionStatus();
     renderThorax();
   }
 
@@ -715,10 +749,11 @@ function mountThorax(fixture, signalFixture) {
   thoraxRotate.checked = true;
   if (thoraxElectrodes) {
     thoraxElectrodes.checked = false;
-    thoraxElectrodes.disabled = true;
     thoraxElectrodes.title = electrodeStatusText();
+    thoraxElectrodes.onchange = syncElectrodeMarkers;
   }
   applyThoraxSurface();
+  syncElectrodeMarkers();
   updateSelectionStatus();
 
   thoraxAp.onclick = () => {
@@ -760,6 +795,7 @@ function mountThorax(fixture, signalFixture) {
 
   return {
     redrawThoraxMap: applyThoraxSurface,
+    syncLeadSystem: syncElectrodeMarkers,
   };
 }
 
@@ -788,8 +824,9 @@ function plotSignals(
   const bottom = 34;
   const plotWidth = width - left - right;
   const plotHeight = height - top - bottom;
+  const signalSet = leadSystemTraces(fixture, leadSystem);
   const filteredTraces = filterTraces(
-    fixture.traces,
+    signalSet.traces,
     mode,
     fixture.baselineStartIndex ?? null,
     fixture.baselineEndIndex ?? null,
@@ -876,24 +913,49 @@ function plotSignals(
   context.lineTo(width - right, height - bottom + 7);
   context.stroke();
 
-  drawTimeCursor(context, selectedSample, fixture.columns, left, width - right, top, height - bottom);
+  drawTimeCursor(context, selectedSample, signalSet.sampleCount, left, width - right, top, height - bottom);
 
   context.fillStyle = "#52616b";
   context.textAlign = "left";
   context.fillText("0 ms", left, height - 12);
   context.textAlign = "right";
-  const durationMs = Math.round(((fixture.columns - 1) / fixture.sampleRateHz) * 1000);
+  const durationMs = Math.round(((signalSet.sampleCount - 1) / signalSet.sampleRateHz) * 1000);
   context.fillText(`${durationMs} ms`, width - right, height - 12);
   context.textAlign = "start";
 
   const systemText = leadSystem
-    ? `${leadSystem.name}: ${leadSystem.shownLeadCount}/${leadSystem.leadCount} leads`
-    : `${fixture.traces.length} representative traces`;
+    ? `${leadSystem.name}: ${signalSet.traces.length} electrode traces / ${leadSystem.leadCount} leads`
+    : `${signalSet.traces.length} representative traces`;
   leadsMetadata.value =
-    `${systemText} / plotted ${traces.length} / ${fixture.columns} samples / ${fixture.sampleRateHz} Hz / ${mode.toUpperCase()} / ${Math.round(scale * 100)}%`;
+    `${systemText} / plotted ${traces.length} / ${signalSet.sampleCount} samples / ${signalSet.sampleRateHz} Hz / ${mode.toUpperCase()} / ${Math.round(scale * 100)}%`;
   if (leadsStatus) {
-    leadsStatus.value = `${fixture.signalKind}; measured/initial/adapted classification unavailable`;
+    leadsStatus.value = `${signalSet.signalKind}; measured/initial/adapted classification unavailable`;
   }
+}
+
+function leadSystemTraces(fixture, leadSystem) {
+  if (leadSystem?.electrodes?.length && fixture.surfaceMap?.valuesByNode) {
+    return {
+      signalKind: `${leadSystem.name} electrode surface potentials`,
+      sampleCount: fixture.surfaceMap.sampleCount,
+      sampleRateHz: fixture.surfaceMap.sampleRateHz,
+      traces: leadSystem.electrodes.map((electrode, index) => {
+        const nodeIndex = electrode.thoraxNodeIndex ?? index;
+        return {
+          name: electrode.label ?? `E${index + 1}`,
+          sourceRow: nodeIndex,
+          values: fixture.surfaceMap.valuesByNode[nodeIndex],
+        };
+      }),
+    };
+  }
+
+  return {
+    signalKind: fixture.signalKind,
+    sampleCount: fixture.columns,
+    sampleRateHz: fixture.sampleRateHz,
+    traces: fixture.traces,
+  };
 }
 
 function plotTmp(
@@ -1246,6 +1308,7 @@ function applyCaseBundle(bundle, noticeText) {
   if (leadsSystem && toolbarLeadSystem) {
     leadsSystem.onchange = () => {
       toolbarLeadSystem.value = leadsSystem.value;
+      thoraxView.syncLeadSystem();
       redrawSignals();
     };
   }

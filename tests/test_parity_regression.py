@@ -71,6 +71,25 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertAlmostEqual(fixture["surfaceMap"]["valuesByNode"][0][0], matrix.values[0][0], delta=1e-6)
         self.assertAlmostEqual(fixture["surfaceMap"]["valuesByNode"][299][575], matrix.values[299][575], delta=1e-6)
 
+    def test_case_metadata_fixture_includes_lead_system_electrodes(self) -> None:
+        fixture = json.loads(Path("app/viewer/public/fixtures/case-metadata.json").read_text(encoding="utf-8"))
+        case = load_case(Path(fixture["source"]))
+        lead_systems = {system.name: system for system in case.lead_systems}
+
+        for detail in fixture["leadSystemDetails"]:
+            with self.subTest(lead_system=detail["name"]):
+                parsed = lead_systems[detail["name"]]
+                self.assertEqual(len(detail["electrodes"]), len(parsed.electrodes))
+                self.assertEqual(len(detail["electrodes"]), detail["electrodeCount"])
+                self.assertEqual(detail["electrodes"][0]["label"], parsed.electrodes[0].label)
+                self.assertAlmostEqual(
+                    detail["electrodes"][0]["position"][0],
+                    parsed.electrodes[0].position[0] / 1000,
+                    delta=1e-6,
+                )
+                self.assertGreaterEqual(detail["electrodes"][0]["thoraxNodeIndex"], 0)
+                self.assertLess(detail["electrodes"][0]["thoraxNodeIndex"], 300)
+
     def test_tmp_fixture_matches_known_parameter_vectors(self) -> None:
         fixture = json.loads(Path("app/viewer/public/fixtures/tmp-waveforms.json").read_text(encoding="utf-8"))
 

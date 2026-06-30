@@ -97,9 +97,15 @@ if (!mainSource.includes("Depol. slope (stored)")) {
 if (
   caseFixture.fileName !== "normal_male2.ECGsimcase" ||
   caseFixture.byteSize !== 11323178 ||
-  !caseFixture.unsupportedPayloads.includes("unnamed PVector payloads")
+  !caseFixture.unsupportedPayloads.includes("unnamed PVector payloads") ||
+  caseFixture.leadSystemDetails[0].electrodes.length !== 9 ||
+  caseFixture.leadSystemDetails[2].electrodes.length !== 65
 ) {
   console.error("Unexpected case metadata fixture");
+  process.exit(1);
+}
+if (!Number.isInteger(caseFixture.leadSystemDetails[0].electrodes[0].thoraxNodeIndex)) {
+  console.error("Lead-system electrode fixture is missing nearest thorax node index");
   process.exit(1);
 }
 if (

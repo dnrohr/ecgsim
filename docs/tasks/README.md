@@ -79,7 +79,7 @@ Each task should end with:
 - [x] [0040 Implement TMP View Controls](0040-implement-tmp-view-controls.md)
 - [x] [0041 Add Linked Time Cursor And Playback State](0041-add-linked-time-cursor-and-playback-state.md)
 - [x] [0042 Implement Surface Potential Maps And Animation](0042-implement-surface-potential-maps-and-animation.md)
-- [ ] [0043 Implement Lead System Switching](0043-implement-lead-system-switching.md)
+- [x] [0043 Implement Lead System Switching](0043-implement-lead-system-switching.md)
 
 ## FP3: Source Editing Parity
 
