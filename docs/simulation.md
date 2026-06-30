@@ -165,6 +165,8 @@ For multiple foci, activation follows a first-arriving-wave rule.
 
 Attribution: van Dam, Oostendorp, and van Oosterom, CINC 2011, methods section.
 
+Current implementation status: `ecgsim.core.fastest_route_activation_times` implements the first-arrival graph solver. `.ECGsimcase` activation construction payloads are structurally parsed as raw records, but the mapping from those records to focus nodes and graph velocities is still unknown.
+
 Required data:
 
 - Source graph adjacency.

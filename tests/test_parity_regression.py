@@ -82,6 +82,18 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertIn("PGraphGeometry", wall_mapping["requiredPayloads"])
         self.assertIn("PGraphGeometry payload semantics", wall_mapping["reason"])
 
+    def test_case_metadata_fixture_includes_activation_construction_summaries(self) -> None:
+        fixture = json.loads(Path("app/viewer/public/fixtures/case-metadata.json").read_text(encoding="utf-8"))
+        activations = fixture["activationConstructions"]
+
+        self.assertEqual([item["sourceKind"] for item in activations], ["atria", "ventricles"])
+        self.assertEqual(activations[0]["entryCount"], 0)
+        self.assertEqual(activations[1]["entryCount"], 576)
+        self.assertEqual(activations[1]["storageFormat"], "ecgsimcase-pactivationconstruction-v1-records-iff")
+        self.assertEqual(activations[1]["sampleEntries"][0]["integerField"], -1)
+        self.assertAlmostEqual(activations[1]["sampleEntries"][0]["floatField1"], 13.60003, places=5)
+        self.assertAlmostEqual(activations[1]["sampleEntries"][0]["floatField2"], 0.8, places=6)
+
     def test_case_metadata_fixture_includes_lead_system_electrodes(self) -> None:
         fixture = json.loads(Path("app/viewer/public/fixtures/case-metadata.json").read_text(encoding="utf-8"))
         case = load_case(Path(fixture["source"]))

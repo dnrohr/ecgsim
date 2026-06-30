@@ -188,7 +188,7 @@ Task 0031 added `ecgsim.io.read_ecgsimcase_sources(path)` for source, beat, para
 | `source1` | `atria` | `beat1` | Present in all inspected cases, but source parameter vectors are empty or otherwise not TMP-edit-ready in the current fixtures. |
 | `source2` | `ventricles` | `beat1` | Contains seven named parameter pairs with `576` initial/adapted values in the inspected normal and WPW cases. |
 
-The ventricular parameter order is `depolarizationMs`, `repolarizationMs`, `plateauSlope`, `restingPotential`, `amplitude`, `depolarizationSlope`, and `repolarizationSlope`. Activation construction is summarized by version and entry count only; focus/activation field semantics remain unknown.
+The ventricular parameter order is `depolarizationMs`, `repolarizationMs`, `plateauSlope`, `restingPotential`, `amplitude`, `depolarizationSlope`, and `repolarizationSlope`. Activation construction is parsed as raw `int32,float32,float32` record tables; focus/activation field semantics remain unknown.
 
 Task 0032 added `ecgsim.io.read_ecgsimcase_lead_systems(path)` and `ecgsim.io.read_ecgsimcase_signal_metadata(path)`. The confirmed lead-system prefix layout is:
 

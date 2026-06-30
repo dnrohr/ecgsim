@@ -127,12 +127,23 @@ class ECGsimCaseSourceBeat:
 
 
 @dataclass(frozen=True)
+class ECGsimCaseActivationEntry:
+    """One raw activation construction table row with conservative field names."""
+
+    integer_field: int
+    float_field_1: float
+    float_field_2: float
+
+
+@dataclass(frozen=True)
 class ECGsimCaseActivation:
     """Activation/focus payload summary for a source."""
 
     source_offset: int
     version: int
     entry_count: int
+    entries: tuple[ECGsimCaseActivationEntry, ...]
+    storage_format: str
     interpretation: str
 
 
@@ -621,11 +632,34 @@ def _read_ecgsimcase_activation(data: bytes, source_path: Path, offset: int) -> 
         raise ECGsimCaseFormatError(
             f"{source_path} PActivationConstruction at {offset} has invalid entry count {entry_count}"
         )
+    record_start = values_offset + 8
+    record_stride = 12
+    expected_bytes = entry_count * record_stride
+    if record_start + expected_bytes > len(data):
+        raise ECGsimCaseFormatError(
+            f"{source_path} PActivationConstruction records at {offset} overrun the file"
+        )
+    entries = tuple(
+        ECGsimCaseActivationEntry(
+            integer_field=integer_field,
+            float_field_1=float(float_field_1),
+            float_field_2=float(float_field_2),
+        )
+        for integer_field, float_field_1, float_field_2 in (
+            struct.unpack_from("<iff", data, record_start + index * record_stride)
+            for index in range(entry_count)
+        )
+    )
     return ECGsimCaseActivation(
         source_offset=offset,
         version=version,
         entry_count=entry_count,
-        interpretation="activation/focus fields preserved as an unknown payload",
+        entries=entries,
+        storage_format=f"ecgsimcase-pactivationconstruction-v{version}-records-iff",
+        interpretation=(
+            "activation/focus records preserved as raw int32,float32,float32 rows; "
+            "field semantics are not yet confirmed"
+        ),
     )
 
 

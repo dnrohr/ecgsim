@@ -149,7 +149,7 @@ class SourceParameterValues:
 @dataclass(frozen=True)
 class ActivationConstruction:
     source_kind: SourceKind | None
-    vectors: tuple[CaseVector, ...]
+    raw_records: tuple[tuple[int, float, float], ...]
     interpretation: str | None
 ```
 
@@ -249,7 +249,7 @@ The model must cover every marker group currently reported by `ecgsim-case-info`
 | `PSource` | `SourceModel` | Create atrial/ventricular source containers; mark kind `unknown` until identified. |
 | `PSourceParameter` | `SourceParameterValues` | Attach named parameter vectors by order only after confirmed. |
 | `PVector` | `CaseVector` | Parse vector values and assign roles; retain unknown vectors. |
-| `PActivationConstruction` | `ActivationConstruction` | Preserve vectors even when focus semantics are unknown. |
+| `PActivationConstruction` | `ActivationConstruction` | Preserve raw record tables even when focus semantics are unknown. |
 | `PLeadSystem` | `LeadSystem` | Parse name immediately; attach electrodes, leads, references, shown leads. |
 | `PLead` | `Lead` | Parse labels/references when primitive layout is confirmed. |
 | `PLeadReference` | `LeadReference` | Preserve reference definitions for WCT/zeromean/extremity behavior. |

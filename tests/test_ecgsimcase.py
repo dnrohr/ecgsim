@@ -186,8 +186,16 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
         self.assertEqual(ventricles.beats[0].id, "beat1")
         self.assertEqual(atria.activation.source_offset, 11272180)
         self.assertEqual(atria.activation.entry_count, 0)
+        self.assertEqual(atria.activation.entries, ())
         self.assertEqual(ventricles.activation.source_offset, 11305242)
         self.assertEqual(ventricles.activation.entry_count, 576)
+        self.assertEqual(len(ventricles.activation.entries), 576)
+        self.assertEqual(ventricles.activation.storage_format, "ecgsimcase-pactivationconstruction-v1-records-iff")
+        self.assertEqual(ventricles.activation.entries[0].integer_field, -1)
+        self.assertAlmostEqual(ventricles.activation.entries[0].float_field_1, 13.60003, places=5)
+        self.assertAlmostEqual(ventricles.activation.entries[0].float_field_2, 0.8, places=6)
+        self.assertEqual(ventricles.activation.entries[-1].integer_field, -1)
+        self.assertAlmostEqual(ventricles.activation.entries[-1].float_field_1, 47.62252, places=5)
 
         parameters = {parameter.name: parameter for parameter in ventricles.beats[0].parameters}
         self.assertEqual(
@@ -232,6 +240,8 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
 
         self.assertEqual((sources[0].kind, ventricles.kind), ("atria", "ventricles"))
         self.assertGreater(ventricles.activation.entry_count, 0)
+        self.assertEqual(len(ventricles.activation.entries), ventricles.activation.entry_count)
+        self.assertAlmostEqual(ventricles.activation.entries[0].float_field_1, 60.90562, places=5)
         self.assertGreater(parameters["depolarizationMs"].initial.length, 0)
         self.assertEqual(
             parameters["depolarizationMs"].initial.length,

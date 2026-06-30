@@ -121,6 +121,8 @@ if (
   caseFixture.wallMapping?.status !== "unavailable" ||
   caseFixture.wallMapping?.supportsEndocardialEpicardialSwitch !== false ||
   caseFixture.wallMapping?.supportsTransmuralSelection !== false ||
+  caseFixture.activationConstructions?.[1]?.entryCount !== 576 ||
+  caseFixture.activationConstructions?.[1]?.sampleEntries?.[0]?.integerField !== -1 ||
   caseFixture.leadSystemDetails[0].electrodes.length !== 9 ||
   caseFixture.leadSystemDetails[2].electrodes.length !== 65
 ) {

@@ -180,6 +180,21 @@ def tmp_waveform_payload(case, case_path: Path) -> dict[str, object]:
     }
 
 
+def activation_sample_entries(activation) -> list[dict[str, object]]:
+    if not activation or not activation.entries:
+        return []
+    indexes = (0,) if len(activation.entries) == 1 else (0, len(activation.entries) - 1)
+    return [
+        {
+            "index": index,
+            "integerField": activation.entries[index].integer_field,
+            "floatField1": round(activation.entries[index].float_field_1, 6),
+            "floatField2": round(activation.entries[index].float_field_2, 6),
+        }
+        for index in indexes
+    ]
+
+
 def case_metadata_payload(case, case_path: Path) -> dict[str, object]:
     metadata = case.metadata
     lead_systems = case.lead_systems
@@ -202,6 +217,19 @@ def case_metadata_payload(case, case_path: Path) -> dict[str, object]:
             "reason": wall_mapping_reason,
             "requiredPayloads": ("PGraphGeometry",),
         },
+        "activationConstructions": [
+            {
+                "sourceId": source.id,
+                "sourceKind": source.kind,
+                "sourceOffset": source.activation.source_offset if source.activation else None,
+                "version": source.activation.version if source.activation else None,
+                "entryCount": source.activation.entry_count if source.activation else 0,
+                "storageFormat": source.activation.storage_format if source.activation else None,
+                "interpretation": source.activation.interpretation if source.activation else None,
+                "sampleEntries": activation_sample_entries(source.activation),
+            }
+            for source in case.sources
+        ],
         "leadSystems": tuple(system.name for system in lead_systems),
         "leadSystemDetails": [
             {

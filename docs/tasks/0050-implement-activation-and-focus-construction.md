@@ -29,3 +29,7 @@ Activation construction payloads are currently detected but not parsed or simula
 ## Done When
 
 Activation and focus behavior is no longer a black box for supported cases.
+
+## Completion Note
+
+Completed at the parser/model-hook level by parsing `PActivationConstruction` as raw `int32,float32,float32` record tables, exposing activation summaries in case metadata fixtures, and adding a tested fastest-route activation solver for future graph/focus workflows. Legacy foci edit UI and exact field semantics remain documented follow-up gaps pending graph and focus-field confirmation.
