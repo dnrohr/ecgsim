@@ -4,9 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:static": "node scripts/build-static.mjs",
     "dev": "node scripts/dev-server.mjs",
     "test": "node scripts/smoke.mjs",
-    "test:app": "node scripts/app-test.mjs"
+    "test:app": "node scripts/app-test.mjs",
+    "test:package": "node scripts/test-static-package.mjs"
   },
   "dependencies": {
     "three": "^0.185.0"

@@ -1,9 +1,12 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
-import { extname, join, normalize } from "node:path";
+import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const root = fileURLToPath(new URL("..", import.meta.url));
+const viewerRoot = fileURLToPath(new URL("..", import.meta.url));
+const root = process.env.ECGSIM_VIEWER_ROOT
+  ? resolve(viewerRoot, process.env.ECGSIM_VIEWER_ROOT)
+  : viewerRoot;
 const port = Number(process.env.PORT || 4173);
 const types = {
   ".css": "text/css; charset=utf-8",

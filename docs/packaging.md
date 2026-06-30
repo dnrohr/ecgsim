@@ -9,50 +9,69 @@ Status: release-engineering plan for the current browser viewer plus Python pars
 - Viewer rendering: Three.js plus Canvas.
 - Development fixture flow: Python tools generate static JSON fixtures consumed by the viewer.
 
-The viewer is not ready for production desktop packaging because arbitrary `.ECGsimcase` parsing, save/export, and full recomputation are not yet wired into the UI.
+The viewer is not ready for production desktop installers because arbitrary `.ECGsimcase` parsing, full recomputation, and legacy write-back are not yet wired into the UI. It does have a repeatable static preview package for desktop/offline browser use.
 
 ## Distribution Targets
 
 | Target | Status | Artifact |
 | --- | --- | --- |
 | Local development web app | Supported now | `app/viewer` served by `npm --prefix app/viewer run dev` |
-| Static web preview | Next packaging target | copied `index.html`, `src/`, `public/fixtures/`, and installed dependency assets or bundled JS/CSS |
+| Static web preview | Supported now | `app/viewer/dist/viewer-static/` |
 | Python parser/CLI package | Supported for development | source tree or future wheel/sdist for `ecgsim-modern` |
 | Desktop app for Windows/macOS/Linux | Later | Tauri or Electron wrapper around the web app plus parser/simulation runtime |
 
 ## Recommended Sequence
 
 1. Keep the current dev-server workflow while UI and data contracts are moving.
-2. Add a static viewer build only after module bundling is introduced or the current module graph is intentionally copied as a release artifact.
+2. Use the static viewer package for local/offline preview distribution while the app remains fixture-bundled.
 3. Package the Python parser as a wheel/sdist when the public API stabilizes beyond fixture readers.
 4. Choose a desktop wrapper after arbitrary case loading, edit persistence, and recomputation are available.
 5. Add signed installers only after the desktop wrapper and release checklist are stable.
 
 ## Static Web Preview
 
-Minimum release contents:
+Build:
 
-- `app/viewer/index.html`
-- viewer JavaScript and CSS
-- `app/viewer/public/fixtures/*.json`
-- Three.js runtime dependency
-- release notes that state the preview uses bundled fixtures
+```powershell
+npm --prefix app/viewer run build:static
+```
+
+Output:
+
+```text
+app/viewer/dist/viewer-static/
+```
+
+Contents:
+
+- `index.html`
+- viewer JavaScript and CSS under `src/`
+- generated fixture JSON under `public/`
+- Three.js runtime files under `node_modules/three/build/`
+- `package-manifest.json`
 
 Verification:
 
 ```powershell
 npm --prefix app/viewer install
 npm --prefix app/viewer test
+npm --prefix app/viewer run test:package
 python -m unittest discover -s tests
 ```
 
-Before publishing a static preview, verify in a browser that:
+`test:package` builds the static package and runs the full browser workflow test against `dist/viewer-static`.
+
+Before publishing a static preview, verify in a browser or with `test:package` that:
 
 - the app loads without a local dev server dependency beyond static file serving,
 - Heart and Thorax canvases render,
 - TMP edits redraw,
 - Leads coupling switches Baseline/AC/DC,
+- source edit sidecar export/import works,
+- PNG export works for primary panes,
 - mobile width does not overflow.
+
+The static package is a preview distribution, not a signed desktop installer.
 
 ## Python Package
 
@@ -71,7 +90,9 @@ Do not promise stable parser APIs until `.ECGsimcase` object-graph parsing repla
 
 ## Desktop Wrapper Decision
 
-Preferred decision point: after the app can load an arbitrary `.ECGsimcase`, edit adapted source parameters, recompute signals, and save/export useful output.
+Current decision: keep the production desktop wrapper open and ship only static preview packages for now.
+
+Preferred wrapper decision point: after the app can load an arbitrary `.ECGsimcase`, edit adapted source parameters, recompute signals, and save/export useful output from the UI.
 
 Options:
 
@@ -112,6 +133,13 @@ For every release candidate:
 - Preserve research/source provenance and checksums.
 - Do not include ignored legacy app binaries or local `downloads/` scratch files.
 
-## No Packaging Scripts Yet
+## Current Packaging Scripts
 
-This task intentionally adds no new packaging command. The current viewer is useful as a local prototype, but release artifacts would still be fixture previews rather than a complete modern ECGSIM distribution.
+Current commands:
+
+```powershell
+npm --prefix app/viewer run build:static
+npm --prefix app/viewer run test:package
+```
+
+The current artifact is still a fixture preview rather than a complete modern ECGSIM distribution.
