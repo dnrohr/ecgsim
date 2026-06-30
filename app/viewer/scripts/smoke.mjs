@@ -1,8 +1,14 @@
 import { readFile } from "node:fs/promises";
 import { buildRmsTrace, filterSignal } from "../src/filtering.js";
-import { computeRegionMembership, findNearestPointIndex } from "../src/selection.js";
+import {
+  computeRegionMembership,
+  computeWeightedRegionMembership,
+  findNearestPointIndex,
+  mergeWeightedRegions,
+} from "../src/selection.js";
 import {
   applyParameterValue,
+  applyWeightedParameterValue,
   createTmpEditState,
   nodeParameterValue,
   resetBeat,
@@ -35,7 +41,9 @@ const required = [
   "data-pane=\"tmp\"",
   "data-pane=\"leads\"",
   "data-heart-metadata",
+  "data-heart-selection-mode",
   "data-heart-radius",
+  "data-heart-transition",
   "data-heart-selection",
   "data-heart-ap",
   "data-heart-rotate",
@@ -131,6 +139,20 @@ if (region.length !== 2 || region[0].index !== 0 || region[1].index !== 1) {
   console.error("Region membership math failed");
   process.exit(1);
 }
+const weightedRegion = computeWeightedRegionMembership([[0, 0, 0], [0.01, 0, 0], [0.015, 0, 0]], 0, 0.01, 0.01);
+if (weightedRegion.length !== 3 || weightedRegion[1].weight !== 1 || Math.abs(weightedRegion[2].weight - 0.5) > 1e-9) {
+  console.error("Weighted transition membership math failed");
+  process.exit(1);
+}
+const expandedRegion = mergeWeightedRegions(
+  [{ index: 5, weight: 0.5, distanceMeters: 0.02 }],
+  [{ index: 6, weight: 1, distanceMeters: 0 }],
+  "expand",
+);
+if (expandedRegion.length !== 2) {
+  console.error("Selection expansion merge failed");
+  process.exit(1);
+}
 
 const expectedThorax = {
   thorax: [300, 596],
@@ -217,6 +239,14 @@ if (nodeParameterValue(editState, "depolarizationMs", 1, "adapted") !== original
 resetParameter(editState, "depolarizationMs", [0]);
 if (nodeParameterValue(editState, "depolarizationMs", 0, "adapted") !== originalDep) {
   console.error("TMP parameter reset failed");
+  process.exit(1);
+}
+if (applyWeightedParameterValue(editState, "depolarizationMs", [{ index: 0, weight: 0.5 }], originalDep + 10) !== 1) {
+  console.error("TMP weighted parameter apply failed");
+  process.exit(1);
+}
+if (nodeParameterValue(editState, "depolarizationMs", 0, "adapted") !== originalDep + 5) {
+  console.error("TMP weighted value did not blend");
   process.exit(1);
 }
 resetBeat(editState);

@@ -45,6 +45,29 @@ export function applyParameterValue(state, parameter, nodeIndexes, nextValue) {
   return changed;
 }
 
+export function applyWeightedParameterValue(state, parameter, nodeWeights, nextValue) {
+  const vector = state.parameters[parameter]?.adapted;
+  if (!vector || !Number.isFinite(nextValue)) {
+    return 0;
+  }
+
+  let changed = 0;
+  const changedIndexes = [];
+  for (const node of nodeWeights) {
+    if (node.index >= 0 && node.index < vector.length && node.weight > 0) {
+      const weight = Math.max(0, Math.min(1, node.weight));
+      const blended = vector[node.index] + (nextValue - vector[node.index]) * weight;
+      if (vector[node.index] !== blended) {
+        vector[node.index] = blended;
+        changed += 1;
+        changedIndexes.push(node.index);
+      }
+    }
+  }
+  enforceSlopeConstraint(state, changedIndexes);
+  return changed;
+}
+
 export function resetParameter(state, parameter, nodeIndexes) {
   const vectors = state.parameters[parameter];
   if (!vectors) {
@@ -59,6 +82,26 @@ export function resetParameter(state, parameter, nodeIndexes) {
     }
   }
   enforceSlopeConstraint(state, nodeIndexes);
+  return changed;
+}
+
+export function resetWeightedParameter(state, parameter, nodeWeights) {
+  const vectors = state.parameters[parameter];
+  if (!vectors) {
+    return 0;
+  }
+
+  let changed = 0;
+  const changedIndexes = [];
+  for (const node of nodeWeights) {
+    if (node.index >= 0 && node.index < vectors.adapted.length && node.weight > 0) {
+      const weight = Math.max(0, Math.min(1, node.weight));
+      vectors.adapted[node.index] += (vectors.initial[node.index] - vectors.adapted[node.index]) * weight;
+      changed += 1;
+      changedIndexes.push(node.index);
+    }
+  }
+  enforceSlopeConstraint(state, changedIndexes);
   return changed;
 }
 

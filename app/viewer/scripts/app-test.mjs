@@ -265,10 +265,20 @@ async function assertLinkedTimeCursor(page) {
 
 async function assertHeartSelectionAndTmpEditing(page) {
   const selected = await selectHeartNode(page);
-  assert.match(selected, /Node \d+ \/ 20 mm \/ \d+ nodes/, "heart click should select a node");
+  assert.match(selected, /Node \d+ \/ 20 mm \/ 0 mm transition \/ \d+ nodes \/ 0 weighted/, "heart click should select a node");
 
   await setRangeValue(page, "[data-heart-radius]", "30");
   await expectText(page, "[data-heart-selection]", "30 mm");
+  const radiusSelection = await page.locator("[data-heart-selection]").textContent();
+
+  await setRangeValue(page, "[data-heart-transition]", "10");
+  await expectText(page, "[data-heart-selection]", "10 mm transition");
+  await expectText(page, "[data-heart-selection]", "weighted");
+  const transitionSelection = await page.locator("[data-heart-selection]").textContent();
+  assert.notEqual(transitionSelection, radiusSelection, "Transition zone should alter selected-region summary");
+
+  await page.locator("[data-heart-selection-mode]").selectOption("expand");
+  assert.equal(await page.locator("[data-heart-selection-mode]").inputValue(), "expand", "Expand selection mode should be selected");
 
   const valueInput = page.locator("[data-tmp-value]");
   const incrementButton = page.locator("[data-tmp-increment]");

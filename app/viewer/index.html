@@ -114,8 +114,19 @@
           </div>
           <div class="selection-controls" aria-label="Heart selection controls">
             <label>
+              Mode
+              <select data-heart-selection-mode>
+                <option value="replace">Single</option>
+                <option value="expand">Expand</option>
+              </select>
+            </label>
+            <label>
               Radius
               <input type="range" min="2" max="60" step="2" value="20" data-heart-radius>
+            </label>
+            <label>
+              Transition
+              <input type="range" min="0" max="30" step="2" value="0" data-heart-transition>
             </label>
             <output data-heart-selection>Node -- / 0 mm / 0 nodes</output>
           </div>

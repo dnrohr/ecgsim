@@ -1,14 +1,14 @@
 import * as THREE from "three";
 import { buildRmsTrace, filterTraces } from "./filtering.js";
-import { computeRegionMembership } from "./selection.js";
+import { computeWeightedRegionMembership, mergeWeightedRegions } from "./selection.js";
 import {
   EDITABLE_PARAMETERS,
-  applyParameterValue,
+  applyWeightedParameterValue,
   buildTmpPlotNodes,
   createTmpEditState,
   nodeParameterValue,
   resetBeat,
-  resetParameter,
+  resetWeightedParameter,
 } from "./tmp-editing.js";
 
 const status = document.querySelector("[data-case-status]");
@@ -28,7 +28,9 @@ const timeCursor = document.querySelector("[data-time-cursor]");
 const timeStatus = document.querySelector("[data-time-status]");
 const heartViewport = document.querySelector("[data-heart-viewport]");
 const heartMetadata = document.querySelector("[data-heart-metadata]");
+const heartSelectionMode = document.querySelector("[data-heart-selection-mode]");
 const heartRadius = document.querySelector("[data-heart-radius]");
+const heartTransition = document.querySelector("[data-heart-transition]");
 const heartSelection = document.querySelector("[data-heart-selection]");
 const heartAp = document.querySelector("[data-heart-ap]");
 const heartRotate = document.querySelector("[data-heart-rotate]");
@@ -73,7 +75,10 @@ const tmpParameterStatus = document.querySelector("[data-tmp-parameter-status]")
 const selectionState = {
   nodeIndex: -1,
   region: [],
+  weightedRegion: [],
   radiusMm: 20,
+  transitionMm: 0,
+  mode: "replace",
 };
 let tmpEditState = null;
 let tmpCanvas = null;
@@ -219,7 +224,9 @@ function mountHeart(fixture, tmpFixture, onSelectionChange) {
   if (
     !heartViewport ||
     !heartMetadata ||
+    !heartSelectionMode ||
     !heartRadius ||
+    !heartTransition ||
     !heartSelection ||
     !heartAp ||
     !heartSurface ||
@@ -324,20 +331,36 @@ function mountHeart(fixture, tmpFixture, onSelectionChange) {
 
   function updateSelection() {
     const radiusMm = Number.parseFloat(heartRadius.value);
+    const transitionMm = Number.parseFloat(heartTransition.value);
+    const mode = heartSelectionMode.value;
     selectionState.radiusMm = radiusMm;
+    selectionState.transitionMm = transitionMm;
+    selectionState.mode = mode;
     if (selectedNodeIndex < 0) {
-      heartSelection.value = `Node -- / ${radiusMm} mm / 0 nodes`;
+      heartSelection.value = `Node -- / ${radiusMm} mm / ${transitionMm} mm transition / 0 nodes`;
       regionGeometry.setAttribute("position", new THREE.Float32BufferAttribute([], 3));
       selectedMarker.visible = false;
       selectionState.nodeIndex = -1;
       selectionState.region = [];
+      selectionState.weightedRegion = [];
       onSelectionChange(selectionState);
       return;
     }
 
-    const region = computeRegionMembership(fixture.points, selectedNodeIndex, radiusMm / 1000);
+    const nextRegion = computeWeightedRegionMembership(
+      fixture.points,
+      selectedNodeIndex,
+      radiusMm / 1000,
+      transitionMm / 1000,
+    );
+    const region = mergeWeightedRegions(selectionState.weightedRegion, nextRegion, mode);
     selectionState.nodeIndex = selectedNodeIndex;
     selectionState.region = region.map((node) => node.index);
+    selectionState.weightedRegion = region.map((node) => ({
+      index: node.index,
+      weight: node.weight,
+      distanceMeters: node.distanceMeters,
+    }));
     const regionPositions = [];
     region.forEach(({ index }) => {
       const point = nodePositions[index];
@@ -348,7 +371,9 @@ function mountHeart(fixture, tmpFixture, onSelectionChange) {
     selectedMarker.visible = true;
     regionGeometry.setAttribute("position", new THREE.Float32BufferAttribute(regionPositions, 3));
     regionGeometry.computeBoundingSphere();
-    heartSelection.value = `Node ${selectedNodeIndex + 1} / ${radiusMm} mm / ${region.length} nodes`;
+    const weightedCount = region.filter((node) => node.weight < 1).length;
+    heartSelection.value =
+      `Node ${selectedNodeIndex + 1} / ${radiusMm} mm / ${transitionMm} mm transition / ${region.length} nodes / ${weightedCount} weighted`;
     onSelectionChange(selectionState);
   }
 
@@ -402,7 +427,14 @@ function mountHeart(fixture, tmpFixture, onSelectionChange) {
     return nearest;
   }
 
-  heartRadius.addEventListener("input", updateSelection);
+  heartRadius.oninput = updateSelection;
+  heartTransition.oninput = updateSelection;
+  heartSelectionMode.onchange = () => {
+    if (heartSelectionMode.value === "replace") {
+      selectionState.weightedRegion = [];
+    }
+    updateSelection();
+  };
   heartAp.onclick = () => {
     isAutoRotating = false;
     if (heartRotate) {
@@ -426,6 +458,8 @@ function mountHeart(fixture, tmpFixture, onSelectionChange) {
   heartMetadata.value = `${fixture.pointCount} nodes / ${fixture.triangleCount} triangles`;
   heartSurface.value = "geometry";
   heartValues.value = "adapted";
+  heartSelectionMode.value = "replace";
+  heartTransition.value = "0";
   if (heartRotate) {
     heartRotate.checked = true;
   }
@@ -1132,6 +1166,10 @@ function mountTmpEditing(fixture) {
     return selectionState.region.filter((nodeIndex) => nodeIndex >= 0 && nodeIndex < tmpEditState.nodeCount);
   }
 
+  function selectedWeightedRegion() {
+    return selectionState.weightedRegion.filter((node) => node.index >= 0 && node.index < tmpEditState.nodeCount);
+  }
+
   function redrawTmp() {
     tmpEditState.selectedNode = selectionState.nodeIndex >= 0 && selectionState.nodeIndex < tmpEditState.nodeCount
       ? selectionState.nodeIndex
@@ -1150,8 +1188,9 @@ function mountTmpEditing(fixture) {
 
   function syncControls() {
     const nodes = selectedRegion();
+    const weightedNodes = selectedWeightedRegion();
     const parameter = EDITABLE_PARAMETERS.find((item) => item.id === tmpParameter.value) ?? EDITABLE_PARAMETERS[0];
-    const canEdit = nodes.length > 0;
+    const canEdit = weightedNodes.length > 0;
     tmpValue.disabled = !canEdit;
     tmpDecrement.disabled = !canEdit;
     tmpIncrement.disabled = !canEdit;
@@ -1159,12 +1198,12 @@ function mountTmpEditing(fixture) {
     tmpResetParameter.disabled = !canEdit;
     tmpValue.step = String(parameter.step);
     if (canEdit) {
-      const initial = nodeParameterValue(tmpEditState, parameter.id, nodes[0], "initial");
-      const adapted = nodeParameterValue(tmpEditState, parameter.id, nodes[0], "adapted");
+      const initial = nodeParameterValue(tmpEditState, parameter.id, weightedNodes[0].index, "initial");
+      const adapted = nodeParameterValue(tmpEditState, parameter.id, weightedNodes[0].index, "adapted");
       tmpValue.value = adapted === null ? "" : String(Math.round(adapted / parameter.step) * parameter.step);
       const unit = parameter.unit ? ` ${parameter.unit}` : "";
       tmpParameterStatus.value =
-        `Initial ${formatParameterValue(initial, parameter.step)}${unit} / adapted ${formatParameterValue(adapted, parameter.step)}${unit} / ${nodes.length} nodes`;
+        `Initial ${formatParameterValue(initial, parameter.step)}${unit} / adapted ${formatParameterValue(adapted, parameter.step)}${unit} / ${weightedNodes.length} weighted nodes`;
     } else {
       tmpValue.value = "";
       tmpParameterStatus.value = "Select heart node";
@@ -1187,7 +1226,7 @@ function mountTmpEditing(fixture) {
       return;
     }
     tmpValue.value = String(Math.round((current + direction * parameter.step) / parameter.step) * parameter.step);
-    applyParameterValue(tmpEditState, tmpParameter.value, selectedRegion(), Number.parseFloat(tmpValue.value));
+    applyWeightedParameterValue(tmpEditState, tmpParameter.value, selectedWeightedRegion(), Number.parseFloat(tmpValue.value));
     syncControls();
   }
 
@@ -1198,11 +1237,11 @@ function mountTmpEditing(fixture) {
   tmpDecrement.onclick = () => nudgeParameter(-1);
   tmpIncrement.onclick = () => nudgeParameter(1);
   tmpApply.onclick = () => {
-    applyParameterValue(tmpEditState, tmpParameter.value, selectedRegion(), Number.parseFloat(tmpValue.value));
+    applyWeightedParameterValue(tmpEditState, tmpParameter.value, selectedWeightedRegion(), Number.parseFloat(tmpValue.value));
     syncControls();
   };
   tmpResetParameter.onclick = () => {
-    resetParameter(tmpEditState, tmpParameter.value, selectedRegion());
+    resetWeightedParameter(tmpEditState, tmpParameter.value, selectedWeightedRegion());
     syncControls();
   };
   tmpResetBeat.onclick = () => {

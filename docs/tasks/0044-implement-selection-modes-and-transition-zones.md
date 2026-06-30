@@ -28,3 +28,12 @@ Current selection is a hard radius around one node. Legacy ECGSIM supports multi
 ## Done When
 
 Selection behavior is expressive enough for legacy editing workflows.
+
+## Result
+
+- Added Heart selection controls for `Single` replacement and `Expand` modes.
+- Added explicit transition-zone width control.
+- Added weighted selection math and merge behavior for expanded regions.
+- TMP parameter edits and resets now consume concrete `{ index, weight }` selected-node entries.
+- Added smoke and browser workflow coverage for weighted selection math, transition summaries, and weighted edit blending.
+- Documented supported behavior and remaining accumulation/transaction work in `docs/feature-parity/selection-modes-notes.md`.
