@@ -28,3 +28,7 @@ Legacy ECGSIM supports endocardial/epicardial switching and transmural editing. 
 ## Done When
 
 Wall-side and transmural workflows are either working or explicitly unavailable per case.
+
+## Completion Note
+
+Completed by exporting a per-case `wallMapping` capability object and wiring the Heart controls to it. Current bundled cases explicitly disable endocardial/epicardial switching and transmural selection because `PGraphGeometry` payload semantics are not yet confirmed as wall-side pairings.

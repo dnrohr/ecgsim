@@ -49,6 +49,8 @@ const required = [
   "data-heart-rotate",
   "data-heart-surface",
   "data-heart-values",
+  "data-heart-wall",
+  "data-heart-transmural",
   "data-heart-surface-status",
   "data-thorax-metadata",
   "data-thorax-ap",
@@ -106,6 +108,9 @@ if (
   caseFixture.fileName !== "normal_male2.ECGsimcase" ||
   caseFixture.byteSize !== 11323178 ||
   !caseFixture.unsupportedPayloads.includes("unnamed PVector payloads") ||
+  caseFixture.wallMapping?.status !== "unavailable" ||
+  caseFixture.wallMapping?.supportsEndocardialEpicardialSwitch !== false ||
+  caseFixture.wallMapping?.supportsTransmuralSelection !== false ||
   caseFixture.leadSystemDetails[0].electrodes.length !== 9 ||
   caseFixture.leadSystemDetails[2].electrodes.length !== 65
 ) {

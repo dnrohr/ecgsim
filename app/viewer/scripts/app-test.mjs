@@ -164,6 +164,13 @@ async function assertHeartViewControls(page) {
   const canvas = ".heart-viewport canvas";
   const geometrySignature = await canvasSignature(page, canvas);
 
+  assert.equal(await page.locator("[data-heart-wall]").isDisabled(), true, "Endo/Epi control should be unavailable without wall mapping");
+  assert.equal(await page.locator("[data-heart-transmural]").isDisabled(), true, "Transmural control should be unavailable without wall mapping");
+  const wallTitle = await page.locator("[data-heart-wall]").getAttribute("title");
+  const transmuralTitle = await page.locator("[data-heart-transmural]").getAttribute("title");
+  assert.match(wallTitle ?? "", /PGraphGeometry payload semantics/, "Endo/Epi disabled state should explain the missing mapping");
+  assert.match(transmuralTitle ?? "", /PGraphGeometry payload semantics/, "Transmural disabled state should explain the missing mapping");
+
   await page.locator("[data-heart-surface]").selectOption("depolarizationMs");
   await expectText(page, "[data-heart-surface-status]", "Depolarization / adapted");
   await page.waitForTimeout(150);

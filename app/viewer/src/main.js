@@ -36,6 +36,8 @@ const heartAp = document.querySelector("[data-heart-ap]");
 const heartRotate = document.querySelector("[data-heart-rotate]");
 const heartSurface = document.querySelector("[data-heart-surface]");
 const heartValues = document.querySelector("[data-heart-values]");
+const heartWall = document.querySelector("[data-heart-wall]");
+const heartTransmural = document.querySelector("[data-heart-transmural]");
 const heartSurfaceStatus = document.querySelector("[data-heart-surface-status]");
 const thoraxViewport = document.querySelector("[data-thorax-viewport]");
 const thoraxMetadata = document.querySelector("[data-thorax-metadata]");
@@ -220,7 +222,7 @@ function sampleFromCanvasEvent(canvas, event, leftPaddingPx) {
   return ratio * (timeState.sampleCount - 1);
 }
 
-function mountHeart(fixture, tmpFixture, onSelectionChange) {
+function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange) {
   if (
     !heartViewport ||
     !heartMetadata ||
@@ -230,7 +232,9 @@ function mountHeart(fixture, tmpFixture, onSelectionChange) {
     !heartSelection ||
     !heartAp ||
     !heartSurface ||
-    !heartValues
+    !heartValues ||
+    !heartWall ||
+    !heartTransmural
   ) {
     throw new Error("Heart viewport did not mount");
   }
@@ -327,6 +331,23 @@ function mountHeart(fixture, tmpFixture, onSelectionChange) {
     }
     colorAttribute.needsUpdate = true;
     renderer.render(scene, camera);
+  }
+
+  function syncWallMappingControls() {
+    const mapping = wallMapping ?? {};
+    const canSwitchWall = mapping.supportsEndocardialEpicardialSwitch === true;
+    const canUseTransmural = mapping.supportsTransmuralSelection === true;
+    const reason = mapping.reason ?? "Wall-side and transmural mapping are unavailable for this case.";
+    heartWall.disabled = !canSwitchWall;
+    heartTransmural.disabled = !canUseTransmural;
+    heartWall.title = canSwitchWall
+      ? `${mapping.pairCount ?? 0} endocardial/epicardial node pairs available.`
+      : reason;
+    heartTransmural.title = canUseTransmural
+      ? `${mapping.pairCount ?? 0} transmural node pairs available.`
+      : reason;
+    heartWall.dataset.mappingStatus = canSwitchWall ? "available" : "unavailable";
+    heartTransmural.dataset.mappingStatus = canUseTransmural ? "available" : "unavailable";
   }
 
   function updateSelection() {
@@ -460,6 +481,7 @@ function mountHeart(fixture, tmpFixture, onSelectionChange) {
   heartValues.value = "adapted";
   heartSelectionMode.value = "replace";
   heartTransition.value = "0";
+  syncWallMappingControls();
   if (heartRotate) {
     heartRotate.checked = true;
   }
@@ -1323,7 +1345,7 @@ function applyCaseBundle(bundle, noticeText) {
   syncUnavailableLeadOverlayControls();
   tmpCanvas = document.querySelector("[data-tmp-canvas]");
   const tmpEditing = mountTmpEditing(bundle.tmpWaveforms);
-  mountHeart(bundle.heart, bundle.tmpWaveforms, () => tmpEditing.syncControls());
+  mountHeart(bundle.heart, bundle.tmpWaveforms, bundle.caseMetadata.wallMapping, () => tmpEditing.syncControls());
   const thoraxView = mountThorax(bundle.thorax, bundle.ecgSignals);
   tmpEditing.syncControls();
   const leadsCanvas = document.querySelector("[data-leads-canvas]");

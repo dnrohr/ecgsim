@@ -71,6 +71,17 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertAlmostEqual(fixture["surfaceMap"]["valuesByNode"][0][0], matrix.values[0][0], delta=1e-6)
         self.assertAlmostEqual(fixture["surfaceMap"]["valuesByNode"][299][575], matrix.values[299][575], delta=1e-6)
 
+    def test_case_metadata_fixture_marks_wall_mapping_unavailable(self) -> None:
+        fixture = json.loads(Path("app/viewer/public/fixtures/case-metadata.json").read_text(encoding="utf-8"))
+        wall_mapping = fixture["wallMapping"]
+
+        self.assertEqual(wall_mapping["status"], "unavailable")
+        self.assertFalse(wall_mapping["supportsEndocardialEpicardialSwitch"])
+        self.assertFalse(wall_mapping["supportsTransmuralSelection"])
+        self.assertEqual(wall_mapping["pairCount"], 0)
+        self.assertIn("PGraphGeometry", wall_mapping["requiredPayloads"])
+        self.assertIn("PGraphGeometry payload semantics", wall_mapping["reason"])
+
     def test_case_metadata_fixture_includes_lead_system_electrodes(self) -> None:
         fixture = json.loads(Path("app/viewer/public/fixtures/case-metadata.json").read_text(encoding="utf-8"))
         case = load_case(Path(fixture["source"]))

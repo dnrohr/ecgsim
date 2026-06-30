@@ -184,12 +184,24 @@ def case_metadata_payload(case, case_path: Path) -> dict[str, object]:
     metadata = case.metadata
     lead_systems = case.lead_systems
     thorax_points = next(geometry for geometry in case.geometries if geometry.name == "thorax").geometry.points
+    wall_mapping_reason = (
+        "Endocardial/epicardial and transmural node pairing is unavailable because "
+        "PGraphGeometry payload semantics have not been confirmed for this case."
+    )
     return {
         "source": case_path_text(case_path),
         "fileName": case_path.name,
         "byteSize": metadata.byte_size,
         "sha256": metadata.sha256,
         "rootSignature": metadata.root_signature,
+        "wallMapping": {
+            "status": "unavailable",
+            "supportsEndocardialEpicardialSwitch": False,
+            "supportsTransmuralSelection": False,
+            "pairCount": 0,
+            "reason": wall_mapping_reason,
+            "requiredPayloads": ("PGraphGeometry",),
+        },
         "leadSystems": tuple(system.name for system in lead_systems),
         "leadSystemDetails": [
             {
