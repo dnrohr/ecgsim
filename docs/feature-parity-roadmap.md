@@ -1,6 +1,6 @@
 # Feature Parity Roadmap
 
-Status: new roadmap after completion of the initial prototype roadmap.
+Status: active roadmap. Tasks through productization have produced a usable parity-oriented viewer, import/export tooling, tests, packaging checks, and documentation. The remaining high-risk scientific parity work is blocked on raw legacy export evidence from the Windows app.
 
 ## Goal
 
@@ -14,25 +14,31 @@ Feature parity means:
 - ECG, BSPM, TMP, transfer, filtering, and export outputs are validated against legacy references.
 - Unsupported legacy behavior is either implemented, explicitly deferred, or documented with a reason.
 
-## Current Starting Point
+## Current State
 
-The initial roadmap produced a tested prototype:
+The feature-parity roadmap has moved beyond the initial prototype:
 
-- Python readers for selected legacy formats and known `.ECGsimcase` payloads.
-- Browser viewer with bundled `normal_male2` fixtures.
-- Basic heart/thorax/TMP/leads views.
-- Simple region selection and TMP parameter editing.
-- Provisional TMP generation, transfer application, filtering helpers, and workflow tests.
+- Python readers, a normalized case model, and manifest generation support the archived normal and WPW cases.
+- The browser viewer loads generated case bundles for `normal_male2` and `WPW_ectopicbeat`.
+- Heart, Thorax, TMP, and Leads workspaces expose linked time state, playback, source selection, editing, lead switching, surface maps, and view-specific controls.
+- Source edits can be saved locally, exported/imported as sidecar files, and written to a supported modern export directory subset.
+- Visual PNG exports, workflow tests, performance profiling, static packaging, release validation, and user documentation are in place.
 
 Major gaps:
 
-- No full `.ECGsimcase` object-graph parser.
-- No arbitrary case loading in the viewer.
-- No standard lead-system switching or electrode geometry.
-- No real ECG/BSPM recomputation after edits.
-- No exact legacy TMP/fiducial/filtering parity.
-- No save/export/write-back.
-- No desktop packaging.
+- Raw legacy export capture is unresolved for key scientific artifacts such as `.user.source`, `.adaptECG`, `.refECG`, and full export-directory output. This blocks exact numerical parity for TMP generation, recomputation, fiducials, filtering, and broad export comparison.
+- The browser viewer does not yet parse arbitrary user-provided `.ECGsimcase` files directly; it consumes generated bundles for supported cases.
+- ECG/BSPM recomputation after source edits is not wired into the viewer with verified legacy-equivalent behavior.
+- Exact legacy TMP, fiducial, and filtering parity remains unverified.
+- Legacy `.ECGsimcase` write-back, `.ECGsimsource` interchange, ECG import, full legacy export-directory reproduction, movie export, and signed native installers remain unsupported or deferred.
+
+Currently unfinished or scientifically blocked tasks:
+
+- `0048` Capture Raw Legacy Exports For Numerical Parity: blocked on a real Windows-app export capture, though validation and comparison handoff tooling exists.
+- `0049` Implement Legacy TMP Generator Parity: blocked until raw `.user.source` and related exports are available.
+- `0051` Wire Recompute Pipeline Into Viewer: blocked on verified TMP/transfer behavior.
+- `0052` Implement Fiducial And Filtering Parity: partially implemented and instrumented, but full parity is blocked by missing legacy evidence.
+- `0053` Expand Numerical Parity Harness: comparison tooling exists, but full scenario coverage is blocked by missing raw exports.
 
 ## FP0: Parity Definition
 
