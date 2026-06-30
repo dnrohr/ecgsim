@@ -177,6 +177,10 @@
           </div>
           <div class="leads-controls" aria-label="Leads controls">
             <label>
+              Lead system
+              <select data-leads-system></select>
+            </label>
+            <label>
               Coupling
               <select data-leads-filter>
                 <option value="baseline">Baseline</option>
@@ -184,6 +188,16 @@
                 <option value="dc">DC</option>
               </select>
             </label>
+            <label><input type="checkbox" data-leads-measured disabled> Measured</label>
+            <label><input type="checkbox" data-leads-initial disabled> Initial</label>
+            <label><input type="checkbox" data-leads-adapted disabled> Adapted</label>
+            <label><input type="checkbox" data-leads-rms> RMS</label>
+            <label><input type="checkbox" data-leads-grid checked> Grid</label>
+            <label>
+              Scale
+              <input type="range" min="50" max="200" step="25" value="100" data-leads-scale>
+            </label>
+            <output data-leads-status>Representative traces</output>
           </div>
           <canvas width="640" height="220" data-leads-canvas></canvas>
         </section>

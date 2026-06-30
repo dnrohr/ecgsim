@@ -18,6 +18,24 @@ export function filterTraces(traces, mode, baselineStartIndex = null, baselineEn
   }));
 }
 
+export function buildRmsTrace(traces, name = "RMS") {
+  if (!traces.length) {
+    return { name, sourceRow: null, values: [] };
+  }
+
+  const sampleCount = Math.min(...traces.map((trace) => trace.values.length));
+  const values = [];
+  for (let sampleIndex = 0; sampleIndex < sampleCount; sampleIndex += 1) {
+    const sumSquares = traces.reduce(
+      (sum, trace) => sum + trace.values[sampleIndex] * trace.values[sampleIndex],
+      0,
+    );
+    values.push(Math.sqrt(sumSquares / traces.length));
+  }
+
+  return { name, sourceRow: null, values };
+}
+
 function acCoupled(values) {
   const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
   return values.map((value) => value - mean);

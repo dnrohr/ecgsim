@@ -61,7 +61,7 @@ async function assertInitialState(page) {
   await expectText(page, "[data-status-message]", "normal_male2.ECGsimcase");
   await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
   await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz");
-  await expectText(page, "[data-leads-metadata]", "6 node leads / 1000 samples / 1000 Hz / BASELINE");
+  await expectText(page, "[data-leads-metadata]", "standard_12: 12/12 leads / plotted 6 / 1000 samples / 1000 Hz / BASELINE / 100%");
 
   assert.ok(await canvasHasContent(page, "[data-leads-canvas]"), "leads canvas should be nonblank");
   assert.ok(await canvasHasContent(page, "[data-tmp-canvas]"), "TMP canvas should be nonblank");
@@ -171,12 +171,37 @@ async function assertHeartViewControls(page) {
 
 async function assertLeadsFiltering(page) {
   const canvas = "[data-leads-canvas]";
+  await expectText(page, "[data-leads-status]", "measured/initial/adapted classification unavailable");
+  assert.equal(await page.locator("[data-leads-measured]").isDisabled(), true, "measured overlay should be unavailable");
+  assert.equal(await page.locator("[data-leads-initial]").isDisabled(), true, "initial overlay should be unavailable");
+  assert.equal(await page.locator("[data-leads-adapted]").isDisabled(), true, "adapted overlay should be unavailable");
+
   const baselineSignature = await canvasSignature(page, canvas);
+
+  await page.locator("[data-leads-system]").selectOption("VCG_(Frank)");
+  await expectText(page, "[data-leads-metadata]", "VCG_(Frank): 6/10 leads");
+  const vcgSignature = await canvasSignature(page, canvas);
+  assert.notEqual(vcgSignature, baselineSignature, "Lead-system metadata switch should redraw leads");
+
+  await setRangeValue(page, "[data-leads-scale]", "150");
+  await expectText(page, "[data-leads-metadata]", "/ 150%");
+  const scaledSignature = await canvasSignature(page, canvas);
+  assert.notEqual(scaledSignature, vcgSignature, "Lead scale should redraw leads");
+
+  await page.locator("[data-leads-rms]").check();
+  await expectText(page, "[data-leads-metadata]", "plotted 7");
+  const rmsSignature = await canvasSignature(page, canvas);
+  assert.notEqual(rmsSignature, scaledSignature, "RMS overlay should add a plotted trace");
+
+  await page.locator("[data-leads-grid]").uncheck();
+  const noGridSignature = await canvasSignature(page, canvas);
+  assert.notEqual(noGridSignature, rmsSignature, "Grid toggle should redraw leads");
+  await page.locator("[data-leads-grid]").check();
 
   await page.locator("[data-leads-filter]").selectOption("ac");
   await expectText(page, "[data-leads-metadata]", "/ AC");
   const acSignature = await canvasSignature(page, canvas);
-  assert.notEqual(acSignature, baselineSignature, "AC coupling should redraw leads");
+  assert.notEqual(acSignature, noGridSignature, "AC coupling should redraw leads");
 
   await page.locator("[data-leads-filter]").selectOption("dc");
   await expectText(page, "[data-leads-metadata]", "/ DC");
@@ -184,6 +209,9 @@ async function assertLeadsFiltering(page) {
 
   await page.locator("[data-leads-filter]").selectOption("baseline");
   await expectText(page, "[data-leads-metadata]", "/ BASELINE");
+  await page.locator("[data-leads-system]").selectOption("standard_12");
+  await setRangeValue(page, "[data-leads-scale]", "100");
+  await page.locator("[data-leads-rms]").uncheck();
 }
 
 async function assertHeartSelectionAndTmpEditing(page) {

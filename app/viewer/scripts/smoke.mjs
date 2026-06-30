@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { filterSignal } from "../src/filtering.js";
+import { buildRmsTrace, filterSignal } from "../src/filtering.js";
 import { computeRegionMembership, findNearestPointIndex } from "../src/selection.js";
 import {
   applyParameterValue,
@@ -53,7 +53,15 @@ const required = [
   "data-tmp-reset-parameter",
   "data-tmp-reset-beat",
   "data-leads-metadata",
+  "data-leads-system",
   "data-leads-filter",
+  "data-leads-measured",
+  "data-leads-initial",
+  "data-leads-adapted",
+  "data-leads-rms",
+  "data-leads-grid",
+  "data-leads-scale",
+  "data-leads-status",
   "data-toggle-mesh=\"thorax\"",
   "data-toggle-mesh=\"leftLung\"",
   "data-toggle-mesh=\"rightLung\"",
@@ -138,6 +146,11 @@ if (acFiltered[0] !== -1 || acFiltered[1] !== 0 || acFiltered[2] !== 1) {
 const baselineFiltered = filterSignal([5, 7, 9], "baseline");
 if (baselineFiltered.some((value) => value !== 0)) {
   console.error("Baseline filtering failed");
+  process.exit(1);
+}
+const rmsTrace = buildRmsTrace([{ values: [3, 4] }, { values: [0, 3] }]);
+if (rmsTrace.values[0] !== Math.sqrt(4.5) || rmsTrace.values[1] !== Math.sqrt(12.5)) {
+  console.error("RMS trace math failed");
   process.exit(1);
 }
 

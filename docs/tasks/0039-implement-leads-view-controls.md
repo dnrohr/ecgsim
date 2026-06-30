@@ -28,3 +28,10 @@ Current Leads view plots six representative node traces and a coupling selector.
 ## Done When
 
 Leads view represents actual legacy lead-system data for supported cases.
+
+## Result
+
+- Added Leads controls for lead-system metadata selection, coupling, scale, grid, and RMS overlay.
+- Added disabled measured, initial, and adapted overlay entry points with explicit unavailable state for the current representative-trace fixtures.
+- Added RMS trace calculation coverage and browser workflow checks for lead-system metadata, overlay availability, scale, grid, RMS, and coupling redraws.
+- Documented current support and remaining lead-matrix blockers in `docs/feature-parity/leads-view-notes.md`.

@@ -405,7 +405,8 @@ h2 {
 .tmp-controls select,
 .tmp-controls input,
 .tmp-controls button,
-.leads-controls select {
+.leads-controls select,
+.leads-controls input {
   min-height: 30px;
   border: 1px solid #b8c3c8;
   background: #ffffff;
@@ -417,6 +418,30 @@ h2 {
 .tmp-controls select,
 .leads-controls select {
   max-width: 150px;
+}
+
+.leads-controls input[type="range"] {
+  width: 108px;
+  accent-color: #175c8a;
+}
+
+.leads-controls input[type="checkbox"] {
+  min-height: auto;
+  accent-color: #175c8a;
+}
+
+.leads-controls input:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.leads-controls output {
+  min-width: 0;
+  overflow: hidden;
+  color: #52616b;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tmp-controls input {
@@ -544,5 +569,10 @@ canvas {
   .leads-controls {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .leads-controls output {
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 }

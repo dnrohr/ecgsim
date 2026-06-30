@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { filterTraces } from "./filtering.js";
+import { buildRmsTrace, filterTraces } from "./filtering.js";
 import { computeRegionMembership } from "./selection.js";
 import {
   EDITABLE_PARAMETERS,
@@ -40,7 +40,15 @@ const thoraxElectrodes = document.querySelector("[data-thorax-electrodes]");
 const thoraxSurfaceStatus = document.querySelector("[data-thorax-surface-status]");
 const thoraxSelection = document.querySelector("[data-thorax-selection]");
 const leadsMetadata = document.querySelector("[data-leads-metadata]");
+const leadsSystem = document.querySelector("[data-leads-system]");
 const leadsFilter = document.querySelector("[data-leads-filter]");
+const leadsMeasured = document.querySelector("[data-leads-measured]");
+const leadsInitial = document.querySelector("[data-leads-initial]");
+const leadsAdapted = document.querySelector("[data-leads-adapted]");
+const leadsRms = document.querySelector("[data-leads-rms]");
+const leadsGrid = document.querySelector("[data-leads-grid]");
+const leadsScale = document.querySelector("[data-leads-scale]");
+const leadsStatus = document.querySelector("[data-leads-status]");
 const tmpMetadata = document.querySelector("[data-tmp-metadata]");
 const tmpParameter = document.querySelector("[data-tmp-parameter]");
 const tmpValue = document.querySelector("[data-tmp-value]");
@@ -583,7 +591,17 @@ function mountThorax(fixture) {
   animate();
 }
 
-function plotSignals(canvas, fixture, mode = "baseline") {
+function plotSignals(
+  canvas,
+  fixture,
+  {
+    mode = "baseline",
+    leadSystem = null,
+    scale = 1,
+    showGrid = true,
+    showRms = false,
+  } = {},
+) {
   if (!canvas || !leadsMetadata) {
     throw new Error("Leads canvas did not mount");
   }
@@ -597,12 +615,15 @@ function plotSignals(canvas, fixture, mode = "baseline") {
   const bottom = 34;
   const plotWidth = width - left - right;
   const plotHeight = height - top - bottom;
-  const traces = filterTraces(
+  const filteredTraces = filterTraces(
     fixture.traces,
     mode,
     fixture.baselineStartIndex ?? null,
     fixture.baselineEndIndex ?? null,
   );
+  const traces = showRms
+    ? [...filteredTraces, buildRmsTrace(filteredTraces)]
+    : filteredTraces;
   const traceCount = traces.length;
   const traceHeight = plotHeight / traceCount;
   const colors = ["#b3261e", "#175c8a", "#6f8790", "#287d5b", "#8a5b13", "#5f4b8b"];
@@ -614,9 +635,31 @@ function plotSignals(canvas, fixture, mode = "baseline") {
   context.lineWidth = 1;
   context.strokeRect(0.5, 0.5, width - 1, height - 1);
 
+  if (showGrid) {
+    context.strokeStyle = "rgba(120, 144, 156, 0.16)";
+    context.lineWidth = 1;
+    for (let x = left; x <= width - right; x += plotWidth / 10) {
+      context.beginPath();
+      context.moveTo(x, top);
+      context.lineTo(x, height - bottom);
+      context.stroke();
+    }
+    for (let y = top; y <= height - bottom; y += plotHeight / 8) {
+      context.beginPath();
+      context.moveTo(left, y);
+      context.lineTo(width - right, y);
+      context.stroke();
+    }
+  }
+
   context.font = "12px Segoe UI, Arial, sans-serif";
   context.fillStyle = "#52616b";
   context.textBaseline = "middle";
+  if (leadSystem) {
+    context.textAlign = "right";
+    context.fillText(leadSystem.name, width - right, top - 7);
+    context.textAlign = "start";
+  }
 
   for (let traceIndex = 0; traceIndex < traceCount; traceIndex += 1) {
     const trace = traces[traceIndex];
@@ -625,18 +668,20 @@ function plotSignals(canvas, fixture, mode = "baseline") {
     const max = Math.max(...values);
     const span = max - min || 1;
     const centerY = top + traceHeight * (traceIndex + 0.5);
-    const amplitude = traceHeight * 0.38;
+    const amplitude = traceHeight * 0.38 * scale;
 
-    context.strokeStyle = "rgba(140, 150, 160, 0.22)";
-    context.beginPath();
-    context.moveTo(left, centerY);
-    context.lineTo(width - right, centerY);
-    context.stroke();
+    if (showGrid) {
+      context.strokeStyle = "rgba(140, 150, 160, 0.22)";
+      context.beginPath();
+      context.moveTo(left, centerY);
+      context.lineTo(width - right, centerY);
+      context.stroke();
+    }
 
     context.fillStyle = "#52616b";
     context.fillText(trace.name, 8, centerY);
 
-    context.strokeStyle = colors[traceIndex % colors.length];
+    context.strokeStyle = trace.name === "RMS" ? "#111111" : colors[traceIndex % colors.length];
     context.lineWidth = 1.8;
     context.beginPath();
     values.forEach((value, sampleIndex) => {
@@ -666,8 +711,14 @@ function plotSignals(canvas, fixture, mode = "baseline") {
   context.fillText(`${durationMs} ms`, width - right, height - 12);
   context.textAlign = "start";
 
+  const systemText = leadSystem
+    ? `${leadSystem.name}: ${leadSystem.shownLeadCount}/${leadSystem.leadCount} leads`
+    : `${fixture.traces.length} representative traces`;
   leadsMetadata.value =
-    `${fixture.traces.length} node leads / ${fixture.columns} samples / ${fixture.sampleRateHz} Hz / ${mode.toUpperCase()}`;
+    `${systemText} / plotted ${traces.length} / ${fixture.columns} samples / ${fixture.sampleRateHz} Hz / ${mode.toUpperCase()} / ${Math.round(scale * 100)}%`;
+  if (leadsStatus) {
+    leadsStatus.value = `${fixture.signalKind}; measured/initial/adapted classification unavailable`;
+  }
 }
 
 function plotTmp(canvas, fixture) {
@@ -846,18 +897,82 @@ function updateCaseMetadata(metadata, noticeText) {
   }
 }
 
+function selectedLeadSystemDetail() {
+  return currentCaseMetadata?.leadSystemDetails?.find((item) => item.name === leadsSystem?.value)
+    ?? currentCaseMetadata?.leadSystemDetails?.[0]
+    ?? null;
+}
+
+function syncLeadSystemOptions() {
+  if (!leadsSystem || !currentCaseMetadata) {
+    return;
+  }
+
+  leadsSystem.replaceChildren();
+  currentCaseMetadata.leadSystemDetails.forEach((leadSystem) => {
+    const option = document.createElement("option");
+    option.value = leadSystem.name;
+    option.textContent = leadSystem.name;
+    leadsSystem.appendChild(option);
+  });
+  leadsSystem.value = currentCaseMetadata.leadSystems[0] ?? "";
+}
+
+function syncUnavailableLeadOverlayControls() {
+  [leadsMeasured, leadsInitial, leadsAdapted].forEach((control) => {
+    if (!control) {
+      return;
+    }
+    control.checked = false;
+    control.disabled = true;
+    control.title = "Measured, initial, and adapted signal classification is not available in current fixtures.";
+  });
+}
+
 function applyCaseBundle(bundle, noticeText) {
   selectionState.nodeIndex = -1;
   selectionState.region = [];
   updateCaseMetadata(bundle.caseMetadata, noticeText);
+  syncLeadSystemOptions();
+  syncUnavailableLeadOverlayControls();
   tmpCanvas = document.querySelector("[data-tmp-canvas]");
   const tmpEditing = mountTmpEditing(bundle.tmpWaveforms);
   mountHeart(bundle.heart, bundle.tmpWaveforms, () => tmpEditing.syncControls());
   mountThorax(bundle.thorax);
   tmpEditing.syncControls();
   const leadsCanvas = document.querySelector("[data-leads-canvas]");
-  const redrawSignals = () => plotSignals(leadsCanvas, bundle.ecgSignals, leadsFilter?.value ?? "baseline");
+  const redrawSignals = () => plotSignals(leadsCanvas, bundle.ecgSignals, {
+    mode: leadsFilter?.value ?? "baseline",
+    leadSystem: selectedLeadSystemDetail(),
+    scale: Number.parseFloat(leadsScale?.value ?? "100") / 100,
+    showGrid: leadsGrid?.checked ?? true,
+    showRms: leadsRms?.checked ?? false,
+  });
+  if (leadsScale) {
+    leadsScale.value = "100";
+  }
+  if (leadsGrid) {
+    leadsGrid.checked = true;
+  }
+  if (leadsRms) {
+    leadsRms.checked = false;
+  }
+  if (leadsSystem && toolbarLeadSystem) {
+    leadsSystem.onchange = () => {
+      toolbarLeadSystem.value = leadsSystem.value;
+      redrawSignals();
+    };
+  }
   leadsFilter.onchange = redrawSignals;
+  if (leadsScale) {
+    leadsScale.oninput = redrawSignals;
+  }
+  if (leadsGrid) {
+    leadsGrid.onchange = redrawSignals;
+  }
+  if (leadsRms) {
+    leadsRms.onchange = redrawSignals;
+  }
   redrawSignals();
 }
 
