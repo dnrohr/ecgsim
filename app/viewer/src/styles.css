@@ -448,6 +448,12 @@ h2 {
   width: 86px;
 }
 
+.tmp-controls input[type="checkbox"] {
+  width: auto;
+  min-height: auto;
+  accent-color: #175c8a;
+}
+
 .tmp-controls button {
   padding: 0 9px;
   cursor: pointer;
@@ -457,6 +463,15 @@ h2 {
 .tmp-controls input:disabled {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+.tmp-controls output {
+  min-width: 0;
+  overflow: hidden;
+  color: #52616b;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .viewport,
@@ -572,6 +587,11 @@ canvas {
   }
 
   .leads-controls output {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .tmp-controls output {
     white-space: normal;
     overflow-wrap: anywhere;
   }

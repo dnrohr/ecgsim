@@ -156,6 +156,9 @@
             <output data-tmp-metadata>--</output>
           </div>
           <div class="tmp-controls" aria-label="TMP parameter editing">
+            <label><input type="checkbox" data-tmp-show-initial checked> Initial</label>
+            <label><input type="checkbox" data-tmp-show-adapted checked> Adapted</label>
+            <label><input type="checkbox" data-tmp-grid checked> Grid</label>
             <label>
               Parameter
               <select data-tmp-parameter></select>
@@ -164,9 +167,15 @@
               Value
               <input type="number" data-tmp-value disabled>
             </label>
+            <button type="button" data-tmp-decrement disabled>-</button>
+            <button type="button" data-tmp-increment disabled>+</button>
             <button type="button" data-tmp-apply disabled>Apply</button>
             <button type="button" data-tmp-reset-parameter disabled>Reset parameter</button>
             <button type="button" data-tmp-reset-beat>Reset beat</button>
+            <label><input type="checkbox" data-tmp-combine-handlers disabled> Rest+amp</label>
+            <label><input type="checkbox" data-tmp-keep-apd disabled> Keep APD</label>
+            <label><input type="checkbox" data-tmp-show-egm disabled> EGM</label>
+            <output data-tmp-parameter-status>Select heart node</output>
           </div>
           <canvas width="640" height="220" data-tmp-canvas></canvas>
         </section>

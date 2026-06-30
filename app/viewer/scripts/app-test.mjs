@@ -60,7 +60,7 @@ async function assertInitialState(page) {
   await expectText(page, "[data-toolbar-lead-system]", "standard_12");
   await expectText(page, "[data-status-message]", "normal_male2.ECGsimcase");
   await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
-  await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz");
+  await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz / initial+adapted");
   await expectText(page, "[data-leads-metadata]", "standard_12: 12/12 leads / plotted 6 / 1000 samples / 1000 Hz / BASELINE / 100%");
 
   assert.ok(await canvasHasContent(page, "[data-leads-canvas]"), "leads canvas should be nonblank");
@@ -222,13 +222,37 @@ async function assertHeartSelectionAndTmpEditing(page) {
   await expectText(page, "[data-heart-selection]", "30 mm");
 
   const valueInput = page.locator("[data-tmp-value]");
+  const incrementButton = page.locator("[data-tmp-increment]");
   const applyButton = page.locator("[data-tmp-apply]");
   const resetParameter = page.locator("[data-tmp-reset-parameter]");
   const resetBeat = page.locator("[data-tmp-reset-beat]");
 
   assert.equal(await valueInput.isEnabled(), true, "TMP value should enable after heart selection");
+  assert.equal(await incrementButton.isEnabled(), true, "TMP increment should enable after heart selection");
   assert.equal(await applyButton.isEnabled(), true, "TMP apply should enable after heart selection");
+  assert.equal(await page.locator("[data-tmp-combine-handlers]").isDisabled(), true, "combined TMP handlers should be unavailable");
+  assert.equal(await page.locator("[data-tmp-keep-apd]").isDisabled(), true, "constant APD mode should be unavailable");
+  assert.equal(await page.locator("[data-tmp-show-egm]").isDisabled(), true, "electrogram toggle should be unavailable");
+  await expectText(page, "[data-tmp-parameter-status]", "Initial");
+
+  const tmpControlsBefore = await canvasSignature(page, "[data-tmp-canvas]");
+  await page.locator("[data-tmp-show-initial]").uncheck();
+  await expectText(page, "[data-tmp-metadata]", "/ adapted");
+  const adaptedOnly = await canvasSignature(page, "[data-tmp-canvas]");
+  assert.notEqual(adaptedOnly, tmpControlsBefore, "TMP initial visibility toggle should redraw");
+  await page.locator("[data-tmp-show-initial]").check();
+
+  await page.locator("[data-tmp-grid]").uncheck();
+  const noGrid = await canvasSignature(page, "[data-tmp-canvas]");
+  assert.notEqual(noGrid, adaptedOnly, "TMP grid toggle should redraw");
+  await page.locator("[data-tmp-grid]").check();
+
   const originalValue = Number(await valueInput.inputValue());
+  await incrementButton.click();
+  assert.equal(Number(await valueInput.inputValue()), originalValue + 1, "TMP increment should nudge by parameter step");
+  await resetParameter.click();
+  assert.equal(Number(await valueInput.inputValue()), originalValue, "Reset parameter should restore nudged value");
+
   const tmpBefore = await canvasSignature(page, "[data-tmp-canvas]");
   const editedValue = originalValue + 7;
 

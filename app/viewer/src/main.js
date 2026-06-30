@@ -50,11 +50,20 @@ const leadsGrid = document.querySelector("[data-leads-grid]");
 const leadsScale = document.querySelector("[data-leads-scale]");
 const leadsStatus = document.querySelector("[data-leads-status]");
 const tmpMetadata = document.querySelector("[data-tmp-metadata]");
+const tmpShowInitial = document.querySelector("[data-tmp-show-initial]");
+const tmpShowAdapted = document.querySelector("[data-tmp-show-adapted]");
+const tmpGrid = document.querySelector("[data-tmp-grid]");
 const tmpParameter = document.querySelector("[data-tmp-parameter]");
 const tmpValue = document.querySelector("[data-tmp-value]");
+const tmpDecrement = document.querySelector("[data-tmp-decrement]");
+const tmpIncrement = document.querySelector("[data-tmp-increment]");
 const tmpApply = document.querySelector("[data-tmp-apply]");
 const tmpResetParameter = document.querySelector("[data-tmp-reset-parameter]");
 const tmpResetBeat = document.querySelector("[data-tmp-reset-beat]");
+const tmpCombineHandlers = document.querySelector("[data-tmp-combine-handlers]");
+const tmpKeepApd = document.querySelector("[data-tmp-keep-apd]");
+const tmpShowEgm = document.querySelector("[data-tmp-show-egm]");
+const tmpParameterStatus = document.querySelector("[data-tmp-parameter-status]");
 
 const selectionState = {
   nodeIndex: -1,
@@ -721,7 +730,15 @@ function plotSignals(
   }
 }
 
-function plotTmp(canvas, fixture) {
+function plotTmp(
+  canvas,
+  fixture,
+  {
+    showInitial = true,
+    showAdapted = true,
+    showGrid = true,
+  } = {},
+) {
   if (!canvas || !tmpMetadata) {
     throw new Error("TMP canvas did not mount");
   }
@@ -745,6 +762,22 @@ function plotTmp(canvas, fixture) {
   context.strokeStyle = "#d9e0e3";
   context.lineWidth = 1;
   context.strokeRect(0.5, 0.5, width - 1, height - 1);
+  if (showGrid) {
+    context.strokeStyle = "rgba(120, 144, 156, 0.16)";
+    context.lineWidth = 1;
+    for (let x = left; x <= width - right; x += plotWidth / 10) {
+      context.beginPath();
+      context.moveTo(x, top);
+      context.lineTo(x, height - bottom);
+      context.stroke();
+    }
+    for (let y = top; y <= height - bottom; y += plotHeight / 8) {
+      context.beginPath();
+      context.moveTo(left, y);
+      context.lineTo(width - right, y);
+      context.stroke();
+    }
+  }
   context.font = "12px Segoe UI, Arial, sans-serif";
   context.textBaseline = "middle";
 
@@ -756,17 +789,23 @@ function plotTmp(canvas, fixture) {
     const centerY = top + laneHeight * (nodeIndex + 0.5);
     const amplitude = laneHeight * 0.38;
 
-    context.strokeStyle = "rgba(140, 150, 160, 0.22)";
-    context.beginPath();
-    context.moveTo(left, centerY);
-    context.lineTo(width - right, centerY);
-    context.stroke();
+    if (showGrid) {
+      context.strokeStyle = "rgba(140, 150, 160, 0.22)";
+      context.beginPath();
+      context.moveTo(left, centerY);
+      context.lineTo(width - right, centerY);
+      context.stroke();
+    }
 
     context.fillStyle = "#52616b";
     context.fillText(`N${node.sourceNode + 1}`, 8, centerY);
 
-    drawTmpLine(context, node.initial, min, span, left, plotWidth, centerY, amplitude, "#6f8790", 1.5);
-    drawTmpLine(context, node.adapted, min, span, left, plotWidth, centerY, amplitude, "#b3261e", 1.9);
+    if (showInitial) {
+      drawTmpLine(context, node.initial, min, span, left, plotWidth, centerY, amplitude, "#6f8790", 1.5);
+    }
+    if (showAdapted) {
+      drawTmpLine(context, node.adapted, min, span, left, plotWidth, centerY, amplitude, "#b3261e", 1.9);
+    }
   });
 
   context.strokeStyle = "#78909c";
@@ -782,7 +821,11 @@ function plotTmp(canvas, fixture) {
   context.fillText(`${durationMs} ms`, width - right, height - 12);
   context.textAlign = "start";
 
-  tmpMetadata.value = `${nodes.length} nodes / ${fixture.sampleCount} samples / ${fixture.sampleRateHz} Hz`;
+  const traceModes = [
+    showInitial ? "initial" : null,
+    showAdapted ? "adapted" : null,
+  ].filter(Boolean).join("+") || "none";
+  tmpMetadata.value = `${nodes.length} nodes / ${fixture.sampleCount} samples / ${fixture.sampleRateHz} Hz / ${traceModes}`;
 }
 
 function drawTmpLine(context, values, min, span, left, plotWidth, centerY, amplitude, color, width) {
@@ -803,7 +846,19 @@ function drawTmpLine(context, values, min, span, left, plotWidth, centerY, ampli
 }
 
 function mountTmpEditing(fixture) {
-  if (!tmpParameter || !tmpValue || !tmpApply || !tmpResetParameter || !tmpResetBeat) {
+  if (
+    !tmpShowInitial ||
+    !tmpShowAdapted ||
+    !tmpGrid ||
+    !tmpParameter ||
+    !tmpValue ||
+    !tmpDecrement ||
+    !tmpIncrement ||
+    !tmpApply ||
+    !tmpResetParameter ||
+    !tmpResetBeat ||
+    !tmpParameterStatus
+  ) {
     throw new Error("TMP editing controls did not mount");
   }
 
@@ -820,6 +875,17 @@ function mountTmpEditing(fixture) {
   storedOnlyOption.textContent = "Depol. slope (stored)";
   storedOnlyOption.disabled = true;
   tmpParameter.appendChild(storedOnlyOption);
+  [tmpCombineHandlers, tmpKeepApd, tmpShowEgm].forEach((control) => {
+    if (!control) {
+      return;
+    }
+    control.checked = false;
+    control.disabled = true;
+    control.title = "This legacy TMP option is unavailable until the backing data and handlers are implemented.";
+  });
+  tmpShowInitial.checked = true;
+  tmpShowAdapted.checked = true;
+  tmpGrid.checked = true;
 
   function selectedRegion() {
     return selectionState.region.filter((nodeIndex) => nodeIndex >= 0 && nodeIndex < tmpEditState.nodeCount);
@@ -833,6 +899,10 @@ function mountTmpEditing(fixture) {
       sampleRateHz: tmpEditState.sampleRateHz,
       sampleCount: tmpEditState.sampleCount,
       nodes: buildTmpPlotNodes(tmpEditState),
+    }, {
+      showInitial: tmpShowInitial.checked,
+      showAdapted: tmpShowAdapted.checked,
+      showGrid: tmpGrid.checked,
     });
   }
 
@@ -841,19 +911,50 @@ function mountTmpEditing(fixture) {
     const parameter = EDITABLE_PARAMETERS.find((item) => item.id === tmpParameter.value) ?? EDITABLE_PARAMETERS[0];
     const canEdit = nodes.length > 0;
     tmpValue.disabled = !canEdit;
+    tmpDecrement.disabled = !canEdit;
+    tmpIncrement.disabled = !canEdit;
     tmpApply.disabled = !canEdit;
     tmpResetParameter.disabled = !canEdit;
     tmpValue.step = String(parameter.step);
     if (canEdit) {
-      const value = nodeParameterValue(tmpEditState, parameter.id, nodes[0], "adapted");
-      tmpValue.value = value === null ? "" : String(Math.round(value / parameter.step) * parameter.step);
+      const initial = nodeParameterValue(tmpEditState, parameter.id, nodes[0], "initial");
+      const adapted = nodeParameterValue(tmpEditState, parameter.id, nodes[0], "adapted");
+      tmpValue.value = adapted === null ? "" : String(Math.round(adapted / parameter.step) * parameter.step);
+      const unit = parameter.unit ? ` ${parameter.unit}` : "";
+      tmpParameterStatus.value =
+        `Initial ${formatParameterValue(initial, parameter.step)}${unit} / adapted ${formatParameterValue(adapted, parameter.step)}${unit} / ${nodes.length} nodes`;
     } else {
       tmpValue.value = "";
+      tmpParameterStatus.value = "Select heart node";
     }
     redrawTmp();
   }
 
+  function formatParameterValue(value, step) {
+    if (value === null) {
+      return "--";
+    }
+    const decimals = step < 1 ? 2 : 0;
+    return Number(value).toFixed(decimals);
+  }
+
+  function nudgeParameter(direction) {
+    const parameter = EDITABLE_PARAMETERS.find((item) => item.id === tmpParameter.value) ?? EDITABLE_PARAMETERS[0];
+    const current = Number.parseFloat(tmpValue.value);
+    if (!Number.isFinite(current)) {
+      return;
+    }
+    tmpValue.value = String(Math.round((current + direction * parameter.step) / parameter.step) * parameter.step);
+    applyParameterValue(tmpEditState, tmpParameter.value, selectedRegion(), Number.parseFloat(tmpValue.value));
+    syncControls();
+  }
+
   tmpParameter.onchange = syncControls;
+  tmpShowInitial.onchange = redrawTmp;
+  tmpShowAdapted.onchange = redrawTmp;
+  tmpGrid.onchange = redrawTmp;
+  tmpDecrement.onclick = () => nudgeParameter(-1);
+  tmpIncrement.onclick = () => nudgeParameter(1);
   tmpApply.onclick = () => {
     applyParameterValue(tmpEditState, tmpParameter.value, selectedRegion(), Number.parseFloat(tmpValue.value));
     syncControls();

@@ -28,3 +28,11 @@ Current TMP view shows initial/adapted generated previews for selected nodes and
 ## Done When
 
 TMP workflows match the documented legacy controls that current data supports.
+
+## Result
+
+- Added TMP trace visibility controls for initial/adapted curves and grid display.
+- Added handler-style increment/decrement controls using each editable parameter step.
+- Added parameter status text showing initial/adapted values, units, and selected-node count.
+- Added visible disabled entry points for combined resting/amplitude handlers, keep-constant-APD, and electrogram display where backing data/semantics are unavailable.
+- Documented current TMP support and remaining blockers in `docs/feature-parity/tmp-view-notes.md`.

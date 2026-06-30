@@ -76,7 +76,7 @@ Each task should end with:
 - [x] [0037 Implement Heart View Controls](0037-implement-heart-view-controls.md)
 - [x] [0038 Implement Thorax View Controls](0038-implement-thorax-view-controls.md)
 - [x] [0039 Implement Leads View Controls](0039-implement-leads-view-controls.md)
-- [ ] [0040 Implement TMP View Controls](0040-implement-tmp-view-controls.md)
+- [x] [0040 Implement TMP View Controls](0040-implement-tmp-view-controls.md)
 - [ ] [0041 Add Linked Time Cursor And Playback State](0041-add-linked-time-cursor-and-playback-state.md)
 - [ ] [0042 Implement Surface Potential Maps And Animation](0042-implement-surface-potential-maps-and-animation.md)
 - [ ] [0043 Implement Lead System Switching](0043-implement-lead-system-switching.md)
