@@ -110,6 +110,14 @@ python tools/summarize_legacy_export.py research/legacy-exports/raw/<case-name> 
 
 The manifest records checksums, file classifications, readable matrix/vector/geometry shapes, and a `readyForNumericalParity` flag. For downstream numerical parity work, confirm the manifest reports `.user.source`, `.adaptECG`, and `.refECG` artifacts under `parityArtifacts`.
 
+Compare matching legacy and modern supported-export files with:
+
+```powershell
+python tools/compare_export_directories.py research/legacy-exports/raw/<case-name>/export-directory --case research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase --output research/legacy-exports/<case-name>-comparison.json
+```
+
+The comparison only checks relative paths the modern supported export writer currently emits. Missing legacy files, shape mismatches, and value mismatches are reported explicitly.
+
 Commit only manifests and small, justified reference files. Keep large raw exports ignored unless a later task explicitly promotes a small fixture.
 
 ## Screenshot Manual Workflow

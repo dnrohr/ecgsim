@@ -61,6 +61,7 @@ Current viewer fixtures expose these dimensions:
 - Raw legacy `File -> Export` outputs have not been captured from the Windows app in this environment.
 - `.adaptECG`, `.refECG`, and `.user.source` tolerances should be revisited once real exported files are available.
 - The reusable numerical harness currently covers parsed fixtures and injected-difference diagnostics; raw-export scenarios remain blocked by task `0048`.
+- `tools/compare_export_directories.py` can compare captured legacy export directories against the modern supported export subset once raw exports exist. It reports missing matching paths, shape mismatches, and value mismatches with numerical diagnostics.
 - TMP generated waveform parity against legacy ECGSIM is intentionally unknown until the legacy TMP generation algorithm is implemented or exported `.user.source` matrices are captured.
 - Visual comparison thresholds should become automated only after a stable browser screenshot harness is added.
 - Coordinate unit expectations for electrode files remain unknown until raw `.elec` exports are available.
