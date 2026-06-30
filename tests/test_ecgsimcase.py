@@ -7,6 +7,7 @@ from ecgsim.io import (
     read_ecgsimcase_geometries,
     read_ecgsimcase_matrix,
     read_ecgsimcase_metadata,
+    read_ecgsimcase_sources,
     read_ecgsimcase_vector,
 )
 from ecgsim.io.ecgsimcase import _read_ecgsimcase_geometry_payload
@@ -169,3 +170,71 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ECGsimCaseFormatError, "not PGeometry"):
             _read_ecgsimcase_geometry_payload(path.read_bytes(), path, 54)
+
+    def test_reads_normal_case_source_parameters(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")
+        sources = read_ecgsimcase_sources(path)
+
+        self.assertEqual([(source.id, source.kind) for source in sources], [("source1", "atria"), ("source2", "ventricles")])
+        atria, ventricles = sources
+        self.assertEqual(atria.source_offset, 11271432)
+        self.assertEqual(ventricles.source_offset, 11272238)
+        self.assertEqual(atria.beats[0].id, "beat1")
+        self.assertEqual(ventricles.beats[0].id, "beat1")
+        self.assertEqual(atria.activation.source_offset, 11272180)
+        self.assertEqual(atria.activation.entry_count, 0)
+        self.assertEqual(ventricles.activation.source_offset, 11305242)
+        self.assertEqual(ventricles.activation.entry_count, 576)
+
+        parameters = {parameter.name: parameter for parameter in ventricles.beats[0].parameters}
+        self.assertEqual(
+            tuple(parameters),
+            (
+                "depolarizationMs",
+                "repolarizationMs",
+                "plateauSlope",
+                "restingPotential",
+                "amplitude",
+                "depolarizationSlope",
+                "repolarizationSlope",
+            ),
+        )
+        self.assertEqual(parameters["depolarizationMs"].initial.source_offset, 11272300)
+        self.assertEqual(parameters["depolarizationMs"].adapted.source_offset, 11274630)
+        self.assertEqual(parameters["depolarizationMs"].initial.length, 576)
+        self.assertAlmostEqual(parameters["depolarizationMs"].initial.values[0], 27.2001, places=4)
+        self.assertAlmostEqual(parameters["depolarizationMs"].initial.values[575], 95.2450, places=4)
+        self.assertEqual(parameters["restingPotential"].units, "mV")
+        self.assertEqual(parameters["plateauSlope"].units, "unknown legacy slope unit")
+
+    def test_source_parameter_vectors_match_offset_reader(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")
+        ventricles = read_ecgsimcase_sources(path)[1]
+        parameters = {parameter.name: parameter for parameter in ventricles.beats[0].parameters}
+
+        for parameter in parameters.values():
+            if parameter.initial is None or parameter.adapted is None or parameter.initial.length == 0:
+                continue
+            with self.subTest(parameter=parameter.name):
+                initial = read_ecgsimcase_vector(path, parameter.initial.source_offset)
+                adapted = read_ecgsimcase_vector(path, parameter.adapted.source_offset)
+                self.assertEqual(parameter.initial.values, initial.values)
+                self.assertEqual(parameter.adapted.values, adapted.values)
+
+    def test_reads_wpw_source_parameter_shapes(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/WPW_ectopicbeat.ECGsimcase")
+        sources = read_ecgsimcase_sources(path)
+        ventricles = sources[1]
+        parameters = {parameter.name: parameter for parameter in ventricles.beats[0].parameters}
+
+        self.assertEqual((sources[0].kind, ventricles.kind), ("atria", "ventricles"))
+        self.assertGreater(ventricles.activation.entry_count, 0)
+        self.assertGreater(parameters["depolarizationMs"].initial.length, 0)
+        self.assertEqual(
+            parameters["depolarizationMs"].initial.length,
+            parameters["depolarizationMs"].adapted.length,
+        )
+        self.assertEqual(
+            parameters["repolarizationSlope"].initial.length,
+            parameters["repolarizationSlope"].adapted.length,
+        )

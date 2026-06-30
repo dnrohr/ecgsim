@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 import unittest
 
-from ecgsim.io import read_ecgsimcase_geometries, read_ecgsimcase_matrix, read_ecgsimcase_vector
+from ecgsim.io import read_ecgsimcase_geometries, read_ecgsimcase_matrix, read_ecgsimcase_sources
 
 
 class ParityRegressionTests(unittest.TestCase):
@@ -72,20 +72,25 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertEqual(len(fixture["parameterVectors"]["depolarizationMs"]["initial"]), 576)
 
         path = Path(fixture["source"])
-        depolarization = read_ecgsimcase_vector(path, 11272300)
-        self.assertEqual(depolarization.length, fixture["nodeCount"])
+        ventricles = next(source for source in read_ecgsimcase_sources(path) if source.kind == "ventricles")
+        depolarization = next(
+            parameter
+            for parameter in ventricles.beats[0].parameters
+            if parameter.name == "depolarizationMs"
+        )
+        self.assertEqual(depolarization.initial.length, fixture["nodeCount"])
         self.assertAlmostEqual(
             fixture["parameterVectors"]["depolarizationMs"]["initial"][0],
-            depolarization.values[0],
+            depolarization.initial.values[0],
             delta=1e-6,
         )
         self.assertAlmostEqual(
             fixture["nodes"][0]["parameters"]["depolarizationMs"]["initial"],
-            depolarization.values[0],
+            depolarization.initial.values[0],
             delta=1e-6,
         )
         self.assertAlmostEqual(
             fixture["nodes"][-1]["parameters"]["depolarizationMs"]["initial"],
-            depolarization.values[575],
+            depolarization.initial.values[575],
             delta=1e-6,
         )

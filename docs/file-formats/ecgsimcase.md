@@ -180,3 +180,12 @@ int32 triangle index triplets, zero-based
 ```
 
 The initial names are order-based and conservative: `thorax`, `heart`, two empty placeholders, `right_lung`, `left_lung`, and two auxiliary geometries. Coordinates are exposed with units `case-coordinate-units` until the case-internal scale is confirmed against raw exports or a legacy source reference.
+
+Task 0031 added `ecgsim.io.read_ecgsimcase_sources(path)` for source, beat, parameter, and activation summaries. Initial source IDs are order-based and stable for the inspected cases:
+
+| Source ID | Kind | Beat ID | Notes |
+| --- | --- | --- | --- |
+| `source1` | `atria` | `beat1` | Present in all inspected cases, but source parameter vectors are empty or otherwise not TMP-edit-ready in the current fixtures. |
+| `source2` | `ventricles` | `beat1` | Contains seven named parameter pairs with `576` initial/adapted values in the inspected normal and WPW cases. |
+
+The ventricular parameter order is `depolarizationMs`, `repolarizationMs`, `plateauSlope`, `restingPotential`, `amplitude`, `depolarizationSlope`, and `repolarizationSlope`. Activation construction is summarized by version and entry count only; focus/activation field semantics remain unknown.

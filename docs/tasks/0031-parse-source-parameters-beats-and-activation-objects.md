@@ -30,3 +30,7 @@ TMP editing and recomputation need named source/beat data instead of hard-coded 
 ## Done When
 
 TMP editing can be populated from parsed case objects rather than fixture offsets.
+
+## Result
+
+Added `ecgsim.io.read_ecgsimcase_sources(path)` with stable `source1`/`source2`, `atria`/`ventricles`, and `beat1` identifiers. The parser now exposes named ventricular initial/adapted source parameter vectors, preserves activation summaries, keeps unknown vectors, and the TMP fixture exporter now populates from parsed source objects instead of hard-coded vector offsets.

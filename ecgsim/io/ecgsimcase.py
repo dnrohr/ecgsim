@@ -16,6 +16,10 @@ from ecgsim.io.matrix import MatrixData, VectorData
 ROOT_SIGNATURE = "PECGsimData"
 PMATRIX_SIGNATURE = "PMatrix"
 PGEOMETRY_SIGNATURE = "PGeometry"
+PVECTOR_SIGNATURE = "PVector"
+PSOURCE_SIGNATURE = "PSource"
+PSOURCE_PARAMETER_SIGNATURE = "PSourceParameter"
+PACTIVATION_CONSTRUCTION_SIGNATURE = "PActivationConstruction"
 PRINTABLE_MIN = 0x20
 PRINTABLE_MAX = 0x7E
 GEOMETRY_NAMES_BY_INDEX = (
@@ -27,6 +31,16 @@ GEOMETRY_NAMES_BY_INDEX = (
     "left_lung",
     "auxiliary_geometry_1",
     "auxiliary_geometry_2",
+)
+SOURCE_KINDS_BY_INDEX = ("atria", "ventricles")
+SOURCE_PARAMETER_NAMES = (
+    "depolarizationMs",
+    "repolarizationMs",
+    "plateauSlope",
+    "restingPotential",
+    "amplitude",
+    "depolarizationSlope",
+    "repolarizationSlope",
 )
 
 
@@ -74,6 +88,60 @@ class ECGsimCaseGeometry:
     @property
     def triangle_count(self) -> int:
         return self.geometry.triangle_count
+
+
+@dataclass(frozen=True)
+class ECGsimCaseVector:
+    """A vector payload with its original case-file offset."""
+
+    source_offset: int
+    values: tuple[float, ...]
+    storage_format: str
+
+    @property
+    def length(self) -> int:
+        return len(self.values)
+
+
+@dataclass(frozen=True)
+class ECGsimCaseSourceParameter:
+    """Initial/adapted values for one source parameter."""
+
+    name: str
+    parameter_offset: int
+    initial: ECGsimCaseVector | None
+    adapted: ECGsimCaseVector | None
+    units: str
+
+
+@dataclass(frozen=True)
+class ECGsimCaseSourceBeat:
+    """A stable beat container for source parameters."""
+
+    id: str
+    parameters: tuple[ECGsimCaseSourceParameter, ...]
+
+
+@dataclass(frozen=True)
+class ECGsimCaseActivation:
+    """Activation/focus payload summary for a source."""
+
+    source_offset: int
+    version: int
+    entry_count: int
+    interpretation: str
+
+
+@dataclass(frozen=True)
+class ECGsimCaseSource:
+    """A parsed source container with stable source and beat IDs."""
+
+    id: str
+    kind: str
+    source_offset: int
+    beats: tuple[ECGsimCaseSourceBeat, ...]
+    activation: ECGsimCaseActivation | None
+    unknown_vectors: tuple[ECGsimCaseVector, ...]
 
 
 def read_ecgsimcase_metadata(path: str | Path) -> ECGsimCaseMetadata:
@@ -149,6 +217,69 @@ def read_ecgsimcase_geometries(path: str | Path) -> tuple[ECGsimCaseGeometry, ..
     return tuple(geometries)
 
 
+def read_ecgsimcase_sources(path: str | Path) -> tuple[ECGsimCaseSource, ...]:
+    """Read source parameter and activation summaries from an ECGsimcase file."""
+
+    source_path = Path(path)
+    data = source_path.read_bytes()
+    metadata = read_ecgsimcase_metadata(source_path)
+    source_offsets = metadata.marker_offsets.get(PSOURCE_SIGNATURE, ())
+    source_ends = source_offsets[1:] + metadata.marker_offsets.get("PLeadSystem", (len(data),))[:1]
+    sources: list[ECGsimCaseSource] = []
+
+    for source_index, (source_offset, source_end) in enumerate(zip(source_offsets, source_ends)):
+        kind = SOURCE_KINDS_BY_INDEX[source_index] if source_index < len(SOURCE_KINDS_BY_INDEX) else "unknown"
+        parameter_offsets = _marker_offsets_in_range(metadata, PSOURCE_PARAMETER_SIGNATURE, source_offset, source_end)
+        activation_offsets = _marker_offsets_in_range(
+            metadata, PACTIVATION_CONSTRUCTION_SIGNATURE, source_offset, source_end
+        )
+        boundary_offsets = tuple(sorted(parameter_offsets + activation_offsets + (source_end,)))
+        parameters: list[ECGsimCaseSourceParameter] = []
+        assigned_vector_offsets: set[int] = set()
+
+        for parameter_index, parameter_offset in enumerate(parameter_offsets):
+            parameter_end = next(boundary for boundary in boundary_offsets if boundary > parameter_offset)
+            vector_offsets = _marker_offsets_in_range(metadata, PVECTOR_SIGNATURE, parameter_offset, parameter_end)
+            vectors = tuple(_read_ecgsimcase_vector_payload(data, source_path, offset) for offset in vector_offsets)
+            assigned_vector_offsets.update(vector_offsets[:2])
+            name = (
+                SOURCE_PARAMETER_NAMES[parameter_index]
+                if parameter_index < len(SOURCE_PARAMETER_NAMES)
+                else f"unknownParameter{parameter_index + 1}"
+            )
+            parameters.append(
+                ECGsimCaseSourceParameter(
+                    name=name,
+                    parameter_offset=parameter_offset,
+                    initial=vectors[0] if len(vectors) > 0 else None,
+                    adapted=vectors[1] if len(vectors) > 1 else None,
+                    units=_source_parameter_units(name),
+                )
+            )
+
+        all_vector_offsets = _marker_offsets_in_range(metadata, PVECTOR_SIGNATURE, source_offset, source_end)
+        unknown_vectors = tuple(
+            _read_ecgsimcase_vector_payload(data, source_path, offset)
+            for offset in all_vector_offsets
+            if offset not in assigned_vector_offsets
+        )
+        activation = (
+            _read_ecgsimcase_activation(data, source_path, activation_offsets[0]) if activation_offsets else None
+        )
+        sources.append(
+            ECGsimCaseSource(
+                id=f"source{source_index + 1}",
+                kind=kind,
+                source_offset=source_offset,
+                beats=(ECGsimCaseSourceBeat(id="beat1", parameters=tuple(parameters)),),
+                activation=activation,
+                unknown_vectors=unknown_vectors,
+            )
+        )
+
+    return tuple(sources)
+
+
 def read_ecgsimcase_matrix(path: str | Path, offset: int) -> MatrixData:
     """Read a known ``PMatrix`` payload from an ECGsimcase file.
 
@@ -208,29 +339,15 @@ def read_ecgsimcase_vector(path: str | Path, offset: int) -> VectorData:
 
     source_path = Path(path)
     data = source_path.read_bytes()
-    marker, values_offset = _read_marker(data, source_path, offset)
-    if marker != "PVector":
-        raise ECGsimCaseFormatError(f"{source_path} marker at {offset} is {marker!r}, not PVector")
-
-    if values_offset + 8 > len(data):
-        raise ECGsimCaseFormatError(f"{source_path} PVector header at {offset} overruns the file")
-    version, length = struct.unpack_from("<ii", data, values_offset)
-    if version <= 0:
-        raise ECGsimCaseFormatError(f"{source_path} PVector at {offset} has invalid version {version}")
-    if length <= 0:
-        raise ECGsimCaseFormatError(f"{source_path} PVector at {offset} has invalid length {length}")
-
-    value_start = values_offset + 8
-    expected_bytes = length * 4
-    if value_start + expected_bytes > len(data):
-        raise ECGsimCaseFormatError(f"{source_path} PVector values at {offset} overrun the file")
-    values = struct.unpack_from(f"<{length}f", data, value_start)
+    vector = _read_ecgsimcase_vector_payload(data, source_path, offset)
+    if vector.length <= 0:
+        raise ECGsimCaseFormatError(f"{source_path} PVector at {offset} has invalid length {vector.length}")
 
     return VectorData(
-        length=length,
-        values=tuple(float(value) for value in values),
+        length=vector.length,
+        values=vector.values,
         source_path=source_path,
-        storage_format=f"ecgsimcase-pvector-v{version}",
+        storage_format=vector.storage_format,
     )
 
 
@@ -299,6 +416,74 @@ def _read_ecgsimcase_geometry_payload(data: bytes, source_path: Path, offset: in
         source_path=source_path,
         storage_format=f"ecgsimcase-pgeometry-v{version}",
     )
+
+
+def _read_ecgsimcase_vector_payload(data: bytes, source_path: Path, offset: int) -> ECGsimCaseVector:
+    marker, values_offset = _read_marker(data, source_path, offset)
+    if marker != PVECTOR_SIGNATURE:
+        raise ECGsimCaseFormatError(f"{source_path} marker at {offset} is {marker!r}, not PVector")
+
+    if values_offset + 8 > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} PVector header at {offset} overruns the file")
+    version, length = struct.unpack_from("<ii", data, values_offset)
+    if version <= 0:
+        raise ECGsimCaseFormatError(f"{source_path} PVector at {offset} has invalid version {version}")
+    if length < 0:
+        raise ECGsimCaseFormatError(f"{source_path} PVector at {offset} has invalid length {length}")
+
+    value_start = values_offset + 8
+    expected_bytes = length * 4
+    if value_start + expected_bytes > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} PVector values at {offset} overrun the file")
+    values = struct.unpack_from(f"<{length}f", data, value_start) if length else ()
+    return ECGsimCaseVector(
+        source_offset=offset,
+        values=tuple(float(value) for value in values),
+        storage_format=f"ecgsimcase-pvector-v{version}",
+    )
+
+
+def _read_ecgsimcase_activation(data: bytes, source_path: Path, offset: int) -> ECGsimCaseActivation:
+    marker, values_offset = _read_marker(data, source_path, offset)
+    if marker != PACTIVATION_CONSTRUCTION_SIGNATURE:
+        raise ECGsimCaseFormatError(
+            f"{source_path} marker at {offset} is {marker!r}, not PActivationConstruction"
+        )
+    if values_offset + 8 > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} PActivationConstruction at {offset} overruns the file")
+    version, entry_count = struct.unpack_from("<ii", data, values_offset)
+    if version <= 0:
+        raise ECGsimCaseFormatError(
+            f"{source_path} PActivationConstruction at {offset} has invalid version {version}"
+        )
+    if entry_count < 0:
+        raise ECGsimCaseFormatError(
+            f"{source_path} PActivationConstruction at {offset} has invalid entry count {entry_count}"
+        )
+    return ECGsimCaseActivation(
+        source_offset=offset,
+        version=version,
+        entry_count=entry_count,
+        interpretation="activation/focus fields preserved as an unknown payload",
+    )
+
+
+def _marker_offsets_in_range(
+    metadata: ECGsimCaseMetadata, marker: str, start: int, end: int
+) -> tuple[int, ...]:
+    return tuple(offset for offset in metadata.marker_offsets.get(marker, ()) if start <= offset < end)
+
+
+def _source_parameter_units(name: str) -> str:
+    return {
+        "depolarizationMs": "ms",
+        "repolarizationMs": "ms",
+        "restingPotential": "mV",
+        "amplitude": "mV",
+        "plateauSlope": "unknown legacy slope unit",
+        "depolarizationSlope": "unknown legacy slope unit",
+        "repolarizationSlope": "unknown legacy slope unit",
+    }.get(name, "unknown")
 
 
 def _read_marker(data: bytes, source_path: Path, offset: int) -> tuple[str, int]:

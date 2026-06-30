@@ -15,7 +15,7 @@ from ecgsim.io import (
     read_ecgsimcase_geometries,
     read_ecgsimcase_matrix,
     read_ecgsimcase_metadata,
-    read_ecgsimcase_vector,
+    read_ecgsimcase_sources,
 )
 
 
@@ -26,17 +26,6 @@ THORAX_TARGET = ROOT / "app/viewer/public/fixtures/thorax.json"
 ECG_SIGNAL_TARGET = ROOT / "app/viewer/public/fixtures/ecg-signals.json"
 TMP_TARGET = ROOT / "app/viewer/public/fixtures/tmp-waveforms.json"
 CASE_METADATA_TARGET = ROOT / "app/viewer/public/fixtures/case-metadata.json"
-TMP_PARAMETER_OFFSETS = {
-    "depolarizationMs": (11272300, 11274630),
-    "repolarizationMs": (11277000, 11279330),
-    "plateauSlope": (11281700, 11284030),
-    "restingPotential": (11286400, 11288730),
-    "amplitude": (11291100, 11293430),
-    "depolarizationSlope": (11295800, 11298130),
-    "repolarizationSlope": (11300500, 11302830),
-}
-
-
 def case_geometry_payload(name: str) -> dict[str, object]:
     geometry_object = next(
         geometry for geometry in read_ecgsimcase_geometries(SIGNAL_SOURCE) if geometry.name == name
@@ -81,12 +70,16 @@ def ecg_signal_payload() -> dict[str, object]:
 
 
 def tmp_waveform_payload() -> dict[str, object]:
+    sources = read_ecgsimcase_sources(SIGNAL_SOURCE)
+    ventricles = next(source for source in sources if source.kind == "ventricles")
+    beat = ventricles.beats[0]
     parameter_vectors = {
-        name: {
-            "initial": read_ecgsimcase_vector(SIGNAL_SOURCE, offsets[0]),
-            "adapted": read_ecgsimcase_vector(SIGNAL_SOURCE, offsets[1]),
+        parameter.name: {
+            "initial": parameter.initial,
+            "adapted": parameter.adapted,
         }
-        for name, offsets in TMP_PARAMETER_OFFSETS.items()
+        for parameter in beat.parameters
+        if parameter.initial is not None and parameter.adapted is not None and parameter.initial.length > 0
     }
     parameter_value_vectors = {
         name: {
