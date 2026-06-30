@@ -22,6 +22,8 @@ def load_case(path: str | Path, *, strict: bool = False) -> ECGsimCase:
 
 `strict=False` should parse every known payload and retain unknown payload references. `strict=True` may fail when a required object type is malformed or when a known case object cannot be interpreted.
 
+Task 0033 added this API as `ecgsim.io.load_case(path, strict=False)`. The returned object currently contains metadata, geometries, sources, lead systems, and signal metadata. Later tasks should add new parsed payloads to this object instead of creating parallel fixture-only reader paths.
+
 ## Stable Data Structures
 
 These are the intended Python dataclass names and field semantics. Implementation may add helper fields, but public names should remain stable once introduced.

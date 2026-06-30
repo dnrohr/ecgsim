@@ -29,3 +29,7 @@ Current code has separate readers and fixture export logic. Feature parity needs
 ## Done When
 
 There is one supported path from `.ECGsimcase` file to app-ready data.
+
+## Result
+
+Added `ecgsim.io.load_case(path, strict=False)` and the normalized `ECGsimCase` container. `tools/export_viewer_fixtures.py` now loads the case once and derives geometry, source/TMP, lead-system, and signal fixtures from that object while preserving the existing fixture JSON schema.

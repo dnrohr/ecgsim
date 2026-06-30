@@ -188,6 +188,38 @@ class ECGsimCaseSignalMetadata:
     unsupported_fields: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class ECGsimCase:
+    """Normalized parsed case object for supported ECGsimcase payloads."""
+
+    metadata: ECGsimCaseMetadata
+    geometries: tuple[ECGsimCaseGeometry, ...]
+    sources: tuple[ECGsimCaseSource, ...]
+    lead_systems: tuple[ECGsimCaseLeadSystem, ...]
+    signal_metadata: ECGsimCaseSignalMetadata
+
+
+def load_case(path: str | Path, *, strict: bool = False) -> ECGsimCase:
+    """Load supported ECGsimcase objects through one high-level API."""
+
+    metadata = read_ecgsimcase_metadata(path)
+    case = ECGsimCase(
+        metadata=metadata,
+        geometries=read_ecgsimcase_geometries(metadata.source_path),
+        sources=read_ecgsimcase_sources(metadata.source_path),
+        lead_systems=read_ecgsimcase_lead_systems(metadata.source_path),
+        signal_metadata=read_ecgsimcase_signal_metadata(metadata.source_path),
+    )
+    if strict:
+        if not case.geometries:
+            raise ECGsimCaseFormatError(f"{metadata.source_path} has no parsed geometries")
+        if not case.sources:
+            raise ECGsimCaseFormatError(f"{metadata.source_path} has no parsed sources")
+        if not case.lead_systems:
+            raise ECGsimCaseFormatError(f"{metadata.source_path} has no parsed lead systems")
+    return case
+
+
 def read_ecgsimcase_metadata(path: str | Path) -> ECGsimCaseMetadata:
     """Read metadata and object markers without parsing numeric payloads."""
 

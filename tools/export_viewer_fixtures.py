@@ -12,12 +12,8 @@ sys.path.insert(0, str(ROOT))
 
 from ecgsim.core import generate_tmp_waveform_from_vectors
 from ecgsim.io import (
-    read_ecgsimcase_geometries,
-    read_ecgsimcase_lead_systems,
+    load_case,
     read_ecgsimcase_matrix,
-    read_ecgsimcase_metadata,
-    read_ecgsimcase_signal_metadata,
-    read_ecgsimcase_sources,
 )
 
 
@@ -27,9 +23,11 @@ THORAX_TARGET = ROOT / "app/viewer/public/fixtures/thorax.json"
 ECG_SIGNAL_TARGET = ROOT / "app/viewer/public/fixtures/ecg-signals.json"
 TMP_TARGET = ROOT / "app/viewer/public/fixtures/tmp-waveforms.json"
 CASE_METADATA_TARGET = ROOT / "app/viewer/public/fixtures/case-metadata.json"
-def case_geometry_payload(name: str) -> dict[str, object]:
+
+
+def case_geometry_payload(case, name: str) -> dict[str, object]:
     geometry_object = next(
-        geometry for geometry in read_ecgsimcase_geometries(SIGNAL_SOURCE) if geometry.name == name
+        geometry for geometry in case.geometries if geometry.name == name
     )
     geometry = geometry_object.geometry
     return {
@@ -47,8 +45,8 @@ def case_geometry_payload(name: str) -> dict[str, object]:
     }
 
 
-def ecg_signal_payload() -> dict[str, object]:
-    signal = read_ecgsimcase_signal_metadata(SIGNAL_SOURCE)
+def ecg_signal_payload(case) -> dict[str, object]:
+    signal = case.signal_metadata
     matrix = read_ecgsimcase_matrix(SIGNAL_SOURCE, signal.matrix_offset)
     selected_rows = (0, 50, 100, 150, 200, 250)
     return {
@@ -72,9 +70,8 @@ def ecg_signal_payload() -> dict[str, object]:
     }
 
 
-def tmp_waveform_payload() -> dict[str, object]:
-    sources = read_ecgsimcase_sources(SIGNAL_SOURCE)
-    ventricles = next(source for source in sources if source.kind == "ventricles")
+def tmp_waveform_payload(case) -> dict[str, object]:
+    ventricles = next(source for source in case.sources if source.kind == "ventricles")
     beat = ventricles.beats[0]
     parameter_vectors = {
         parameter.name: {
@@ -132,9 +129,9 @@ def tmp_waveform_payload() -> dict[str, object]:
     }
 
 
-def case_metadata_payload() -> dict[str, object]:
-    metadata = read_ecgsimcase_metadata(SIGNAL_SOURCE)
-    lead_systems = read_ecgsimcase_lead_systems(SIGNAL_SOURCE)
+def case_metadata_payload(case) -> dict[str, object]:
+    metadata = case.metadata
+    lead_systems = case.lead_systems
     return {
         "source": str(SIGNAL_SOURCE.relative_to(ROOT)).replace("\\", "/"),
         "fileName": SIGNAL_SOURCE.name,
@@ -166,9 +163,10 @@ def case_metadata_payload() -> dict[str, object]:
 
 
 def main() -> int:
+    case = load_case(SIGNAL_SOURCE)
     HEART_TARGET.parent.mkdir(parents=True, exist_ok=True)
     HEART_TARGET.write_text(
-        json.dumps(case_geometry_payload("heart"), separators=(",", ":"))
+        json.dumps(case_geometry_payload(case, "heart"), separators=(",", ":"))
         + "\n",
         encoding="utf-8",
     )
@@ -177,9 +175,9 @@ def main() -> int:
         json.dumps(
             {
                 "meshes": {
-                    "thorax": case_geometry_payload("thorax"),
-                    "leftLung": case_geometry_payload("left_lung"),
-                    "rightLung": case_geometry_payload("right_lung"),
+                    "thorax": case_geometry_payload(case, "thorax"),
+                    "leftLung": case_geometry_payload(case, "left_lung"),
+                    "rightLung": case_geometry_payload(case, "right_lung"),
                 }
             },
             separators=(",", ":"),
@@ -189,17 +187,17 @@ def main() -> int:
     )
     print(f"wrote {THORAX_TARGET.relative_to(ROOT)}")
     ECG_SIGNAL_TARGET.write_text(
-        json.dumps(ecg_signal_payload(), separators=(",", ":")) + "\n",
+        json.dumps(ecg_signal_payload(case), separators=(",", ":")) + "\n",
         encoding="utf-8",
     )
     print(f"wrote {ECG_SIGNAL_TARGET.relative_to(ROOT)}")
     TMP_TARGET.write_text(
-        json.dumps(tmp_waveform_payload(), separators=(",", ":")) + "\n",
+        json.dumps(tmp_waveform_payload(case), separators=(",", ":")) + "\n",
         encoding="utf-8",
     )
     print(f"wrote {TMP_TARGET.relative_to(ROOT)}")
     CASE_METADATA_TARGET.write_text(
-        json.dumps(case_metadata_payload(), separators=(",", ":")) + "\n",
+        json.dumps(case_metadata_payload(case), separators=(",", ":")) + "\n",
         encoding="utf-8",
     )
     print(f"wrote {CASE_METADATA_TARGET.relative_to(ROOT)}")

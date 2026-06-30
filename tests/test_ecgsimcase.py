@@ -4,6 +4,7 @@ import unittest
 
 from ecgsim.io import (
     ECGsimCaseFormatError,
+    load_case,
     read_ecgsimcase_geometries,
     read_ecgsimcase_lead_systems,
     read_ecgsimcase_matrix,
@@ -275,3 +276,22 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
         self.assertEqual(signal.signal_kind, "thorax-node surface potentials")
         self.assertIsNone(signal.fiducials)
         self.assertIn("fiducial", signal.unsupported_fields[1])
+
+    def test_load_case_returns_normalized_case_object(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")
+        case = load_case(path)
+
+        self.assertEqual(case.metadata.source_path, path)
+        self.assertEqual(len(case.geometries), 8)
+        self.assertEqual([source.kind for source in case.sources], ["atria", "ventricles"])
+        self.assertEqual([system.name for system in case.lead_systems], list(self.CASES[path.name]["lead_systems"]))
+        self.assertEqual((case.signal_metadata.rows, case.signal_metadata.columns), (300, 1000))
+
+    def test_load_case_strict_rejects_non_case_file(self) -> None:
+        with tempfile.NamedTemporaryFile(delete=False) as handle:
+            path = Path(handle.name)
+            handle.write(b"not an ecgsim case")
+        self.addCleanup(path.unlink, missing_ok=True)
+
+        with self.assertRaises(ECGsimCaseFormatError):
+            load_case(path, strict=True)
