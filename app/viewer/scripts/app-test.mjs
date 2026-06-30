@@ -110,16 +110,39 @@ async function assertImportNotices(page) {
 }
 
 async function assertThoraxControls(page) {
-  const before = await canvasSignature(page, ".thorax-viewport canvas");
+  const canvas = ".thorax-viewport canvas";
+  await expectText(page, "[data-thorax-surface-status]", "Geometry / 100% / maps unavailable");
+  await expectText(page, "[data-thorax-selection]", "electrodes parsed; positions unavailable");
+  assert.equal(await page.locator("[data-thorax-electrodes]").isDisabled(), true, "electrode toggle should show unavailable state");
+  assert.equal(await page.locator("[data-thorax-lock-heart]").isDisabled(), true, "lock-to-heart should show unavailable state");
+
+  const before = await canvasSignature(page, canvas);
+  await setRangeValue(page, "[data-thorax-scale]", "120");
+  await expectText(page, "[data-thorax-surface-status]", "Geometry / 120% / maps unavailable");
+  await page.waitForTimeout(150);
+  const scaled = await canvasSignature(page, canvas);
+  assert.notEqual(scaled, before, "Thorax scale control should change canvas output");
+
+  await page.locator("[data-thorax-ap]").click();
+  await expectText(page, "[data-status-message]", "Thorax view reset to AP orientation");
+  assert.equal(await page.locator("[data-thorax-rotate]").isChecked(), false, "Thorax AP reset should stop auto-rotation");
+
+  await page.locator("[data-thorax-rotate]").check();
+  assert.equal(await page.locator("[data-thorax-rotate]").isChecked(), true, "Thorax rotate toggle should re-enable");
+
   const leftLung = page.locator("[data-toggle-mesh='leftLung']");
   await leftLung.uncheck();
   assert.equal(await leftLung.isChecked(), false, "left lung toggle should uncheck");
   await page.waitForTimeout(150);
-  const hidden = await canvasSignature(page, ".thorax-viewport canvas");
-  assert.notEqual(hidden, before, "thorax canvas should change when a lung is hidden");
+  const hidden = await canvasSignature(page, canvas);
+  assert.notEqual(hidden, scaled, "thorax canvas should change when a lung is hidden");
 
   await leftLung.check();
   assert.equal(await leftLung.isChecked(), true, "left lung toggle should re-check");
+
+  const selected = await selectThoraxNode(page);
+  assert.match(selected, /Node \d+ \/ \d+ electrodes parsed; positions unavailable \/ maps unavailable/, "thorax click should select a node");
+  await expectText(page, "[data-status-message]", "Thorax node");
 }
 
 async function assertHeartViewControls(page) {
@@ -240,6 +263,29 @@ async function selectHeartNode(page) {
     }
   }
   return await page.locator("[data-heart-selection]").textContent();
+}
+
+async function selectThoraxNode(page) {
+  const canvas = page.locator(".thorax-viewport canvas");
+  const box = await canvas.boundingBox();
+  assert.ok(box, "thorax canvas should have a bounding box");
+  const points = [
+    [0.5, 0.5],
+    [0.45, 0.45],
+    [0.55, 0.45],
+    [0.45, 0.58],
+    [0.55, 0.58],
+    [0.5, 0.35],
+    [0.5, 0.65],
+  ];
+  for (const [xRatio, yRatio] of points) {
+    await page.mouse.click(box.x + box.width * xRatio, box.y + box.height * yRatio);
+    const selection = await page.locator("[data-thorax-selection]").textContent();
+    if (selection && !selection.includes("Node --")) {
+      return selection;
+    }
+  }
+  return await page.locator("[data-thorax-selection]").textContent();
 }
 
 async function setRangeValue(page, selector, value) {

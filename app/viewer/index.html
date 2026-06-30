@@ -119,10 +119,34 @@
             <h2>Thorax</h2>
             <output data-thorax-metadata>--</output>
           </div>
+          <div class="thorax-controls" aria-label="Thorax view controls">
+            <button type="button" data-thorax-ap>AP</button>
+            <label><input type="checkbox" data-thorax-rotate checked> Rotate</label>
+            <label>
+              Surface
+              <select data-thorax-surface>
+                <option value="geometry">Geometry</option>
+                <option value="measured" disabled>Measured BSPM</option>
+                <option value="initial" disabled>Initial BSPM</option>
+                <option value="adapted" disabled>Adapted BSPM</option>
+                <option value="sensitivity" disabled>Sensitivity</option>
+              </select>
+            </label>
+            <label>
+              Scale
+              <input type="range" min="60" max="140" step="10" value="100" data-thorax-scale>
+            </label>
+            <label><input type="checkbox" data-thorax-electrodes disabled> Electrodes</label>
+            <button type="button" data-thorax-lock-heart disabled>Lock</button>
+            <output data-thorax-surface-status>Geometry</output>
+          </div>
           <div class="layer-toggles" aria-label="Thorax layers">
             <label><input type="checkbox" data-toggle-mesh="thorax" checked> Thorax</label>
             <label><input type="checkbox" data-toggle-mesh="leftLung" checked> Left lung</label>
             <label><input type="checkbox" data-toggle-mesh="rightLung" checked> Right lung</label>
+          </div>
+          <div class="selection-controls thorax-selection-controls" aria-label="Thorax selection">
+            <output data-thorax-selection>Node -- / electrodes unavailable / maps unavailable</output>
           </div>
           <div class="viewport thorax-viewport" data-thorax-viewport></div>
         </section>

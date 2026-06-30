@@ -28,3 +28,10 @@ Current Thorax view only toggles thorax and lungs. Legacy ECGSIM includes electr
 ## Done When
 
 Thorax view covers geometry, electrodes, and potential-map entry points.
+
+## Result
+
+- Added Thorax AP reset, auto-rotation, geometry scale, layer toggles, and thorax-node selection.
+- Added visible electrode, BSPM, sensitivity, and lock-to-heart entry points with disabled/unavailable states where parsed data is missing.
+- Documented current Thorax support and blocked parity items in `docs/feature-parity/thorax-view-notes.md`.
+- Extended smoke and browser workflow tests to validate Thorax controls, canvas changes, unavailable data states, and selection behavior.

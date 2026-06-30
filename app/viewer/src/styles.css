@@ -14,6 +14,8 @@ body {
 }
 
 .viewer-shell {
+  width: 100%;
+  min-width: 0;
   min-height: 100vh;
   display: grid;
   grid-template-rows: auto auto auto auto 1fr auto;
@@ -218,7 +220,7 @@ h2 {
 }
 
 .pane-thorax {
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto minmax(0, 1fr);
 }
 
 .pane-heart {
@@ -265,7 +267,8 @@ h2 {
   min-width: 0;
 }
 
-.heart-controls {
+.heart-controls,
+.thorax-controls {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -273,7 +276,9 @@ h2 {
   min-width: 0;
 }
 
-.heart-controls label {
+.heart-controls label,
+.thorax-controls label {
+  max-width: 100%;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -282,7 +287,9 @@ h2 {
 }
 
 .heart-controls select,
-.heart-controls button {
+.heart-controls button,
+.thorax-controls select,
+.thorax-controls button {
   min-height: 28px;
   border: 1px solid #b8c3c8;
   background: #ffffff;
@@ -291,28 +298,45 @@ h2 {
   font-size: 12px;
 }
 
-.heart-controls button {
+.thorax-controls select {
+  max-width: min(170px, 100%);
+}
+
+.heart-controls button,
+.thorax-controls button {
   min-width: 34px;
   padding: 0 8px;
   cursor: pointer;
 }
 
-.heart-controls button:disabled {
+.heart-controls button:disabled,
+.thorax-controls button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
 }
 
-.heart-controls input {
+.heart-controls input,
+.thorax-controls input {
   accent-color: #175c8a;
 }
 
-.heart-controls output {
+.thorax-controls input[type="range"] {
+  width: 104px;
+}
+
+.heart-controls output,
+.thorax-controls output {
   min-width: 0;
   overflow: hidden;
   color: #52616b;
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.thorax-selection-controls output {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .layer-toggles label {
@@ -475,8 +499,26 @@ canvas {
   }
 
   .workspace {
-    grid-template-columns: 1fr;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: repeat(4, minmax(220px, 1fr));
+  }
+
+  .topbar,
+  .menu-strip,
+  .toolbar,
+  .case-summary,
+  .statusbar,
+  .pane {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .pane {
+    overflow: hidden;
   }
 
   .selection-controls {
@@ -485,6 +527,11 @@ canvas {
   }
 
   .heart-controls {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .thorax-controls {
     align-items: flex-start;
     flex-direction: column;
   }

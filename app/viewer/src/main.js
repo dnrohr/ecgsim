@@ -32,6 +32,13 @@ const heartValues = document.querySelector("[data-heart-values]");
 const heartSurfaceStatus = document.querySelector("[data-heart-surface-status]");
 const thoraxViewport = document.querySelector("[data-thorax-viewport]");
 const thoraxMetadata = document.querySelector("[data-thorax-metadata]");
+const thoraxAp = document.querySelector("[data-thorax-ap]");
+const thoraxRotate = document.querySelector("[data-thorax-rotate]");
+const thoraxSurface = document.querySelector("[data-thorax-surface]");
+const thoraxScale = document.querySelector("[data-thorax-scale]");
+const thoraxElectrodes = document.querySelector("[data-thorax-electrodes]");
+const thoraxSurfaceStatus = document.querySelector("[data-thorax-surface-status]");
+const thoraxSelection = document.querySelector("[data-thorax-selection]");
 const leadsMetadata = document.querySelector("[data-leads-metadata]");
 const leadsFilter = document.querySelector("[data-leads-filter]");
 const tmpMetadata = document.querySelector("[data-tmp-metadata]");
@@ -334,14 +341,28 @@ function mountHeart(fixture, tmpFixture, onSelectionChange) {
 }
 
 function mountThorax(fixture) {
-  if (!thoraxViewport || !thoraxMetadata) {
+  if (
+    !thoraxViewport ||
+    !thoraxMetadata ||
+    !thoraxAp ||
+    !thoraxRotate ||
+    !thoraxSurface ||
+    !thoraxScale ||
+    !thoraxSurfaceStatus ||
+    !thoraxSelection
+  ) {
     throw new Error("Thorax viewport did not mount");
   }
   thoraxViewport.replaceChildren();
 
   const { scene, camera, renderer } = createScene(thoraxViewport, 0.75);
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
   const group = new THREE.Group();
   const meshes = new Map();
+  let thoraxMesh = null;
+  let isAutoRotating = true;
+  let selectedNodeIndex = -1;
   const materials = {
     thorax: new THREE.MeshStandardMaterial({
       color: 0x6f8790,
@@ -370,7 +391,31 @@ function mountThorax(fixture) {
   for (const [name, meshFixture] of Object.entries(fixture.meshes)) {
     const mesh = new THREE.Mesh(buildGeometry(meshFixture), materials[name]);
     meshes.set(name, mesh);
+    if (name === "thorax") {
+      thoraxMesh = mesh;
+    }
     group.add(mesh);
+  }
+
+  const selectedMarker = new THREE.Mesh(
+    new THREE.SphereGeometry(0.009, 16, 12),
+    new THREE.MeshStandardMaterial({
+      color: 0x111111,
+      emissive: 0x111111,
+      emissiveIntensity: 0.25,
+      roughness: 0.38,
+    }),
+  );
+  selectedMarker.visible = false;
+  selectedMarker.renderOrder = 4;
+  thoraxMesh?.add(selectedMarker);
+
+  const thoraxNodePositions = [];
+  if (thoraxMesh) {
+    const positions = thoraxMesh.geometry.getAttribute("position");
+    for (let index = 0; index < positions.count; index += 1) {
+      thoraxNodePositions.push(new THREE.Vector3().fromBufferAttribute(positions, index));
+    }
   }
 
   const bounds = new THREE.Box3().setFromObject(group);
@@ -379,26 +424,159 @@ function mountThorax(fixture) {
   group.rotation.set(-0.2, 0.18, 0);
   scene.add(group);
 
+  function electrodeStatusText() {
+    const selectedLeadSystem = currentCaseMetadata?.leadSystemDetails?.find(
+      (item) => item.name === toolbarLeadSystem?.value,
+    );
+    const count = selectedLeadSystem?.electrodeCount ?? 0;
+    return count > 0
+      ? `${count} electrodes parsed; positions unavailable`
+      : "Electrodes unavailable";
+  }
+
+  function updateSurfaceStatus() {
+    const scale = Number.parseFloat(thoraxScale.value);
+    const label = thoraxSurface.selectedOptions[0]?.textContent ?? "Geometry";
+    const mapStatus = thoraxSurface.value === "geometry" ? "maps unavailable" : "map data unavailable";
+    thoraxSurfaceStatus.value = `${label} / ${scale}% / ${mapStatus}`;
+  }
+
+  function updateSelectionStatus() {
+    const nodeText = selectedNodeIndex >= 0 ? `Node ${selectedNodeIndex + 1}` : "Node --";
+    thoraxSelection.value = `${nodeText} / ${electrodeStatusText()} / maps unavailable`;
+  }
+
+  function renderThorax() {
+    renderer.render(scene, camera);
+  }
+
+  function setThoraxRotationAP() {
+    group.rotation.set(-0.2, 0.18, 0);
+    renderThorax();
+  }
+
+  function applyThoraxScale() {
+    const scale = Number.parseFloat(thoraxScale.value) / 100;
+    group.scale.setScalar(scale);
+    updateSurfaceStatus();
+    renderThorax();
+  }
+
+  function nearestFaceVertex(hit) {
+    const candidates = [hit.face.a, hit.face.b, hit.face.c];
+    let nearest = candidates[0];
+    let nearestDistance = hit.point.distanceTo(thoraxNodePositions[nearest]);
+    candidates.slice(1).forEach((candidate) => {
+      const distance = hit.point.distanceTo(thoraxNodePositions[candidate]);
+      if (distance < nearestDistance) {
+        nearest = candidate;
+        nearestDistance = distance;
+      }
+    });
+    return nearest;
+  }
+
+  function nearestProjectedThoraxNode(targetPointer) {
+    const projected = new THREE.Vector3();
+    let nearest = -1;
+    let nearestDistance = 0.05;
+    thoraxNodePositions.forEach((position, index) => {
+      projected.copy(position).applyMatrix4(thoraxMesh.matrixWorld).project(camera);
+      const dx = projected.x - targetPointer.x;
+      const dy = projected.y - targetPointer.y;
+      const distance = dx * dx + dy * dy;
+      if (distance < nearestDistance) {
+        nearest = index;
+        nearestDistance = distance;
+      }
+    });
+    return nearest;
+  }
+
+  function selectThoraxNode(event) {
+    if (!thoraxMesh) {
+      return;
+    }
+    const bounds = renderer.domElement.getBoundingClientRect();
+    pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+    pointer.y = -(((event.clientY - bounds.top) / bounds.height) * 2 - 1);
+    group.updateMatrixWorld(true);
+    raycaster.setFromCamera(pointer, camera);
+    const [hit] = raycaster.intersectObject(thoraxMesh, false);
+    const nearest = hit?.face
+      ? nearestFaceVertex(hit)
+      : nearestProjectedThoraxNode(pointer);
+    if (nearest < 0) {
+      return;
+    }
+    selectedNodeIndex = nearest;
+    isAutoRotating = false;
+    thoraxRotate.checked = false;
+    selectedMarker.position.copy(thoraxNodePositions[selectedNodeIndex]);
+    selectedMarker.visible = true;
+    updateSelectionStatus();
+    if (statusMessage) {
+      statusMessage.value = `Thorax node ${selectedNodeIndex + 1} selected.`;
+    }
+    renderThorax();
+  }
+
   document.querySelectorAll("[data-toggle-mesh]").forEach((toggle) => {
     const mesh = meshes.get(toggle.dataset.toggleMesh);
     if (!mesh) {
       return;
     }
+    toggle.checked = true;
     mesh.visible = toggle.checked;
-    toggle.addEventListener("change", () => {
+    toggle.onchange = () => {
       mesh.visible = toggle.checked;
-    });
+      renderThorax();
+    };
   });
 
   const countText = Object.entries(fixture.meshes)
     .map(([name, meshFixture]) => `${name}: ${meshFixture.pointCount}/${meshFixture.triangleCount}`)
     .join(" | ");
   thoraxMetadata.value = countText;
+  thoraxSurface.value = "geometry";
+  thoraxScale.value = "100";
+  thoraxRotate.checked = true;
+  if (thoraxElectrodes) {
+    thoraxElectrodes.checked = false;
+    thoraxElectrodes.disabled = true;
+    thoraxElectrodes.title = electrodeStatusText();
+  }
+  updateSurfaceStatus();
+  updateSelectionStatus();
+
+  thoraxAp.onclick = () => {
+    isAutoRotating = false;
+    thoraxRotate.checked = false;
+    setThoraxRotationAP();
+    if (statusMessage) {
+      statusMessage.value = "Thorax view reset to AP orientation.";
+    }
+  };
+  thoraxRotate.onchange = () => {
+    isAutoRotating = thoraxRotate.checked;
+  };
+  thoraxSurface.onchange = () => {
+    thoraxSurface.value = "geometry";
+    updateSurfaceStatus();
+    if (statusMessage) {
+      statusMessage.value = "Thorax BSPM and sensitivity map data are unavailable in current fixtures.";
+    }
+  };
+  thoraxScale.oninput = applyThoraxScale;
+  renderer.domElement.addEventListener("pointerdown", selectThoraxNode);
+  renderer.domElement.style.cursor = "crosshair";
 
   observeViewport(thoraxViewport, camera, renderer, (width) => (width < 480 ? 1.05 : 0.75));
 
   function animate() {
-    group.rotation.y += 0.003;
+    if (isAutoRotating) {
+      group.rotation.y += 0.003;
+    }
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
   }
