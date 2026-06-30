@@ -79,6 +79,7 @@ def verify_fixture_manifest(fixture_dir: Path) -> dict[str, object]:
         raise ValueError(f"{manifest_path} is not a legacy parity fixture manifest")
 
     checks = []
+    expected_paths = {Path(file_entry["path"]).as_posix() for file_entry in manifest["files"]}
     for file_entry in manifest["files"]:
         relative_path = file_entry["path"]
         path = fixture_dir / relative_path
@@ -94,6 +95,14 @@ def verify_fixture_manifest(fixture_dir: Path) -> dict[str, object]:
             checks.append(failed_check(relative_path, "sha256 differs from manifest"))
             continue
         checks.append({"path": relative_path, "status": "passed"})
+
+    actual_paths = {
+        path.relative_to(fixture_dir).as_posix()
+        for path in fixture_dir.rglob("*")
+        if path.is_file() and path.name != "manifest.json"
+    }
+    for extra_path in sorted(actual_paths - expected_paths):
+        checks.append(failed_check(extra_path, "file is not recorded in manifest"))
 
     failed = [check for check in checks if check["status"] != "passed"]
     return {

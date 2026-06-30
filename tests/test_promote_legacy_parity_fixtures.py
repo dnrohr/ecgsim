@@ -50,6 +50,22 @@ class PromoteLegacyParityFixturesTests(unittest.TestCase):
         self.assertEqual(verification["failedCount"], 1)
         self.assertIn("sha256", verification["checks"][0]["message"])
 
+    def test_fixture_manifest_verification_fails_on_unmanaged_extra_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            capture = root / "capture"
+            output = root / "fixtures"
+            write_capture(capture)
+            promote_fixtures(capture, output, artifacts=("tmpSource",))
+            (output / "stale.refECG").write_text("1 1\n0\n", encoding="ascii")
+
+            verification = verify_fixture_manifest(output)
+
+        self.assertEqual(verification["status"], "failed")
+        self.assertEqual(verification["failedCount"], 1)
+        self.assertEqual(verification["checks"][-1]["path"], "stale.refECG")
+        self.assertIn("not recorded", verification["checks"][-1]["message"])
+
     def test_requires_requested_artifacts_to_exist(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

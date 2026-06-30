@@ -152,6 +152,8 @@ Before committing promoted fixtures, verify their manifest:
 python tools/promote_legacy_parity_fixtures.py --verify tests/fixtures/legacy-parity/<case-name>
 ```
 
+Verification fails if a promoted file is missing, its checksum changes, or the fixture directory contains extra files not recorded in `manifest.json`.
+
 Commit only manifests and small, justified reference files. Keep large raw exports ignored unless a later task explicitly promotes a small fixture.
 
 ## Screenshot Manual Workflow
