@@ -2,6 +2,8 @@
 
 These task descriptions split the roadmap into agent-sized units. Start with the lowest unfinished task number unless the user explicitly chooses a different one.
 
+Tasks `0001` through `0025` completed the initial prototype roadmap. Tasks `0026` and later follow the feature-parity roadmap in `docs/feature-parity-roadmap.md`.
+
 Each task should end with:
 
 - Relevant docs updated.
@@ -51,3 +53,60 @@ Each task should end with:
 
 - [x] [0024 Package Examples And User Docs](0024-package-examples-and-user-docs.md)
 - [x] [0025 Cross-Platform Packaging Plan](0025-cross-platform-packaging-plan.md)
+
+## FP0: Parity Definition
+
+- [ ] [0026 Inventory Legacy UI And Workflows](0026-inventory-legacy-ui-and-workflows.md)
+- [ ] [0027 Define Feature Parity Matrix And Golden Workflows](0027-define-feature-parity-matrix-and-golden-workflows.md)
+- [ ] [0028 Expand Legacy Reference Capture Plan](0028-expand-legacy-reference-capture-plan.md)
+
+## FP1: Real Case Loading
+
+- [ ] [0029 Design ECGsimcase Object Model](0029-design-ecgsimcase-object-model.md)
+- [ ] [0030 Parse Case Geometry Objects](0030-parse-case-geometry-objects.md)
+- [ ] [0031 Parse Source Parameters Beats And Activation Objects](0031-parse-source-parameters-beats-and-activation-objects.md)
+- [ ] [0032 Parse Lead Systems Electrodes And Signal Metadata](0032-parse-lead-systems-electrodes-and-signal-metadata.md)
+- [ ] [0033 Build Case Loader API And Fixture Adapter](0033-build-case-loader-api-and-fixture-adapter.md)
+- [ ] [0034 Implement Real Viewer Case Open](0034-implement-real-viewer-case-open.md)
+- [ ] [0035 Add Multi-Case Regression Fixtures](0035-add-multi-case-regression-fixtures.md)
+
+## FP2: View Parity
+
+- [ ] [0036 Implement Legacy-Inspired App Shell](0036-implement-legacy-inspired-app-shell.md)
+- [ ] [0037 Implement Heart View Controls](0037-implement-heart-view-controls.md)
+- [ ] [0038 Implement Thorax View Controls](0038-implement-thorax-view-controls.md)
+- [ ] [0039 Implement Leads View Controls](0039-implement-leads-view-controls.md)
+- [ ] [0040 Implement TMP View Controls](0040-implement-tmp-view-controls.md)
+- [ ] [0041 Add Linked Time Cursor And Playback State](0041-add-linked-time-cursor-and-playback-state.md)
+- [ ] [0042 Implement Surface Potential Maps And Animation](0042-implement-surface-potential-maps-and-animation.md)
+- [ ] [0043 Implement Lead System Switching](0043-implement-lead-system-switching.md)
+
+## FP3: Source Editing Parity
+
+- [ ] [0044 Implement Selection Modes And Transition Zones](0044-implement-selection-modes-and-transition-zones.md)
+- [ ] [0045 Implement Endocardial Epicardial And Transmural Mapping](0045-implement-endocardial-epicardial-and-transmural-mapping.md)
+- [ ] [0046 Implement Accumulation Modes Undo And Redo](0046-implement-accumulation-modes-undo-and-redo.md)
+- [ ] [0047 Implement Source Edit Persistence Model](0047-implement-source-edit-persistence-model.md)
+
+## FP4: Scientific Recomputation Parity
+
+- [ ] [0048 Capture Raw Legacy Exports For Numerical Parity](0048-capture-raw-legacy-exports-for-numerical-parity.md)
+- [ ] [0049 Implement Legacy TMP Generator Parity](0049-implement-legacy-tmp-generator-parity.md)
+- [ ] [0050 Implement Activation And Focus Construction](0050-implement-activation-and-focus-construction.md)
+- [ ] [0051 Wire Recompute Pipeline Into Viewer](0051-wire-recompute-pipeline-into-viewer.md)
+- [ ] [0052 Implement Fiducial And Filtering Parity](0052-implement-fiducial-and-filtering-parity.md)
+- [ ] [0053 Expand Numerical Parity Harness](0053-expand-numerical-parity-harness.md)
+
+## FP5: Import Export And Interop
+
+- [ ] [0054 Implement Export Directory Writer](0054-implement-export-directory-writer.md)
+- [ ] [0055 Implement Case Save Or Adaptation Sidecar](0055-implement-case-save-or-adaptation-sidecar.md)
+- [ ] [0056 Implement Clipboard Image And Movie Exports](0056-implement-clipboard-image-and-movie-exports.md)
+- [ ] [0057 Document Import Export Compatibility](0057-document-import-export-compatibility.md)
+
+## FP6: Productization
+
+- [ ] [0058 Profile And Optimize Large Case Workflows](0058-profile-and-optimize-large-case-workflows.md)
+- [ ] [0059 Implement Desktop Packaging](0059-implement-desktop-packaging.md)
+- [ ] [0060 Add End-To-End Release Validation](0060-add-end-to-end-release-validation.md)
+- [ ] [0061 Update User Documentation For Feature Parity](0061-update-user-documentation-for-feature-parity.md)
