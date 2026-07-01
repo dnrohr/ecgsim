@@ -60,6 +60,28 @@ This regenerates `app/viewer/public/fixtures/heart.json` from archived legacy ge
 
 Regression tests also compare tracked viewer fixtures and the legacy screenshot manifest against the tolerances in `docs/parity.md`. When regenerating fixtures, run the Python test command before committing.
 
+## Legacy Parity Capture Handoff
+
+Raw legacy exports remain blocked until a normal interactive Windows session can run `File -> Export` in the ignored legacy app. After a capture exists under `research/legacy-exports/raw/<case-name>/export-directory/`, validate it before promoting anything into tests:
+
+```powershell
+python tools/validate_legacy_capture.py research/legacy-exports/raw/<case-name>/export-directory --format markdown --require-task 0049 --output research/legacy-exports/<case-name>-0049-handoff.md
+```
+
+Promote only reviewed small artifacts needed by a parity task:
+
+```powershell
+python tools/promote_legacy_parity_fixtures.py research/legacy-exports/raw/<case-name>/export-directory tests/fixtures/legacy-parity/<case-name> --case-id <case-name> --artifact tmpSource
+```
+
+Verify promoted fixture manifests before committing:
+
+```powershell
+python tools/promote_legacy_parity_fixtures.py --verify tests/fixtures/legacy-parity/<case-name>
+```
+
+Keep full raw export directories ignored. Tests should consume promoted fixtures and manifests, not files directly under `research/legacy-exports/raw/`.
+
 ## Viewer Dev Server
 
 Run:
