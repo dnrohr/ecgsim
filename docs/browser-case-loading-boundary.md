@@ -28,7 +28,7 @@ This path is the preferred near-term implementation boundary because it lets the
 
 ### User-Provided Modern Bundle
 
-Task `0063` should add a direct import path for a generated modern case bundle. That bundle should use the same schema as `tools/export_viewer_fixtures.py` emits for hash-matched supported cases, with validation before rendering.
+Task `0063` added a direct import path for a generated modern case bundle. That bundle uses the same schema as `tools/export_viewer_fixtures.py` emits for hash-matched supported cases, with validation before rendering.
 
 This is the right next step before attempting full browser-side `.ECGsimcase` parsing.
 
@@ -100,7 +100,7 @@ Developer diagnostics should include enough detail for tests and bug reports, bu
 
 ## Implementation Sequence
 
-1. `0063`: import generated modern case bundles directly through the app UI.
+1. `0063`: import generated modern case bundles directly through the app UI. Completed.
 2. `0064`: generate and load all parser-supported WPW variants through the same bundle contract.
 3. `0065`: formalize validation summaries and user-facing partial-support status.
 4. Future task: evaluate JS/WASM `.ECGsimcase` parsing only after bundle import and validation are stable.

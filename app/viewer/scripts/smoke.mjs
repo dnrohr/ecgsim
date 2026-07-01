@@ -41,6 +41,7 @@ const required = [
   "data-time-cursor",
   "data-time-status",
   "data-case-file",
+  "data-case-bundle-file",
   "data-case-unsupported",
   "data-pane=\"heart\"",
   "data-pane=\"thorax\"",

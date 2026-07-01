@@ -19,6 +19,7 @@ import {
 const status = document.querySelector("[data-case-status]");
 const shell = document.querySelector("[data-viewer-shell]");
 const caseFile = document.querySelector("[data-case-file]");
+const caseBundleFile = document.querySelector("[data-case-bundle-file]");
 const caseSize = document.querySelector("[data-case-size]");
 const caseLeads = document.querySelector("[data-case-leads]");
 const caseMarkers = document.querySelector("[data-case-markers]");
@@ -1631,7 +1632,91 @@ function syncUnavailableLeadOverlayControls() {
   });
 }
 
+function validateCaseBundle(bundle) {
+  if (!bundle || typeof bundle !== "object" || Array.isArray(bundle)) {
+    throw new Error("case bundle must be a JSON object");
+  }
+  const requiredSections = ["caseMetadata", "heart", "thorax", "ecgSignals", "tmpWaveforms"];
+  requiredSections.forEach((section) => {
+    if (!bundle[section] || typeof bundle[section] !== "object") {
+      throw new Error(`case bundle is missing ${section}`);
+    }
+  });
+
+  const metadata = bundle.caseMetadata;
+  if (!metadata.fileName || !Array.isArray(metadata.leadSystems) || !Array.isArray(metadata.leadSystemDetails)) {
+    throw new Error("caseMetadata must include fileName, leadSystems, and leadSystemDetails");
+  }
+  if (!Number.isFinite(metadata.byteSize)) {
+    throw new Error("caseMetadata must include byteSize");
+  }
+  if (!metadata.markerCounts || typeof metadata.markerCounts !== "object") {
+    throw new Error("caseMetadata must include markerCounts");
+  }
+  ["PMatrix", "PGeometry", "PLead", "PVector"].forEach((markerName) => {
+    if (!Number.isFinite(metadata.markerCounts[markerName])) {
+      throw new Error(`caseMetadata markerCounts must include ${markerName}`);
+    }
+  });
+  if (!Array.isArray(metadata.unsupportedPayloads)) {
+    throw new Error("caseMetadata unsupportedPayloads must be an array");
+  }
+
+  validateGeometryBundle(bundle.heart, "heart");
+  const thoraxMeshes = bundle.thorax.meshes;
+  if (!thoraxMeshes || !thoraxMeshes.thorax || !thoraxMeshes.leftLung || !thoraxMeshes.rightLung) {
+    throw new Error("thorax must include thorax, leftLung, and rightLung meshes");
+  }
+  Object.entries(thoraxMeshes).forEach(([name, mesh]) => validateGeometryBundle(mesh, `thorax.${name}`));
+  validateSignalBundle(bundle.ecgSignals);
+  validateTmpBundle(bundle.tmpWaveforms);
+  return bundle;
+}
+
+function validateGeometryBundle(geometry, label) {
+  if (!Array.isArray(geometry.points) || !Array.isArray(geometry.triangles)) {
+    throw new Error(`${label} geometry must include points and triangles`);
+  }
+  if (geometry.pointCount !== geometry.points.length || geometry.triangleCount !== geometry.triangles.length) {
+    throw new Error(`${label} geometry counts do not match point/triangle arrays`);
+  }
+}
+
+function validateSignalBundle(signals) {
+  if (!Number.isInteger(signals.rows) || !Number.isInteger(signals.columns)) {
+    throw new Error("ecgSignals must include integer rows and columns");
+  }
+  if (!Number.isFinite(signals.sampleRateHz) || signals.sampleRateHz <= 0) {
+    throw new Error("ecgSignals must include a positive sampleRateHz");
+  }
+  if (!Array.isArray(signals.traces) || !signals.traces.length) {
+    throw new Error("ecgSignals must include at least one trace");
+  }
+  if (!signals.surfaceMap || !Array.isArray(signals.surfaceMap.valuesByNode)) {
+    throw new Error("ecgSignals must include surfaceMap values");
+  }
+  if (!signals.fiducials || typeof signals.fiducials.status !== "string") {
+    throw new Error("ecgSignals must include fiducial status");
+  }
+}
+
+function validateTmpBundle(tmp) {
+  if (!Number.isInteger(tmp.nodeCount) || !Number.isInteger(tmp.sampleCount)) {
+    throw new Error("tmpWaveforms must include integer nodeCount and sampleCount");
+  }
+  if (!Number.isFinite(tmp.sampleRateHz) || tmp.sampleRateHz <= 0) {
+    throw new Error("tmpWaveforms must include a positive sampleRateHz");
+  }
+  if (!tmp.parameterVectors || typeof tmp.parameterVectors !== "object") {
+    throw new Error("tmpWaveforms must include parameterVectors");
+  }
+  if (!Array.isArray(tmp.nodes) || !tmp.nodes.length) {
+    throw new Error("tmpWaveforms must include preview nodes");
+  }
+}
+
 function applyCaseBundle(bundle, noticeText) {
+  validateCaseBundle(bundle);
   selectionState.nodeIndex = -1;
   selectionState.region = [];
   updateCaseMetadata(bundle.caseMetadata, noticeText);
@@ -1733,6 +1818,14 @@ async function loadSupportedCaseBundle(entry) {
   return response.json();
 }
 
+async function readBundleFile(file) {
+  try {
+    return JSON.parse(await file.text());
+  } catch (error) {
+    throw new Error(`bundle JSON could not be parsed: ${error.message}`);
+  }
+}
+
 async function sha256Hex(file) {
   const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
   return [...new Uint8Array(digest)]
@@ -1772,6 +1865,27 @@ async function openSelectedCase(file) {
   }
 }
 
+async function openSelectedCaseBundle(file) {
+  if (!file || !currentCaseMetadata) {
+    return;
+  }
+
+  const checkingMessage = `Opening generated case bundle ${file.name}...`;
+  caseNotice.textContent = checkingMessage;
+  if (statusMessage) {
+    statusMessage.value = checkingMessage;
+  }
+  try {
+    const bundle = validateCaseBundle(await readBundleFile(file));
+    applyCaseBundle(bundle, `${file.name} loaded from a generated case bundle.`);
+  } catch (error) {
+    updateCaseMetadata(
+      currentCaseMetadata,
+      `${file.name} could not be opened as a generated case bundle: ${error.message}; still showing ${currentCaseMetadata.fileName}.`,
+    );
+  }
+}
+
 async function mount() {
   if (!shell || !status) {
     throw new Error("Viewer shell did not mount");
@@ -1803,6 +1917,7 @@ async function mount() {
     `Loaded bundled supported case fixture from ${caseMetadata.source}.`,
   );
   caseFile?.addEventListener("change", () => openSelectedCase(caseFile.files?.[0]));
+  caseBundleFile?.addEventListener("change", () => openSelectedCaseBundle(caseBundleFile.files?.[0]));
   mountVisualExportControls();
 }
 

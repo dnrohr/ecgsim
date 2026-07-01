@@ -91,6 +91,9 @@ async function assertShellLayout(page) {
 
 async function assertImportNotices(page) {
   const caseInput = page.locator("[data-case-file]");
+  const bundleInput = page.locator("[data-case-bundle-file]");
+  const caseManifest = JSON.parse(readFileSync(resolve(viewerRoot, "public/fixtures/cases/manifest.json"), "utf8"));
+  const normalBundle = caseManifest.cases.find((entry) => entry.fileName === "normal_male2.ECGsimcase");
   await caseInput.setInputFiles(resolve(repoRoot, "research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase"));
   await expectText(page, "[data-case-notice]", "normal_male2.ECGsimcase loaded from a supported web case bundle");
   await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
@@ -109,6 +112,21 @@ async function assertImportNotices(page) {
   await caseInput.setInputFiles(unsupportedPath);
   await expectText(page, "[data-case-status]", "WPW_ectopicbeat.ECGsimcase");
   await expectText(page, "[data-case-notice]", "unsupported.ECGsimcase is not in the supported web bundle manifest");
+
+  await bundleInput.setInputFiles(resolve(viewerRoot, "public/fixtures/cases", normalBundle.bundle));
+  await expectText(page, "[data-case-status]", "normal_male2.ECGsimcase");
+  await expectText(page, "[data-case-notice]", `${normalBundle.bundle} loaded from a generated case bundle`);
+  await expectText(page, "[data-case-leads]", "standard_12");
+  await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
+  await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz");
+  await expectText(page, "[data-leads-metadata]", "standard_12: 9 electrode traces");
+
+  const invalidBundlePath = resolve(tmpdir(), "invalid-bundle.json");
+  writeFileSync(invalidBundlePath, JSON.stringify({ caseMetadata: { fileName: "broken" } }));
+  await bundleInput.setInputFiles(invalidBundlePath);
+  await expectText(page, "[data-case-status]", "normal_male2.ECGsimcase");
+  await expectText(page, "[data-case-notice]", "invalid-bundle.json could not be opened as a generated case bundle");
+  await expectText(page, "[data-case-notice]", "missing heart");
 
   await caseInput.setInputFiles(resolve(repoRoot, "research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase"));
   await expectText(page, "[data-case-status]", "normal_male2.ECGsimcase");

@@ -29,3 +29,7 @@ Task `0062` should define the boundary. Start with bundle import before full bin
 ## Done When
 
 Users can load a generated modern bundle through the app UI in the browser preview.
+
+## Completion Note
+
+Completed by adding an Open bundle JSON control to the viewer. The app now validates generated case bundles before rendering, loads valid user-selected bundles through the same `applyCaseBundle()` path as manifest-supported legacy cases, and preserves the current case with a visible error notice when JSON parsing or schema validation fails. Browser workflow coverage imports a generated normal case bundle, verifies Heart/TMP/Leads state updates, and verifies an invalid bundle is rejected without replacing the current case.

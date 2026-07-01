@@ -57,6 +57,8 @@ Current supported browser-open cases:
 
 Use the Open case control and select the original local `.ECGsimcase` file. The browser checks SHA-256 and byte size, then loads the matching generated bundle. Unsupported files leave the current case visible and show a notice.
 
+Use the Open bundle control to load a generated case-bundle `.json` file directly. Bundle JSON must use the same top-level sections emitted by `tools/export_viewer_fixtures.py`: `caseMetadata`, `heart`, `thorax`, `ecgSignals`, and `tmpWaveforms`. Invalid bundles leave the current case visible and show a validation notice.
+
 ## Normal Case Walkthrough
 
 Use:
