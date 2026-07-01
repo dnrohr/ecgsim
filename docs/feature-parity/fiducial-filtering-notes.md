@@ -17,4 +17,4 @@ The Leads manual says baseline correction should set values at the beginning of 
 
 ## Current Blocker
 
-Task `0048` raw legacy exports are still missing, so filtering cannot be compared to legacy output. Until P/T fiducials are parsed or captured from exports, baseline mode remains a documented fallback rather than a parity claim.
+Task `0048` now provides promoted normal male ECGSIM 3.0.1 `.refECG` and `.adaptECG` fixtures, so filtering can start comparing against real legacy output. Until P/T fiducials are parsed or inferred from those exports, baseline mode remains a documented fallback rather than a parity claim.

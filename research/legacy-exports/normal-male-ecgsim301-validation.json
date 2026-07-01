@@ -1,0 +1,469 @@
+{
+  "schema": "org.ecgsim.legacy-capture-validation",
+  "version": 1,
+  "captureDir": "research/legacy-exports/raw/normal-male/final-export-win32-probe/normal_male",
+  "manifest": {
+    "exportRoot": "research/legacy-exports/raw/normal-male/final-export-win32-probe/normal_male",
+    "fileCount": 38,
+    "totalBytes": 2785138,
+    "parityArtifacts": {
+      "tmpSource": {
+        "present": true,
+        "paths": [
+          "ventricular_beats/beat1/user.source"
+        ]
+      },
+      "adaptedEcg": {
+        "present": true,
+        "paths": [
+          "ecgs/standard_12.adaptECG"
+        ]
+      },
+      "referenceEcg": {
+        "present": true,
+        "paths": [
+          "ecgs/BSM_(nijmegen_64).refECG",
+          "ecgs/VCG_(Frank).refECG",
+          "ecgs/minimap_montage.refECG",
+          "ecgs/single_lead.refECG",
+          "ecgs/standard_12.refECG"
+        ]
+      }
+    },
+    "readyForNumericalParity": true,
+    "files": [
+      {
+        "path": "ecgs/BSM_(nijmegen_64).elec",
+        "bytes": 1229,
+        "sha256": "83657723f0e7b15ff7e5e02e0037e48e4088cd18baf8879600ddc9e45915cc5f",
+        "classification": "electrodes",
+        "numericSummary": null
+      },
+      {
+        "path": "ecgs/BSM_(nijmegen_64).refECG",
+        "bytes": 128008,
+        "sha256": "e7459c17c0372cffccf2c7a9f80f569d6d7d712c27fac7f2f958368373560503",
+        "classification": "reference-ecg-matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 64,
+          "columns": 500
+        }
+      },
+      {
+        "path": "ecgs/minimap_montage.elec",
+        "bytes": 163,
+        "sha256": "322cdccc310790f46dc3333cb53cb1b07fd6d157dbc972fae5c28b3dd23e5234",
+        "classification": "electrodes",
+        "numericSummary": null
+      },
+      {
+        "path": "ecgs/minimap_montage.refECG",
+        "bytes": 24008,
+        "sha256": "d9c1cda0ff9377162f7147759c115cd0962a49a088b77450a9f1b7f85648c3fa",
+        "classification": "reference-ecg-matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 12,
+          "columns": 500
+        }
+      },
+      {
+        "path": "ecgs/single_lead.elec",
+        "bytes": 75,
+        "sha256": "f84f82a198a8b812f540f7c856654373953f4d7506b23f4ecc051ad43836b678",
+        "classification": "electrodes",
+        "numericSummary": null
+      },
+      {
+        "path": "ecgs/single_lead.refECG",
+        "bytes": 2008,
+        "sha256": "a7ca96b14879344edcbbf9e8d9493489cbabd916ad5f941578cd3886f1a8b08f",
+        "classification": "reference-ecg-matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1,
+          "columns": 500
+        }
+      },
+      {
+        "path": "ecgs/standard_12.adaptECG",
+        "bytes": 24248,
+        "sha256": "b0e2476b705638d137ae5023b4b074ceaf038d59ab01164d82dfee240c3627cb",
+        "classification": "adapted-ecg-matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 12,
+          "columns": 505
+        }
+      },
+      {
+        "path": "ecgs/standard_12.elec",
+        "bytes": 163,
+        "sha256": "322cdccc310790f46dc3333cb53cb1b07fd6d157dbc972fae5c28b3dd23e5234",
+        "classification": "electrodes",
+        "numericSummary": null
+      },
+      {
+        "path": "ecgs/standard_12.refECG",
+        "bytes": 24008,
+        "sha256": "3310d07ccee9d267c51f33464e7b242596339b60abfadd39e50467a3768fe786",
+        "classification": "reference-ecg-matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 12,
+          "columns": 500
+        }
+      },
+      {
+        "path": "ecgs/VCG_(Frank).elec",
+        "bytes": 112,
+        "sha256": "eb765fb51e5138444a871007cf12871127a211ac037d9eb1ae1c8c5d138c5878",
+        "classification": "electrodes",
+        "numericSummary": null
+      },
+      {
+        "path": "ecgs/VCG_(Frank).refECG",
+        "bytes": 20008,
+        "sha256": "2a93d75022b06db12f56f23e93b402065f2f49656cc4da4cd2688771dfe5f34d",
+        "classification": "reference-ecg-matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 10,
+          "columns": 500
+        }
+      },
+      {
+        "path": "model/lcav.tri",
+        "bytes": 2795,
+        "sha256": "d917b2bb38eadc5e97cd4430c24a7ed3744e5f0e8b7a48f77a6123b6a2ca4f0a",
+        "classification": "geometry-triangulation",
+        "numericSummary": {
+          "format": "ascii-tri",
+          "points": 72,
+          "triangles": 140,
+          "units": "m",
+          "sourceIndexBase": 1
+        }
+      },
+      {
+        "path": "model/llung.tri",
+        "bytes": 4841,
+        "sha256": "48b3f32a742f8608e343b2f15ddc6b7eeff5228fc3458ba650200cd71f6eb092",
+        "classification": "geometry-triangulation",
+        "numericSummary": {
+          "format": "ascii-tri",
+          "points": 116,
+          "triangles": 228,
+          "units": "m",
+          "sourceIndexBase": 1
+        }
+      },
+      {
+        "path": "model/rcav.tri",
+        "bytes": 4391,
+        "sha256": "91a80fa1fb8550d9519169c4d6f66603219671b2cc7c6dbe2fce86f782a6b5bd",
+        "classification": "geometry-triangulation",
+        "numericSummary": {
+          "format": "ascii-tri",
+          "points": 107,
+          "triangles": 210,
+          "units": "m",
+          "sourceIndexBase": 1
+        }
+      },
+      {
+        "path": "model/rlung.tri",
+        "bytes": 4988,
+        "sha256": "ae3fb7b6b3c8d7326112376c6c54822c8223c7b7a57a0b560324976f123a3a4c",
+        "classification": "geometry-triangulation",
+        "numericSummary": {
+          "format": "ascii-tri",
+          "points": 116,
+          "triangles": 228,
+          "units": "m",
+          "sourceIndexBase": 1
+        }
+      },
+      {
+        "path": "model/thorax.tri",
+        "bytes": 14840,
+        "sha256": "a0dc18ea9e0db18eea40339f91a3161c269aef1889c3f8b7480e7ff9b63477e4",
+        "classification": "geometry-triangulation",
+        "numericSummary": {
+          "format": "ascii-tri",
+          "points": 300,
+          "triangles": 596,
+          "units": "m",
+          "sourceIndexBase": 1
+        }
+      },
+      {
+        "path": "model/ventricle.adj2d",
+        "bytes": 264204,
+        "sha256": "66aa61b92d034ff4fc8c9e369d2fc2580fe9f7debae9da57ab31f13c83e969f1",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 257,
+          "columns": 257
+        }
+      },
+      {
+        "path": "model/ventricle.adj3d",
+        "bytes": 264204,
+        "sha256": "1a96e051816d02da546b3182e2a56e76ed6fdcd15f41f07d571246889ad2991a",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 257,
+          "columns": 257
+        }
+      },
+      {
+        "path": "model/ventricle.adjanis",
+        "bytes": 264204,
+        "sha256": "98b5dae8cd018cb52eecf1065795475fb39622d51a24892aea3342b390a0e8d4",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 257,
+          "columns": 257
+        }
+      },
+      {
+        "path": "model/ventricle.adjneigh",
+        "bytes": 8,
+        "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+        "classification": "unknown",
+        "numericSummary": null
+      },
+      {
+        "path": "model/ventricle.dst2d",
+        "bytes": 264204,
+        "sha256": "22d5120b6358f8c1a2cb9b63cd32488254a654eb97ec934ca5423eda0e8443db",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 257,
+          "columns": 257
+        }
+      },
+      {
+        "path": "model/ventricle.dst3d",
+        "bytes": 264204,
+        "sha256": "68b51541746412562fc67231b0f775ab9536ad76fa17214b24af32c9034b7cce",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 257,
+          "columns": 257
+        }
+      },
+      {
+        "path": "model/ventricle.dstanis",
+        "bytes": 264204,
+        "sha256": "b6ee98a16d3cd145e877edfd376f6df6f24c4d9fa8c24defbd502302c06453ff",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 257,
+          "columns": 257
+        }
+      },
+      {
+        "path": "model/ventricle.ordneigh",
+        "bytes": 8,
+        "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+        "classification": "unknown",
+        "numericSummary": null
+      },
+      {
+        "path": "model/ventricles2BSM_(nijmegen_64).mat",
+        "bytes": 65800,
+        "sha256": "fdf9254a8c148906f9648e8177a5268f31f2c22a6507893ccaab9080dd9555d9",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 64,
+          "columns": 257
+        }
+      },
+      {
+        "path": "model/ventricles2minimap_montage.mat",
+        "bytes": 12344,
+        "sha256": "72345e786f9dd097bc9f48ed908b96840409da10e14f4d3e071f0d8e63a035a0",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 12,
+          "columns": 257
+        }
+      },
+      {
+        "path": "model/ventricles2single_lead.mat",
+        "bytes": 1036,
+        "sha256": "e233bb6590f00257d087eb6bb01ecea46a6c4402dfcb6154da213d3a516d1f1c",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1,
+          "columns": 257
+        }
+      },
+      {
+        "path": "model/ventricles2standard_12.mat",
+        "bytes": 12344,
+        "sha256": "51a35bde059e8fe0f12ca3a76a317e6ec17dabeb69b2ef7deac1aab4307e3fc4",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 12,
+          "columns": 257
+        }
+      },
+      {
+        "path": "model/ventricles2Thorax.mat",
+        "bytes": 308408,
+        "sha256": "f5e2f6b310a8af2e2d9d23709d571a802cc2fedf4b592afb0d3b285489bd1c71",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 300,
+          "columns": 257
+        }
+      },
+      {
+        "path": "model/ventricles2VCG_(Frank).mat",
+        "bytes": 10288,
+        "sha256": "761e02c00620fa71f5e87cd4f4a998ef0083383dcd6004bafa1a806b049df40e",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 10,
+          "columns": 257
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.ampl",
+        "bytes": 2579,
+        "sha256": "f455ed348ad5d7abc1a110e283452745208ad86d1b595406a3c226b946dec03c",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 257
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.dep",
+        "bytes": 2547,
+        "sha256": "2a5302cf47507b5e450b131ac3c9fb6a8a8aabd05b3e3a4817a9134a3f21c28f",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 257
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.depslope",
+        "bytes": 523,
+        "sha256": "655a865918f57cb70e6a1e84d3d74ee7dbc6bdb56636d71696b9f19b872cda39",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 257
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.platslope",
+        "bytes": 1808,
+        "sha256": "76bdd87cc3f68fcf6e05b15a4a1c5edd1bf87443f68d74c114e8bbe7e2b4cc04",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 257
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.rep",
+        "bytes": 2544,
+        "sha256": "f4a67228be624587e27403085e8f671cf8a712bc881f8f02c8d38fc1cfbfc37a",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 257
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.repslope",
+        "bytes": 1808,
+        "sha256": "c6633dee1c254df92fe17bb0744150f6adc84c81331f36d25346d7870b300fe5",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 257
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.rest",
+        "bytes": 2836,
+        "sha256": "155ac958841d689f42b8f4d199de50a668b5501c2f3af6d7288400c4eaedcad5",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 257
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.source",
+        "bytes": 519148,
+        "sha256": "3839c8b57892353f20d4774ac814576301d658fa992e3c907d996ccb93588434",
+        "classification": "tmp-source-matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 257,
+          "columns": 505
+        }
+      }
+    ]
+  },
+  "taskReadiness": {
+    "0049": {
+      "label": "Legacy TMP Generator Parity",
+      "ready": true,
+      "requiredArtifacts": [
+        "tmpSource"
+      ],
+      "missingArtifacts": []
+    },
+    "0051": {
+      "label": "Viewer Recompute Pipeline",
+      "ready": true,
+      "requiredArtifacts": [
+        "tmpSource",
+        "adaptedEcg"
+      ],
+      "missingArtifacts": []
+    },
+    "0052": {
+      "label": "Fiducial And Filtering Parity",
+      "ready": true,
+      "requiredArtifacts": [
+        "referenceEcg",
+        "adaptedEcg"
+      ],
+      "missingArtifacts": []
+    },
+    "0053": {
+      "label": "Numerical Parity Harness",
+      "ready": true,
+      "requiredArtifacts": [
+        "tmpSource",
+        "referenceEcg",
+        "adaptedEcg"
+      ],
+      "missingArtifacts": []
+    }
+  },
+  "comparison": null
+}

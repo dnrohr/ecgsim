@@ -34,11 +34,11 @@ Major gaps:
 
 Currently unfinished or scientifically blocked tasks:
 
-- `0048` Capture Raw Legacy Exports For Numerical Parity: blocked on a real Windows-app export capture, though validation and comparison handoff tooling exists.
-- `0049` Implement Legacy TMP Generator Parity: blocked until raw `.user.source` and related exports are available.
+- `0048` Capture Raw Legacy Exports For Numerical Parity: completed for the ECGSIM 3.0.1 normal male case with committed manifests and promoted numerical fixtures.
+- `0049` Implement Legacy TMP Generator Parity: ready to proceed against the promoted `normal-male-ecgsim301` `.user.source` fixture.
 - `0051` Wire Recompute Pipeline Into Viewer: blocked on verified TMP/transfer behavior.
-- `0052` Implement Fiducial And Filtering Parity: partially implemented and instrumented, but full parity is blocked by missing legacy evidence.
-- `0053` Expand Numerical Parity Harness: comparison tooling exists, but full scenario coverage is blocked by missing raw exports.
+- `0052` Implement Fiducial And Filtering Parity: partially implemented and instrumented; ECG export fixtures are now available, but P/T fiducial semantics still need resolution.
+- `0053` Expand Numerical Parity Harness: comparison tooling and promoted legacy fixtures exist; scenario-level assertions remain to be added.
 
 ## FP0: Parity Definition
 

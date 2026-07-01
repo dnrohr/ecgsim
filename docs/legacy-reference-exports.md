@@ -191,4 +191,4 @@ The manual confirms movie/playback behavior, but this project has not confirmed 
 
 ## Remaining Export Gap
 
-The project has a reproducible screenshot baseline, so task `0014` has a known legacy-app reference point. Raw file exports are still useful for later parity work, but need either manual confirmation in a normal desktop session or deeper Windows UI debugging.
+The project has a reproducible screenshot baseline, so task `0014` has a known legacy-app reference point. The first normal male ECGSIM 3.0.1 raw file export is captured and promoted into small parity fixtures; later parity work may still need additional cases, movie evidence, and workflow-specific captures.

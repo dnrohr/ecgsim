@@ -38,7 +38,7 @@ Filtering modes are parity-tested rather than approximate.
 
 ## Progress Note
 
-Partially implemented by making baseline fiducial availability explicit in case metadata and fixtures, exposing whether baseline correction uses parsed P/T fiducials or fallback signal endpoints, and verifying AC/DC/baseline mode switching in core and app tests. Full parity remains blocked by missing raw legacy exports from task `0048` and by unlocated P-wave/T-wave sample fields.
+Partially implemented by making baseline fiducial availability explicit in case metadata and fixtures, exposing whether baseline correction uses parsed P/T fiducials or fallback signal endpoints, and verifying AC/DC/baseline mode switching in core and app tests. Task `0048` now provides promoted `.refECG` and `.adaptECG` fixtures for `normal-male-ecgsim301`; remaining parity work should compare against those exports while resolving the still-unlocated P-wave/T-wave sample fields.
 
 ## Capture Handoff
 

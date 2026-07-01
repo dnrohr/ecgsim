@@ -1,0 +1,98 @@
+{
+  "schema": "org.ecgsim.legacy-parity-fixture-set",
+  "version": 1,
+  "caseId": "normal-male-ecgsim301",
+  "sourceCaptureDir": "research/legacy-exports/raw/normal-male/final-export-win32-probe/normal_male",
+  "artifactNames": [
+    "tmpSource",
+    "referenceEcg",
+    "adaptedEcg"
+  ],
+  "fileCount": 7,
+  "files": [
+    {
+      "artifact": "tmpSource",
+      "path": "ventricular_beats/beat1/user.source",
+      "bytes": 519148,
+      "sha256": "3839c8b57892353f20d4774ac814576301d658fa992e3c907d996ccb93588434",
+      "classification": "tmp-source-matrix",
+      "numericSummary": {
+        "format": "binary-float32",
+        "rows": 257,
+        "columns": 505
+      }
+    },
+    {
+      "artifact": "referenceEcg",
+      "path": "ecgs/BSM_(nijmegen_64).refECG",
+      "bytes": 128008,
+      "sha256": "e7459c17c0372cffccf2c7a9f80f569d6d7d712c27fac7f2f958368373560503",
+      "classification": "reference-ecg-matrix",
+      "numericSummary": {
+        "format": "binary-float32",
+        "rows": 64,
+        "columns": 500
+      }
+    },
+    {
+      "artifact": "referenceEcg",
+      "path": "ecgs/VCG_(Frank).refECG",
+      "bytes": 20008,
+      "sha256": "2a93d75022b06db12f56f23e93b402065f2f49656cc4da4cd2688771dfe5f34d",
+      "classification": "reference-ecg-matrix",
+      "numericSummary": {
+        "format": "binary-float32",
+        "rows": 10,
+        "columns": 500
+      }
+    },
+    {
+      "artifact": "referenceEcg",
+      "path": "ecgs/minimap_montage.refECG",
+      "bytes": 24008,
+      "sha256": "d9c1cda0ff9377162f7147759c115cd0962a49a088b77450a9f1b7f85648c3fa",
+      "classification": "reference-ecg-matrix",
+      "numericSummary": {
+        "format": "binary-float32",
+        "rows": 12,
+        "columns": 500
+      }
+    },
+    {
+      "artifact": "referenceEcg",
+      "path": "ecgs/single_lead.refECG",
+      "bytes": 2008,
+      "sha256": "a7ca96b14879344edcbbf9e8d9493489cbabd916ad5f941578cd3886f1a8b08f",
+      "classification": "reference-ecg-matrix",
+      "numericSummary": {
+        "format": "binary-float32",
+        "rows": 1,
+        "columns": 500
+      }
+    },
+    {
+      "artifact": "referenceEcg",
+      "path": "ecgs/standard_12.refECG",
+      "bytes": 24008,
+      "sha256": "3310d07ccee9d267c51f33464e7b242596339b60abfadd39e50467a3768fe786",
+      "classification": "reference-ecg-matrix",
+      "numericSummary": {
+        "format": "binary-float32",
+        "rows": 12,
+        "columns": 500
+      }
+    },
+    {
+      "artifact": "adaptedEcg",
+      "path": "ecgs/standard_12.adaptECG",
+      "bytes": 24248,
+      "sha256": "b0e2476b705638d137ae5023b4b074ceaf038d59ab01164d82dfee240c3627cb",
+      "classification": "adapted-ecg-matrix",
+      "numericSummary": {
+        "format": "binary-float32",
+        "rows": 12,
+        "columns": 505
+      }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Raw Legacy Export Capture Notes
 
-Status: task `0048` blocker notes.
+Status: task `0048` capture notes. The first raw export capture is complete for the ECGSIM 3.0.1 normal male case.
 
 ## 2026-06-29 Probe
 
@@ -23,13 +23,24 @@ The app opened successfully, but bounded UI Automation probes could not expose o
 - Sending `Alt+F` exposed top-level menu items only.
 - The ignored probe directory `research/legacy-exports/raw/normal-male/export-probe/` remained empty.
 
-## Current Blocker
+## Current Capture State
 
-Task `0048` needs raw `.source`, `.adaptECG`, `.refECG`, and related legacy exports. Those artifacts still require a manual desktop capture session or deeper native Qt automation outside the current reliable command-line/UIA path.
+Task `0048` now has raw `.source`, `.adaptECG`, `.refECG`, and related legacy exports for the bundled ECGSIM 3.0.1 normal male case. The successful capture used Win32 automation against the native `export case data files to directory` folder picker and wrote files under:
 
-## Next Capture Attempt
+```text
+research/legacy-exports/raw/normal-male/final-export-win32-probe/normal_male/
+```
 
-Use the manual workflow in `docs/legacy-reference-exports.md`:
+Committed evidence and fixtures:
+
+- `research/legacy-exports/normal-male-ecgsim301-manifest.json`
+- `research/legacy-exports/normal-male-ecgsim301-validation.json`
+- `research/legacy-exports/normal-male-ecgsim301-validation.md`
+- `tests/fixtures/legacy-parity/normal-male-ecgsim301/`
+
+## Future Capture Attempts
+
+Use the manual workflow in `docs/legacy-reference-exports.md` for additional cases or edited workflows:
 
 1. Launch the legacy app in a normal interactive Windows desktop session.
 2. Load the target case.

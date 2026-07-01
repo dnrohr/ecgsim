@@ -1,6 +1,6 @@
 # Feature Parity Matrix
 
-Status: parity tracking matrix synced with implemented tasks through `0061`. Scientific rows are intentionally conservative where raw legacy export evidence is still missing.
+Status: parity tracking matrix synced with implemented tasks through `0061` plus the first raw legacy export capture for the ECGSIM 3.0.1 normal male case. Scientific rows remain conservative until promoted exports are wired into scenario-level assertions.
 
 ## Status Definitions
 

@@ -154,7 +154,7 @@ Current unsupported outputs:
 - Baseline coupling reports whether parsed fiducials are available. Bundled cases currently use fallback signal endpoints because P-wave/T-wave samples have not been located.
 - Endocardial/epicardial and transmural controls are disabled until explicit wall pairings are parsed.
 - Surface-potential matrix values are parsed and displayed, but measured/initial/adapted signal classification remains incomplete.
-- Raw legacy export parity remains blocked until task `0048` can capture legacy export directories from a normal interactive Windows session or deeper native automation.
+- The first normal male ECGSIM 3.0.1 raw legacy export has been captured and promoted into small parity fixtures; full export parity still needs scenario-level comparisons and additional case coverage.
 
 ## Validation Status
 

@@ -90,7 +90,7 @@ Each task should end with:
 
 ## FP4: Scientific Recomputation Parity
 
-- [ ] [0048 Capture Raw Legacy Exports For Numerical Parity](0048-capture-raw-legacy-exports-for-numerical-parity.md)
+- [x] [0048 Capture Raw Legacy Exports For Numerical Parity](0048-capture-raw-legacy-exports-for-numerical-parity.md)
 - [ ] [0049 Implement Legacy TMP Generator Parity](0049-implement-legacy-tmp-generator-parity.md)
 - [x] [0050 Implement Activation And Focus Construction](0050-implement-activation-and-focus-construction.md)
 - [ ] [0051 Wire Recompute Pipeline Into Viewer](0051-wire-recompute-pipeline-into-viewer.md)

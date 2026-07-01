@@ -133,7 +133,7 @@ Movie export is not implemented.
 
 ## Compatibility Rules For Contributors
 
-- Do not claim full legacy export parity without raw legacy export evidence from task `0048`.
+- Do not claim full legacy export parity from the first normal male ECGSIM 3.0.1 capture alone; add focused comparisons against promoted raw export evidence for each supported workflow.
 - Keep exported unsupported members visible in `metadata.json` and docs.
 - Prefer sidecar persistence over modifying `.ECGsimcase` files until write-back semantics are proven.
 - Add round-trip tests for every new import/export file type.

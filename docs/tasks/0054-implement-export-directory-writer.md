@@ -39,4 +39,4 @@ Completed the first useful export-directory writer slice.
 - Documented unsupported legacy export members in `docs/feature-parity/export-directory-writer-notes.md`.
 - Added regression coverage that exports `normal_male2.ECGsimcase` to a temp directory and reads exported files back through project readers.
 
-This is a supported modern subset, not a full legacy `File -> Export` clone. Exact raw legacy export parity remains dependent on task `0048`.
+This is a supported modern subset, not a full legacy `File -> Export` clone. Exact export parity should be expanded against promoted raw legacy fixtures, starting with the normal male ECGSIM 3.0.1 capture from task `0048`.

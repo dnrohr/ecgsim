@@ -8,6 +8,8 @@ Replace or refine provisional TMP generation to match legacy output.
 
 Current TMP generation is deterministic but not parity-verified against legacy `.user.source` exports.
 
+Task `0048` has now promoted `tmpSource` fixtures for `normal-male-ecgsim301`, so this task can proceed against a real legacy `.user.source` matrix.
+
 ## Inputs
 
 - Validated raw legacy TMP/source exports from task `0048`.
