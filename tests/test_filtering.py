@@ -1,7 +1,13 @@
 import unittest
+from pathlib import Path
 
-from ecgsim.core import baseline_window_for_signal, filter_matrix, filter_signal
-from ecgsim.io import MatrixData
+from ecgsim.core import (
+    baseline_window_for_signal,
+    filter_matrix,
+    filter_signal,
+    infer_baseline_window_from_zero_runs,
+)
+from ecgsim.io import MatrixData, read_legacy_row_major_matrix
 
 
 class FilteringTests(unittest.TestCase):
@@ -58,6 +64,42 @@ class FilteringTests(unittest.TestCase):
         self.assertEqual(filtered.columns, 3)
         self.assertEqual(filtered.values[0], (-1.0, 0.0, 1.0))
         self.assertEqual(filtered.storage_format, "fixture+ac-coupled")
+
+    def test_infers_legacy_baseline_window_from_promoted_adapted_ecg(self) -> None:
+        matrix = read_legacy_row_major_matrix(
+            Path("tests/fixtures/legacy-parity/normal-male-ecgsim301/ecgs/standard_12.adaptECG")
+        )
+
+        window = infer_baseline_window_from_zero_runs(matrix)
+
+        self.assertEqual(matrix.rows, 12)
+        self.assertEqual(matrix.columns, 505)
+        self.assertEqual((window.start_index, window.end_index), (5, 499))
+        self.assertEqual(window.source, "inferred-legacy-zeros")
+
+    def test_filter_modes_match_promoted_legacy_adapted_ecg_semantics(self) -> None:
+        matrix = read_legacy_row_major_matrix(
+            Path("tests/fixtures/legacy-parity/normal-male-ecgsim301/ecgs/standard_12.adaptECG")
+        )
+        window = infer_baseline_window_from_zero_runs(matrix)
+
+        dc_filtered = filter_matrix(matrix, "dc")
+        ac_filtered = filter_matrix(matrix, "ac")
+        baseline_filtered = filter_matrix(
+            matrix,
+            "baseline",
+            baseline_start_index=window.start_index,
+            baseline_end_index=window.end_index,
+        )
+
+        self.assertEqual(dc_filtered.values, matrix.values)
+        for row in ac_filtered.values:
+            self.assertAlmostEqual(sum(row) / len(row), 0.0, places=12)
+        for original_row, filtered_row in zip(matrix.values, baseline_filtered.values):
+            self.assertAlmostEqual(filtered_row[window.start_index], 0.0, places=12)
+            self.assertAlmostEqual(filtered_row[window.end_index], 0.0, places=12)
+            max_delta = max(abs(actual - expected) for actual, expected in zip(filtered_row, original_row))
+            self.assertLessEqual(max_delta, 1.0e-5)
 
     def test_rejects_invalid_mode(self) -> None:
         with self.assertRaisesRegex(ValueError, "unsupported"):

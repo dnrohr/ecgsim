@@ -5,8 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 import math
 from pathlib import Path
-import struct
 from typing import Mapping, Sequence
+
+from ecgsim.io import MatrixFormatError, read_legacy_row_major_matrix
 
 
 @dataclass(frozen=True)
@@ -125,24 +126,10 @@ def read_legacy_tmp_source_matrix(path: str | Path) -> tuple[tuple[float, ...], 
     row after the `int32 rows, int32 columns` header.
     """
 
-    source_path = Path(path)
-    data = source_path.read_bytes()
-    if len(data) < 8:
-        raise ValueError(f"{source_path} is too short for a TMP source matrix")
-    rows, columns = struct.unpack_from("<ii", data, 0)
-    if rows <= 0 or columns <= 0:
-        raise ValueError(f"{source_path} has invalid TMP source shape {rows}x{columns}")
-    expected_bytes = 8 + rows * columns * 4
-    if len(data) != expected_bytes:
-        raise ValueError(
-            f"{source_path} expected {expected_bytes} bytes for {rows}x{columns} TMP source matrix, "
-            f"found {len(data)}"
-        )
-    flat = struct.unpack_from(f"<{rows * columns}f", data, 8)
-    return tuple(
-        tuple(float(flat[row * columns + column]) for column in range(columns))
-        for row in range(rows)
-    )
+    try:
+        return read_legacy_row_major_matrix(path).values
+    except MatrixFormatError as exc:
+        raise ValueError(str(exc)) from exc
 
 
 def tmp_parameters_from_vectors(

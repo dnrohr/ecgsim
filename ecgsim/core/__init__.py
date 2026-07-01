@@ -1,7 +1,15 @@
 """Core domain objects and validation for ECGSIM data."""
 
 from ecgsim.core.activation import ActivationEdge, ActivationFocus, fastest_route_activation_times
-from ecgsim.core.filtering import BaselineWindow, FilteringMode, baseline_window_for_signal, filter_matrix, filter_signal
+from ecgsim.core.filtering import (
+    BaselineWindow,
+    BaselineWindowSource,
+    FilteringMode,
+    baseline_window_for_signal,
+    filter_matrix,
+    filter_signal,
+    infer_baseline_window_from_zero_runs,
+)
 from ecgsim.core.parity import (
     NumericComparison,
     NumericMismatch,
@@ -23,6 +31,7 @@ __all__ = [
     "ActivationEdge",
     "ActivationFocus",
     "BaselineWindow",
+    "BaselineWindowSource",
     "NumericComparison",
     "NumericMismatch",
     "TMPParameters",
@@ -37,6 +46,7 @@ __all__ = [
     "generate_tmp_matrix_from_vectors",
     "generate_tmp_waveform",
     "generate_tmp_waveform_from_vectors",
+    "infer_baseline_window_from_zero_runs",
     "read_legacy_tmp_source_matrix",
     "tmp_parameters_from_vectors",
 ]

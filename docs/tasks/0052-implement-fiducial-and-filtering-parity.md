@@ -36,9 +36,15 @@ python tools/promote_legacy_parity_fixtures.py --verify tests/fixtures/legacy-pa
 
 Filtering modes are parity-tested rather than approximate.
 
-## Progress Note
+## Prior Progress Note
 
-Partially implemented by making baseline fiducial availability explicit in case metadata and fixtures, exposing whether baseline correction uses parsed P/T fiducials or fallback signal endpoints, and verifying AC/DC/baseline mode switching in core and app tests. Task `0048` now provides promoted `.refECG` and `.adaptECG` fixtures for `normal-male-ecgsim301`; remaining parity work should compare against those exports while resolving the still-unlocated P-wave/T-wave sample fields.
+Earlier work made baseline fiducial availability explicit in case metadata and fixtures, exposed whether baseline correction uses parsed P/T fiducials or fallback signal endpoints, and verified AC/DC/baseline mode switching in core and app tests. Task `0048` then provided promoted `.refECG` and `.adaptECG` fixtures for `normal-male-ecgsim301`.
+
+## Completion Note
+
+Task `0052` is complete for the promoted normal male ECGSIM 3.0.1 adapted ECG export. The project now reads row-major legacy ECG/TMP exports with `read_legacy_row_major_matrix()` and infers the `standard_12.adaptECG` baseline window from shared near-zero legacy export runs. The inferred window is sample `(5, 499)` at `1e-5 mV` tolerance. Tests verify DC pass-through, AC mean subtraction, and baseline endpoint correction against that real export.
+
+The remaining ambiguity is source location, not filtering behavior: parsed `.ECGsimcase` payloads still do not expose decoded P-wave start and T-wave termination samples, so bundled viewer cases continue to mark fiducials unavailable and use the signal-end fallback.
 
 ## Capture Handoff
 

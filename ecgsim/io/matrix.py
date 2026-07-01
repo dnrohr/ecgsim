@@ -78,6 +78,39 @@ def read_vector(path: str | Path) -> VectorData:
     )
 
 
+def read_legacy_row_major_matrix(path: str | Path) -> MatrixData:
+    """Read a raw float32 ECGSIM export whose payload is stored by rows.
+
+    Most raw matrix payloads handled by `read_matrix()` use column-major
+    ordering, but captured ECG/TMP exports such as `.adaptECG`, `.refECG`, and
+    `.user.source` store each trace or source node contiguously after the
+    `int32 rows, int32 columns` header.
+    """
+
+    source_path = Path(path)
+    data = source_path.read_bytes()
+    if len(data) < 8:
+        raise MatrixFormatError(f"{source_path} is too short for a row-major matrix")
+
+    rows, columns = struct.unpack_from("<ii", data, 0)
+    _validate_shape(rows, columns)
+    expected_bytes = 8 + rows * columns * 4
+    if len(data) != expected_bytes:
+        raise MatrixFormatError(
+            f"{source_path} expected {expected_bytes} bytes for {rows}x{columns} row-major matrix, "
+            f"found {len(data)}"
+        )
+
+    flat = struct.unpack_from(f"<{rows * columns}f", data, 8)
+    return MatrixData(
+        rows=rows,
+        columns=columns,
+        values=_rows_from_row_major(flat, rows, columns),
+        source_path=source_path,
+        storage_format="binary-float32-row-major",
+    )
+
+
 def _read_ascii_matrix(data: bytes, source_path: Path) -> MatrixData:
     try:
         text = data.decode("ascii")

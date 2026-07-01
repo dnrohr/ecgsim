@@ -33,7 +33,14 @@ from ecgsim.io.export_directory import (
     write_ascii_vector,
 )
 from ecgsim.io.geometry import GeometryData, GeometryFormatError, read_geometry
-from ecgsim.io.matrix import MatrixData, MatrixFormatError, VectorData, read_matrix, read_vector
+from ecgsim.io.matrix import (
+    MatrixData,
+    MatrixFormatError,
+    VectorData,
+    read_legacy_row_major_matrix,
+    read_matrix,
+    read_vector,
+)
 
 __all__ = [
     "ECGsimCaseFormatError",
@@ -67,6 +74,7 @@ __all__ = [
     "read_ecgsimcase_sources",
     "read_ecgsimcase_vector",
     "read_geometry",
+    "read_legacy_row_major_matrix",
     "read_matrix",
     "read_vector",
     "write_ascii_matrix",
