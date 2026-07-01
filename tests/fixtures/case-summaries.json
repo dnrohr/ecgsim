@@ -27,8 +27,7 @@
         "lead polarity/reference electrode fields",
         "shown-lead layout fields",
         "fiducial/time-base fields",
-        "measured/initial/adapted signal classification",
-        "P-wave/T-wave fiducial samples for baseline correction"
+        "measured/initial/adapted signal classification"
       ]
     },
     {

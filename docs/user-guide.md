@@ -61,7 +61,7 @@ Use the Open case control and select the original local `.ECGsimcase` file. The 
 
 Use the Open bundle control to load a generated case-bundle `.json` file directly. Bundle JSON must use the same top-level sections emitted by `tools/export_viewer_fixtures.py`: `caseMetadata`, `heart`, `thorax`, `ecgSignals`, and `tmpWaveforms`. Invalid bundles leave the current case visible and show a validation notice.
 
-The case summary includes a Validation field. `Partial` means the case loaded and the main views are usable, but the bundle has known unavailable capabilities such as undecoded fiducials, unsupported raw payload groups, or unresolved measured/initial signal and lead-reference semantics.
+The case summary includes a Validation field. `Partial` means the case loaded and the main views are usable, but the bundle has known unavailable capabilities such as unsupported raw payload groups or unresolved measured/initial signal and lead-reference semantics. Some cases still have unavailable fiducials; `normal_male2` uses a derived baseline window from legacy export evidence.
 
 ## Normal Case Walkthrough
 
@@ -157,7 +157,7 @@ Current unsupported outputs:
 
 - TMP waveform generation is calibrated against the normal male ECGSIM 3.0.1 `.user.source` export; additional cases and edited-source workflows still need parity coverage.
 - Initial/adapted Thorax BSPM, sensitivity maps, and adapted lead traces recompute when the generated bundle includes the ventricles-to-thorax transfer candidate.
-- Baseline coupling reports whether parsed fiducials are available. Bundled cases currently use fallback signal endpoints because P-wave/T-wave samples have not been located.
+- Baseline coupling reports whether fiducials are available. `normal_male2` uses derived samples `(5, 499)` from the promoted ECGSIM 3.0.1 `standard_12.adaptECG` export; WPW bundles still use fallback signal endpoints because P-wave/T-wave samples have not been located or derived for those cases.
 - The Validation field summarizes known partial-support limits for the loaded bundle; it is not a failure when the main views remain available.
 - Endocardial/epicardial and transmural controls are disabled until explicit wall pairings are parsed.
 - Surface-potential matrix values are parsed and displayed, but measured/initial signal classification and WCT/reference lead transforms remain incomplete.

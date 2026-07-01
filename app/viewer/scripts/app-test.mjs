@@ -66,7 +66,7 @@ async function assertInitialState(page) {
   await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
   await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz / initial+adapted");
   await expectText(page, "[data-leads-metadata]", "standard_12: 9 electrode traces / 12 leads / plotted 9 / 576 samples / 1000 Hz / BASELINE / 100%");
-  await expectText(page, "[data-case-validation]", "Partial: 7 unsupported payload groups / 5 unavailable capabilities");
+  await expectText(page, "[data-case-validation]", "Partial: 7 unsupported payload groups / 4 unavailable capabilities");
 
   assert.ok(await canvasHasContent(page, "[data-leads-canvas]"), "leads canvas should be nonblank");
   assert.ok(await canvasHasContent(page, "[data-tmp-canvas]"), "TMP canvas should be nonblank");
@@ -254,7 +254,7 @@ async function assertHeartViewControls(page) {
 
 async function assertLeadsFiltering(page) {
   const canvas = "[data-leads-canvas]";
-  await expectText(page, "[data-leads-status]", "Baseline fallback uses signal endpoints");
+  await expectText(page, "[data-leads-status]", "Baseline P/T fiducials 5-499");
   await expectText(page, "[data-leads-status]", "measured/initial classification unavailable");
   assert.equal(await page.locator("[data-leads-measured]").isDisabled(), true, "measured overlay should be unavailable");
   assert.equal(await page.locator("[data-leads-initial]").isDisabled(), true, "initial overlay should be unavailable");
@@ -302,7 +302,7 @@ async function assertLeadsFiltering(page) {
 
   await page.locator("[data-leads-filter]").selectOption("baseline");
   await expectText(page, "[data-leads-metadata]", "/ BASELINE");
-  await expectText(page, "[data-leads-status]", "Baseline fallback uses signal endpoints");
+  await expectText(page, "[data-leads-status]", "Baseline P/T fiducials 5-499");
   await page.locator("[data-leads-system]").selectOption("standard_12");
   await setRangeValue(page, "[data-leads-scale]", "100");
   await page.locator("[data-leads-rms]").uncheck();

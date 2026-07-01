@@ -76,10 +76,10 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertEqual(fixture["columns"], 1000)
         self.assertEqual(fixture["sampleRateHz"], 1000)
         self.assertEqual(fixture["units"], "mV")
-        self.assertEqual(fixture["fiducials"]["status"], "unavailable")
-        self.assertIsNone(fixture["fiducials"]["baselineStartIndex"])
-        self.assertIsNone(fixture["fiducials"]["baselineEndIndex"])
-        self.assertIn("P-wave start", fixture["fiducials"]["interpretation"])
+        self.assertEqual(fixture["fiducials"]["status"], "derived-from-legacy-export")
+        self.assertEqual(fixture["fiducials"]["baselineStartIndex"], 5)
+        self.assertEqual(fixture["fiducials"]["baselineEndIndex"], 499)
+        self.assertIn("standard_12.adaptECG", fixture["fiducials"]["interpretation"])
         self.assertEqual(len(fixture["traces"]), 6)
         self.assertEqual(len(fixture["traces"][0]["values"]), 1000)
         self.assertEqual(fixture["surfaceMap"]["kind"], "measured")
@@ -176,7 +176,10 @@ class ParityRegressionTests(unittest.TestCase):
                 self.assertEqual(metadata["leadSystems"], [system.name for system in case.lead_systems])
                 self.assertEqual(validation["status"], "partial")
                 self.assertEqual(validation["unsupportedPayloadCount"], len(case.metadata.unsupported_payloads))
-                self.assertIn("P-wave/T-wave fiducials for baseline coupling", validation["unavailableCapabilities"])
+                if case.signal_metadata.fiducials.status == "unavailable":
+                    self.assertIn("P-wave/T-wave fiducials for baseline coupling", validation["unavailableCapabilities"])
+                else:
+                    self.assertNotIn("P-wave/T-wave fiducials for baseline coupling", validation["unavailableCapabilities"])
                 self.assertIn("measured/initial ECG classification and WCT/reference lead transform", validation["unavailableCapabilities"])
                 self.assertIn("partial support", validation["messages"][0])
                 self.assertEqual(bundle["heart"]["pointCount"], next(

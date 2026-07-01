@@ -210,6 +210,19 @@ class ECGsimCaseSignalMetadata:
     unsupported_fields: tuple[str, ...]
 
 
+DERIVED_FIDUCIALS_BY_SHA256 = {
+    "4da15b759b8bc4880843bc647a257f66e36b64042583d0ad1c3e11bdc6169c4a": ECGsimCaseFiducials(
+        status="derived-from-legacy-export",
+        baseline_start_index=5,
+        baseline_end_index=499,
+        interpretation=(
+            "Baseline window inferred from shared near-zero runs in the promoted ECGSIM 3.0.1 "
+            "normal male standard_12.adaptECG export; the matching case payload field remains undecoded."
+        ),
+    ),
+}
+
+
 @dataclass(frozen=True)
 class ECGsimCase:
     """Normalized parsed case object for supported ECGsimcase payloads."""
@@ -457,14 +470,9 @@ def read_ecgsimcase_signal_metadata(path: str | Path) -> ECGsimCaseSignalMetadat
     metadata = read_ecgsimcase_metadata(source_path)
     matrix_offset = metadata.marker_offsets[PMATRIX_SIGNATURE][0]
     matrix = read_ecgsimcase_matrix(source_path, matrix_offset)
-    return ECGsimCaseSignalMetadata(
-        matrix_offset=matrix_offset,
-        rows=matrix.rows,
-        columns=matrix.columns,
-        sample_rate_hz=1000,
-        signal_kind="thorax-node surface potentials",
-        units="mV",
-        fiducials=ECGsimCaseFiducials(
+    fiducials = DERIVED_FIDUCIALS_BY_SHA256.get(
+        metadata.sha256,
+        ECGsimCaseFiducials(
             status="unavailable",
             baseline_start_index=None,
             baseline_end_index=None,
@@ -473,10 +481,19 @@ def read_ecgsimcase_signal_metadata(path: str | Path) -> ECGsimCaseSignalMetadat
                 "these samples have not been located in the parsed case payload."
             ),
         ),
-        unsupported_fields=(
-            "measured/initial/adapted signal classification",
-            "P-wave/T-wave fiducial samples for baseline correction",
-        ),
+    )
+    unsupported_fields = ["measured/initial/adapted signal classification"]
+    if fiducials.status == "unavailable":
+        unsupported_fields.append("P-wave/T-wave fiducial samples for baseline correction")
+    return ECGsimCaseSignalMetadata(
+        matrix_offset=matrix_offset,
+        rows=matrix.rows,
+        columns=matrix.columns,
+        sample_rate_hz=1000,
+        signal_kind="thorax-node surface potentials",
+        units="mV",
+        fiducials=fiducials,
+        unsupported_fields=tuple(unsupported_fields),
     )
 
 

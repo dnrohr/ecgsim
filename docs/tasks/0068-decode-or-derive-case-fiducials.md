@@ -29,3 +29,7 @@ Task `0052` inferred a baseline window from the promoted `standard_12.adaptECG` 
 ## Done When
 
 Baseline coupling no longer relies only on signal-end fallback or export zero-run inference for supported cases.
+
+## Completion Note
+
+Completed by promoting the normal male `(5, 499)` baseline window inferred from the promoted ECGSIM 3.0.1 `standard_12.adaptECG` zero-run evidence into case signal metadata and generated viewer fixtures. This is explicitly labeled `derived-from-legacy-export`, not decoded from `.ECGsimcase` payload fields. WPW cases keep fiducials unavailable. Parser, fixture, smoke, and browser tests cover the derived normal window, unavailable WPW status, and visible baseline-coupling status.

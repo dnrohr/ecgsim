@@ -204,7 +204,9 @@ if (
   ecgFixture.traces.length !== 6 ||
   ecgFixture.surfaceMap.nodeCount !== 300 ||
   ecgFixture.surfaceMap.sampleCount !== 576 ||
-  ecgFixture.fiducials?.status !== "unavailable"
+  ecgFixture.fiducials?.status !== "derived-from-legacy-export" ||
+  ecgFixture.fiducials?.baselineStartIndex !== 5 ||
+  ecgFixture.fiducials?.baselineEndIndex !== 499
 ) {
   console.error("Unexpected ECG signal fixture metadata");
   process.exit(1);

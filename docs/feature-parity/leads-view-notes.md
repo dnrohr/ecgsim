@@ -20,4 +20,4 @@ Status: task `0039` parity notes for the modern Leads pane.
 - Current lead-system plots are electrode surface-potential traces, not transformed clinical lead signals.
 - Measured, initial, adapted, and selected-heart-node electrogram overlays require parsed signal classification and matrix mapping.
 - Beat zoom, interval selection, shared time cursor, VCG loop rendering, and clipboard export remain future parity work.
-- Bundled cases use signal-end fallback for baseline correction until P-wave and T-wave fiducial samples are parsed.
+- `normal_male2` uses derived baseline samples `(5, 499)` from promoted legacy export evidence. Bundled cases without matching evidence use signal-end fallback until P-wave and T-wave fiducial samples are parsed or derived.

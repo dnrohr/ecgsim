@@ -306,7 +306,7 @@ def case_metadata_payload(case, case_path: Path) -> dict[str, object]:
 def case_validation_payload(case) -> dict[str, object]:
     unavailable = []
     unsupported_payloads = list(case.metadata.unsupported_payloads)
-    if case.signal_metadata.fiducials.status != "available":
+    if case.signal_metadata.fiducials.status not in {"available", "derived-from-legacy-export"}:
         unavailable.append("P-wave/T-wave fiducials for baseline coupling")
     if unsupported_payloads:
         unavailable.append("unsupported raw payload groups")
