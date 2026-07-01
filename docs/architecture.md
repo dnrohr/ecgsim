@@ -50,6 +50,8 @@ Current supported-case web loading:
 
 This keeps legacy parsing testable in Python while allowing the UI to evolve independently.
 
+The detailed browser loading boundary is documented in [Browser Case Loading Boundary](browser-case-loading-boundary.md). In short, the app should load normalized bundles and validate their schema; direct browser-side `.ECGsimcase` parsing is deferred until a JS/WASM parser can match the Python parser's test coverage and diagnostics.
+
 ## Design Bias
 
 Prefer compatibility and testability over early abstraction. Add abstractions when two real implementations or workflows need the same contract.

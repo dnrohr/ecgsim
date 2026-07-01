@@ -30,3 +30,7 @@ The viewer currently consumes generated JSON bundles. Python parsing is authorit
 ## Done When
 
 An implementation agent can start browser case loading without redesigning the boundary.
+
+## Completion Note
+
+Completed by adding `docs/browser-case-loading-boundary.md`. The chosen boundary is bundle-first: Python remains the authoritative `.ECGsimcase` parser, the browser loads and validates normalized case bundles, hash-matched legacy files remain an allowlist path through `fixtures/cases/manifest.json`, and arbitrary browser-side binary parsing is deferred until a tested JS/WASM parser can produce the same bundle contract.
