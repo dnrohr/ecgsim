@@ -116,7 +116,7 @@ Each task should end with:
 - [x] [0062 Design Browser Case Loading Boundary](0062-design-browser-case-loading-boundary.md)
 - [x] [0063 Implement Browser Case Bundle Import Path](0063-implement-browser-case-bundle-import-path.md)
 - [x] [0064 Add WPW Variant Viewer Fixtures](0064-add-wpw-variant-viewer-fixtures.md)
-- [ ] [0065 Add Case Validation And Error Reporting UI](0065-add-case-validation-and-error-reporting-ui.md)
+- [x] [0065 Add Case Validation And Error Reporting UI](0065-add-case-validation-and-error-reporting-ui.md)
 
 ## NF2: Recomputed Scientific Outputs
 

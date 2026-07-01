@@ -29,3 +29,7 @@ Unsupported payloads are currently mostly developer-facing. Users need actionabl
 ## Done When
 
 Partial support is visible, understandable, and testable instead of buried in logs.
+
+## Completion Note
+
+Completed by adding structured `caseMetadata.validation` data to generated viewer bundles and showing a concise Validation field in the case summary. The bundle validator now requires validation metadata, generated fixtures describe partial support with unsupported payload counts and unavailable capabilities, and tests cover both the structured bundle data and the visible browser summary.

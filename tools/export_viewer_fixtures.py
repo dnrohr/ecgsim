@@ -293,12 +293,47 @@ def case_metadata_payload(case, case_path: Path) -> dict[str, object]:
         ],
         "markerCounts": metadata.marker_counts,
         "unsupportedPayloads": metadata.unsupported_payloads,
+        "validation": case_validation_payload(case),
         "loadedFixtures": {
             "heart": "heart.json",
             "thorax": "thorax.json",
             "ecgSignals": "ecg-signals.json",
             "tmpWaveforms": "tmp-waveforms.json",
         },
+    }
+
+
+def case_validation_payload(case) -> dict[str, object]:
+    unavailable = []
+    unsupported_payloads = list(case.metadata.unsupported_payloads)
+    if case.signal_metadata.fiducials.status != "available":
+        unavailable.append("P-wave/T-wave fiducials for baseline coupling")
+    if unsupported_payloads:
+        unavailable.append("unsupported raw payload groups")
+
+    for source in case.sources:
+        if source.kind == "ventricles" and source.activation and source.activation.interpretation:
+            unavailable.append("interactive focus editing from activation construction records")
+            break
+
+    unavailable.append("endocardial/epicardial and transmural wall mapping")
+    unavailable.append("measured/initial/adapted ECG overlay classification")
+
+    status = "partial" if unavailable else "supported"
+    return {
+        "status": status,
+        "unsupportedPayloadCount": len(unsupported_payloads),
+        "unavailableCapabilities": unavailable,
+        "messages": (
+            [
+                (
+                    f"Loaded with partial support: {len(unsupported_payloads)} unsupported payload groups "
+                    f"and {len(unavailable)} unavailable capabilities."
+                )
+            ]
+            if status == "partial"
+            else ["Loaded with all known bundle capabilities available."]
+        ),
     }
 
 

@@ -43,6 +43,7 @@ const required = [
   "data-case-file",
   "data-case-bundle-file",
   "data-case-unsupported",
+  "data-case-validation",
   "data-pane=\"heart\"",
   "data-pane=\"thorax\"",
   "data-pane=\"tmp\"",
@@ -125,7 +126,10 @@ if (
   caseFixture.activationConstructions?.[1]?.entryCount !== 576 ||
   caseFixture.activationConstructions?.[1]?.sampleEntries?.[0]?.integerField !== -1 ||
   caseFixture.leadSystemDetails[0].electrodes.length !== 9 ||
-  caseFixture.leadSystemDetails[2].electrodes.length !== 65
+  caseFixture.leadSystemDetails[2].electrodes.length !== 65 ||
+  caseFixture.validation?.status !== "partial" ||
+  caseFixture.validation?.unsupportedPayloadCount !== 7 ||
+  !caseFixture.validation?.unavailableCapabilities?.includes("measured/initial/adapted ECG overlay classification")
 ) {
   console.error("Unexpected case metadata fixture");
   process.exit(1);

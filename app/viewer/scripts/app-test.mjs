@@ -66,6 +66,7 @@ async function assertInitialState(page) {
   await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
   await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz / initial+adapted");
   await expectText(page, "[data-leads-metadata]", "standard_12: 9 electrode traces / 12 leads / plotted 9 / 576 samples / 1000 Hz / BASELINE / 100%");
+  await expectText(page, "[data-case-validation]", "Partial: 7 unsupported payload groups / 5 unavailable capabilities");
 
   assert.ok(await canvasHasContent(page, "[data-leads-canvas]"), "leads canvas should be nonblank");
   assert.ok(await canvasHasContent(page, "[data-tmp-canvas]"), "TMP canvas should be nonblank");
@@ -108,6 +109,7 @@ async function assertImportNotices(page) {
     await expectText(page, "[data-case-status]", fileName);
     await expectText(page, "[data-case-notice]", `${fileName} loaded from a supported web case bundle`);
     await expectText(page, "[data-case-size]", byteSize.toLocaleString());
+    await expectText(page, "[data-case-validation]", "Partial: 7 unsupported payload groups / 5 unavailable capabilities");
     await expectText(page, "[data-case-leads]", "BSM_(amsterdam_64)");
     await expectText(page, "[data-toolbar-lead-system]", "BSM_(amsterdam_64)");
     await expectText(page, "[data-status-message]", `${fileName} loaded`);
@@ -140,6 +142,7 @@ async function assertImportNotices(page) {
 
   await caseInput.setInputFiles(resolve(repoRoot, "research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase"));
   await expectText(page, "[data-case-status]", "normal_male2.ECGsimcase");
+  await expectText(page, "[data-case-notice]", "normal_male2.ECGsimcase loaded from a supported web case bundle");
   await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
 }
 

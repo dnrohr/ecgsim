@@ -61,6 +61,8 @@ Use the Open case control and select the original local `.ECGsimcase` file. The 
 
 Use the Open bundle control to load a generated case-bundle `.json` file directly. Bundle JSON must use the same top-level sections emitted by `tools/export_viewer_fixtures.py`: `caseMetadata`, `heart`, `thorax`, `ecgSignals`, and `tmpWaveforms`. Invalid bundles leave the current case visible and show a validation notice.
 
+The case summary includes a Validation field. `Partial` means the case loaded and the main views are usable, but the bundle has known unavailable capabilities such as undecoded fiducials, unsupported raw payload groups, or unavailable overlay classifications.
+
 ## Normal Case Walkthrough
 
 Use any supported WPW variant, for example:
@@ -156,6 +158,7 @@ Current unsupported outputs:
 - TMP waveform generation is calibrated against the normal male ECGSIM 3.0.1 `.user.source` export; additional cases and edited-source workflows still need parity coverage.
 - ECG/BSPM recomputation after TMP edits is not wired into the viewer yet.
 - Baseline coupling reports whether parsed fiducials are available. Bundled cases currently use fallback signal endpoints because P-wave/T-wave samples have not been located.
+- The Validation field summarizes known partial-support limits for the loaded bundle; it is not a failure when the main views remain available.
 - Endocardial/epicardial and transmural controls are disabled until explicit wall pairings are parsed.
 - Surface-potential matrix values are parsed and displayed, but measured/initial/adapted signal classification remains incomplete.
 - The first normal male ECGSIM 3.0.1 raw legacy export has been captured and promoted into small parity fixtures; full export parity still needs scenario-level comparisons and additional case coverage.

@@ -24,6 +24,7 @@ const caseSize = document.querySelector("[data-case-size]");
 const caseLeads = document.querySelector("[data-case-leads]");
 const caseMarkers = document.querySelector("[data-case-markers]");
 const caseUnsupported = document.querySelector("[data-case-unsupported]");
+const caseValidation = document.querySelector("[data-case-validation]");
 const caseNotice = document.querySelector("[data-case-notice]");
 const statusMessage = document.querySelector("[data-status-message]");
 const toolbarLeadSystem = document.querySelector("[data-toolbar-lead-system]");
@@ -1585,6 +1586,10 @@ function updateCaseMetadata(metadata, noticeText) {
     `PVector ${metadata.markerCounts.PVector}`,
   ].join(" / ");
   caseUnsupported.textContent = metadata.unsupportedPayloads.join(", ");
+  if (caseValidation) {
+    caseValidation.textContent = validationSummaryText(metadata.validation);
+    caseValidation.title = validationDetailText(metadata.validation);
+  }
   caseNotice.textContent = noticeText ?? `Loaded supported case bundle from ${metadata.source}.`;
   if (toolbarLeadSystem) {
     toolbarLeadSystem.replaceChildren();
@@ -1598,6 +1603,33 @@ function updateCaseMetadata(metadata, noticeText) {
   if (statusMessage) {
     statusMessage.value = noticeText ?? `Ready: ${metadata.fileName}`;
   }
+}
+
+function validationSummaryText(validation) {
+  if (!validation || typeof validation !== "object") {
+    return "Validation unavailable";
+  }
+  if (validation.status === "supported") {
+    return "Supported";
+  }
+  const unsupportedCount = Number.isFinite(validation.unsupportedPayloadCount)
+    ? validation.unsupportedPayloadCount
+    : 0;
+  const unavailableCount = Array.isArray(validation.unavailableCapabilities)
+    ? validation.unavailableCapabilities.length
+    : 0;
+  return `Partial: ${unsupportedCount} unsupported payload groups / ${unavailableCount} unavailable capabilities`;
+}
+
+function validationDetailText(validation) {
+  if (!validation || typeof validation !== "object") {
+    return "No validation details were included in this bundle.";
+  }
+  const messages = Array.isArray(validation.messages) ? validation.messages : [];
+  const capabilities = Array.isArray(validation.unavailableCapabilities)
+    ? validation.unavailableCapabilities
+    : [];
+  return [...messages, ...capabilities].join(" | ");
 }
 
 function selectedLeadSystemDetail() {
@@ -1661,6 +1693,7 @@ function validateCaseBundle(bundle) {
   if (!Array.isArray(metadata.unsupportedPayloads)) {
     throw new Error("caseMetadata unsupportedPayloads must be an array");
   }
+  validateCaseValidation(metadata.validation);
 
   validateGeometryBundle(bundle.heart, "heart");
   const thoraxMeshes = bundle.thorax.meshes;
@@ -1671,6 +1704,21 @@ function validateCaseBundle(bundle) {
   validateSignalBundle(bundle.ecgSignals);
   validateTmpBundle(bundle.tmpWaveforms);
   return bundle;
+}
+
+function validateCaseValidation(validation) {
+  if (!validation || typeof validation !== "object") {
+    throw new Error("caseMetadata must include validation");
+  }
+  if (!["supported", "partial", "unsupported"].includes(validation.status)) {
+    throw new Error("caseMetadata validation status is invalid");
+  }
+  if (!Number.isFinite(validation.unsupportedPayloadCount)) {
+    throw new Error("caseMetadata validation unsupportedPayloadCount must be numeric");
+  }
+  if (!Array.isArray(validation.unavailableCapabilities) || !Array.isArray(validation.messages)) {
+    throw new Error("caseMetadata validation must include unavailableCapabilities and messages arrays");
+  }
 }
 
 function validateGeometryBundle(geometry, label) {
@@ -1726,6 +1774,12 @@ function applyCaseBundle(bundle, noticeText) {
   });
   syncLeadSystemOptions();
   syncUnavailableLeadOverlayControls();
+  if (heartSurface) {
+    heartSurface.value = "geometry";
+  }
+  if (heartValues) {
+    heartValues.value = "adapted";
+  }
   tmpCanvas = document.querySelector("[data-tmp-canvas]");
   let thoraxView = null;
   const tmpEditing = mountTmpEditing(bundle.tmpWaveforms, () => thoraxView?.redrawThoraxMap());

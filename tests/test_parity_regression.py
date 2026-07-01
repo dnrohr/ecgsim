@@ -166,6 +166,7 @@ class ParityRegressionTests(unittest.TestCase):
                 bundle_path = Path("app/viewer/public/fixtures/cases") / entry["bundle"]
                 bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
                 metadata = bundle["caseMetadata"]
+                validation = metadata["validation"]
 
                 self.assertEqual(metadata["fileName"], entry["fileName"])
                 self.assertEqual(metadata["byteSize"], case.metadata.byte_size)
@@ -173,6 +174,11 @@ class ParityRegressionTests(unittest.TestCase):
                 self.assertEqual(entry["byteSize"], case.metadata.byte_size)
                 self.assertEqual(entry["sha256"], case.metadata.sha256)
                 self.assertEqual(metadata["leadSystems"], [system.name for system in case.lead_systems])
+                self.assertEqual(validation["status"], "partial")
+                self.assertEqual(validation["unsupportedPayloadCount"], len(case.metadata.unsupported_payloads))
+                self.assertIn("P-wave/T-wave fiducials for baseline coupling", validation["unavailableCapabilities"])
+                self.assertIn("measured/initial/adapted ECG overlay classification", validation["unavailableCapabilities"])
+                self.assertIn("partial support", validation["messages"][0])
                 self.assertEqual(bundle["heart"]["pointCount"], next(
                     geometry.point_count for geometry in case.geometries if geometry.name == "heart"
                 ))

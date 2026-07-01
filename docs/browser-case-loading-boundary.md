@@ -70,6 +70,7 @@ The initial schema authority is `tools/export_viewer_fixtures.py`. Future produc
 - Source parameter vectors include initial and adapted values by parameter name.
 - Transfer matrices include shape, source offset, role, values, and status.
 - Case metadata includes file name, byte size, SHA-256 when known, marker counts, unsupported payloads, lead systems, activation summaries, and wall-mapping status.
+- Case metadata includes `validation` with `status`, unsupported payload count, unavailable capabilities, and concise messages for UI display and tests.
 
 Task `0063` should add a lightweight schema validator in the browser. The validator should fail before rendering if required top-level sections or essential dimensions are missing.
 
