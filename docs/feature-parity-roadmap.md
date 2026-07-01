@@ -1,6 +1,6 @@
 # Feature Parity Roadmap
 
-Status: active roadmap. Tasks through productization have produced a usable parity-oriented viewer, import/export tooling, tests, packaging checks, and documentation. The first normal male ECGSIM 3.0.1 raw export capture is available; TMP generation, filtering modes, and promoted numerical fixture scenarios are now tested against legacy exports.
+Status: complete. Tasks through productization have produced a usable parity-oriented viewer, import/export tooling, tests, packaging checks, and documentation. The first normal male ECGSIM 3.0.1 raw export capture is available; TMP generation, filtering modes, and promoted numerical fixture scenarios are now tested against legacy exports. Further work continues in the [Modernization Roadmap](modernization-roadmap.md).
 
 ## Goal
 

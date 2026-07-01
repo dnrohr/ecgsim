@@ -2,7 +2,7 @@
 
 Status: complete. This roadmap describes the first prototype phase that established data collection, parser foundations, a fixture-backed viewer, app workflow tests, and release planning.
 
-The next roadmap is [Feature Parity Roadmap](feature-parity-roadmap.md). Current task descriptions live in [docs/tasks/README.md](tasks/README.md).
+The completed feature-parity roadmap is [Feature Parity Roadmap](feature-parity-roadmap.md). The active roadmap is [Modernization Roadmap](modernization-roadmap.md). Current task descriptions live in [docs/tasks/README.md](tasks/README.md).
 
 ## M0: Research Archive
 

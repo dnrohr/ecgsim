@@ -2,7 +2,7 @@
 
 These task descriptions split the roadmap into agent-sized units. Start with the lowest unfinished task number unless the user explicitly chooses a different one.
 
-Tasks `0001` through `0025` completed the initial prototype roadmap. Tasks `0026` and later follow the feature-parity roadmap in `docs/feature-parity-roadmap.md`.
+Tasks `0001` through `0025` completed the initial prototype roadmap. Tasks `0026` through `0061` follow the feature-parity roadmap in `docs/feature-parity-roadmap.md`. Tasks `0062` and later follow the modernization roadmap in `docs/modernization-roadmap.md`.
 
 Each task should end with:
 
@@ -110,3 +110,39 @@ Each task should end with:
 - [x] [0059 Implement Desktop Packaging](0059-implement-desktop-packaging.md)
 - [x] [0060 Add End-To-End Release Validation](0060-add-end-to-end-release-validation.md)
 - [x] [0061 Update User Documentation For Feature Parity](0061-update-user-documentation-for-feature-parity.md)
+
+## NF1: Browser-Native Case Loading
+
+- [ ] [0062 Design Browser Case Loading Boundary](0062-design-browser-case-loading-boundary.md)
+- [ ] [0063 Implement Browser Case Bundle Import Path](0063-implement-browser-case-bundle-import-path.md)
+- [ ] [0064 Add WPW Variant Viewer Fixtures](0064-add-wpw-variant-viewer-fixtures.md)
+- [ ] [0065 Add Case Validation And Error Reporting UI](0065-add-case-validation-and-error-reporting-ui.md)
+
+## NF2: Recomputed Scientific Outputs
+
+- [ ] [0066 Wire Lead ECG Recompute Path](0066-wire-lead-ecg-recompute-path.md)
+- [ ] [0067 Implement Initial Adapted And Sensitivity BSPM Modes](0067-implement-initial-adapted-and-sensitivity-bspm-modes.md)
+- [ ] [0068 Decode Or Derive Case Fiducials](0068-decode-or-derive-case-fiducials.md)
+- [ ] [0069 Capture Additional Numerical Parity Scenarios](0069-capture-additional-numerical-parity-scenarios.md)
+- [ ] [0070 Implement Focus Editing Workflow](0070-implement-focus-editing-workflow.md)
+
+## NF3: Visualization And Workflow Depth
+
+- [ ] [0071 Implement ARI And TMP At Time Heart Surfaces](0071-implement-ari-and-tmp-at-time-heart-surfaces.md)
+- [ ] [0072 Implement Isofunction Contours And Colormap Parity](0072-implement-isofunction-contours-and-colormap-parity.md)
+- [ ] [0073 Implement Thorax Probe Contribution Views](0073-implement-thorax-probe-contribution-views.md)
+- [ ] [0074 Expand Linked Time And Playback Coverage](0074-expand-linked-time-and-playback-coverage.md)
+
+## NF4: Import Export And Interoperability
+
+- [ ] [0075 Implement ECGsimsource Import Export](0075-implement-ecgsimsource-import-export.md)
+- [ ] [0076 Expand Legacy Export Directory Writer](0076-expand-legacy-export-directory-writer.md)
+- [ ] [0077 Implement ECG Signal Import](0077-implement-ecg-signal-import.md)
+- [ ] [0078 Add MATLAB ReadECGsim Compatibility Smoke Tests](0078-add-matlab-read-ecgsim-compatibility-smoke-tests.md)
+
+## NF5: Product Experience And Release Hardening
+
+- [ ] [0079 Add In App Help About And References](0079-add-in-app-help-about-and-references.md)
+- [ ] [0080 Implement Movie Export](0080-implement-movie-export.md)
+- [ ] [0081 Add Legacy Visual Regression Harness](0081-add-legacy-visual-regression-harness.md)
+- [ ] [0082 Harden Signed Release Pipeline](0082-harden-signed-release-pipeline.md)
