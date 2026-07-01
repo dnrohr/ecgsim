@@ -36,3 +36,8 @@ Use the manual workflow in `docs/legacy-reference-exports.md`:
 3. Use `File -> Export`.
 4. Save output under `research/legacy-exports/raw/<case-name>/export-directory/`.
 5. Run `tools/summarize_legacy_export.py` and commit the manifest first.
+6. Run `tools/validate_legacy_capture.py` with `--require-task <id>` for the downstream task being unblocked, or `--require-ready` when the full artifact set is expected.
+7. For task fixtures, run `tools/promote_legacy_parity_fixtures.py` to copy only reviewed `.user.source`, `.refECG`, or `.adaptECG` files into `tests/fixtures/legacy-parity/<case-name>/`.
+8. Verify promoted fixtures with `tools/promote_legacy_parity_fixtures.py --verify tests/fixtures/legacy-parity/<case-name>` before committing them.
+
+The ignored raw capture remains the source of truth for review, but parity tests should consume promoted fixtures and manifests rather than reaching directly into `research/legacy-exports/raw/`.
