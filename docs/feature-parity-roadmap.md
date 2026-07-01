@@ -26,7 +26,7 @@ The feature-parity roadmap has moved beyond the initial prototype:
 
 Major gaps:
 
-- Raw legacy export capture exists for the ECGSIM 3.0.1 normal male case, including `.user.source`, `.adaptECG`, `.refECG`, and source-parameter vectors. Additional cases and edited workflows are still needed for broad parity.
+- Raw legacy export capture exists for the ECGSIM 3.0.1 normal male case, including `.user.source`, `.adaptECG`, `.refECG`, and source-parameter vectors. Task `0069` adds a normal young male ECG-only capture fixture. Additional edited workflows are still needed for broad parity.
 - The browser viewer does not yet parse arbitrary user-provided `.ECGsimcase` files directly; it consumes generated bundles for supported cases.
 - ECG/BSPM recomputation after source edits is not wired into the viewer with verified legacy-equivalent behavior.
 - TMP generation is calibrated against the promoted normal male `.user.source` fixture, filtering modes are tested against `standard_12.adaptECG`, and the numerical harness consumes promoted TMP, ECG/lead, and BSM fixture matrices; task `0068` derives normal-male P/T baseline samples from export evidence while decoded `.ECGsimcase` fiducial fields remain unavailable.

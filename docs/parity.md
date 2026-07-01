@@ -61,6 +61,7 @@ Current viewer fixtures expose these dimensions:
 ## Unknowns And Follow-Up
 
 - Raw legacy `File -> Export` outputs have been captured for the ECGSIM 3.0.1 normal male case and promoted under `tests/fixtures/legacy-parity/normal-male-ecgsim301/`.
+- Raw legacy `File -> Export` outputs have also been captured for the ECGSIM 3.0.1 normal young male case. The promoted `tests/fixtures/legacy-parity/normal-young-male-ecgsim301/` fixture currently includes ECG-only `.refECG` and `.adaptECG` matrices.
 - Promoted `.refECG` fixtures are now shape/readability-checked as row-major legacy matrices; value tolerances should be added when a modern ECG recomputation path produces comparable lead outputs.
 - The normal male case exposes derived baseline fiducials `(5, 499)` from the promoted `standard_12.adaptECG` export. Other supported cases keep fiducials unavailable until comparable evidence exists.
 - Adapted lead traces in the browser are recomputed from edited TMP source parameters at parsed electrode thorax nodes, then passed through the existing coupling filter modes. They are intentionally labeled as unresolved for WCT/reference lead transform parity until lead reference semantics are decoded.

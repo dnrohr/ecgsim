@@ -30,3 +30,7 @@ The current numerical harness is strong for one normal male ECGSIM 3.0.1 export.
 ## Done When
 
 The parity harness covers more than the initial unedited normal male export.
+
+## Completion Note
+
+Completed by capturing the legacy ECGSIM 3.0.1 bundled `normal_young_male.ECGsimcase` through `File -> Export`, validating the ignored raw export directory, and committing manifest/validation handoff files. Promoted fixtures intentionally include the small ECG artifacts only (`referenceEcg` and `adaptedEcg`) under `tests/fixtures/legacy-parity/normal-young-male-ecgsim301/`; the larger raw TMP `.user.source` matrices remain ignored until a focused task needs them. The numerical parity harness now verifies the second fixture manifest and reads the promoted ECG matrices.

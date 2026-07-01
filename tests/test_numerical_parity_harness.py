@@ -146,6 +146,29 @@ class NumericalParityHarnessTests(unittest.TestCase):
         self.assertEqual(shapes["ecgs/standard_12.adaptECG"], (12, 505))
         self.assertEqual(shapes["ecgs/BSM_(nijmegen_64).refECG"], (64, 500))
 
+    def test_promoted_normal_young_legacy_ecg_scenario_has_readable_artifacts(self) -> None:
+        fixture_root = Path("tests/fixtures/legacy-parity/normal-young-male-ecgsim301")
+        verification = verify_fixture_manifest(fixture_root)
+        self.assertEqual(verification["status"], "passed")
+
+        manifest = json.loads((fixture_root / "manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual(manifest["artifactNames"], ["referenceEcg", "adaptedEcg"])
+        self.assertEqual(manifest["fileCount"], 6)
+        shapes = {}
+        for entry in manifest["files"]:
+            with self.subTest(path=entry["path"]):
+                matrix = read_legacy_row_major_matrix(fixture_root / entry["path"])
+                summary = entry["numericSummary"]
+                shapes[entry["path"]] = (matrix.rows, matrix.columns)
+                self.assertEqual(matrix.storage_format, "binary-float32-row-major")
+                self.assertEqual((matrix.rows, matrix.columns), (summary["rows"], summary["columns"]))
+                self.assertGreater(_matrix_dynamic_range(matrix.values), 0.0)
+                self.assertTrue(all(math.isfinite(value) for row in matrix.values for value in row))
+
+        self.assertEqual(shapes["ecgs/standard_12.refECG"], (12, 700))
+        self.assertEqual(shapes["ecgs/standard_12.adaptECG"], (12, 638))
+        self.assertEqual(shapes["ecgs/BSM_(nijmegen_64).refECG"], (64, 700))
+
     def test_generated_tmp_matrix_matches_promoted_legacy_scenario_tolerance(self) -> None:
         fixture_root = Path("tests/fixtures/legacy-parity/normal-male-ecgsim301")
         beat = fixture_root / "ventricular_beats" / "beat1"

@@ -1,0 +1,85 @@
+{
+  "schema": "org.ecgsim.legacy-parity-fixture-set",
+  "version": 1,
+  "caseId": "normal-young-male-ecgsim301",
+  "sourceCaptureDir": "research/legacy-exports/raw/normal-young-male/export-directory/normal_young_male",
+  "artifactNames": [
+    "referenceEcg",
+    "adaptedEcg"
+  ],
+  "fileCount": 6,
+  "files": [
+    {
+      "artifact": "referenceEcg",
+      "path": "ecgs/BSM_(nijmegen_64).refECG",
+      "bytes": 179208,
+      "sha256": "1e199edd55ac3c932623ea6979cb66718d7d937f0719152133efc00120617e24",
+      "classification": "reference-ecg-matrix",
+      "numericSummary": {
+        "format": "binary-float32-row-major",
+        "rows": 64,
+        "columns": 700
+      }
+    },
+    {
+      "artifact": "referenceEcg",
+      "path": "ecgs/VCG_(Frank).refECG",
+      "bytes": 28008,
+      "sha256": "0d258fc140bc692e243cba497a4e7f082484466712ac80fbb8530ca8090daa90",
+      "classification": "reference-ecg-matrix",
+      "numericSummary": {
+        "format": "binary-float32-row-major",
+        "rows": 10,
+        "columns": 700
+      }
+    },
+    {
+      "artifact": "referenceEcg",
+      "path": "ecgs/minimap_montage.refECG",
+      "bytes": 33608,
+      "sha256": "bfd5e75666cad1e3e9e9d29e77a02fb25e52b2417c3f9646b92f81455dc2c5e4",
+      "classification": "reference-ecg-matrix",
+      "numericSummary": {
+        "format": "binary-float32-row-major",
+        "rows": 12,
+        "columns": 700
+      }
+    },
+    {
+      "artifact": "referenceEcg",
+      "path": "ecgs/single_lead.refECG",
+      "bytes": 2808,
+      "sha256": "d56c82eef648f46a2a50858b9d59cb524a1003829c3587802b8dd9c93c66bb6f",
+      "classification": "reference-ecg-matrix",
+      "numericSummary": {
+        "format": "binary-float32-row-major",
+        "rows": 1,
+        "columns": 700
+      }
+    },
+    {
+      "artifact": "referenceEcg",
+      "path": "ecgs/standard_12.refECG",
+      "bytes": 33608,
+      "sha256": "b7478cfa6b5bcb96c0e8fb4398826a2b742c12d3c01390183c911ff2e24e8210",
+      "classification": "reference-ecg-matrix",
+      "numericSummary": {
+        "format": "binary-float32-row-major",
+        "rows": 12,
+        "columns": 700
+      }
+    },
+    {
+      "artifact": "adaptedEcg",
+      "path": "ecgs/standard_12.adaptECG",
+      "bytes": 30632,
+      "sha256": "2bbfb155d24c5f1712dcc30a2f085c85a031b0c9c8198cb8440b5ea40a63804a",
+      "classification": "adapted-ecg-matrix",
+      "numericSummary": {
+        "format": "binary-float32-row-major",
+        "rows": 12,
+        "columns": 638
+      }
+    }
+  ]
+}

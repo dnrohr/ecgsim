@@ -1,0 +1,697 @@
+{
+  "schema": "org.ecgsim.legacy-capture-validation",
+  "version": 1,
+  "captureDir": "research/legacy-exports/raw/normal-young-male/export-directory/normal_young_male",
+  "manifest": {
+    "exportRoot": "research/legacy-exports/raw/normal-young-male/export-directory/normal_young_male",
+    "fileCount": 60,
+    "totalBytes": 129073646,
+    "parityArtifacts": {
+      "tmpSource": {
+        "present": true,
+        "paths": [
+          "atrial_beats/beat1/user.source",
+          "ventricular_beats/beat1/user.source"
+        ]
+      },
+      "adaptedEcg": {
+        "present": true,
+        "paths": [
+          "ecgs/standard_12.adaptECG"
+        ]
+      },
+      "referenceEcg": {
+        "present": true,
+        "paths": [
+          "ecgs/BSM_(nijmegen_64).refECG",
+          "ecgs/VCG_(Frank).refECG",
+          "ecgs/minimap_montage.refECG",
+          "ecgs/single_lead.refECG",
+          "ecgs/standard_12.refECG"
+        ]
+      }
+    },
+    "readyForNumericalParity": true,
+    "files": [
+      {
+        "path": "atrial_beats/beat1/user.ampl",
+        "bytes": 16350,
+        "sha256": "f596299162e56f51c4f9b73fcfd1069e6c3f00c42db551edd85f7966decc5075",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 1634
+        }
+      },
+      {
+        "path": "atrial_beats/beat1/user.dep",
+        "bytes": 16158,
+        "sha256": "d0762e972dd36b337fee1de0c094edee4ebd383679c4b0711a3af6854a036505",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 1634
+        }
+      },
+      {
+        "path": "atrial_beats/beat1/user.depslope",
+        "bytes": 3278,
+        "sha256": "829e3c6bbd59b6da70c76788cc6ea819d9f1e5172219da7d51df2ab394c66926",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 1634
+        }
+      },
+      {
+        "path": "atrial_beats/beat1/user.platslope",
+        "bytes": 11448,
+        "sha256": "510ba0add7f703146d3ee918cb03e4ab33f1e8bb832892d9d4044f67e4ec8f90",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 1634
+        }
+      },
+      {
+        "path": "atrial_beats/beat1/user.rep",
+        "bytes": 16170,
+        "sha256": "3e30db79c5329db5a936dc2c4d9083d416779889c25a5ab404bd8cef25a76eac",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 1634
+        }
+      },
+      {
+        "path": "atrial_beats/beat1/user.repslope",
+        "bytes": 19618,
+        "sha256": "e90408bd913a1fdeec619557a73c91030e9f066dd81d9d3d3f2031ee95c2cb92",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 1634
+        }
+      },
+      {
+        "path": "atrial_beats/beat1/user.rest",
+        "bytes": 17984,
+        "sha256": "dd608d7c562ef3d2d047abf4c2fe10b2d76197e9c83eda49f1ae7bfa768b274c",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 1634
+        }
+      },
+      {
+        "path": "atrial_beats/beat1/user.source",
+        "bytes": 2503296,
+        "sha256": "0fe49bdd365b1e7ae65fff7ade1979f15b1dcd60c874f1b9feeec39231c38e43",
+        "classification": "tmp-source-matrix",
+        "numericSummary": {
+          "format": "binary-float32-row-major",
+          "rows": 1634,
+          "columns": 383
+        }
+      },
+      {
+        "path": "ecgs/BSM_(nijmegen_64).elec",
+        "bytes": 1669,
+        "sha256": "4f2e67637c6fa80e2883e520799c0c0cbedbc61b613d37d9c3a2312710b33ed2",
+        "classification": "electrodes",
+        "numericSummary": null
+      },
+      {
+        "path": "ecgs/BSM_(nijmegen_64).refECG",
+        "bytes": 179208,
+        "sha256": "1e199edd55ac3c932623ea6979cb66718d7d937f0719152133efc00120617e24",
+        "classification": "reference-ecg-matrix",
+        "numericSummary": {
+          "format": "binary-float32-row-major",
+          "rows": 64,
+          "columns": 700
+        }
+      },
+      {
+        "path": "ecgs/minimap_montage.elec",
+        "bytes": 217,
+        "sha256": "67a1a919abd4722732e3ffa15351711529c0796ba98b94f58d530d43eb7d3a88",
+        "classification": "electrodes",
+        "numericSummary": null
+      },
+      {
+        "path": "ecgs/minimap_montage.refECG",
+        "bytes": 33608,
+        "sha256": "bfd5e75666cad1e3e9e9d29e77a02fb25e52b2417c3f9646b92f81455dc2c5e4",
+        "classification": "reference-ecg-matrix",
+        "numericSummary": {
+          "format": "binary-float32-row-major",
+          "rows": 12,
+          "columns": 700
+        }
+      },
+      {
+        "path": "ecgs/single_lead.elec",
+        "bytes": 101,
+        "sha256": "2ca56594a2e1a456a7a6ad6a869f52214f709843c5f1ee47ddcc4e6e703174ee",
+        "classification": "electrodes",
+        "numericSummary": null
+      },
+      {
+        "path": "ecgs/single_lead.refECG",
+        "bytes": 2808,
+        "sha256": "d56c82eef648f46a2a50858b9d59cb524a1003829c3587802b8dd9c93c66bb6f",
+        "classification": "reference-ecg-matrix",
+        "numericSummary": {
+          "format": "binary-float32-row-major",
+          "rows": 1,
+          "columns": 700
+        }
+      },
+      {
+        "path": "ecgs/standard_12.adaptECG",
+        "bytes": 30632,
+        "sha256": "2bbfb155d24c5f1712dcc30a2f085c85a031b0c9c8198cb8440b5ea40a63804a",
+        "classification": "adapted-ecg-matrix",
+        "numericSummary": {
+          "format": "binary-float32-row-major",
+          "rows": 12,
+          "columns": 638
+        }
+      },
+      {
+        "path": "ecgs/standard_12.elec",
+        "bytes": 217,
+        "sha256": "67a1a919abd4722732e3ffa15351711529c0796ba98b94f58d530d43eb7d3a88",
+        "classification": "electrodes",
+        "numericSummary": null
+      },
+      {
+        "path": "ecgs/standard_12.refECG",
+        "bytes": 33608,
+        "sha256": "b7478cfa6b5bcb96c0e8fb4398826a2b742c12d3c01390183c911ff2e24e8210",
+        "classification": "reference-ecg-matrix",
+        "numericSummary": {
+          "format": "binary-float32-row-major",
+          "rows": 12,
+          "columns": 700
+        }
+      },
+      {
+        "path": "ecgs/VCG_(Frank).elec",
+        "bytes": 170,
+        "sha256": "6d170f5a80064d4b46b4b20b844fe596ea775304c4273c36797e3d614d1f3985",
+        "classification": "electrodes",
+        "numericSummary": null
+      },
+      {
+        "path": "ecgs/VCG_(Frank).refECG",
+        "bytes": 28008,
+        "sha256": "0d258fc140bc692e243cba497a4e7f082484466712ac80fbb8530ca8090daa90",
+        "classification": "reference-ecg-matrix",
+        "numericSummary": {
+          "format": "binary-float32-row-major",
+          "rows": 10,
+          "columns": 700
+        }
+      },
+      {
+        "path": "model/atria.adj2d",
+        "bytes": 10679832,
+        "sha256": "2f95d84bf8c053db2ec972799577c338f6558f85a513c70568ae15b4f70735ac",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1634,
+          "columns": 1634
+        }
+      },
+      {
+        "path": "model/atria.adj3d",
+        "bytes": 10679832,
+        "sha256": "26d20b1c37f82e2be82eb5b581826f7dc5c3de3e3f647188435d58637f7098d2",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1634,
+          "columns": 1634
+        }
+      },
+      {
+        "path": "model/atria.adjanis",
+        "bytes": 10679832,
+        "sha256": "7918017f281d3645d4d46e24d4870a509e5b9fa1a0402bb2bdfd336851dc0386",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1634,
+          "columns": 1634
+        }
+      },
+      {
+        "path": "model/atria.adjneigh",
+        "bytes": 8,
+        "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+        "classification": "unknown",
+        "numericSummary": null
+      },
+      {
+        "path": "model/atria.dst2d",
+        "bytes": 10679832,
+        "sha256": "81b4f3b7bf2508a43b008c9b4a50483c8ec85d6ac4f5ca27bf1ac85e037603b7",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1634,
+          "columns": 1634
+        }
+      },
+      {
+        "path": "model/atria.dst3d",
+        "bytes": 10679832,
+        "sha256": "41e097d519fca6f3f65c34106d69020c5781ac9a5af71363a81c698f6f5c3d1b",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1634,
+          "columns": 1634
+        }
+      },
+      {
+        "path": "model/atria.dstanis",
+        "bytes": 10679832,
+        "sha256": "20cdabce787ba923ce3cd6f5ac9652a90aac80f7f6ca437a71b911ec51f8bc56",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1634,
+          "columns": 1634
+        }
+      },
+      {
+        "path": "model/atria.ordneigh",
+        "bytes": 8,
+        "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+        "classification": "unknown",
+        "numericSummary": null
+      },
+      {
+        "path": "model/atria2BSM_(nijmegen_64).mat",
+        "bytes": 418312,
+        "sha256": "73e79b344260c15380e93caed9834017dc2acab66eff88afb42a71853c4c37b6",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 64,
+          "columns": 1634
+        }
+      },
+      {
+        "path": "model/atria2minimap_montage.mat",
+        "bytes": 78440,
+        "sha256": "32234e023b8a94e3e275508bcf8a69504c4d9a6a158d52f019b24a42ea765f16",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 12,
+          "columns": 1634
+        }
+      },
+      {
+        "path": "model/atria2single_lead.mat",
+        "bytes": 6544,
+        "sha256": "79a29ed3cd2bab48a2b3fe7a1cb65719522c686d65c9c7e96f2b847635966f15",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1,
+          "columns": 1634
+        }
+      },
+      {
+        "path": "model/atria2standard_12.mat",
+        "bytes": 78440,
+        "sha256": "0b35c521ecd4c82599a0821c2438e08c232d1a43443110c8f0775d697e09f821",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 12,
+          "columns": 1634
+        }
+      },
+      {
+        "path": "model/atria2Thorax.mat",
+        "bytes": 1960808,
+        "sha256": "50c73a7263fb41c53492d05db6508f516bef5004ae863bea00460bba339e0e10",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 300,
+          "columns": 1634
+        }
+      },
+      {
+        "path": "model/atria2VCG_(Frank).mat",
+        "bytes": 65368,
+        "sha256": "581b341f2252a23272ca91eadfec534fd7cd48ea87b42e4cd265a5169a840a3d",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 10,
+          "columns": 1634
+        }
+      },
+      {
+        "path": "model/lcav.tri",
+        "bytes": 50029,
+        "sha256": "991f66e847ccf17d0c62dc81181ac71c69ef84dad93d8cf5b2e8ee12ee6092c1",
+        "classification": "geometry-triangulation",
+        "numericSummary": {
+          "format": "ascii-tri",
+          "points": 844,
+          "triangles": 1684,
+          "units": "m",
+          "sourceIndexBase": 1
+        }
+      },
+      {
+        "path": "model/llung.tri",
+        "bytes": 14742,
+        "sha256": "836139e150b925a925b1a1a5dae2e75baa55d2c6f5881ee585ac4beb5582fcbc",
+        "classification": "geometry-triangulation",
+        "numericSummary": {
+          "format": "ascii-tri",
+          "points": 259,
+          "triangles": 514,
+          "units": "m",
+          "sourceIndexBase": 1
+        }
+      },
+      {
+        "path": "model/rcav.tri",
+        "bytes": 58440,
+        "sha256": "28db61f2081353af0676f9ee3d4bf26d58c9127d73bb09e2a5992e489017a571",
+        "classification": "geometry-triangulation",
+        "numericSummary": {
+          "format": "ascii-tri",
+          "points": 972,
+          "triangles": 1940,
+          "units": "m",
+          "sourceIndexBase": 1
+        }
+      },
+      {
+        "path": "model/rlung.tri",
+        "bytes": 17065,
+        "sha256": "7877e2cde30a442902ef3350ceedab99a9585b70bb24da6e25c29952e1f20d6e",
+        "classification": "geometry-triangulation",
+        "numericSummary": {
+          "format": "ascii-tri",
+          "points": 293,
+          "triangles": 582,
+          "units": "m",
+          "sourceIndexBase": 1
+        }
+      },
+      {
+        "path": "model/thorax.tri",
+        "bytes": 17554,
+        "sha256": "eaed0041444fb494139551a2072308c40efdfd384200f68c84294a876d25ba07",
+        "classification": "geometry-triangulation",
+        "numericSummary": {
+          "format": "ascii-tri",
+          "points": 300,
+          "triangles": 596,
+          "units": "m",
+          "sourceIndexBase": 1
+        }
+      },
+      {
+        "path": "model/ventricle.adj2d",
+        "bytes": 9000008,
+        "sha256": "43b2b30a72f854225f9eaa1510201e4be0a2008f6f38a4ce2949590c43c00f47",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1500,
+          "columns": 1500
+        }
+      },
+      {
+        "path": "model/ventricle.adj3d",
+        "bytes": 9000008,
+        "sha256": "39ddb9f1e4b14ba179cb5eba636506fa45812898dcfe710d415e64e20c1385ef",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1500,
+          "columns": 1500
+        }
+      },
+      {
+        "path": "model/ventricle.adjanis",
+        "bytes": 9000008,
+        "sha256": "7740c36da3b113f924b64028a04bcb44ab30978de2abefe6c2306a6d98113b06",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1500,
+          "columns": 1500
+        }
+      },
+      {
+        "path": "model/ventricle.adjneigh",
+        "bytes": 8,
+        "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+        "classification": "unknown",
+        "numericSummary": null
+      },
+      {
+        "path": "model/ventricle.dst2d",
+        "bytes": 9000008,
+        "sha256": "6481f2522d0c2c592309be1bd32a6a20e4b97d68a8c0fc385edb4fc6872164fd",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1500,
+          "columns": 1500
+        }
+      },
+      {
+        "path": "model/ventricle.dst3d",
+        "bytes": 9000008,
+        "sha256": "b181f51853641b33d5094f8c439100d3ef9bea92af8c166139fd76425a36dfaf",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1500,
+          "columns": 1500
+        }
+      },
+      {
+        "path": "model/ventricle.dstanis",
+        "bytes": 9000008,
+        "sha256": "2a332e9eba9b000c95a4308b74ba90063cfeb829995cabbf789ab9f2ab28e139",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1500,
+          "columns": 1500
+        }
+      },
+      {
+        "path": "model/ventricle.ordneigh",
+        "bytes": 8,
+        "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+        "classification": "unknown",
+        "numericSummary": null
+      },
+      {
+        "path": "model/ventricles2BSM_(nijmegen_64).mat",
+        "bytes": 384008,
+        "sha256": "ad61a4de807ef0130fc82f1801c2a19b2deed27759691877ebe5a46072998800",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 64,
+          "columns": 1500
+        }
+      },
+      {
+        "path": "model/ventricles2minimap_montage.mat",
+        "bytes": 72008,
+        "sha256": "5b17a3fc7d55d90fc4beeef4ec8aad93d4ee1a24e723bf21e0db4aacabd2f648",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 12,
+          "columns": 1500
+        }
+      },
+      {
+        "path": "model/ventricles2single_lead.mat",
+        "bytes": 6008,
+        "sha256": "161db777d5566f7a7ee00ca11e51b126d3b78d7775fc70c9bbae128dbd01f0bf",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 1,
+          "columns": 1500
+        }
+      },
+      {
+        "path": "model/ventricles2standard_12.mat",
+        "bytes": 72008,
+        "sha256": "512834939d75e8bea283517f602cc648f6ede8ee644fa36763ee3d7e6dff5cae",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 12,
+          "columns": 1500
+        }
+      },
+      {
+        "path": "model/ventricles2Thorax.mat",
+        "bytes": 1800008,
+        "sha256": "39f70ecbce4578fcb33d9c31eb510a3b343151cf16444bb97c1d68756e8d56e1",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 300,
+          "columns": 1500
+        }
+      },
+      {
+        "path": "model/ventricles2VCG_(Frank).mat",
+        "bytes": 60008,
+        "sha256": "432f0ab311772bff8d7f71551ec87aeabb04379ec5b575989d17602c6be9b0d3",
+        "classification": "matrix",
+        "numericSummary": {
+          "format": "binary-float32",
+          "rows": 10,
+          "columns": 1500
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.ampl",
+        "bytes": 15010,
+        "sha256": "fbe3cf63161e8e21411d1ff9ded01b1986f2f2f1f763a507c7888e0ba6fe6360",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 1500
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.dep",
+        "bytes": 14850,
+        "sha256": "14c278c24711964a6cec35e00a714c0693e08488b5d8b635714a7a84b36c37db",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 1500
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.depslope",
+        "bytes": 3010,
+        "sha256": "1ec0c2aa56d53922329578bd3b7943185304b9ca66719214dca084260d264e31",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 1500
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.platslope",
+        "bytes": 18010,
+        "sha256": "3141f94a3b71f0631e949612f82f39f52a502b582dbf4d096cea00f1ced495ce",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 1500
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.rep",
+        "bytes": 14828,
+        "sha256": "8fd2528adf466b263b7910ab507ef4064a0fa7ce2ac0cdda991ac57ab91e6bf7",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 1500
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.repslope",
+        "bytes": 18010,
+        "sha256": "530bb0969cbbc99f9676f8b65e58db6e0ef055bbf02c6b8765f36ef79ca04e92",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 1500
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.rest",
+        "bytes": 16510,
+        "sha256": "61925ce8d6b652585abe28daf20d656614e57a6eecfc90d7a87c19e0b25a59b9",
+        "classification": "source-parameter-vector",
+        "numericSummary": {
+          "format": "ascii",
+          "length": 1500
+        }
+      },
+      {
+        "path": "ventricular_beats/beat1/user.source",
+        "bytes": 2820008,
+        "sha256": "f384bd3c7c6f17f39462de6cf0805ed9b816f710e31164ee4d2151db1cdb421b",
+        "classification": "tmp-source-matrix",
+        "numericSummary": {
+          "format": "binary-float32-row-major",
+          "rows": 1500,
+          "columns": 470
+        }
+      }
+    ]
+  },
+  "taskReadiness": {
+    "0049": {
+      "label": "Legacy TMP Generator Parity",
+      "ready": true,
+      "requiredArtifacts": [
+        "tmpSource"
+      ],
+      "missingArtifacts": []
+    },
+    "0051": {
+      "label": "Viewer Recompute Pipeline",
+      "ready": true,
+      "requiredArtifacts": [
+        "tmpSource",
+        "adaptedEcg"
+      ],
+      "missingArtifacts": []
+    },
+    "0052": {
+      "label": "Fiducial And Filtering Parity",
+      "ready": true,
+      "requiredArtifacts": [
+        "referenceEcg",
+        "adaptedEcg"
+      ],
+      "missingArtifacts": []
+    },
+    "0053": {
+      "label": "Numerical Parity Harness",
+      "ready": true,
+      "requiredArtifacts": [
+        "tmpSource",
+        "referenceEcg",
+        "adaptedEcg"
+      ],
+      "missingArtifacts": []
+    }
+  },
+  "comparison": null
+}

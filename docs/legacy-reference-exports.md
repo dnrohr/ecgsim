@@ -110,6 +110,25 @@ python tools/summarize_legacy_export.py research/legacy-exports/raw/<case-name> 
 
 The manifest records checksums, file classifications, readable matrix/vector/geometry shapes, and a `readyForNumericalParity` flag. For downstream numerical parity work, confirm the manifest reports `.user.source`, `.adaptECG`, and `.refECG` artifacts under `parityArtifacts`.
 
+## Normal Young Male ECGSIM 3.0.1 Capture
+
+Task `0069` captured the bundled legacy `normal_young_male.ECGsimcase` through the same `File -> Export` workflow. The ignored raw export is:
+
+```text
+research/legacy-exports/raw/normal-young-male/export-directory/normal_young_male/
+```
+
+Committed handoff evidence:
+
+```text
+research/legacy-exports/normal-young-male-ecgsim301-manifest.json
+research/legacy-exports/normal-young-male-ecgsim301-validation.json
+research/legacy-exports/normal-young-male-ecgsim301-validation.md
+tests/fixtures/legacy-parity/normal-young-male-ecgsim301/
+```
+
+The raw capture validates as ready for numerical parity and includes TMP source matrices, `.refECG`, and `.adaptECG` artifacts. The promoted fixture intentionally includes only the smaller ECG artifacts (`referenceEcg` and `adaptedEcg`): five `.refECG` matrices plus `standard_12.adaptECG`. The raw `.user.source` matrices are multi-megabyte and remain ignored until a focused task needs them.
+
 Compare matching legacy and modern supported-export files with:
 
 ```powershell
