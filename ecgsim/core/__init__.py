@@ -12,8 +12,11 @@ from ecgsim.core.filtering import (
 )
 from ecgsim.core.parity import (
     NumericComparison,
+    NumericMatrixComparison,
     NumericMismatch,
+    assert_numeric_matrices_close,
     assert_numeric_sequences_close,
+    compare_numeric_matrices,
     compare_numeric_sequences,
 )
 from ecgsim.core.tmp import (
@@ -33,12 +36,15 @@ __all__ = [
     "BaselineWindow",
     "BaselineWindowSource",
     "NumericComparison",
+    "NumericMatrixComparison",
     "NumericMismatch",
     "TMPParameters",
     "apply_transfer_function",
     "apply_wct_reference",
+    "assert_numeric_matrices_close",
     "assert_numeric_sequences_close",
     "baseline_window_for_signal",
+    "compare_numeric_matrices",
     "compare_numeric_sequences",
     "filter_matrix",
     "filter_signal",

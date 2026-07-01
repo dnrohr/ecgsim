@@ -35,11 +35,17 @@ python tools/promote_legacy_parity_fixtures.py --verify tests/fixtures/legacy-pa
 
 Scientific regressions are caught before UI or packaging work ships.
 
-## Progress Note
+## Prior Progress Note
 
-Partially implemented by adding reusable numerical sequence comparison helpers with absolute/relative tolerances and diagnostic failure messages, plus tests that prove injected differences fail and current surface-potential/TMP fixtures match parsed source samples. Task `0048` now provides promoted `normal-male-ecgsim301` fixtures for legacy `.adaptECG`, `.refECG`, and `.user.source`; remaining harness work should turn those fixtures into scenario-level parity assertions.
+Earlier work added reusable numerical sequence comparison helpers with absolute/relative tolerances and diagnostic failure messages, plus tests that prove injected differences fail and current surface-potential/TMP fixtures match parsed source samples. Task `0048` then provided promoted `normal-male-ecgsim301` fixtures for legacy `.adaptECG`, `.refECG`, and `.user.source`.
 
 Added `tools/compare_export_directories.py` as a raw-export comparison path. It compares matching files from a captured legacy export directory and the modern supported export subset, reports missing relative paths, shape differences, and numerical mismatches, and can generate the modern export from a case file. Synthetic tests cover pass, value mismatch, and missing-file diagnostics. The normal male ECGSIM 3.0.1 export is now captured and promoted; full parity still requires scenario-level assertions and may require additional case/workflow captures.
+
+## Completion Note
+
+Task `0053` is complete for the promoted normal male ECGSIM 3.0.1 numerical fixture set. The harness now includes matrix-level comparison helpers with row/column/index, maximum absolute error, and RMS diagnostics; injected matrix differences are tested. Promoted fixture scenario tests verify the fixture manifest before consumption, read all TMP, ECG/lead, and BSM matrices as row-major legacy exports, assert expected shapes and finite dynamic data, and compare the generated adapted TMP matrix against legacy `.user.source` with the documented `1.8 mV` max and `0.52 mV` RMS tolerances.
+
+Remaining parity expansion should add new scenario fixtures when more legacy captures are available or when modern ECG/BSPM recomputation produces comparable outputs for `.refECG`/`.adaptECG` value-level assertions.
 
 ## Capture Handoff
 

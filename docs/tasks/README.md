@@ -95,7 +95,7 @@ Each task should end with:
 - [x] [0050 Implement Activation And Focus Construction](0050-implement-activation-and-focus-construction.md)
 - [x] [0051 Wire Recompute Pipeline Into Viewer](0051-wire-recompute-pipeline-into-viewer.md)
 - [x] [0052 Implement Fiducial And Filtering Parity](0052-implement-fiducial-and-filtering-parity.md)
-- [ ] [0053 Expand Numerical Parity Harness](0053-expand-numerical-parity-harness.md)
+- [x] [0053 Expand Numerical Parity Harness](0053-expand-numerical-parity-harness.md)
 
 ## FP5: Import Export And Interop
 

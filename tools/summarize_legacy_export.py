@@ -13,7 +13,14 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ecgsim.io import GeometryFormatError, MatrixFormatError, read_geometry, read_matrix, read_vector
+from ecgsim.io import (
+    GeometryFormatError,
+    MatrixFormatError,
+    read_geometry,
+    read_legacy_row_major_matrix,
+    read_matrix,
+    read_vector,
+)
 
 
 MATRIX_EXTENSIONS = {
@@ -114,6 +121,20 @@ def numeric_summary(path: Path) -> dict[str, object] | None:
             return {
                 "format": vector.storage_format,
                 "length": vector.length,
+            }
+        if classification in {
+            "tmp-source-matrix",
+            "reference-ecg-matrix",
+            "adapted-ecg-matrix",
+        }:
+            try:
+                matrix = read_legacy_row_major_matrix(path)
+            except MatrixFormatError:
+                matrix = read_matrix(path)
+            return {
+                "format": matrix.storage_format,
+                "rows": matrix.rows,
+                "columns": matrix.columns,
             }
         if classification.endswith("matrix") or classification == "matrix":
             matrix = read_matrix(path)

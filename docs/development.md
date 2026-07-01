@@ -62,16 +62,16 @@ Regression tests also compare tracked viewer fixtures and the legacy screenshot 
 
 ## Legacy Parity Capture Handoff
 
-Raw legacy exports remain blocked until a normal interactive Windows session can run `File -> Export` in the ignored legacy app. After a capture exists under `research/legacy-exports/raw/<case-name>/export-directory/`, validate it before promoting anything into tests:
+The first normal male ECGSIM 3.0.1 raw export is captured under ignored `research/legacy-exports/raw/` and promoted into `tests/fixtures/legacy-parity/normal-male-ecgsim301/`. For any new capture, validate the raw export directory before promoting anything into tests:
 
 ```powershell
-python tools/validate_legacy_capture.py research/legacy-exports/raw/<case-name>/export-directory --format markdown --require-task 0049 --output research/legacy-exports/<case-name>-0049-handoff.md
+python tools/validate_legacy_capture.py research/legacy-exports/raw/<case-name>/export-directory --format markdown --require-task 0053 --output research/legacy-exports/<case-name>-0053-handoff.md
 ```
 
 Promote only reviewed small artifacts needed by a parity task:
 
 ```powershell
-python tools/promote_legacy_parity_fixtures.py research/legacy-exports/raw/<case-name>/export-directory tests/fixtures/legacy-parity/<case-name> --case-id <case-name> --artifact tmpSource
+python tools/promote_legacy_parity_fixtures.py research/legacy-exports/raw/<case-name>/export-directory tests/fixtures/legacy-parity/<case-name> --case-id <case-name>
 ```
 
 Verify promoted fixture manifests before committing:
