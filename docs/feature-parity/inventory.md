@@ -90,7 +90,7 @@ Source IDs used below:
 | Surface function: default geometry | Shows semi-transparent thorax with same heart surface function and lungs by default. | `manual:thorax` | Partial. | Needs linked heart function and transparency mode. |
 | Surface function: measured BSPM | Displays measured Body Surface Potentials Map. | `manual:thorax` | Unsupported. | Requires parsed measured surface potentials. |
 | Surface function: initial BSPM | Displays simulated BSPM with initial parameters. | `manual:thorax` | Unsupported. | Requires recompute or parsed initial matrices. |
-| Surface function: adapted BSPM | Displays simulated BSPM with adapted parameters. | `manual:thorax` | Unsupported. | Requires recompute pipeline. |
+| Surface function: adapted BSPM | Displays simulated BSPM with adapted parameters. | `manual:thorax`, `app:test` | Partial. | Task `0051` recomputes adapted Thorax BSPM from TMP parameters and a shape-matched ventricles-to-thorax transfer candidate; full ECG parity remains downstream. |
 | Surface function: sensitivity map | Shows sensitivity map for probed heart point. | `manual:thorax` | Unsupported. | Requires probe mode and transfer matrix visualization. |
 | Time stepping | Left/right arrow steps BSPM time; clicking TMP or ECG selects map time. | `manual:thorax` | Unsupported. | Requires shared time cursor. |
 | Show/hide lungs | Menu toggles lungs. | `manual:thorax` | Supported prototype: checkbox toggles lungs. | Menu parity still missing. |

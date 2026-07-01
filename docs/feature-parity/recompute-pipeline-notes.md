@@ -1,21 +1,23 @@
 # Recompute Pipeline Notes
 
-Status: task `0051` blocker notes.
+Status: task `0051` first recompute pipeline slice.
 
 ## Current State
 
-The viewer recomputes TMP traces immediately after source edits because adapted source-parameter vectors are updated in app state. Task `0049` replaced the preview-only TMP curve with a generator calibrated against the normal male ECGSIM 3.0.1 `.user.source` export. Downstream ECG, BSPM, and lead recomputation is not yet scientifically meaningful.
+The viewer recomputes TMP traces immediately after source edits because adapted source-parameter vectors are updated in app state. Task `0049` replaced the preview-only TMP curve with a generator calibrated against the normal male ECGSIM 3.0.1 `.user.source` export. Task `0051` adds adapted Thorax BSPM recomputation by applying a shape-matched ventricles-to-thorax transfer candidate to adapted TMP samples at the shared time cursor.
 
-## Blockers
+## Implemented
 
-- Source-to-thorax and source-to-lead transfer matrices are not yet parsed from `.ECGsimcase`; `PGraphGeometry` and relevant `PMatrix` roles still need confirmed mapping.
-- Current Leads and Thorax panes use measured surface-potential fixtures, not simulated initial/adapted recomputation outputs.
+- `tools/export_viewer_fixtures.py` includes the first `300 x 576` PMatrix matching thorax nodes by ventricular source nodes as `transferMatrices.ventriclesToThorax`.
+- The Thorax pane enables `Adapted BSPM` when that transfer candidate is present.
+- The adapted map is recomputed from live adapted TMP parameters after edits, undo/redo, reset, source-edit load/import, and time-cursor changes.
+- Browser workflow tests verify that adapted Thorax BSPM rendering changes after a TMP edit.
 
-## Required Before Enabling
+## Remaining Before Lead ECG Parity
 
-1. Identify and parse transfer matrices for ventricular source to thorax/lead targets.
-2. Feed adapted source matrices through `ecgsim.core.apply_transfer_function`.
-3. Update Thorax/Leads overlays with explicit measured, initial, and adapted classifications.
-4. Compare recomputed outputs against promoted `.adaptECG`/`.refECG` fixtures and document residuals.
+1. Confirm source-to-lead transfer matrix roles and reference handling.
+2. Apply fiducial/baseline/filtering parity from task `0052`.
+3. Compare recomputed outputs against promoted `.adaptECG`/`.refECG` fixtures in task `0053`.
+4. Decide whether initial BSPM should be generated on demand or stored as a fixture-backed overlay.
 
-Until then, source edits must not be presented as changing ECG/BSPM outputs.
+Until then, source edits should be presented as changing adapted Thorax BSPM only, not as verified lead ECG recomputation.

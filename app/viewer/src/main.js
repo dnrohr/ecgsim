@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { baselineWindowForSignal, buildRmsTrace, filterTraces } from "./filtering.js";
 import { computeWeightedRegionMembership, mergeWeightedRegions } from "./selection.js";
+import { generateTmpSample, tmpParametersFromVectors } from "./tmp-generation.js";
 import {
   EDITABLE_PARAMETERS,
   applyTmpEditSnapshot,
@@ -508,7 +509,7 @@ function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange) {
   animate();
 }
 
-function mountThorax(fixture, signalFixture) {
+function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
   if (
     !thoraxViewport ||
     !thoraxMetadata ||
@@ -618,6 +619,11 @@ function mountThorax(fixture, signalFixture) {
       thoraxSurfaceStatus.value = `${label} / ${scale}% / ${sampleMs} ms`;
       return;
     }
+    if (thoraxSurface.value === "adapted" && signalFixture?.transferMatrices?.ventriclesToThorax) {
+      const sampleMs = Math.round((timeState.sample / signalFixture.sampleRateHz) * 1000);
+      thoraxSurfaceStatus.value = `${label} / ${scale}% / simulated ${sampleMs} ms`;
+      return;
+    }
     const mapStatus = signalFixture?.surfaceMap ? "measured map available" : "maps unavailable";
     thoraxSurfaceStatus.value = `${label} / ${scale}% / ${mapStatus}`;
   }
@@ -684,9 +690,47 @@ function mountThorax(fixture, signalFixture) {
     materials.thorax.depthWrite = true;
   }
 
+  function applyAdaptedSurfaceMap() {
+    const transfer = signalFixture?.transferMatrices?.ventriclesToThorax;
+    const state = getTmpEditState();
+    if (!thoraxMesh || !transfer || !state) {
+      applyGeometryColors();
+      return;
+    }
+    const sample = Math.max(0, Math.min(state.sampleCount - 1, timeState.sample));
+    const sourceValues = Array.from({ length: state.nodeCount }, (_, nodeIndex) => (
+      generateTmpSample(
+        tmpParametersFromVectors(state.parameters, nodeIndex, "adapted"),
+        sample,
+        state.sampleRateHz,
+      )
+    ));
+    const computedValues = transfer.values.map((row) => (
+      row.reduce((sum, coefficient, nodeIndex) => sum + coefficient * sourceValues[nodeIndex], 0)
+    ));
+    const min = Math.min(...computedValues);
+    const max = Math.max(...computedValues);
+    const span = Math.max(max - min, 1e-9);
+    const colorAttribute = thoraxMesh.geometry.getAttribute("color");
+    for (let index = 0; index < colorAttribute.count; index += 1) {
+      const value = computedValues[index];
+      if (Number.isFinite(value)) {
+        const color = potentialColor(value, min, span);
+        colorAttribute.setXYZ(index, color.r, color.g, color.b);
+      } else {
+        colorAttribute.setXYZ(index, 0.48, 0.52, 0.54);
+      }
+    }
+    colorAttribute.needsUpdate = true;
+    materials.thorax.opacity = 0.82;
+    materials.thorax.depthWrite = true;
+  }
+
   function applyThoraxSurface() {
     if (thoraxSurface.value === "measured" && signalFixture?.surfaceMap) {
       applyMeasuredSurfaceMap();
+    } else if (thoraxSurface.value === "adapted" && signalFixture?.transferMatrices?.ventriclesToThorax) {
+      applyAdaptedSurfaceMap();
     } else {
       thoraxSurface.value = "geometry";
       applyGeometryColors();
@@ -807,6 +851,8 @@ function mountThorax(fixture, signalFixture) {
   [...thoraxSurface.options].forEach((option) => {
     if (option.value === "measured") {
       option.disabled = !signalFixture?.surfaceMap;
+    } else if (option.value === "adapted") {
+      option.disabled = !signalFixture?.transferMatrices?.ventriclesToThorax;
     } else if (option.value !== "geometry") {
       option.disabled = true;
     }
@@ -834,12 +880,14 @@ function mountThorax(fixture, signalFixture) {
     isAutoRotating = thoraxRotate.checked;
   };
   thoraxSurface.onchange = () => {
-    if (thoraxSurface.value !== "measured") {
+    if (!["measured", "adapted"].includes(thoraxSurface.value)) {
       thoraxSurface.value = "geometry";
     }
     applyThoraxSurface();
     if (statusMessage && thoraxSurface.value === "measured") {
       statusMessage.value = "Measured thorax BSPM map shown at shared time cursor.";
+    } else if (statusMessage && thoraxSurface.value === "adapted") {
+      statusMessage.value = "Adapted thorax BSPM recomputed from TMP parameters and the transfer matrix candidate.";
     } else if (statusMessage) {
       statusMessage.value = "Thorax BSPM and sensitivity map data are unavailable in current fixtures.";
     }
@@ -1170,7 +1218,7 @@ function drawTmpLine(context, values, min, span, left, plotWidth, centerY, ampli
   context.stroke();
 }
 
-function mountTmpEditing(fixture) {
+function mountTmpEditing(fixture, onRecompute = () => {}) {
   if (
     !tmpShowInitial ||
     !tmpShowAdapted ||
@@ -1269,6 +1317,7 @@ function mountTmpEditing(fixture) {
       tmpParameterStatus.value = "Select heart node";
     }
     redrawTmp();
+    onRecompute();
   }
 
   function formatParameterValue(value, step) {
@@ -1414,7 +1463,7 @@ function mountTmpEditing(fixture) {
     syncControls();
   };
 
-  return { syncControls, redrawTmp };
+  return { syncControls, redrawTmp, getState: () => tmpEditState };
 }
 
 function sidecarFileName(metadata) {
@@ -1593,9 +1642,10 @@ function applyCaseBundle(bundle, noticeText) {
   syncLeadSystemOptions();
   syncUnavailableLeadOverlayControls();
   tmpCanvas = document.querySelector("[data-tmp-canvas]");
-  const tmpEditing = mountTmpEditing(bundle.tmpWaveforms);
+  let thoraxView = null;
+  const tmpEditing = mountTmpEditing(bundle.tmpWaveforms, () => thoraxView?.redrawThoraxMap());
   mountHeart(bundle.heart, bundle.tmpWaveforms, bundle.caseMetadata.wallMapping, () => tmpEditing.syncControls());
-  const thoraxView = mountThorax(bundle.thorax, bundle.ecgSignals);
+  thoraxView = mountThorax(bundle.thorax, bundle.ecgSignals, () => tmpEditing.getState());
   tmpEditing.syncControls();
   const leadsCanvas = document.querySelector("[data-leads-canvas]");
   const redrawSignals = () => plotSignals(leadsCanvas, bundle.ecgSignals, {

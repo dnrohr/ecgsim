@@ -1,4 +1,12 @@
 export function generateTmpWaveform(parameters, sampleCount, sampleRateHz = 1000) {
+  const values = [];
+  for (let sample = 0; sample < sampleCount; sample += 1) {
+    values.push(generateTmpSample(parameters, sample, sampleRateHz));
+  }
+  return values;
+}
+
+export function generateTmpSample(parameters, sample, sampleRateHz = 1000) {
   const depRate = depolarizationRate(parameters.depolarizationSlope);
   const repRate = Math.max(Math.abs(parameters.repolarizationSlope), 1e-9);
   const plateauRate = Math.max(Math.abs(parameters.plateauSlope), 0);
@@ -8,17 +16,12 @@ export function generateTmpWaveform(parameters, sampleCount, sampleRateHz = 1000
   const repStartExponent = safeExp(repEnvelopeRate * (repStartMs - parameters.repolarizationMs));
   const samplePeriodMs = 1000 / sampleRateHz;
   const activeRange = parameters.amplitude - parameters.restingPotential;
-
-  const values = [];
-  for (let sample = 0; sample < sampleCount; sample += 1) {
-    const timeMs = sample * samplePeriodMs;
-    const upstroke = sigmoid((timeMs - parameters.depolarizationMs) * depRate);
-    const repExponent = safeExp(repEnvelopeRate * (timeMs - parameters.repolarizationMs));
-    const repolarization = safeExp(-repShape * (repExponent - repStartExponent));
-    const value = parameters.restingPotential + activeRange * upstroke * repolarization;
-    values.push(Math.round(value * 1000000) / 1000000);
-  }
-  return values;
+  const timeMs = sample * samplePeriodMs;
+  const upstroke = sigmoid((timeMs - parameters.depolarizationMs) * depRate);
+  const repExponent = safeExp(repEnvelopeRate * (timeMs - parameters.repolarizationMs));
+  const repolarization = safeExp(-repShape * (repExponent - repStartExponent));
+  const value = parameters.restingPotential + activeRange * upstroke * repolarization;
+  return Math.round(value * 1000000) / 1000000;
 }
 
 export function tmpParametersFromVectors(parameterVectors, node, state) {

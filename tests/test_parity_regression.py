@@ -87,14 +87,25 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertEqual(fixture["surfaceMap"]["sampleCount"], 576)
         self.assertEqual(len(fixture["surfaceMap"]["valuesByNode"]), 300)
         self.assertEqual(len(fixture["surfaceMap"]["valuesByNode"][0]), 576)
+        transfer = fixture["transferMatrices"]["ventriclesToThorax"]
+        self.assertEqual(transfer["role"], "candidate-ventricles-to-thorax")
+        self.assertEqual(transfer["rows"], 300)
+        self.assertEqual(transfer["columns"], 576)
+        self.assertEqual(len(transfer["values"]), 300)
+        self.assertEqual(len(transfer["values"][0]), 576)
 
         matrix = read_ecgsimcase_matrix(Path(fixture["source"]), fixture["sourceMatrixOffset"])
+        transfer_matrix = read_ecgsimcase_matrix(Path(fixture["source"]), transfer["sourceMatrixOffset"])
         self.assertEqual(matrix.rows, fixture["rows"])
         self.assertEqual(matrix.columns, fixture["columns"])
+        self.assertEqual(transfer_matrix.rows, transfer["rows"])
+        self.assertEqual(transfer_matrix.columns, transfer["columns"])
         self.assertAlmostEqual(fixture["traces"][0]["values"][0], matrix.values[0][0], delta=1e-6)
         self.assertAlmostEqual(fixture["traces"][0]["values"][999], matrix.values[0][999], delta=1e-6)
         self.assertAlmostEqual(fixture["surfaceMap"]["valuesByNode"][0][0], matrix.values[0][0], delta=1e-6)
         self.assertAlmostEqual(fixture["surfaceMap"]["valuesByNode"][299][575], matrix.values[299][575], delta=1e-6)
+        self.assertAlmostEqual(transfer["values"][0][0], transfer_matrix.values[0][0], delta=1e-6)
+        self.assertAlmostEqual(transfer["values"][299][575], transfer_matrix.values[299][575], delta=1e-6)
 
     def test_case_metadata_fixture_marks_wall_mapping_unavailable(self) -> None:
         fixture = json.loads(Path("app/viewer/public/fixtures/case-metadata.json").read_text(encoding="utf-8"))

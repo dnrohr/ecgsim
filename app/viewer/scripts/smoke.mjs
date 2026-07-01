@@ -202,9 +202,12 @@ if (ecgFixture.traces.some((trace) => trace.values.length !== 1000)) {
 }
 if (
   ecgFixture.surfaceMap.valuesByNode.length !== 300 ||
-  ecgFixture.surfaceMap.valuesByNode[0].length !== 576
+  ecgFixture.surfaceMap.valuesByNode[0].length !== 576 ||
+  ecgFixture.transferMatrices?.ventriclesToThorax?.rows !== 300 ||
+  ecgFixture.transferMatrices.ventriclesToThorax.columns !== 576 ||
+  ecgFixture.transferMatrices.ventriclesToThorax.values.length !== 300
 ) {
-  console.error("Unexpected ECG surface map dimensions");
+  console.error("Unexpected ECG surface map or transfer dimensions");
   process.exit(1);
 }
 const acFiltered = filterSignal([1, 2, 3], "ac");

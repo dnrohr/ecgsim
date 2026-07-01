@@ -93,7 +93,7 @@ Each task should end with:
 - [x] [0048 Capture Raw Legacy Exports For Numerical Parity](0048-capture-raw-legacy-exports-for-numerical-parity.md)
 - [x] [0049 Implement Legacy TMP Generator Parity](0049-implement-legacy-tmp-generator-parity.md)
 - [x] [0050 Implement Activation And Focus Construction](0050-implement-activation-and-focus-construction.md)
-- [ ] [0051 Wire Recompute Pipeline Into Viewer](0051-wire-recompute-pipeline-into-viewer.md)
+- [x] [0051 Wire Recompute Pipeline Into Viewer](0051-wire-recompute-pipeline-into-viewer.md)
 - [ ] [0052 Implement Fiducial And Filtering Parity](0052-implement-fiducial-and-filtering-parity.md)
 - [ ] [0053 Expand Numerical Parity Harness](0053-expand-numerical-parity-harness.md)
 

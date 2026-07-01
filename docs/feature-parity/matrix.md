@@ -71,7 +71,7 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | Thorax View | Surface function: default geometry | supported | P1 | `0038` | Default geometry/transparency mode is implemented for supported cases. |
 | Thorax View | Surface function: measured BSPM | partial | P0 | `0042` | Measured surface-potential map from parsed fixture is shown; classification and legacy parity remain incomplete. |
 | Thorax View | Surface function: initial BSPM | unsupported | P0 | `0042` | Requires recompute or parsed initial matrices. |
-| Thorax View | Surface function: adapted BSPM | unsupported | P0 | `0042` | Requires recompute pipeline. |
+| Thorax View | Surface function: adapted BSPM | partial | P0 | `0051` | Adapted BSPM recomputes from TMP parameters through a shape-matched ventricles-to-thorax transfer candidate; lead ECG parity and filtering remain downstream. |
 | Thorax View | Surface function: sensitivity map | unsupported | P1 | `0042` | Requires probe mode and transfer visualization. |
 | Thorax View | Time stepping | partial | P0 | `0041` | Shared time cursor updates measured BSPM maps; movie/frame parity remains incomplete. |
 | Thorax View | Show/hide lungs | supported | P2 | `0038` | Prototype works; menu parity still missing. |

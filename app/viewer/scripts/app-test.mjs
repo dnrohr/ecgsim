@@ -122,6 +122,7 @@ async function assertThoraxControls(page) {
   assert.equal(await page.locator("[data-thorax-electrodes]").isEnabled(), true, "electrode toggle should be available");
   assert.equal(await page.locator("[data-thorax-lock-heart]").isDisabled(), true, "lock-to-heart should show unavailable state");
   assert.equal(await page.locator("[data-thorax-surface] option[value='measured']").isDisabled(), false, "measured BSPM should be available");
+  assert.equal(await page.locator("[data-thorax-surface] option[value='adapted']").isDisabled(), false, "adapted BSPM should be recomputable");
 
   const before = await canvasSignature(page, canvas);
   await page.locator("[data-thorax-electrodes]").check();
@@ -136,11 +137,18 @@ async function assertThoraxControls(page) {
   const mapped = await canvasSignature(page, canvas);
   assert.notEqual(mapped, electrodesShown, "Measured BSPM should recolor the thorax canvas");
 
+  await page.locator("[data-thorax-surface]").selectOption("adapted");
+  await expectText(page, "[data-thorax-surface-status]", "Adapted BSPM / 100% / simulated 0 ms");
+  await expectText(page, "[data-status-message]", "Adapted thorax BSPM recomputed");
+  await page.waitForTimeout(150);
+  const adapted = await canvasSignature(page, canvas);
+  assert.notEqual(adapted, mapped, "Adapted BSPM should render transfer-computed colors");
+
   await setRangeValue(page, "[data-thorax-scale]", "120");
-  await expectText(page, "[data-thorax-surface-status]", "Measured BSPM / 120% / 0 ms");
+  await expectText(page, "[data-thorax-surface-status]", "Adapted BSPM / 120% / simulated 0 ms");
   await page.waitForTimeout(150);
   const scaled = await canvasSignature(page, canvas);
-  assert.notEqual(scaled, mapped, "Thorax scale control should change canvas output");
+  assert.notEqual(scaled, adapted, "Thorax scale control should change canvas output");
 
   await page.locator("[data-thorax-ap]").click();
   await expectText(page, "[data-status-message]", "Thorax view reset to AP orientation");
@@ -341,6 +349,10 @@ async function assertHeartSelectionAndTmpEditing(page) {
   assert.equal(Number(await valueInput.inputValue()), originalValue, "Reset parameter should restore nudged value");
 
   const tmpBefore = await canvasSignature(page, "[data-tmp-canvas]");
+  await setRangeValue(page, "[data-time-cursor]", "120");
+  await page.locator("[data-thorax-surface]").selectOption("adapted");
+  await page.waitForTimeout(150);
+  const adaptedThoraxBefore = await canvasSignature(page, ".thorax-viewport canvas");
   const editedValue = originalValue + 7;
 
   await valueInput.fill(String(editedValue));
@@ -348,6 +360,12 @@ async function assertHeartSelectionAndTmpEditing(page) {
   assert.equal(Number(await valueInput.inputValue()), editedValue, "Apply should keep the edited TMP value");
   const tmpEdited = await canvasSignature(page, "[data-tmp-canvas]");
   assert.notEqual(tmpEdited, tmpBefore, "TMP canvas should redraw after parameter edit");
+  await page.waitForTimeout(150);
+  assert.notEqual(
+    await canvasSignature(page, ".thorax-viewport canvas"),
+    adaptedThoraxBefore,
+    "Adapted Thorax BSPM should recompute after TMP edit",
+  );
 
   await undoButton.click();
   assert.equal(Number(await valueInput.inputValue()), originalValue, "Undo should restore prior TMP value");

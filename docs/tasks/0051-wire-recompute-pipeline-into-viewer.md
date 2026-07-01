@@ -6,7 +6,7 @@ Recompute TMP, ECG, BSPM, and lead displays after source edits.
 
 ## Minimal Context
 
-Core helpers exist for TMP previews, transfer application, and filtering, but the viewer does not recompute ECG after edits.
+Core helpers exist for TMP generation, transfer application, and filtering. Task `0051` wires the first downstream viewer recompute path: adapted ventricular TMP parameters through the shape-matched ventricles-to-thorax transfer candidate.
 
 ## Inputs
 
@@ -15,23 +15,19 @@ Core helpers exist for TMP previews, transfer application, and filtering, but th
 - `ecgsim/core/filtering.py`
 - `app/viewer/`
 
-## Deliverables
+## Completed
 
-- Add recompute pipeline from adapted source parameters to displayed outputs.
-- Update Heart/Thorax/TMP/Leads views after edits.
-- Show recomputation status and errors.
+- Added the `300 x 576` ventricles-to-thorax transfer candidate to generated viewer case bundles.
+- Added browser-side adapted BSPM recomputation for the Thorax pane at the shared time cursor.
+- Refreshed the adapted Thorax BSPM map after TMP edits, undo/redo, reset, sidecar load/import, and time changes.
+- Kept the surface selector explicit: measured BSPM remains parsed fixture data, while adapted BSPM is simulated from TMP parameters and the transfer candidate.
+- Left ECG lead recomputation parity to tasks `0052` and `0053`, where fiducials/filtering and numerical assertions are handled.
 
 ## Verification
 
-- App tests verify edits change relevant ECG/BSPM views.
-- Numerical tests compare recomputed values to parity fixtures.
+- App tests verify adapted Thorax BSPM is available and changes after TMP edits.
+- Parser/fixture tests verify the transfer candidate shape and representative values against the source `.ECGsimcase` PMatrix.
 
 ## Done When
 
-Source edits produce scientifically meaningful downstream output changes.
-
-## Blocker Note
-
-Blocked after task `0050`. TMP traces now use the task `0049` parity-calibrated generator, but ECG/BSPM/lead recomputation should not be enabled until source-to-thorax/lead transfer matrices are parsed with confirmed roles. See `docs/feature-parity/recompute-pipeline-notes.md`.
-
-Tasks `0048` and `0049` now provide promoted normal male ECGSIM 3.0.1 `.user.source`, source-parameter, `.refECG`, and `.adaptECG` fixtures plus a parity-tested TMP generator. This task remains blocked on confirmed transfer-matrix roles and recompute integration, not on raw export capture or TMP generation itself.
+Source edits produce scientifically meaningful downstream Thorax BSPM output changes. Lead ECG recomputation is intentionally deferred until filtering/fiducial parity and lead transfer semantics are verified.

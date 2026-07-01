@@ -73,6 +73,17 @@ def nearest_point_index(points: tuple[tuple[float, float, float], ...], target: 
 def ecg_signal_payload(case, case_path: Path) -> dict[str, object]:
     signal = case.signal_metadata
     matrix = read_ecgsimcase_matrix(case_path, signal.matrix_offset)
+    ventricles = next(source for source in case.sources if source.kind == "ventricles")
+    ventricular_node_count = ventricles.beats[0].parameters[0].initial.length
+    transfer_candidates = []
+    for offset in case.metadata.marker_offsets.get("PMatrix", ()):
+        try:
+            candidate = read_ecgsimcase_matrix(case_path, offset)
+        except ValueError:
+            continue
+        if candidate.rows == matrix.rows and candidate.columns == ventricular_node_count:
+            transfer_candidates.append((offset, candidate))
+    ventricles_to_thorax = transfer_candidates[0] if transfer_candidates else None
     if matrix.rows > 250:
         selected_rows = (0, 50, 100, 150, 200, 250)
     else:
@@ -111,6 +122,26 @@ def ecg_signal_payload(case, case_path: Path) -> dict[str, object]:
                 "max": surface_map_max,
             },
             "valuesByNode": surface_map_values,
+        },
+        "transferMatrices": {
+            "ventriclesToThorax": (
+                {
+                    "sourceMatrixOffset": ventricles_to_thorax[0],
+                    "role": "candidate-ventricles-to-thorax",
+                    "rows": ventricles_to_thorax[1].rows,
+                    "columns": ventricles_to_thorax[1].columns,
+                    "values": tuple(
+                        tuple(round(value, 6) for value in row)
+                        for row in ventricles_to_thorax[1].values
+                    ),
+                    "status": (
+                        "Shape-matched transfer candidate used for simulated adapted BSPM "
+                        "preview; ECG lead parity still requires fiducial/filtering work."
+                    ),
+                }
+                if ventricles_to_thorax
+                else None
+            ),
         },
         "traces": [
             {
@@ -156,8 +187,8 @@ def tmp_waveform_payload(case, case_path: Path) -> dict[str, object]:
         "nodeCount": node_count,
         "units": "legacy TMP parameter units",
         "generationNote": (
-            "Preview waveform generated from stored source parameter vectors; "
-            "exact legacy TMP generation remains a later parity task."
+            "Legacy-calibrated waveform generated from stored source parameter vectors; "
+            "normal male ECGSIM 3.0.1 TMP parity is covered by task 0049."
         ),
         "parameterVectors": {
             name: vectors
