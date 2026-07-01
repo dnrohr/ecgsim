@@ -18,7 +18,7 @@ Move from parity-oriented prototype to a broadly usable modern ECGSIM:
 - The viewer loads generated bundles for `normal_male2`, `WPW_Bundleonly`, `WPW_ectopicbeat`, and `WPW_fusionbeat`, not arbitrary browser-side `.ECGsimcase` files.
 - TMP generation is calibrated against one normal male ECGSIM 3.0.1 legacy export.
 - Filtering modes are tested against promoted `standard_12.adaptECG`; decoded P/T fiducials remain unavailable in `.ECGsimcase`.
-- Adapted Thorax BSPM recomputation exists for a shape-matched transfer candidate, but lead ECG recomputation, initial/adapted BSPM parity, sensitivity maps, and contribution maps remain incomplete.
+- Adapted Thorax BSPM and adapted lead-trace previews recompute for a shape-matched transfer candidate, but WCT/reference lead-transform parity, initial/adapted BSPM parity, sensitivity maps, and contribution maps remain incomplete.
 - Full legacy export-directory parity, `.ECGsimsource` interchange, ECG import, movie export, in-app help, visual regression, and signed release delivery remain incomplete.
 
 ## NF1: Browser-Native Case Loading

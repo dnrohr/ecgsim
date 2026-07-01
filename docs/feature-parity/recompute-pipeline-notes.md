@@ -20,4 +20,4 @@ The viewer recomputes TMP traces immediately after source edits because adapted 
 3. Compare recomputed outputs against promoted `.adaptECG`/`.refECG` fixtures in task `0053`.
 4. Decide whether initial BSPM should be generated on demand or stored as a fixture-backed overlay.
 
-Until then, source edits should be presented as changing adapted Thorax BSPM only, not as verified lead ECG recomputation.
+Task `0066` adds a browser-side adapted lead-trace preview by sampling edited TMP waveforms through the same ventricles-to-thorax transfer candidate used for adapted Thorax BSPM and reading the selected lead system's parsed electrode thorax nodes. This makes lead traces respond to source edits, but it should not be described as verified legacy lead ECG parity until WCT/reference lead transforms and measured/initial signal classification are decoded.

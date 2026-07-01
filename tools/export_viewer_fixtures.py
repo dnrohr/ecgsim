@@ -317,7 +317,7 @@ def case_validation_payload(case) -> dict[str, object]:
             break
 
     unavailable.append("endocardial/epicardial and transmural wall mapping")
-    unavailable.append("measured/initial/adapted ECG overlay classification")
+    unavailable.append("measured/initial ECG classification and WCT/reference lead transform")
 
     status = "partial" if unavailable else "supported"
     return {

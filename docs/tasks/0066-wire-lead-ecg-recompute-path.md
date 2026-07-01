@@ -31,3 +31,7 @@ Adapted Thorax BSPM recomputation exists for a shape-matched transfer candidate.
 ## Done When
 
 Lead traces respond to source edits through the recomputation pipeline with documented evidence.
+
+## Completion Note
+
+Completed by adding a browser recompute helper that samples edited adapted TMP waveforms through the ventricles-to-thorax transfer candidate at the selected lead system's parsed electrode thorax nodes. The Leads view now enables the Adapted toggle when dimensions match, applies the existing coupling filters to recomputed traces, redraws after TMP edits, and labels WCT/reference lead-transform parity as unresolved. Smoke and browser workflow tests cover recompute dimensions, filtering integration, Adapted redraw, and edit-driven lead updates.

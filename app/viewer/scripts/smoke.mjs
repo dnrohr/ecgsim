@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { baselineWindowForSignal, buildRmsTrace, filterSignal } from "../src/filtering.js";
+import { canRecomputeLeadTraces, recomputeLeadTraces } from "../src/recompute.js";
 import {
   computeRegionMembership,
   computeWeightedRegionMembership,
@@ -129,7 +130,7 @@ if (
   caseFixture.leadSystemDetails[2].electrodes.length !== 65 ||
   caseFixture.validation?.status !== "partial" ||
   caseFixture.validation?.unsupportedPayloadCount !== 7 ||
-  !caseFixture.validation?.unavailableCapabilities?.includes("measured/initial/adapted ECG overlay classification")
+  !caseFixture.validation?.unavailableCapabilities?.includes("measured/initial ECG classification and WCT/reference lead transform")
 ) {
   console.error("Unexpected case metadata fixture");
   process.exit(1);
@@ -259,6 +260,19 @@ if (
   process.exit(1);
 }
 const editState = createTmpEditState(tmpFixture);
+if (!canRecomputeLeadTraces(ecgFixture, editState)) {
+  console.error("Lead ECG recompute prerequisites were not detected");
+  process.exit(1);
+}
+const recomputedLeadTraces = recomputeLeadTraces(ecgFixture, editState, caseFixture.leadSystemDetails[0]);
+if (
+  recomputedLeadTraces.length !== caseFixture.leadSystemDetails[0].electrodes.length ||
+  recomputedLeadTraces[0].values.length !== editState.sampleCount ||
+  !Number.isFinite(recomputedLeadTraces[0].values[0])
+) {
+  console.error("Lead ECG recompute produced unexpected trace dimensions");
+  process.exit(1);
+}
 const originalDep = nodeParameterValue(editState, "depolarizationMs", 0, "adapted");
 if (applyParameterValue(editState, "depolarizationMs", [0, 1], originalDep + 5) !== 2) {
   console.error("TMP parameter apply failed");

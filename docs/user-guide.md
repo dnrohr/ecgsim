@@ -61,7 +61,7 @@ Use the Open case control and select the original local `.ECGsimcase` file. The 
 
 Use the Open bundle control to load a generated case-bundle `.json` file directly. Bundle JSON must use the same top-level sections emitted by `tools/export_viewer_fixtures.py`: `caseMetadata`, `heart`, `thorax`, `ecgSignals`, and `tmpWaveforms`. Invalid bundles leave the current case visible and show a validation notice.
 
-The case summary includes a Validation field. `Partial` means the case loaded and the main views are usable, but the bundle has known unavailable capabilities such as undecoded fiducials, unsupported raw payload groups, or unavailable overlay classifications.
+The case summary includes a Validation field. `Partial` means the case loaded and the main views are usable, but the bundle has known unavailable capabilities such as undecoded fiducials, unsupported raw payload groups, or unresolved measured/initial signal and lead-reference semantics.
 
 ## Normal Case Walkthrough
 
@@ -81,7 +81,7 @@ research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
 8. Use Export edits to download a `.source-edits.json` sidecar.
 9. Use Import edits to reload that sidecar into the same case.
 10. In Thorax, switch between geometry and measured BSPM where available, toggle lungs/electrodes, and adjust Scale.
-11. In Leads, switch Coupling between Baseline, AC, and DC; change Scale; toggle Grid and RMS.
+11. In Leads, switch Coupling between Baseline, AC, and DC; toggle Adapted to recompute electrode traces from edited TMP parameters; change Scale; toggle Grid and RMS.
 12. Use the shared time cursor or arrow keys on TMP/Leads canvases to step through time.
 13. Use each pane's PNG button to download the current Heart, Thorax, TMP, or Leads image.
 
@@ -156,11 +156,11 @@ Current unsupported outputs:
 ## Scientific Assumptions And Limits
 
 - TMP waveform generation is calibrated against the normal male ECGSIM 3.0.1 `.user.source` export; additional cases and edited-source workflows still need parity coverage.
-- ECG/BSPM recomputation after TMP edits is not wired into the viewer yet.
+- Adapted lead traces and adapted Thorax BSPM recompute after TMP edits when the generated bundle includes the ventricles-to-thorax transfer candidate.
 - Baseline coupling reports whether parsed fiducials are available. Bundled cases currently use fallback signal endpoints because P-wave/T-wave samples have not been located.
 - The Validation field summarizes known partial-support limits for the loaded bundle; it is not a failure when the main views remain available.
 - Endocardial/epicardial and transmural controls are disabled until explicit wall pairings are parsed.
-- Surface-potential matrix values are parsed and displayed, but measured/initial/adapted signal classification remains incomplete.
+- Surface-potential matrix values are parsed and displayed, but measured/initial signal classification and WCT/reference lead transforms remain incomplete.
 - The first normal male ECGSIM 3.0.1 raw legacy export has been captured and promoted into small parity fixtures; full export parity still needs scenario-level comparisons and additional case coverage.
 
 ## Validation Status

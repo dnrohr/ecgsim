@@ -36,7 +36,7 @@ Recent FP4 task status:
 
 - `0048` Capture Raw Legacy Exports For Numerical Parity: completed for the ECGSIM 3.0.1 normal male case with committed manifests and promoted numerical fixtures.
 - `0049` Implement Legacy TMP Generator Parity: completed for the promoted `normal-male-ecgsim301` `.user.source` fixture with documented residuals.
-- `0051` Wire Recompute Pipeline Into Viewer: completed for adapted Thorax BSPM using a shape-matched ventricles-to-thorax transfer candidate; lead ECG recomputation remains downstream of filtering/fiducial parity.
+- `0051` Wire Recompute Pipeline Into Viewer: completed for adapted Thorax BSPM using a shape-matched ventricles-to-thorax transfer candidate; task `0066` later added adapted lead-trace previews while WCT/reference lead parity remains downstream of filtering/fiducial work.
 - `0052` Implement Fiducial And Filtering Parity: completed for the promoted normal male `standard_12.adaptECG` export using inferred zero-run baseline samples; decoded P/T fiducial semantics still need resolution for arbitrary `.ECGsimcase` inputs.
 - `0053` Expand Numerical Parity Harness: completed for promoted normal male ECGSIM 3.0.1 numerical fixtures, including matrix diagnostics, fixture manifest gates, ECG/lead/BSM matrix readability checks, and full generated TMP matrix tolerance checks.
 

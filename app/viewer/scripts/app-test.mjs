@@ -237,12 +237,17 @@ async function assertHeartViewControls(page) {
 async function assertLeadsFiltering(page) {
   const canvas = "[data-leads-canvas]";
   await expectText(page, "[data-leads-status]", "Baseline fallback uses signal endpoints");
-  await expectText(page, "[data-leads-status]", "measured/initial/adapted classification unavailable");
+  await expectText(page, "[data-leads-status]", "measured/initial classification unavailable");
   assert.equal(await page.locator("[data-leads-measured]").isDisabled(), true, "measured overlay should be unavailable");
   assert.equal(await page.locator("[data-leads-initial]").isDisabled(), true, "initial overlay should be unavailable");
-  assert.equal(await page.locator("[data-leads-adapted]").isDisabled(), true, "adapted overlay should be unavailable");
+  assert.equal(await page.locator("[data-leads-adapted]").isDisabled(), false, "adapted overlay should be recomputable");
 
   const baselineSignature = await canvasSignature(page, canvas);
+  await page.locator("[data-leads-adapted]").check();
+  await expectText(page, "[data-leads-status]", "adapted ECG recomputed from TMP transfer");
+  const adaptedSignature = await canvasSignature(page, canvas);
+  assert.notEqual(adaptedSignature, baselineSignature, "Adapted lead ECG recompute should redraw traces");
+  await page.locator("[data-leads-adapted]").uncheck();
 
   await page.locator("[data-leads-system]").selectOption("VCG_(Frank)");
   await expectText(page, "[data-leads-metadata]", "VCG_(Frank): 7 electrode traces / 10 leads");
@@ -283,6 +288,7 @@ async function assertLeadsFiltering(page) {
   await page.locator("[data-leads-system]").selectOption("standard_12");
   await setRangeValue(page, "[data-leads-scale]", "100");
   await page.locator("[data-leads-rms]").uncheck();
+  await page.locator("[data-leads-adapted]").uncheck();
 }
 
 async function assertLinkedTimeCursor(page) {
@@ -382,8 +388,10 @@ async function assertHeartSelectionAndTmpEditing(page) {
   const tmpBefore = await canvasSignature(page, "[data-tmp-canvas]");
   await setRangeValue(page, "[data-time-cursor]", "120");
   await page.locator("[data-thorax-surface]").selectOption("adapted");
+  await page.locator("[data-leads-adapted]").check();
   await page.waitForTimeout(150);
   const adaptedThoraxBefore = await canvasSignature(page, ".thorax-viewport canvas");
+  const adaptedLeadsBefore = await canvasSignature(page, "[data-leads-canvas]");
   const editedValue = originalValue + 7;
 
   await valueInput.fill(String(editedValue));
@@ -396,6 +404,11 @@ async function assertHeartSelectionAndTmpEditing(page) {
     await canvasSignature(page, ".thorax-viewport canvas"),
     adaptedThoraxBefore,
     "Adapted Thorax BSPM should recompute after TMP edit",
+  );
+  assert.notEqual(
+    await canvasSignature(page, "[data-leads-canvas]"),
+    adaptedLeadsBefore,
+    "Adapted lead ECG should recompute after TMP edit",
   );
 
   await undoButton.click();

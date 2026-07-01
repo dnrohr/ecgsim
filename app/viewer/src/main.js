@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { baselineWindowForSignal, buildRmsTrace, filterTraces } from "./filtering.js";
+import { canRecomputeLeadTraces, recomputeLeadTraces } from "./recompute.js";
 import { computeWeightedRegionMembership, mergeWeightedRegions } from "./selection.js";
 import { generateTmpSample, tmpParametersFromVectors } from "./tmp-generation.js";
 import {
@@ -925,6 +926,8 @@ function plotSignals(
     showGrid = true,
     showRms = false,
     selectedSample = 0,
+    tmpState = null,
+    showAdapted = false,
   } = {},
 ) {
   if (!canvas || !leadsMetadata) {
@@ -940,7 +943,7 @@ function plotSignals(
   const bottom = 34;
   const plotWidth = width - left - right;
   const plotHeight = height - top - bottom;
-  const signalSet = leadSystemTraces(fixture, leadSystem);
+  const signalSet = leadSystemTraces(fixture, leadSystem, { tmpState, showAdapted });
   const fiducials = fixture.fiducials ?? {};
   const filteredTraces = filterTraces(
     signalSet.traces,
@@ -1046,7 +1049,10 @@ function plotSignals(
   leadsMetadata.value =
     `${systemText} / plotted ${traces.length} / ${signalSet.sampleCount} samples / ${signalSet.sampleRateHz} Hz / ${mode.toUpperCase()} / ${Math.round(scale * 100)}%`;
   if (leadsStatus) {
-    leadsStatus.value = `${signalSet.signalKind}; ${filteringStatus(mode, signalSet.sampleCount, fiducials)}; measured/initial/adapted classification unavailable`;
+    const classification = signalSet.isRecomputed
+      ? "adapted ECG recomputed from TMP transfer; WCT/reference lead transform unresolved"
+      : "measured/initial classification unavailable";
+    leadsStatus.value = `${signalSet.signalKind}; ${filteringStatus(mode, signalSet.sampleCount, fiducials)}; ${classification}`;
   }
 }
 
@@ -1067,12 +1073,23 @@ function filteringStatus(mode, sampleCount, fiducials) {
     : "Baseline fallback uses signal endpoints";
 }
 
-function leadSystemTraces(fixture, leadSystem) {
+function leadSystemTraces(fixture, leadSystem, { tmpState = null, showAdapted = false } = {}) {
+  if (showAdapted && canRecomputeLeadTraces(fixture, tmpState) && leadSystem?.electrodes?.length) {
+    return {
+      signalKind: `${leadSystem.name} adapted ECG recompute`,
+      sampleCount: tmpState.sampleCount,
+      sampleRateHz: tmpState.sampleRateHz,
+      isRecomputed: true,
+      traces: recomputeLeadTraces(fixture, tmpState, leadSystem, "adapted"),
+    };
+  }
+
   if (leadSystem?.electrodes?.length && fixture.surfaceMap?.valuesByNode) {
     return {
       signalKind: `${leadSystem.name} electrode surface potentials`,
       sampleCount: fixture.surfaceMap.sampleCount,
       sampleRateHz: fixture.surfaceMap.sampleRateHz,
+      isRecomputed: false,
       traces: leadSystem.electrodes.map((electrode, index) => {
         const nodeIndex = electrode.thoraxNodeIndex ?? index;
         return {
@@ -1088,6 +1105,7 @@ function leadSystemTraces(fixture, leadSystem) {
     signalKind: fixture.signalKind,
     sampleCount: fixture.columns,
     sampleRateHz: fixture.sampleRateHz,
+    isRecomputed: false,
     traces: fixture.traces,
   };
 }
@@ -1653,15 +1671,24 @@ function syncLeadSystemOptions() {
   leadsSystem.value = currentCaseMetadata.leadSystems[0] ?? "";
 }
 
-function syncUnavailableLeadOverlayControls() {
-  [leadsMeasured, leadsInitial, leadsAdapted].forEach((control) => {
+function syncLeadOverlayControls(signalFixture, tmpState) {
+  [leadsMeasured, leadsInitial].forEach((control) => {
     if (!control) {
       return;
     }
     control.checked = false;
     control.disabled = true;
-    control.title = "Measured, initial, and adapted signal classification is not available in current fixtures.";
+    control.title = "Measured and initial signal classification is not available in current fixtures.";
   });
+  if (!leadsAdapted) {
+    return;
+  }
+  const canRecompute = canRecomputeLeadTraces(signalFixture, tmpState);
+  leadsAdapted.checked = false;
+  leadsAdapted.disabled = !canRecompute;
+  leadsAdapted.title = canRecompute
+    ? "Recompute adapted electrode traces from edited TMP parameters and the ventricles-to-thorax transfer candidate."
+    : "Adapted ECG recomputation requires a transfer matrix matching TMP source nodes.";
 }
 
 function validateCaseBundle(bundle) {
@@ -1773,7 +1800,6 @@ function applyCaseBundle(bundle, noticeText) {
     sampleRateHz: Math.min(bundle.tmpWaveforms.sampleRateHz, bundle.ecgSignals.sampleRateHz),
   });
   syncLeadSystemOptions();
-  syncUnavailableLeadOverlayControls();
   if (heartSurface) {
     heartSurface.value = "geometry";
   }
@@ -1782,18 +1808,25 @@ function applyCaseBundle(bundle, noticeText) {
   }
   tmpCanvas = document.querySelector("[data-tmp-canvas]");
   let thoraxView = null;
-  const tmpEditing = mountTmpEditing(bundle.tmpWaveforms, () => thoraxView?.redrawThoraxMap());
+  let redrawSignals = () => {};
+  const tmpEditing = mountTmpEditing(bundle.tmpWaveforms, () => {
+    thoraxView?.redrawThoraxMap();
+    redrawSignals();
+  });
   mountHeart(bundle.heart, bundle.tmpWaveforms, bundle.caseMetadata.wallMapping, () => tmpEditing.syncControls());
   thoraxView = mountThorax(bundle.thorax, bundle.ecgSignals, () => tmpEditing.getState());
   tmpEditing.syncControls();
+  syncLeadOverlayControls(bundle.ecgSignals, tmpEditing.getState());
   const leadsCanvas = document.querySelector("[data-leads-canvas]");
-  const redrawSignals = () => plotSignals(leadsCanvas, bundle.ecgSignals, {
+  redrawSignals = () => plotSignals(leadsCanvas, bundle.ecgSignals, {
     mode: leadsFilter?.value ?? "baseline",
     leadSystem: selectedLeadSystemDetail(),
     scale: Number.parseFloat(leadsScale?.value ?? "100") / 100,
     showGrid: leadsGrid?.checked ?? true,
     showRms: leadsRms?.checked ?? false,
     selectedSample: timeState.sample,
+    tmpState: tmpEditing.getState(),
+    showAdapted: leadsAdapted?.checked ?? false,
   });
   if (leadsScale) {
     leadsScale.value = "100";
@@ -1820,6 +1853,9 @@ function applyCaseBundle(bundle, noticeText) {
   }
   if (leadsRms) {
     leadsRms.onchange = redrawSignals;
+  }
+  if (leadsAdapted) {
+    leadsAdapted.onchange = redrawSignals;
   }
   redrawTimeDependents = () => {
     redrawSignals();
