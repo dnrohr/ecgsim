@@ -94,23 +94,33 @@ async function assertImportNotices(page) {
   const bundleInput = page.locator("[data-case-bundle-file]");
   const caseManifest = JSON.parse(readFileSync(resolve(viewerRoot, "public/fixtures/cases/manifest.json"), "utf8"));
   const normalBundle = caseManifest.cases.find((entry) => entry.fileName === "normal_male2.ECGsimcase");
+  const wpwCases = [
+    ["WPW_Bundleonly.ECGsimcase", 16809796],
+    ["WPW_ectopicbeat.ECGsimcase", 17451796],
+    ["WPW_fusionbeat.ECGsimcase", 16875796],
+  ];
   await caseInput.setInputFiles(resolve(repoRoot, "research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase"));
   await expectText(page, "[data-case-notice]", "normal_male2.ECGsimcase loaded from a supported web case bundle");
   await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
 
-  await caseInput.setInputFiles(resolve(repoRoot, "research/source/www.ecgsim.org/downloads/cases/WPW_ectopicbeat.ECGsimcase"));
-  await expectText(page, "[data-case-status]", "WPW_ectopicbeat.ECGsimcase");
-  await expectText(page, "[data-case-notice]", "WPW_ectopicbeat.ECGsimcase loaded from a supported web case bundle");
-  await expectText(page, "[data-case-leads]", "BSM_(amsterdam_64)");
-  await expectText(page, "[data-toolbar-lead-system]", "BSM_(amsterdam_64)");
-  await expectText(page, "[data-status-message]", "WPW_ectopicbeat.ECGsimcase loaded");
-  await expectText(page, "[data-heart-metadata]", "1216 nodes / 2272 triangles");
-  await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz");
+  for (const [fileName, byteSize] of wpwCases) {
+    await caseInput.setInputFiles(resolve(repoRoot, "research/source/www.ecgsim.org/downloads/cases", fileName));
+    await expectText(page, "[data-case-status]", fileName);
+    await expectText(page, "[data-case-notice]", `${fileName} loaded from a supported web case bundle`);
+    await expectText(page, "[data-case-size]", byteSize.toLocaleString());
+    await expectText(page, "[data-case-leads]", "BSM_(amsterdam_64)");
+    await expectText(page, "[data-toolbar-lead-system]", "BSM_(amsterdam_64)");
+    await expectText(page, "[data-status-message]", `${fileName} loaded`);
+    await expectText(page, "[data-heart-metadata]", "1216 nodes / 2272 triangles");
+    await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz");
+    await page.locator("[data-leads-system]").selectOption("BSM_(amsterdam_64)");
+    await expectText(page, "[data-leads-metadata]", "BSM_(amsterdam_64): 65 electrode traces");
+  }
 
   const unsupportedPath = resolve(tmpdir(), "unsupported.ECGsimcase");
   writeFileSync(unsupportedPath, "not an ecgsim case");
   await caseInput.setInputFiles(unsupportedPath);
-  await expectText(page, "[data-case-status]", "WPW_ectopicbeat.ECGsimcase");
+  await expectText(page, "[data-case-status]", "WPW_fusionbeat.ECGsimcase");
   await expectText(page, "[data-case-notice]", "unsupported.ECGsimcase is not in the supported web bundle manifest");
 
   await bundleInput.setInputFiles(resolve(viewerRoot, "public/fixtures/cases", normalBundle.bundle));

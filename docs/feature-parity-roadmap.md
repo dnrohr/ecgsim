@@ -19,7 +19,7 @@ Feature parity means:
 The feature-parity roadmap has moved beyond the initial prototype:
 
 - Python readers, a normalized case model, and manifest generation support the archived normal and WPW cases.
-- The browser viewer loads generated case bundles for `normal_male2` and `WPW_ectopicbeat`.
+- The browser viewer loads generated case bundles for `normal_male2`, `WPW_Bundleonly`, `WPW_ectopicbeat`, and `WPW_fusionbeat`.
 - Heart, Thorax, TMP, and Leads workspaces expose linked time state, playback, source selection, editing, lead switching, surface maps, and view-specific controls.
 - Source edits can be saved locally, exported/imported as sidecar files, and written to a supported modern export directory subset.
 - Visual PNG exports, workflow tests, performance profiling, static packaging, release validation, and user documentation are in place.

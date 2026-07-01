@@ -149,6 +149,43 @@ class ParityRegressionTests(unittest.TestCase):
                 self.assertGreaterEqual(detail["electrodes"][0]["thoraxNodeIndex"], 0)
                 self.assertLess(detail["electrodes"][0]["thoraxNodeIndex"], 300)
 
+    def test_supported_case_bundles_match_parser_metadata(self) -> None:
+        manifest = json.loads(Path("app/viewer/public/fixtures/cases/manifest.json").read_text(encoding="utf-8"))
+        expected_names = {
+            "normal_male2.ECGsimcase",
+            "WPW_Bundleonly.ECGsimcase",
+            "WPW_ectopicbeat.ECGsimcase",
+            "WPW_fusionbeat.ECGsimcase",
+        }
+
+        self.assertEqual({entry["fileName"] for entry in manifest["cases"]}, expected_names)
+        for entry in manifest["cases"]:
+            with self.subTest(case=entry["fileName"]):
+                case_path = self.CASE_ROOT / entry["fileName"]
+                case = load_case(case_path)
+                bundle_path = Path("app/viewer/public/fixtures/cases") / entry["bundle"]
+                bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
+                metadata = bundle["caseMetadata"]
+
+                self.assertEqual(metadata["fileName"], entry["fileName"])
+                self.assertEqual(metadata["byteSize"], case.metadata.byte_size)
+                self.assertEqual(metadata["sha256"], case.metadata.sha256)
+                self.assertEqual(entry["byteSize"], case.metadata.byte_size)
+                self.assertEqual(entry["sha256"], case.metadata.sha256)
+                self.assertEqual(metadata["leadSystems"], [system.name for system in case.lead_systems])
+                self.assertEqual(bundle["heart"]["pointCount"], next(
+                    geometry.point_count for geometry in case.geometries if geometry.name == "heart"
+                ))
+                self.assertEqual(bundle["tmpWaveforms"]["nodeCount"], next(
+                    parameter.initial.length
+                    for source in case.sources
+                    if source.kind == "ventricles"
+                    for parameter in source.beats[0].parameters
+                    if parameter.name == "depolarizationMs"
+                ))
+                self.assertEqual(bundle["ecgSignals"]["rows"], case.signal_metadata.rows)
+                self.assertEqual(bundle["ecgSignals"]["columns"], case.signal_metadata.columns)
+
     def test_tmp_fixture_matches_known_parameter_vectors(self) -> None:
         fixture = json.loads(Path("app/viewer/public/fixtures/tmp-waveforms.json").read_text(encoding="utf-8"))
 

@@ -20,7 +20,9 @@ from ecgsim.io import (
 SIGNAL_SOURCE = ROOT / "research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase"
 SUPPORTED_CASE_SOURCES = (
     ROOT / "research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase",
+    ROOT / "research/source/www.ecgsim.org/downloads/cases/WPW_Bundleonly.ECGsimcase",
     ROOT / "research/source/www.ecgsim.org/downloads/cases/WPW_ectopicbeat.ECGsimcase",
+    ROOT / "research/source/www.ecgsim.org/downloads/cases/WPW_fusionbeat.ECGsimcase",
 )
 HEART_TARGET = ROOT / "app/viewer/public/fixtures/heart.json"
 THORAX_TARGET = ROOT / "app/viewer/public/fixtures/thorax.json"

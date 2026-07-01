@@ -137,7 +137,9 @@ if (!Number.isInteger(caseFixture.leadSystemDetails[0].electrodes[0].thoraxNodeI
 if (
   !Array.isArray(caseManifest.cases) ||
   !caseManifest.cases.some((entry) => entry.fileName === "normal_male2.ECGsimcase") ||
-  !caseManifest.cases.some((entry) => entry.fileName === "WPW_ectopicbeat.ECGsimcase")
+  !caseManifest.cases.some((entry) => entry.fileName === "WPW_Bundleonly.ECGsimcase") ||
+  !caseManifest.cases.some((entry) => entry.fileName === "WPW_ectopicbeat.ECGsimcase") ||
+  !caseManifest.cases.some((entry) => entry.fileName === "WPW_fusionbeat.ECGsimcase")
 ) {
   console.error("Unexpected supported case manifest");
   process.exit(1);

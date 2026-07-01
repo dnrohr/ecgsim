@@ -53,7 +53,9 @@ app/viewer/public/fixtures/cases/manifest.json
 Current supported browser-open cases:
 
 - `normal_male2.ECGsimcase`
+- `WPW_Bundleonly.ECGsimcase`
 - `WPW_ectopicbeat.ECGsimcase`
+- `WPW_fusionbeat.ECGsimcase`
 
 Use the Open case control and select the original local `.ECGsimcase` file. The browser checks SHA-256 and byte size, then loads the matching generated bundle. Unsupported files leave the current case visible and show a notice.
 
@@ -61,7 +63,7 @@ Use the Open bundle control to load a generated case-bundle `.json` file directl
 
 ## Normal Case Walkthrough
 
-Use:
+Use any supported WPW variant, for example:
 
 ```text
 research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
@@ -90,7 +92,7 @@ research/source/www.ecgsim.org/downloads/cases/WPW_ectopicbeat.ECGsimcase
 ```
 
 1. Open the WPW case with the Open case control.
-2. Confirm the case status changes to `WPW_ectopicbeat.ECGsimcase`.
+2. Confirm the case status changes to the selected WPW file.
 3. Review Heart and Thorax geometry counts and lead-system metadata.
 4. Repeat the Heart selection and TMP edit workflow.
 5. Save a `.source-edits.json` sidecar for the WPW case.

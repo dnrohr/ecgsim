@@ -30,3 +30,7 @@ Parser regression covers WPW bundle-only, ectopic beat, and fusion beat cases, b
 ## Done When
 
 The viewer can inspect each archived WPW variant that the parser supports.
+
+## Completion Note
+
+Completed by adding `WPW_Bundleonly.ECGsimcase` and `WPW_fusionbeat.ECGsimcase` to the generated supported-case bundle manifest alongside the existing normal and WPW ectopic bundles. Browser workflow tests now open all three WPW variants from their original `.ECGsimcase` files and verify case identity, byte size, lead-system state, Heart geometry, TMP metadata, and Leads metadata. Parser/bundle regression tests verify every manifest bundle matches parsed case metadata and core dimensions.
