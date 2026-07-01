@@ -1,6 +1,6 @@
 # Feature Parity Roadmap
 
-Status: active roadmap. Tasks through productization have produced a usable parity-oriented viewer, import/export tooling, tests, packaging checks, and documentation. The remaining high-risk scientific parity work is blocked on raw legacy export evidence from the Windows app.
+Status: active roadmap. Tasks through productization have produced a usable parity-oriented viewer, import/export tooling, tests, packaging checks, and documentation. The first normal male ECGSIM 3.0.1 raw export capture is available, and TMP generation is now calibrated against it; recomputation, fiducials/filtering, and broader numerical parity remain the high-risk work.
 
 ## Goal
 
@@ -26,17 +26,17 @@ The feature-parity roadmap has moved beyond the initial prototype:
 
 Major gaps:
 
-- Raw legacy export capture is unresolved for key scientific artifacts such as `.user.source`, `.adaptECG`, `.refECG`, and full export-directory output. This blocks exact numerical parity for TMP generation, recomputation, fiducials, filtering, and broad export comparison.
+- Raw legacy export capture exists for the ECGSIM 3.0.1 normal male case, including `.user.source`, `.adaptECG`, `.refECG`, and source-parameter vectors. Additional cases and edited workflows are still needed for broad parity.
 - The browser viewer does not yet parse arbitrary user-provided `.ECGsimcase` files directly; it consumes generated bundles for supported cases.
 - ECG/BSPM recomputation after source edits is not wired into the viewer with verified legacy-equivalent behavior.
-- Exact legacy TMP, fiducial, and filtering parity remains unverified.
+- TMP generation is calibrated against the promoted normal male `.user.source` fixture; fiducial and filtering parity remains unverified.
 - Legacy `.ECGsimcase` write-back, `.ECGsimsource` interchange, ECG import, full legacy export-directory reproduction, movie export, and signed native installers remain unsupported or deferred.
 
 Currently unfinished or scientifically blocked tasks:
 
 - `0048` Capture Raw Legacy Exports For Numerical Parity: completed for the ECGSIM 3.0.1 normal male case with committed manifests and promoted numerical fixtures.
-- `0049` Implement Legacy TMP Generator Parity: ready to proceed against the promoted `normal-male-ecgsim301` `.user.source` fixture.
-- `0051` Wire Recompute Pipeline Into Viewer: blocked on verified TMP/transfer behavior.
+- `0049` Implement Legacy TMP Generator Parity: completed for the promoted `normal-male-ecgsim301` `.user.source` fixture with documented residuals.
+- `0051` Wire Recompute Pipeline Into Viewer: blocked on confirmed transfer behavior and integration work.
 - `0052` Implement Fiducial And Filtering Parity: partially implemented and instrumented; ECG export fixtures are now available, but P/T fiducial semantics still need resolution.
 - `0053` Expand Numerical Parity Harness: comparison tooling and promoted legacy fixtures exist; scenario-level assertions remain to be added.
 

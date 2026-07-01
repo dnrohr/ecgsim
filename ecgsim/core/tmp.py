@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
+from pathlib import Path
+import struct
 from typing import Mapping, Sequence
 
 
@@ -20,6 +22,11 @@ class TMPParameters:
     depolarization_slope: float = 0.001
 
 
+LEGACY_REPOLARIZATION_RATE_SCALE = 0.56
+LEGACY_REPOLARIZATION_SHAPE_SCALE = 2.75
+LEGACY_REPOLARIZATION_START_DEP_WIDTHS = 3.0
+
+
 def generate_tmp_waveform(
     parameters: TMPParameters,
     sample_count: int,
@@ -27,12 +34,12 @@ def generate_tmp_waveform(
     *,
     precision: int | None = 6,
 ) -> list[float]:
-    """Generate one provisional TMP waveform from source parameters.
+    """Generate one legacy-calibrated TMP waveform from source parameters.
 
-    The archived ECGSIM material documents the parameter meanings but not the
-    exact legacy curve generator. This implementation intentionally matches the
-    project's current documented preview model until exported `.user.source`
-    parity data is available.
+    The archived ECGSIM manual documents parameter meanings but not the original
+    curve equation. This implementation is calibrated against the first captured
+    ECGSIM 3.0.1 `.user.source` matrix: a logistic upstroke centered on the
+    depolarization time and a Gompertz-style repolarization envelope.
     """
 
     if sample_count < 0:
@@ -41,22 +48,30 @@ def generate_tmp_waveform(
         raise ValueError("sample_rate_hz must be a positive finite number")
     _validate_parameters(parameters)
 
-    dep_width_ms = max(parameters.depolarization_slope * 1000.0, 1.0)
-    rep_width_ms = max(parameters.repolarization_slope * 1000.0, 1.0)
+    dep_rate = _depolarization_rate(parameters.depolarization_slope)
+    rep_rate = max(abs(parameters.repolarization_slope), 1e-9)
+    plateau_rate = max(abs(parameters.plateau_slope), 0.0)
+    rep_envelope_rate = rep_rate * LEGACY_REPOLARIZATION_RATE_SCALE
+    rep_shape = (plateau_rate / rep_rate) * LEGACY_REPOLARIZATION_SHAPE_SCALE
+    rep_start_ms = (
+        parameters.depolarization_ms
+        + LEGACY_REPOLARIZATION_START_DEP_WIDTHS / dep_rate
+    )
+    rep_start_exponent = _safe_exp(
+        rep_envelope_rate * (rep_start_ms - parameters.repolarization_ms)
+    )
     sample_period_ms = 1000.0 / sample_rate_hz
+    active_range = parameters.amplitude - parameters.resting_potential
 
     values: list[float] = []
     for sample in range(sample_count):
         time_ms = sample * sample_period_ms
-        upstroke = _sigmoid((time_ms - parameters.depolarization_ms) / dep_width_ms)
-        recovery = _sigmoid((time_ms - parameters.repolarization_ms) / rep_width_ms)
-        plateau_decay = (
-            max(0.0, time_ms - parameters.depolarization_ms)
-            * parameters.plateau_slope
-            / 1000.0
+        upstroke = _sigmoid((time_ms - parameters.depolarization_ms) * dep_rate)
+        rep_exponent = _safe_exp(
+            rep_envelope_rate * (time_ms - parameters.repolarization_ms)
         )
-        active_amplitude = max(0.0, parameters.amplitude - plateau_decay)
-        value = parameters.resting_potential + active_amplitude * upstroke * (1.0 - recovery)
+        repolarization = _safe_exp(-rep_shape * (rep_exponent - rep_start_exponent))
+        value = parameters.resting_potential + active_range * upstroke * repolarization
         values.append(round(value, precision) if precision is not None else value)
     return values
 
@@ -74,6 +89,60 @@ def generate_tmp_waveform_from_vectors(
 
     parameters = tmp_parameters_from_vectors(parameter_vectors, node_index, state)
     return generate_tmp_waveform(parameters, sample_count, sample_rate_hz, precision=precision)
+
+
+def generate_tmp_matrix_from_vectors(
+    parameter_vectors: Mapping[str, Mapping[str, Sequence[float]]],
+    state: str,
+    sample_count: int,
+    sample_rate_hz: float = 1000.0,
+    *,
+    precision: int | None = 6,
+) -> tuple[tuple[float, ...], ...]:
+    """Generate source-node-by-time TMP waveforms from named parameter vectors."""
+
+    node_count = len(parameter_vectors["depolarizationMs"][state])
+    return tuple(
+        tuple(
+            generate_tmp_waveform_from_vectors(
+                parameter_vectors,
+                node_index,
+                state,
+                sample_count,
+                sample_rate_hz,
+                precision=precision,
+            )
+        )
+        for node_index in range(node_count)
+    )
+
+
+def read_legacy_tmp_source_matrix(path: str | Path) -> tuple[tuple[float, ...], ...]:
+    """Read an exported ECGSIM `.user.source` matrix as source-node rows.
+
+    Legacy raw matrix exports used by `read_matrix()` are generally column-major,
+    but captured `.user.source` files store each source node as one contiguous
+    row after the `int32 rows, int32 columns` header.
+    """
+
+    source_path = Path(path)
+    data = source_path.read_bytes()
+    if len(data) < 8:
+        raise ValueError(f"{source_path} is too short for a TMP source matrix")
+    rows, columns = struct.unpack_from("<ii", data, 0)
+    if rows <= 0 or columns <= 0:
+        raise ValueError(f"{source_path} has invalid TMP source shape {rows}x{columns}")
+    expected_bytes = 8 + rows * columns * 4
+    if len(data) != expected_bytes:
+        raise ValueError(
+            f"{source_path} expected {expected_bytes} bytes for {rows}x{columns} TMP source matrix, "
+            f"found {len(data)}"
+        )
+    flat = struct.unpack_from(f"<{rows * columns}f", data, 8)
+    return tuple(
+        tuple(float(flat[row * columns + column]) for column in range(columns))
+        for row in range(rows)
+    )
 
 
 def tmp_parameters_from_vectors(
@@ -131,3 +200,18 @@ def _sigmoid(value: float) -> float:
     if value > 60.0:
         return 1.0
     return 1.0 / (1.0 + math.exp(-value))
+
+
+def _safe_exp(value: float) -> float:
+    if value < -60.0:
+        return math.exp(-60.0)
+    if value > 60.0:
+        return math.exp(60.0)
+    return math.exp(value)
+
+
+def _depolarization_rate(depolarization_slope: float) -> float:
+    slope = max(abs(depolarization_slope), 1e-9)
+    if slope >= 1.0:
+        return slope
+    return 1.0 / max(slope * 1000.0, 1e-9)

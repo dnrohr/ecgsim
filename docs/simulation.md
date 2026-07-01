@@ -122,18 +122,19 @@ Attribution: ECGSIM manual TMP page.
 
 Note: this constraint is enforced for modern edits, but the generator accepts parsed stored values as-is because current fixture data includes legacy slope combinations that may not satisfy the UI constraint.
 
-Observed case payloads also include `depolarizationSlope`. The exact legacy waveform generator remains unknown. Task `0021` implements a provisional deterministic generator for editing and recomputation plumbing, but generated TMPs must not be treated as parity-verified `.user.source` output until real exports are captured.
+Observed case payloads and raw exports also include `depolarizationSlope`. Task `0049` replaces the provisional deterministic preview with a generator calibrated against the captured ECGSIM 3.0.1 normal male `.user.source` export.
 
-Current provisional waveform, implemented in `ecgsim.core.tmp`:
+Current legacy-calibrated waveform, implemented in `ecgsim.core.tmp`:
 
 ```text
 t_ms(sample) = 1000 * sample / sample_rate_hz
-dep_width_ms = max(depolarizationSlope * 1000, 1)
-rep_width_ms = max(repolarizationSlope * 1000, 1)
-upstroke = sigmoid((t_ms - depolarizationMs) / dep_width_ms)
-recovery = sigmoid((t_ms - repolarizationMs) / rep_width_ms)
-plateau_decay = max(0, t_ms - depolarizationMs) * plateauSlope / 1000
-TMP = restingPotential + max(0, amplitude - plateau_decay) * upstroke * (1 - recovery)
+dep_rate = depolarizationSlope when depolarizationSlope >= 1 else 1 / (depolarizationSlope * 1000)
+rep_envelope_rate = repolarizationSlope * 0.56
+rep_shape = (plateauSlope / repolarizationSlope) * 2.75
+rep_start_ms = depolarizationMs + 3 / dep_rate
+upstroke = sigmoid((t_ms - depolarizationMs) * dep_rate)
+repolarization = exp(-rep_shape * (exp(rep_envelope_rate * (t_ms - repolarizationMs)) - exp(rep_envelope_rate * (rep_start_ms - repolarizationMs))))
+TMP = restingPotential + (amplitude - restingPotential) * upstroke * repolarization
 ```
 
 Numerical assumptions:
@@ -141,7 +142,8 @@ Numerical assumptions:
 - Parameter timing values are milliseconds.
 - Fixture/sample preview generation uses `1000 Hz` unless case data says otherwise.
 - Generated fixture values are rounded to six decimal places.
-- Slope units are still legacy-specific; the `* 1000` width conversion preserves the task-0012 preview behavior and is not yet source-attributed.
+- Raw `.user.source` files captured from ECGSIM 3.0.1 store source-node rows contiguously after the raw binary matrix header. Use `read_legacy_tmp_source_matrix()` for TMP source parity tests instead of the generic matrix reader.
+- The repolarization constants are empirical fits from the normal male ECGSIM 3.0.1 export, not source-code-derived constants. Current residuals are documented in `docs/parity.md`.
 
 Required data for real TMP generation:
 
@@ -150,7 +152,7 @@ Required data for real TMP generation:
 - Source-node geometry/indexing.
 - Initial and adapted parameter vectors.
 - Sample count and sample interval.
-- Exact waveform generator, including slope units and any coupling between depolarization/repolarization parameters.
+- Additional legacy TMP exports from edited workflows and non-normal-male cases to confirm whether the calibrated constants generalize.
 
 ## Activation Sequence
 

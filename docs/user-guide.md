@@ -149,7 +149,7 @@ Current unsupported outputs:
 
 ## Scientific Assumptions And Limits
 
-- TMP waveform generation is deterministic but provisional; it is not parity-verified against legacy `.user.source` exports.
+- TMP waveform generation is calibrated against the normal male ECGSIM 3.0.1 `.user.source` export; additional cases and edited-source workflows still need parity coverage.
 - ECG/BSPM recomputation after TMP edits is not wired into the viewer yet.
 - Baseline coupling reports whether parsed fiducials are available. Bundled cases currently use fallback signal endpoints because P-wave/T-wave samples have not been located.
 - Endocardial/epicardial and transmural controls are disabled until explicit wall pairings are parsed.

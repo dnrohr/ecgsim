@@ -4,10 +4,13 @@ import unittest
 
 from ecgsim.core import (
     TMPParameters,
+    generate_tmp_matrix_from_vectors,
     generate_tmp_waveform,
     generate_tmp_waveform_from_vectors,
+    read_legacy_tmp_source_matrix,
     tmp_parameters_from_vectors,
 )
+from ecgsim.io import read_vector
 
 
 class TMPGenerationTests(unittest.TestCase):
@@ -15,20 +18,20 @@ class TMPGenerationTests(unittest.TestCase):
         values = generate_tmp_waveform(
             TMPParameters(
                 depolarization_ms=2.0,
-                repolarization_ms=6.0,
-                resting_potential=-80.0,
-                amplitude=100.0,
-                plateau_slope=0.0,
-                depolarization_slope=0.001,
-                repolarization_slope=0.001,
+                repolarization_ms=260.0,
+                resting_potential=-85.0,
+                amplitude=15.0,
+                plateau_slope=0.0207,
+                depolarization_slope=2.0,
+                repolarization_slope=0.0416,
             ),
-            sample_count=10,
+            sample_count=330,
         )
 
-        self.assertEqual(len(values), 10)
-        self.assertLess(values[0], -68.0)
-        self.assertGreater(values[4], -5.0)
-        self.assertLess(values[-1], -75.0)
+        self.assertEqual(len(values), 330)
+        self.assertLess(values[0], -83.0)
+        self.assertGreater(max(values), 14.0)
+        self.assertLess(values[-1], -70.0)
 
     def test_uses_sample_rate_for_time_axis(self) -> None:
         parameters = TMPParameters(
@@ -90,6 +93,40 @@ class TMPGenerationTests(unittest.TestCase):
         )
 
         self.assertEqual(generated, first_node["initial"])
+
+    def test_generation_matches_promoted_legacy_tmp_source_within_calibrated_tolerance(self) -> None:
+        fixture_root = Path("tests/fixtures/legacy-parity/normal-male-ecgsim301")
+        beat = fixture_root / "ventricular_beats" / "beat1"
+        parameter_vectors = {
+            "depolarizationMs": {"adapted": read_vector(beat / "user.dep").values},
+            "repolarizationMs": {"adapted": read_vector(beat / "user.rep").values},
+            "restingPotential": {"adapted": read_vector(beat / "user.rest").values},
+            "amplitude": {"adapted": read_vector(beat / "user.ampl").values},
+            "plateauSlope": {"adapted": read_vector(beat / "user.platslope").values},
+            "depolarizationSlope": {"adapted": read_vector(beat / "user.depslope").values},
+            "repolarizationSlope": {"adapted": read_vector(beat / "user.repslope").values},
+        }
+        legacy = read_legacy_tmp_source_matrix(beat / "user.source")
+        generated = generate_tmp_matrix_from_vectors(
+            parameter_vectors,
+            "adapted",
+            sample_count=len(legacy[0]),
+            precision=None,
+        )
+
+        max_error = 0.0
+        squared_error = 0.0
+        sample_count = 0
+        for generated_row, legacy_row in zip(generated, legacy):
+            for actual, expected in zip(generated_row, legacy_row):
+                error = actual - expected
+                max_error = max(max_error, abs(error))
+                squared_error += error * error
+                sample_count += 1
+
+        rms_error = (squared_error / sample_count) ** 0.5
+        self.assertLessEqual(max_error, 1.8)
+        self.assertLessEqual(rms_error, 0.52)
 
 
 if __name__ == "__main__":

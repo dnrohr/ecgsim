@@ -43,11 +43,11 @@ Source IDs used below:
 | Save case | Saves `.ECGsimcase`, including changed function values; default cases are read-only. | `manual:file` | Unsupported. | Risky until write-back format is understood; sidecar may come first. |
 | Open/save source info | Saves source data to `.ECGsimsource`; load replaces current source parameters when compatible. | `manual:file` | Unsupported. | Needs source-edit persistence and compatibility checks. |
 | Load ECG file | Replaces measured ECG shown in Leads; reload restores original measured ECG. | `manual:file` | Unsupported. | Needs ECG import format and measured/simulated signal model. |
-| Export directory | Exports relevant case parts into a directory structure. | `manual:file`, `export:attempt` | Unsupported; legacy automation attempted but raw exports unresolved. | Future export writer should mirror supported structure and document gaps. |
+| Export directory | Exports relevant case parts into a directory structure. | `manual:file`, `export:attempt` | Partial; modern subset writer exists and the normal male legacy raw export is captured. | Future export writer should mirror supported structure and document gaps. |
 | Export ECG files | Writes `.refECG` and `.adaptECG` matrices at 1000 Hz under `ecgs/`. | `manual:file` | Unsupported. | Needed for numerical parity. |
 | Export triangulation files | Writes atria/ventricles, thorax, lungs, and blood-cavity geometry under `model/`. | `manual:file` | Partial readers exist for `.tri`, but no export writer. | Need case-contained geometry parser before full parity. |
 | Export source parameters | Writes adapted source vectors per atrial/ventricular beat: `.user.dep`, `.user.rep`, `.user.ampl`, `.user.rest`, `.user.depslope`, `.user.repslope`, `.user.platslope`. | `manual:file` | Unsupported writer; partial vector reader exists. | Critical for edit parity and legacy comparison. |
-| Export TMP waveforms | Writes per-beat `.user.source` matrix for user-adapted TMP waveforms. | `manual:file` | Unsupported. | Needed to replace provisional TMP generator. |
+| Export TMP waveforms | Writes per-beat `.user.source` matrix for user-adapted TMP waveforms. | `manual:file`, `export:normal-male-ecgsim301` | Unsupported writer; captured legacy fixture exists. | Used to calibrate the task `0049` TMP generator; modern writer still missing. |
 | Export electrode locations | Writes `.elec` files for each lead system. | `manual:file` | Unsupported. | Needed for lead-system and thorax electrode parity. |
 
 ## Heart View

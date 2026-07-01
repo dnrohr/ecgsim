@@ -1,6 +1,6 @@
 # TMP View Notes
 
-Status: task `0040` parity notes for the modern TMP pane.
+Status: task `0049` TMP generation parity notes for the modern TMP pane.
 
 ## Supported In Current Viewer
 
@@ -12,10 +12,11 @@ Status: task `0040` parity notes for the modern TMP pane.
 - Reset selected parameter and reset beat actions.
 - Parameter status text showing initial value, adapted value, unit, and selected-node count.
 - Stored-only depolarization slope remains listed as disabled.
+- TMP traces use the legacy-calibrated generator from task `0049`; Python and browser implementations are kept in sync and generated viewer fixtures have been refreshed.
 
 ## Current Limitations
 
-- TMP waveforms are generated previews from source parameters; exact legacy TMP generation and slope semantics remain future parity work.
+- TMP generation is parity-tested against the captured normal male ECGSIM 3.0.1 `.user.source` export. Additional cases and edited-source exports are still needed before claiming broad TMP parity.
 - Triangular drag handlers are represented by numeric and step controls for now.
 - Combined resting/amplitude handlers, keep-constant-APD mode, and electrogram display are visible but disabled until edit semantics and data are available.
 - Time bar, interval highlight, linked playback, and clipboard copy are deferred to shared time/export tasks.

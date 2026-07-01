@@ -50,6 +50,30 @@ class PromoteLegacyParityFixturesTests(unittest.TestCase):
         self.assertEqual(verification["failedCount"], 1)
         self.assertIn("sha256", verification["checks"][0]["message"])
 
+    def test_promotes_tmp_parameter_vectors(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            capture = root / "capture"
+            output = root / "fixtures" / "normal-male"
+            write_capture(capture)
+
+            manifest = promote_fixtures(
+                capture,
+                output,
+                artifacts=("tmpParameterVectors",),
+                case_id="normal-male",
+            )
+
+            promoted = output / "ventricular_beats" / "beat1" / "user.dep"
+            self.assertTrue(promoted.exists())
+            self.assertEqual(manifest["artifactNames"], ["tmpParameterVectors"])
+            self.assertEqual(manifest["fileCount"], 1)
+            self.assertEqual(manifest["files"][0]["path"], "ventricular_beats/beat1/user.dep")
+
+            verification = verify_fixture_manifest(output)
+
+        self.assertEqual(verification["status"], "passed")
+
     def test_fixture_manifest_verification_fails_on_unmanaged_extra_file(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -88,3 +112,4 @@ def write_capture(capture: Path, *, include_adapted: bool = True) -> None:
     if include_adapted:
         (ecgs / "lead.adaptECG").write_text("2 2\n1 2\n3 5\n", encoding="ascii")
     (beat / "user.source").write_text("2 2\n-80 -79\n20 21\n", encoding="ascii")
+    (beat / "user.dep").write_text("2 1\n10\n20\n", encoding="ascii")

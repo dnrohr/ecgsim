@@ -6,9 +6,10 @@
   "artifactNames": [
     "tmpSource",
     "referenceEcg",
-    "adaptedEcg"
+    "adaptedEcg",
+    "tmpParameterVectors"
   ],
-  "fileCount": 7,
+  "fileCount": 14,
   "files": [
     {
       "artifact": "tmpSource",
@@ -92,6 +93,83 @@
         "format": "binary-float32",
         "rows": 12,
         "columns": 505
+      }
+    },
+    {
+      "artifact": "tmpParameterVectors",
+      "path": "ventricular_beats/beat1/user.ampl",
+      "bytes": 2579,
+      "sha256": "f455ed348ad5d7abc1a110e283452745208ad86d1b595406a3c226b946dec03c",
+      "classification": "source-parameter-vector",
+      "numericSummary": {
+        "format": "ascii",
+        "length": 257
+      }
+    },
+    {
+      "artifact": "tmpParameterVectors",
+      "path": "ventricular_beats/beat1/user.dep",
+      "bytes": 2547,
+      "sha256": "2a5302cf47507b5e450b131ac3c9fb6a8a8aabd05b3e3a4817a9134a3f21c28f",
+      "classification": "source-parameter-vector",
+      "numericSummary": {
+        "format": "ascii",
+        "length": 257
+      }
+    },
+    {
+      "artifact": "tmpParameterVectors",
+      "path": "ventricular_beats/beat1/user.depslope",
+      "bytes": 523,
+      "sha256": "655a865918f57cb70e6a1e84d3d74ee7dbc6bdb56636d71696b9f19b872cda39",
+      "classification": "source-parameter-vector",
+      "numericSummary": {
+        "format": "ascii",
+        "length": 257
+      }
+    },
+    {
+      "artifact": "tmpParameterVectors",
+      "path": "ventricular_beats/beat1/user.platslope",
+      "bytes": 1808,
+      "sha256": "76bdd87cc3f68fcf6e05b15a4a1c5edd1bf87443f68d74c114e8bbe7e2b4cc04",
+      "classification": "source-parameter-vector",
+      "numericSummary": {
+        "format": "ascii",
+        "length": 257
+      }
+    },
+    {
+      "artifact": "tmpParameterVectors",
+      "path": "ventricular_beats/beat1/user.rep",
+      "bytes": 2544,
+      "sha256": "f4a67228be624587e27403085e8f671cf8a712bc881f8f02c8d38fc1cfbfc37a",
+      "classification": "source-parameter-vector",
+      "numericSummary": {
+        "format": "ascii",
+        "length": 257
+      }
+    },
+    {
+      "artifact": "tmpParameterVectors",
+      "path": "ventricular_beats/beat1/user.repslope",
+      "bytes": 1808,
+      "sha256": "c6633dee1c254df92fe17bb0744150f6adc84c81331f36d25346d7870b300fe5",
+      "classification": "source-parameter-vector",
+      "numericSummary": {
+        "format": "ascii",
+        "length": 257
+      }
+    },
+    {
+      "artifact": "tmpParameterVectors",
+      "path": "ventricular_beats/beat1/user.rest",
+      "bytes": 2836,
+      "sha256": "155ac958841d689f42b8f4d199de50a668b5501c2f3af6d7288400c4eaedcad5",
+      "classification": "source-parameter-vector",
+      "numericSummary": {
+        "format": "ascii",
+        "length": 257
       }
     }
   ]

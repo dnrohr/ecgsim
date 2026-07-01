@@ -28,7 +28,7 @@ Tests should state which reference they use. Do not compare a derived preview ag
 | ECG/surface-potential time axis | Sample count and sample rate | exact count, exact `1000 Hz` where documented | The ECGSIM manual states ECG sample frequency is `1000 Hz`; current surface-potential fixture is `300 x 1000`. |
 | ECG/surface-potential amplitudes | Values in millivolts | absolute error <= `1e-6 mV`, relative error <= `1e-6` | Current comparisons are against parsed float32 fixture data, not hand-digitized plots. |
 | TMP parameter vectors | Per-node parameter values | absolute error <= `1e-6`, relative error <= `1e-6` | Current data comes from float32 `PVector` payloads. Units remain parameter-specific. |
-| TMP generated waveforms | Full waveform samples | exact match to project fixture; legacy parity unknown | Task `0021` makes the provisional generator deterministic and tested against the current fixture. It is not yet a legacy `.user.source` parity claim. |
+| TMP generated waveforms | Full waveform samples | normal male ECGSIM 3.0.1 legacy `.user.source`: max error <= `1.8 mV`, RMS error <= `0.52 mV`; generated viewer fixture exact match | Task `0049` calibrates the generator against the first raw legacy TMP export. Broader case/edit parity still needs more captures. |
 | Numerical harness diagnostics | Injected sample differences | failing diagnostic includes label, index, actual, expected, and errors | Task `0053` adds reusable helpers so future raw-export comparisons fail loudly and locally. |
 | Rendered line plots | Canvas/SVG presence and rough bounds | no blank render; axes/traces visible inside viewport | Rendering tests should catch broken UI, not imply pixel-perfect scientific parity. |
 | Legacy screenshot | Whole-window visual smoke comparison | perceptual/snapshot review only until an image-diff harness exists | The captured screenshot is useful as a layout/reference oracle, but native app rendering varies by Windows scale, fonts, GPU, and window size. |
@@ -59,9 +59,9 @@ Current viewer fixtures expose these dimensions:
 ## Unknowns And Follow-Up
 
 - Raw legacy `File -> Export` outputs have been captured for the ECGSIM 3.0.1 normal male case and promoted under `tests/fixtures/legacy-parity/normal-male-ecgsim301/`.
-- `.adaptECG`, `.refECG`, and `.user.source` tolerances should be revisited as the promoted exports are converted into scenario-level parity assertions.
+- `.adaptECG` and `.refECG` tolerances should be revisited as the promoted exports are converted into scenario-level parity assertions.
 - The reusable numerical harness currently covers parsed fixtures, injected-difference diagnostics, and promoted fixture manifest verification; raw-export value comparisons still need to be added for task `0053`.
 - `tools/compare_export_directories.py` can compare captured legacy export directories against the modern supported export subset. It reports missing matching paths, shape mismatches, and value mismatches with numerical diagnostics.
-- TMP generated waveform parity against legacy ECGSIM is intentionally unknown until the legacy TMP generation algorithm is implemented or exported `.user.source` matrices are captured.
+- TMP generated waveform parity is currently proven for the promoted normal male ECGSIM 3.0.1 `.user.source` capture only; more cases and edited-source captures should tighten or generalize the calibrated constants.
 - Visual comparison thresholds should become automated only after a stable browser screenshot harness is added.
 - Coordinate unit expectations for electrode files remain unknown until raw `.elec` exports are available.

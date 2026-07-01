@@ -10,8 +10,10 @@ from ecgsim.core.parity import (
 )
 from ecgsim.core.tmp import (
     TMPParameters,
+    generate_tmp_matrix_from_vectors,
     generate_tmp_waveform,
     generate_tmp_waveform_from_vectors,
+    read_legacy_tmp_source_matrix,
     tmp_parameters_from_vectors,
 )
 from ecgsim.core.transfer import apply_transfer_function, apply_wct_reference
@@ -32,7 +34,9 @@ __all__ = [
     "filter_matrix",
     "filter_signal",
     "fastest_route_activation_times",
+    "generate_tmp_matrix_from_vectors",
     "generate_tmp_waveform",
     "generate_tmp_waveform_from_vectors",
+    "read_legacy_tmp_source_matrix",
     "tmp_parameters_from_vectors",
 ]

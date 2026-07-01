@@ -17,6 +17,8 @@ from tools.summarize_legacy_export import build_manifest
 
 
 DEFAULT_ARTIFACTS = ("tmpSource", "referenceEcg", "adaptedEcg")
+ADDITIONAL_ARTIFACTS = ("tmpParameterVectors",)
+PROMOTABLE_ARTIFACTS = DEFAULT_ARTIFACTS + ADDITIONAL_ARTIFACTS
 
 
 def promote_fixtures(
@@ -27,19 +29,18 @@ def promote_fixtures(
     case_id: str | None = None,
 ) -> dict[str, object]:
     manifest = build_manifest(capture_dir)
-    parity_artifacts = manifest["parityArtifacts"]
-    unknown = [artifact for artifact in artifacts if artifact not in parity_artifacts]
+    unknown = [artifact for artifact in artifacts if artifact not in PROMOTABLE_ARTIFACTS]
     if unknown:
-        known = ", ".join(sorted(parity_artifacts))
+        known = ", ".join(sorted(PROMOTABLE_ARTIFACTS))
         raise ValueError(f"unknown artifact(s): {', '.join(unknown)}; known artifacts: {known}")
-    missing = [artifact for artifact in artifacts if not parity_artifacts[artifact]["present"]]
+    artifact_paths = {artifact: paths_for_artifact(manifest, artifact) for artifact in artifacts}
+    missing = [artifact for artifact, paths in artifact_paths.items() if not paths]
     if missing:
         raise ValueError(f"required artifact(s) missing from capture: {', '.join(missing)}")
 
     promoted = []
     for artifact in artifacts:
-        coverage = parity_artifacts[artifact]
-        for relative_path in coverage["paths"]:
+        for relative_path in artifact_paths[artifact]:
             source = capture_dir / relative_path
             target = output_dir / relative_path
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -68,6 +69,18 @@ def promote_fixtures(
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "manifest.json").write_text(json.dumps(fixture_manifest, indent=2) + "\n", encoding="utf-8")
     return fixture_manifest
+
+
+def paths_for_artifact(manifest: dict[str, object], artifact: str) -> list[str]:
+    if artifact in manifest["parityArtifacts"]:
+        return list(manifest["parityArtifacts"][artifact]["paths"])
+    if artifact == "tmpParameterVectors":
+        return [
+            file_entry["path"]
+            for file_entry in manifest["files"]
+            if file_entry["classification"] == "source-parameter-vector"
+        ]
+    raise ValueError(f"unknown artifact {artifact!r}")
 
 
 def verify_fixture_manifest(fixture_dir: Path) -> dict[str, object]:
@@ -147,7 +160,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--artifact",
         action="append",
-        choices=DEFAULT_ARTIFACTS,
+        choices=PROMOTABLE_ARTIFACTS,
         default=[],
         help="Artifact to promote. May be repeated. Defaults to all raw numerical parity artifacts.",
     )

@@ -34,11 +34,11 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | File, Case, And Export Workflows | Save case | partial | P1 | `0055` | Modern `.source-edits.json` sidecar is supported; legacy `.ECGsimcase` write-back is unsupported. |
 | File, Case, And Export Workflows | Open/save source info | partial | P1 | `0055` | Modern sidecar import/export is supported; legacy `.ECGsimsource` compatibility is unsupported. |
 | File, Case, And Export Workflows | Load ECG file | unsupported | P1 | `0032` | Requires ECG import format and measured/simulated model. |
-| File, Case, And Export Workflows | Export directory | partial | P0 | `0054` | Python writer emits supported legacy-style subset; full legacy `File -> Export` parity awaits raw exports. |
+| File, Case, And Export Workflows | Export directory | partial | P0 | `0054` | Python writer emits supported legacy-style subset; normal male legacy raw export is captured, but full `File -> Export` parity still needs comparison work. |
 | File, Case, And Export Workflows | Export ECG files | partial | P0 | `0054` | `ecgs/thorax.refECG` surface-potential matrix is exported; adapted ECG recomputation is unsupported. |
 | File, Case, And Export Workflows | Export triangulation files | supported | P1 | `0054` | Heart, thorax, and lung `.tri` files export in documented ASCII format. |
 | File, Case, And Export Workflows | Export source parameters | supported | P0 | `0054` | Supported source parameter vectors export as legacy-style `user.*` files when present. |
-| File, Case, And Export Workflows | Export TMP waveforms | unsupported | P0 | `0054` | Needed to replace provisional TMP generator evidence. |
+| File, Case, And Export Workflows | Export TMP waveforms | unsupported | P0 | `0054` | Captured `.user.source` evidence calibrated the task `0049` generator; modern export writing remains unsupported. |
 | File, Case, And Export Workflows | Export electrode locations | unsupported | P1 | `0054` | Depends on lead/electrode parser. |
 | Heart View | Geometry and surface functions | partial | P0 | `0037` | Geometry and parameter surface coloring are implemented for supported cases; parity colormaps remain approximate. |
 | Heart View | Rotate/AP reset | supported | P1 | `0037` | AP reset and auto-rotation controls are implemented and tested. |

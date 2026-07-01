@@ -1,16 +1,21 @@
 export function generateTmpWaveform(parameters, sampleCount, sampleRateHz = 1000) {
-  const depWidthMs = Math.max(parameters.depolarizationSlope * 1000, 1);
-  const repWidthMs = Math.max(parameters.repolarizationSlope * 1000, 1);
+  const depRate = depolarizationRate(parameters.depolarizationSlope);
+  const repRate = Math.max(Math.abs(parameters.repolarizationSlope), 1e-9);
+  const plateauRate = Math.max(Math.abs(parameters.plateauSlope), 0);
+  const repEnvelopeRate = repRate * 0.56;
+  const repShape = (plateauRate / repRate) * 2.75;
+  const repStartMs = parameters.depolarizationMs + 3 / depRate;
+  const repStartExponent = safeExp(repEnvelopeRate * (repStartMs - parameters.repolarizationMs));
   const samplePeriodMs = 1000 / sampleRateHz;
+  const activeRange = parameters.amplitude - parameters.restingPotential;
 
   const values = [];
   for (let sample = 0; sample < sampleCount; sample += 1) {
     const timeMs = sample * samplePeriodMs;
-    const upstroke = sigmoid((timeMs - parameters.depolarizationMs) / depWidthMs);
-    const recovery = sigmoid((timeMs - parameters.repolarizationMs) / repWidthMs);
-    const plateauDecay = Math.max(0, timeMs - parameters.depolarizationMs) * parameters.plateauSlope / 1000;
-    const activeAmplitude = Math.max(0, parameters.amplitude - plateauDecay);
-    const value = parameters.restingPotential + activeAmplitude * upstroke * (1 - recovery);
+    const upstroke = sigmoid((timeMs - parameters.depolarizationMs) * depRate);
+    const repExponent = safeExp(repEnvelopeRate * (timeMs - parameters.repolarizationMs));
+    const repolarization = safeExp(-repShape * (repExponent - repStartExponent));
+    const value = parameters.restingPotential + activeRange * upstroke * repolarization;
     values.push(Math.round(value * 1000000) / 1000000);
   }
   return values;
@@ -36,4 +41,22 @@ function sigmoid(value) {
     return 1;
   }
   return 1 / (1 + Math.exp(-value));
+}
+
+function safeExp(value) {
+  if (value < -60) {
+    return Math.exp(-60);
+  }
+  if (value > 60) {
+    return Math.exp(60);
+  }
+  return Math.exp(value);
+}
+
+function depolarizationRate(depolarizationSlope) {
+  const slope = Math.max(Math.abs(depolarizationSlope), 1e-9);
+  if (slope >= 1) {
+    return slope;
+  }
+  return 1 / Math.max(slope * 1000, 1e-9);
 }
