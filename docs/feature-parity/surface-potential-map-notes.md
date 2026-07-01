@@ -12,7 +12,7 @@ Status: task `0042` first measured-BSPM slice.
 
 ## Current Limitations
 
-- The current map is measured surface-potential data from the parsed PMatrix; initial/adapted simulated BSPM modes are still unavailable until recomputation and signal classification are implemented.
-- Sensitivity maps remain unavailable until probe mode and transfer/sensitivity data are connected.
+- The current map can show measured surface-potential data from the parsed PMatrix, initial/adapted simulated BSPM from TMP parameters through the transfer candidate, or a transfer-column sensitivity map for the selected heart/source node.
+- These computed maps remain preview-level until transfer roles, WCT/reference handling, and legacy screenshot/raw-export parity are strengthened.
 - The colormap uses an automatic global range from the compact fixture; legacy color-scale preferences and isofunction-only rendering are future parity work.
 - The compact map fixture stores the shared `576`-sample window currently used by TMP/ECG time synchronization, not the full `1000` ECG samples.

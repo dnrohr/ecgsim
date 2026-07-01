@@ -121,7 +121,7 @@ Each task should end with:
 ## NF2: Recomputed Scientific Outputs
 
 - [x] [0066 Wire Lead ECG Recompute Path](0066-wire-lead-ecg-recompute-path.md)
-- [ ] [0067 Implement Initial Adapted And Sensitivity BSPM Modes](0067-implement-initial-adapted-and-sensitivity-bspm-modes.md)
+- [x] [0067 Implement Initial Adapted And Sensitivity BSPM Modes](0067-implement-initial-adapted-and-sensitivity-bspm-modes.md)
 - [ ] [0068 Decode Or Derive Case Fiducials](0068-decode-or-derive-case-fiducials.md)
 - [ ] [0069 Capture Additional Numerical Parity Scenarios](0069-capture-additional-numerical-parity-scenarios.md)
 - [ ] [0070 Implement Focus Editing Workflow](0070-implement-focus-editing-workflow.md)

@@ -153,7 +153,9 @@ async function assertThoraxControls(page) {
   assert.equal(await page.locator("[data-thorax-electrodes]").isEnabled(), true, "electrode toggle should be available");
   assert.equal(await page.locator("[data-thorax-lock-heart]").isDisabled(), true, "lock-to-heart should show unavailable state");
   assert.equal(await page.locator("[data-thorax-surface] option[value='measured']").isDisabled(), false, "measured BSPM should be available");
+  assert.equal(await page.locator("[data-thorax-surface] option[value='initial']").isDisabled(), false, "initial BSPM should be recomputable");
   assert.equal(await page.locator("[data-thorax-surface] option[value='adapted']").isDisabled(), false, "adapted BSPM should be recomputable");
+  assert.equal(await page.locator("[data-thorax-surface] option[value='sensitivity']").isDisabled(), false, "sensitivity map should be available from transfer matrix");
 
   const before = await canvasSignature(page, canvas);
   await page.locator("[data-thorax-electrodes]").check();
@@ -168,18 +170,32 @@ async function assertThoraxControls(page) {
   const mapped = await canvasSignature(page, canvas);
   assert.notEqual(mapped, electrodesShown, "Measured BSPM should recolor the thorax canvas");
 
+  await page.locator("[data-thorax-surface]").selectOption("initial");
+  await expectText(page, "[data-thorax-surface-status]", "Initial BSPM / 100% / simulated 0 ms");
+  await expectText(page, "[data-status-message]", "Initial thorax BSPM recomputed");
+  await page.waitForTimeout(150);
+  const initial = await canvasSignature(page, canvas);
+  assert.notEqual(initial, mapped, "Initial BSPM should render transfer-computed colors");
+
   await page.locator("[data-thorax-surface]").selectOption("adapted");
   await expectText(page, "[data-thorax-surface-status]", "Adapted BSPM / 100% / simulated 0 ms");
   await expectText(page, "[data-status-message]", "Adapted thorax BSPM recomputed");
   await page.waitForTimeout(150);
   const adapted = await canvasSignature(page, canvas);
-  assert.notEqual(adapted, mapped, "Adapted BSPM should render transfer-computed colors");
+  assert.notEqual(adapted, initial, "Adapted BSPM should render transfer-computed colors");
+
+  await page.locator("[data-thorax-surface]").selectOption("sensitivity");
+  await expectText(page, "[data-thorax-surface-status]", "Sensitivity / 100% / source node 1");
+  await expectText(page, "[data-status-message]", "Thorax sensitivity map");
+  await page.waitForTimeout(150);
+  const sensitivity = await canvasSignature(page, canvas);
+  assert.notEqual(sensitivity, adapted, "Sensitivity map should render transfer-column colors");
 
   await setRangeValue(page, "[data-thorax-scale]", "120");
-  await expectText(page, "[data-thorax-surface-status]", "Adapted BSPM / 120% / simulated 0 ms");
+  await expectText(page, "[data-thorax-surface-status]", "Sensitivity / 120% / source node 1");
   await page.waitForTimeout(150);
   const scaled = await canvasSignature(page, canvas);
-  assert.notEqual(scaled, adapted, "Thorax scale control should change canvas output");
+  assert.notEqual(scaled, sensitivity, "Thorax scale control should change canvas output");
 
   await page.locator("[data-thorax-ap]").click();
   await expectText(page, "[data-status-message]", "Thorax view reset to AP orientation");
@@ -201,6 +217,8 @@ async function assertThoraxControls(page) {
   const selected = await selectThoraxNode(page);
   assert.match(selected, /Node \d+ \/ \d+ electrodes \/ maps unavailable/, "thorax click should select a node");
   await expectText(page, "[data-status-message]", "Thorax node");
+  await page.locator("[data-thorax-surface]").selectOption("measured");
+  await setRangeValue(page, "[data-thorax-scale]", "100");
 }
 
 async function assertHeartViewControls(page) {

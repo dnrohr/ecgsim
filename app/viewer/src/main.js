@@ -1,8 +1,13 @@
 import * as THREE from "three";
 import { baselineWindowForSignal, buildRmsTrace, filterTraces } from "./filtering.js";
-import { canRecomputeLeadTraces, recomputeLeadTraces } from "./recompute.js";
+import {
+  canRecomputeLeadTraces,
+  canUseThoraxTransfer,
+  recomputeLeadTraces,
+  recomputeThoraxSurfaceSample,
+  sensitivityValuesForSourceNode,
+} from "./recompute.js";
 import { computeWeightedRegionMembership, mergeWeightedRegions } from "./selection.js";
-import { generateTmpSample, tmpParametersFromVectors } from "./tmp-generation.js";
 import {
   EDITABLE_PARAMETERS,
   applyTmpEditSnapshot,
@@ -622,9 +627,15 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
       thoraxSurfaceStatus.value = `${label} / ${scale}% / ${sampleMs} ms`;
       return;
     }
-    if (thoraxSurface.value === "adapted" && signalFixture?.transferMatrices?.ventriclesToThorax) {
-      const sampleMs = Math.round((timeState.sample / signalFixture.sampleRateHz) * 1000);
+    if (["initial", "adapted"].includes(thoraxSurface.value) && canRecomputeLeadTraces(signalFixture, getTmpEditState())) {
+      const state = getTmpEditState();
+      const sampleMs = Math.round((timeState.sample / state.sampleRateHz) * 1000);
       thoraxSurfaceStatus.value = `${label} / ${scale}% / simulated ${sampleMs} ms`;
+      return;
+    }
+    if (thoraxSurface.value === "sensitivity" && canUseThoraxTransfer(signalFixture)) {
+      const sourceNode = selectedSensitivitySourceNode();
+      thoraxSurfaceStatus.value = `${label} / ${scale}% / source node ${sourceNode + 1}`;
       return;
     }
     const mapStatus = signalFixture?.surfaceMap ? "measured map available" : "maps unavailable";
@@ -693,24 +704,32 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
     materials.thorax.depthWrite = true;
   }
 
-  function applyAdaptedSurfaceMap() {
-    const transfer = signalFixture?.transferMatrices?.ventriclesToThorax;
+  function applyComputedSurfaceMap(kind) {
     const state = getTmpEditState();
-    if (!thoraxMesh || !transfer || !state) {
+    if (!thoraxMesh || !canRecomputeLeadTraces(signalFixture, state)) {
       applyGeometryColors();
       return;
     }
     const sample = Math.max(0, Math.min(state.sampleCount - 1, timeState.sample));
-    const sourceValues = Array.from({ length: state.nodeCount }, (_, nodeIndex) => (
-      generateTmpSample(
-        tmpParametersFromVectors(state.parameters, nodeIndex, "adapted"),
-        sample,
-        state.sampleRateHz,
-      )
-    ));
-    const computedValues = transfer.values.map((row) => (
-      row.reduce((sum, coefficient, nodeIndex) => sum + coefficient * sourceValues[nodeIndex], 0)
-    ));
+    const computedValues = recomputeThoraxSurfaceSample(signalFixture, state, sample, kind);
+    applyThoraxValues(computedValues);
+  }
+
+  function applySensitivityMap() {
+    if (!thoraxMesh || !canUseThoraxTransfer(signalFixture)) {
+      applyGeometryColors();
+      return;
+    }
+    applyThoraxValues(sensitivityValuesForSourceNode(signalFixture, selectedSensitivitySourceNode()));
+  }
+
+  function selectedSensitivitySourceNode() {
+    const transfer = signalFixture?.transferMatrices?.ventriclesToThorax;
+    const nodeIndex = selectionState.nodeIndex >= 0 ? selectionState.nodeIndex : 0;
+    return Math.max(0, Math.min((transfer?.columns ?? 1) - 1, nodeIndex));
+  }
+
+  function applyThoraxValues(computedValues) {
     const min = Math.min(...computedValues);
     const max = Math.max(...computedValues);
     const span = Math.max(max - min, 1e-9);
@@ -732,8 +751,12 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
   function applyThoraxSurface() {
     if (thoraxSurface.value === "measured" && signalFixture?.surfaceMap) {
       applyMeasuredSurfaceMap();
-    } else if (thoraxSurface.value === "adapted" && signalFixture?.transferMatrices?.ventriclesToThorax) {
-      applyAdaptedSurfaceMap();
+    } else if (thoraxSurface.value === "initial" && canRecomputeLeadTraces(signalFixture, getTmpEditState())) {
+      applyComputedSurfaceMap("initial");
+    } else if (thoraxSurface.value === "adapted" && canRecomputeLeadTraces(signalFixture, getTmpEditState())) {
+      applyComputedSurfaceMap("adapted");
+    } else if (thoraxSurface.value === "sensitivity" && canUseThoraxTransfer(signalFixture)) {
+      applySensitivityMap();
     } else {
       thoraxSurface.value = "geometry";
       applyGeometryColors();
@@ -854,8 +877,16 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
   [...thoraxSurface.options].forEach((option) => {
     if (option.value === "measured") {
       option.disabled = !signalFixture?.surfaceMap;
-    } else if (option.value === "adapted") {
-      option.disabled = !signalFixture?.transferMatrices?.ventriclesToThorax;
+    } else if (["initial", "adapted"].includes(option.value)) {
+      option.disabled = !canRecomputeLeadTraces(signalFixture, getTmpEditState());
+      option.title = option.disabled
+        ? "BSPM recompute requires a transfer matrix matching TMP source nodes."
+        : "Recomputed from TMP source parameters and the ventricles-to-thorax transfer candidate.";
+    } else if (option.value === "sensitivity") {
+      option.disabled = !canUseThoraxTransfer(signalFixture);
+      option.title = option.disabled
+        ? "Sensitivity requires a transfer matrix."
+        : "Transfer-column sensitivity map for the selected heart source node.";
     } else if (option.value !== "geometry") {
       option.disabled = true;
     }
@@ -883,14 +914,18 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
     isAutoRotating = thoraxRotate.checked;
   };
   thoraxSurface.onchange = () => {
-    if (!["measured", "adapted"].includes(thoraxSurface.value)) {
+    if (!["measured", "initial", "adapted", "sensitivity"].includes(thoraxSurface.value)) {
       thoraxSurface.value = "geometry";
     }
     applyThoraxSurface();
     if (statusMessage && thoraxSurface.value === "measured") {
       statusMessage.value = "Measured thorax BSPM map shown at shared time cursor.";
+    } else if (statusMessage && thoraxSurface.value === "initial") {
+      statusMessage.value = "Initial thorax BSPM recomputed from initial TMP parameters and the transfer matrix candidate.";
     } else if (statusMessage && thoraxSurface.value === "adapted") {
       statusMessage.value = "Adapted thorax BSPM recomputed from TMP parameters and the transfer matrix candidate.";
+    } else if (statusMessage && thoraxSurface.value === "sensitivity") {
+      statusMessage.value = "Thorax sensitivity map shown from the selected source-node transfer column.";
     } else if (statusMessage) {
       statusMessage.value = "Thorax BSPM and sensitivity map data are unavailable in current fixtures.";
     }
@@ -1813,7 +1848,10 @@ function applyCaseBundle(bundle, noticeText) {
     thoraxView?.redrawThoraxMap();
     redrawSignals();
   });
-  mountHeart(bundle.heart, bundle.tmpWaveforms, bundle.caseMetadata.wallMapping, () => tmpEditing.syncControls());
+  mountHeart(bundle.heart, bundle.tmpWaveforms, bundle.caseMetadata.wallMapping, () => {
+    tmpEditing.syncControls();
+    thoraxView?.redrawThoraxMap();
+  });
   thoraxView = mountThorax(bundle.thorax, bundle.ecgSignals, () => tmpEditing.getState());
   tmpEditing.syncControls();
   syncLeadOverlayControls(bundle.ecgSignals, tmpEditing.getState());

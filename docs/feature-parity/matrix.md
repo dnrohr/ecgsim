@@ -70,9 +70,9 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | Thorax View | Select thorax node | partial | P1 | `0038` | Thorax node selection is implemented; downstream contribution maps are not. |
 | Thorax View | Surface function: default geometry | supported | P1 | `0038` | Default geometry/transparency mode is implemented for supported cases. |
 | Thorax View | Surface function: measured BSPM | partial | P0 | `0042` | Measured surface-potential map from parsed fixture is shown; classification and legacy parity remain incomplete. |
-| Thorax View | Surface function: initial BSPM | unsupported | P0 | `0042` | Requires recompute or parsed initial matrices. |
-| Thorax View | Surface function: adapted BSPM | partial | P0 | `0051` | Adapted BSPM recomputes from TMP parameters through a shape-matched ventricles-to-thorax transfer candidate; lead ECG parity and filtering remain downstream. |
-| Thorax View | Surface function: sensitivity map | unsupported | P1 | `0042` | Requires probe mode and transfer visualization. |
+| Thorax View | Surface function: initial BSPM | partial | P0 | `0067` | Initial BSPM recomputes from initial TMP parameters through the transfer candidate; legacy numerical parity remains incomplete. |
+| Thorax View | Surface function: adapted BSPM | partial | P0 | `0051`, `0067` | Adapted BSPM recomputes from TMP parameters through a shape-matched ventricles-to-thorax transfer candidate; WCT/reference parity remains downstream. |
+| Thorax View | Surface function: sensitivity map | partial | P1 | `0067` | Shows the selected heart/source node's transfer column on the thorax; transfer-role parity remains incomplete. |
 | Thorax View | Time stepping | partial | P0 | `0041` | Shared time cursor updates measured BSPM maps; movie/frame parity remains incomplete. |
 | Thorax View | Show/hide lungs | supported | P2 | `0038` | Prototype works; menu parity still missing. |
 | Thorax View | Show/hide electrodes | partial | P1 | `0032` | Parsed electrode coordinate markers can be toggled where available; exact patch geometry is not implemented. |

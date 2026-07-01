@@ -29,3 +29,7 @@ Measured and adapted candidate maps exist, but the legacy Thorax workspace inclu
 ## Done When
 
 Thorax mode controls no longer imply unsupported maps are implemented, and supported maps update from real data.
+
+## Completion Note
+
+Completed by enabling Thorax Initial BSPM, Adapted BSPM, and Sensitivity modes when the bundle has a ventricles-to-thorax transfer matrix matching TMP source nodes. Initial/adapted BSPM samples are recomputed from TMP source parameters; sensitivity maps display the selected heart/source node transfer column. The UI labels preview-level assumptions honestly, and smoke/browser tests cover recompute dimensions, selector availability, status labels, canvas changes, and scale behavior.

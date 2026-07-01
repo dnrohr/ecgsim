@@ -3,14 +3,51 @@ import { generateTmpSample, tmpParametersFromVectors } from "./tmp-generation.js
 export function canRecomputeLeadTraces(signalFixture, tmpState) {
   const transfer = signalFixture?.transferMatrices?.ventriclesToThorax;
   return Boolean(
+    tmpState
+      && canUseThoraxTransfer(signalFixture)
+      && transfer.columns === tmpState.nodeCount
+  );
+}
+
+export function canUseThoraxTransfer(signalFixture) {
+  const transfer = signalFixture?.transferMatrices?.ventriclesToThorax;
+  return Boolean(
     transfer
-      && tmpState
       && Number.isInteger(transfer.rows)
       && Number.isInteger(transfer.columns)
-      && transfer.columns === tmpState.nodeCount
       && Array.isArray(transfer.values)
-      && transfer.values.length === transfer.rows,
+      && transfer.values.length === transfer.rows
+      && transfer.values.every((row) => Array.isArray(row) && row.length === transfer.columns),
   );
+}
+
+export function recomputeThoraxSurfaceSample(signalFixture, tmpState, sampleIndex, kind = "adapted") {
+  const transfer = signalFixture?.transferMatrices?.ventriclesToThorax;
+  if (!canRecomputeLeadTraces(signalFixture, tmpState)) {
+    throw new Error("Thorax BSPM recompute requires a ventricles-to-thorax transfer matrix matching TMP nodes.");
+  }
+  const boundedSample = Math.max(0, Math.min(tmpState.sampleCount - 1, sampleIndex));
+  const sourceValues = Array.from({ length: tmpState.nodeCount }, (_, nodeIndex) => (
+    generateTmpSample(
+      tmpParametersFromVectors(tmpState.parameters, nodeIndex, kind),
+      boundedSample,
+      tmpState.sampleRateHz,
+    )
+  ));
+  return transfer.values.map((row) => (
+    row.reduce((sum, coefficient, nodeIndex) => sum + coefficient * sourceValues[nodeIndex], 0)
+  ));
+}
+
+export function sensitivityValuesForSourceNode(signalFixture, sourceNodeIndex) {
+  const transfer = signalFixture?.transferMatrices?.ventriclesToThorax;
+  if (!canUseThoraxTransfer(signalFixture)) {
+    throw new Error("Sensitivity map requires a ventricles-to-thorax transfer matrix.");
+  }
+  if (sourceNodeIndex < 0 || sourceNodeIndex >= transfer.columns) {
+    throw new Error(`Sensitivity source node ${sourceNodeIndex} is outside the transfer matrix.`);
+  }
+  return transfer.values.map((row) => row[sourceNodeIndex]);
 }
 
 export function recomputeLeadTraces(signalFixture, tmpState, leadSystem, kind = "adapted") {

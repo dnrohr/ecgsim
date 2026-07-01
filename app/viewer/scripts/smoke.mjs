@@ -1,6 +1,11 @@
 import { readFile } from "node:fs/promises";
 import { baselineWindowForSignal, buildRmsTrace, filterSignal } from "../src/filtering.js";
-import { canRecomputeLeadTraces, recomputeLeadTraces } from "../src/recompute.js";
+import {
+  canRecomputeLeadTraces,
+  recomputeLeadTraces,
+  recomputeThoraxSurfaceSample,
+  sensitivityValuesForSourceNode,
+} from "../src/recompute.js";
 import {
   computeRegionMembership,
   computeWeightedRegionMembership,
@@ -271,6 +276,20 @@ if (
   !Number.isFinite(recomputedLeadTraces[0].values[0])
 ) {
   console.error("Lead ECG recompute produced unexpected trace dimensions");
+  process.exit(1);
+}
+const initialBspm = recomputeThoraxSurfaceSample(ecgFixture, editState, 0, "initial");
+const adaptedBspm = recomputeThoraxSurfaceSample(ecgFixture, editState, 0, "adapted");
+const sensitivityValues = sensitivityValuesForSourceNode(ecgFixture, 0);
+if (
+  initialBspm.length !== ecgFixture.transferMatrices.ventriclesToThorax.rows ||
+  adaptedBspm.length !== ecgFixture.transferMatrices.ventriclesToThorax.rows ||
+  sensitivityValues.length !== ecgFixture.transferMatrices.ventriclesToThorax.rows ||
+  !Number.isFinite(initialBspm[0]) ||
+  !Number.isFinite(adaptedBspm[0]) ||
+  sensitivityValues[0] !== ecgFixture.transferMatrices.ventriclesToThorax.values[0][0]
+) {
+  console.error("Thorax BSPM or sensitivity recompute produced unexpected dimensions");
   process.exit(1);
 }
 const originalDep = nodeParameterValue(editState, "depolarizationMs", 0, "adapted");

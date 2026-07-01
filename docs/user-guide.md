@@ -80,7 +80,7 @@ research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
 7. Use Save edits and Load edits for browser-local persistence.
 8. Use Export edits to download a `.source-edits.json` sidecar.
 9. Use Import edits to reload that sidecar into the same case.
-10. In Thorax, switch between geometry and measured BSPM where available, toggle lungs/electrodes, and adjust Scale.
+10. In Thorax, switch between geometry, measured BSPM, initial BSPM, adapted BSPM, and sensitivity where available; toggle lungs/electrodes; adjust Scale.
 11. In Leads, switch Coupling between Baseline, AC, and DC; toggle Adapted to recompute electrode traces from edited TMP parameters; change Scale; toggle Grid and RMS.
 12. Use the shared time cursor or arrow keys on TMP/Leads canvases to step through time.
 13. Use each pane's PNG button to download the current Heart, Thorax, TMP, or Leads image.
@@ -156,7 +156,7 @@ Current unsupported outputs:
 ## Scientific Assumptions And Limits
 
 - TMP waveform generation is calibrated against the normal male ECGSIM 3.0.1 `.user.source` export; additional cases and edited-source workflows still need parity coverage.
-- Adapted lead traces and adapted Thorax BSPM recompute after TMP edits when the generated bundle includes the ventricles-to-thorax transfer candidate.
+- Initial/adapted Thorax BSPM, sensitivity maps, and adapted lead traces recompute when the generated bundle includes the ventricles-to-thorax transfer candidate.
 - Baseline coupling reports whether parsed fiducials are available. Bundled cases currently use fallback signal endpoints because P-wave/T-wave samples have not been located.
 - The Validation field summarizes known partial-support limits for the loaded bundle; it is not a failure when the main views remain available.
 - Endocardial/epicardial and transmural controls are disabled until explicit wall pairings are parsed.
