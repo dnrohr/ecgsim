@@ -12,8 +12,9 @@ This document maps visualization modes to current automated evidence. It tracks 
 | Workspace | Pane mode/provenance labels | App workflow checks launch badges and representative Heart/Thorax/TMP/Leads mode transitions | medium | Needs per-mode coverage expansion in `0101` |
 | Workspace | Visual mode navigator | App workflow selects representative Heart, Thorax, TMP, and Leads destinations through toolbar navigator | medium | Does not yet enumerate every visual matrix row |
 | Heart | Geometry render | App workflow checks nonblank WebGL canvas and metadata | strong smoke | No pane-level legacy screenshot comparison |
-| Heart | Depolarization/repolarization | App workflow switches modes and checks canvas signature changes/status | strong smoke | No exact legacy colormap or scale parity |
-| Heart | ARI | App workflow switches mode and checks canvas signature change/status | strong smoke | No legacy ARI reference scale |
+| Heart | Depolarization/repolarization | App workflow switches modes, verifies labels/provenance, and checks initial/adapted canvas redraw | strong smoke | No exact legacy colormap or scale parity |
+| Heart | ARI | App workflow switches mode, verifies derived provenance, and checks initial/adapted canvas redraw | strong smoke | No legacy ARI reference scale |
+| Heart | Amplitude/resting potential | App workflow switches modes, verifies labels/provenance, and checks initial/adapted canvas redraw | strong smoke | No exact legacy colormap or scale parity |
 | Heart | TMP at time | App workflow links time cursor and checks canvas changes | strong smoke | No numeric sampled-color validation |
 | Heart | Thorax contribution | App workflow selects a thorax node and checks Heart contribution canvas change | medium | Needs transfer-role provenance and electrode shortcuts |
 | Heart | Selection radius/transition | App workflow selects nodes, checks selection text/weighted region, and verifies node/ring overlay canvas deltas | strong smoke | Exact legacy glyph and ring projection style unverified |

@@ -21,12 +21,12 @@ This matrix tracks what a user can see and manipulate. It does not require the m
 | Workspace | Current pane mode and data provenance are visible | Compact mode/provenance badges in each pane header | supported | App workflow checks launch badges and representative mode transitions | complete |
 | Workspace | Menu/toolbar discoverability for visual modes | Pane controls plus visual mode navigator | supported | App workflow drives representative Heart, Thorax, TMP, and Leads modes through navigator | complete |
 | Heart | Geometry surface | Heart mesh canvas | supported | Nonblank canvas and mode label | `0101` |
-| Heart | Depolarization surface | Heart surface `Depolarization`, initial/adapted selector | supported | Data-backed source parameter check and canvas delta | `0091` |
-| Heart | Repolarization surface | Heart surface `Repolarization`, initial/adapted selector | supported | Data-backed source parameter check and canvas delta | `0091` |
-| Heart | ARI surface | Heart surface `ARI` | supported | Computed `rep - dep` check and canvas delta | `0091` |
-| Heart | Amplitude surface | Heart surface `Amplitude` | supported | Parameter vector check and canvas delta | `0091` |
-| Heart | Resting-potential surface | Heart surface `Resting potential` | supported | Parameter vector check and canvas delta | `0091` |
-| Heart | TMP at selected time | Heart surface `TMP at time`, linked cursor/playback | supported | Time cursor changes canvas and status | `0091` |
+| Heart | Depolarization surface | Heart surface `Depolarization`, initial/adapted selector | supported | App workflow checks labels, provenance, canvas delta, and initial/adapted redraw | complete |
+| Heart | Repolarization surface | Heart surface `Repolarization`, initial/adapted selector | supported | App workflow checks labels, provenance, canvas delta, and initial/adapted redraw | complete |
+| Heart | ARI surface | Heart surface `ARI` | supported | App workflow checks derived ARI label/provenance and initial/adapted redraw | complete |
+| Heart | Amplitude surface | Heart surface `Amplitude` | supported | App workflow checks labels, provenance, canvas delta, and initial/adapted redraw | complete |
+| Heart | Resting-potential surface | Heart surface `Resting potential` | supported | App workflow checks labels, provenance, canvas delta, and initial/adapted redraw | complete |
+| Heart | TMP at selected time | Heart surface `TMP at time`, linked cursor/playback | supported | App workflow checks time cursor canvas/status redraw | complete |
 | Heart | Heart contribution map | Heart surface `Thorax contribution` after thorax-node selection | partial | Transfer-row provenance and selected-node workflow test | `0095` |
 | Heart | Node visibility and selected-zone rings | Node overlay plus radius/transition rings | supported | App workflow checks overlay toggles and canvas deltas | complete |
 | Heart | Cross plane | Movable Heart clipping-plane prototype | modern-equivalent | App workflow checks cut and plane movement; exact legacy orientation still needs curated reference | `0102` |

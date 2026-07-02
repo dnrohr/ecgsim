@@ -392,16 +392,30 @@ async function assertHeartViewControls(page) {
   await page.locator("[data-heart-vector]").uncheck();
   await setRangeValue(page, "[data-time-cursor]", "0");
 
-  await page.locator("[data-heart-surface]").selectOption("depolarizationMs");
-  await expectText(page, "[data-heart-surface-status]", "Depolarization / adapted");
-  await expectText(page, "[data-heart-mode-badge]", "Depolarization");
-  await expectText(page, "[data-heart-provenance-badge]", "adapted params");
-  await page.waitForTimeout(150);
-  const depolarizationSignature = await canvasSignature(page, canvas);
-  assert.notEqual(depolarizationSignature, geometrySignature, "Heart surface function should recolor mesh");
+  const scalarModes = [
+    { value: "depolarizationMs", label: "Depolarization", adaptedStatus: "Depolarization / adapted", initialStatus: "Depolarization / initial", provenance: "adapted params" },
+    { value: "repolarizationMs", label: "Repolarization", adaptedStatus: "Repolarization / adapted", initialStatus: "Repolarization / initial", provenance: "adapted params" },
+    { value: "ariMs", label: "ARI", adaptedStatus: "ARI / adapted / ms", initialStatus: "ARI / initial / ms", provenance: "Derived ARI" },
+    { value: "amplitude", label: "Amplitude", adaptedStatus: "Amplitude / adapted", initialStatus: "Amplitude / initial", provenance: "adapted params" },
+    { value: "restingPotential", label: "Resting potential", adaptedStatus: "Resting potential / adapted", initialStatus: "Resting potential / initial", provenance: "adapted params" },
+  ];
 
-  await page.locator("[data-heart-values]").selectOption("initial");
-  await expectText(page, "[data-heart-surface-status]", "Depolarization / initial");
+  for (const mode of scalarModes) {
+    await page.locator("[data-heart-values]").selectOption("adapted");
+    await page.locator("[data-heart-surface]").selectOption(mode.value);
+    await expectText(page, "[data-heart-surface-status]", mode.adaptedStatus);
+    await expectText(page, "[data-heart-mode-badge]", mode.label);
+    await expectText(page, "[data-heart-provenance-badge]", mode.provenance);
+    await page.waitForTimeout(150);
+    const adaptedSignature = await canvasSignature(page, canvas);
+    assert.notEqual(adaptedSignature, geometrySignature, `${mode.label} should recolor the Heart mesh`);
+
+    await page.locator("[data-heart-values]").selectOption("initial");
+    await expectText(page, "[data-heart-surface-status]", mode.initialStatus);
+    await page.waitForTimeout(150);
+    const initialSignature = await canvasSignature(page, canvas);
+    assert.notEqual(initialSignature, adaptedSignature, `${mode.label} initial/adapted switch should redraw the Heart mesh`);
+  }
 
   await page.locator("[data-heart-values]").selectOption("adapted");
   await selectThoraxNode(page);
@@ -412,12 +426,6 @@ async function assertHeartViewControls(page) {
   const contributionSignature = await canvasSignature(page, canvas);
   assert.notEqual(contributionSignature, geometrySignature, "Thorax contribution should recolor the heart surface");
 
-  await page.locator("[data-heart-surface]").selectOption("ariMs");
-  await expectText(page, "[data-heart-surface-status]", "ARI / adapted / ms");
-  await expectText(page, "[data-heart-provenance-badge]", "Derived ARI");
-  await page.waitForTimeout(150);
-  const ariSignature = await canvasSignature(page, canvas);
-  assert.notEqual(ariSignature, geometrySignature, "ARI heart surface should recolor mesh");
   await page.locator("[data-heart-contours]").check();
   await page.waitForTimeout(150);
   assert.equal(await page.locator("[data-heart-contours]").isChecked(), true, "Heart contours should toggle on");
