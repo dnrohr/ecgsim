@@ -28,3 +28,12 @@ Current maps render useful color surfaces, but legacy-like contour and colormap 
 ## Done When
 
 Scalar maps are easier to inspect and legacy visual differences are documented rather than accidental.
+
+## Completion Notes
+
+Status: complete.
+
+- Added shared sequential/diverging colormap helpers for Heart and Thorax scalar maps.
+- Added Heart and Thorax Contours toggles that overlay scalar-node contour markers near evenly spaced levels.
+- Browser workflow tests verify contour toggles visibly alter Heart and Thorax scalar maps while canvases remain nonblank.
+- Documented that contours are node overlays, not exact interpolated legacy isofunction lines, and that user-configurable scale preferences remain future work.

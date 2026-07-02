@@ -40,7 +40,7 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | File, Case, And Export Workflows | Export source parameters | supported | P0 | `0054` | Supported source parameter vectors export as legacy-style `user.*` files when present. |
 | File, Case, And Export Workflows | Export TMP waveforms | unsupported | P0 | `0054` | Captured `.user.source` evidence calibrated the task `0049` generator; modern export writing remains unsupported. |
 | File, Case, And Export Workflows | Export electrode locations | unsupported | P1 | `0054` | Depends on lead/electrode parser. |
-| Heart View | Geometry and surface functions | partial | P0 | `0071` | Geometry, parameter, ARI, and TMP-at-time surface coloring are implemented for supported cases; parity colormaps remain approximate. |
+| Heart View | Geometry and surface functions | partial | P0 | `0072` | Geometry, parameter, ARI, TMP-at-time, and scalar contour overlays are implemented for supported cases; exact legacy colormaps remain approximate. |
 | Heart View | Rotate/AP reset | supported | P1 | `0037` | AP reset and auto-rotation controls are implemented and tested. |
 | Heart View | Cross plane | unsupported | P1 | `0037` | Requires geometry clipping. |
 | Heart View | Select node | partial | P0 | `0037` | Needs real source-node mapping. |
@@ -79,7 +79,7 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | Thorax View | Lock to heart | unsupported | P2 | `0038` | Requires shared camera/orientation state. |
 | Thorax View | Scale | supported | P1 | `0042` | Thorax scale control is implemented and covered by app workflow tests. |
 | Thorax View | Movie | unsupported | P2 | `0056` | Requires linked playback. |
-| Thorax View | Isofunction display | unsupported | P1 | `0042` | Map renderer should support contour and color modes. |
+| Thorax View | Isofunction display | partial | P1 | `0072` | Contour overlays are available for scalar maps; exact interpolated legacy isolines remain future work. |
 | Thorax View | Clipboard copy | partial | P2 | `0056` | PNG download supported; clipboard depends on browser permission/API support. |
 | TMP View | Selected-node TMP display | partial | P0 | `0040` | Selected-node TMP display is implemented with provisional waveform generation; legacy `.user.source` parity is missing. |
 | TMP View | Parameter handlers | partial | P0 | `0040` | Numeric controls implement parameter edits; legacy drag-handler equivalence is incomplete. |
@@ -117,8 +117,8 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | Tools, Focus, And Preferences | Focus propagation velocity | partial | P1 | `0070` | WPW Focus controls accept a preview velocity for deterministic route recomputation; decoded graph-geometry velocity parity remains future work. |
 | Tools, Focus, And Preferences | Global repolarization | unsupported | P1 | `0049` | Needs equations and parity data. |
 | Tools, Focus, And Preferences | Preferences modal | unsupported | P2 | `0036` | Modern settings may replace modal behavior. |
-| Tools, Focus, And Preferences | Color scale preferences | unsupported | P1 | `0042` | Needed for map/surface views. |
-| Tools, Focus, And Preferences | Thorax isofunction preference | unsupported | P1 | `0042` | Map renderer feature. |
+| Tools, Focus, And Preferences | Color scale preferences | partial | P1 | `0072` | Sequential/diverging palettes are implemented automatically; user-configurable scale preferences remain future work. |
+| Tools, Focus, And Preferences | Thorax isofunction preference | partial | P1 | `0072` | Thorax scalar maps can toggle contour overlays; line-only preference parity remains future work. |
 | Tools, Focus, And Preferences | Arc ball rotation preference | deferred | Deferred | none | Legacy itself marks this as future/unavailable. |
 | Clipboard And Visual Output | Pane image copy | partial | P2 | `0056` | PNG download supported for all primary panes; clipboard is best-effort by browser capability. |
 | Clipboard And Visual Output | App must remain open for paste | deferred | Deferred | `0056` | Modern clipboard writes are independent once the browser/OS accepts the image. |

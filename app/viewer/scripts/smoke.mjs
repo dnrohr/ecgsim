@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { contourLevels, contourNodeIndexes, divergingRgb, sequentialRgb } from "../src/color-maps.js";
 import { baselineWindowForSignal, buildRmsTrace, filterSignal } from "../src/filtering.js";
 import {
   applyFocusSelection,
@@ -69,6 +70,7 @@ const required = [
   "data-heart-selection",
   "data-heart-ap",
   "data-heart-rotate",
+  "data-heart-contours",
   "data-heart-surface",
   "value=\"ariMs\"",
   "value=\"tmpAtTime\"",
@@ -79,6 +81,7 @@ const required = [
   "data-thorax-metadata",
   "data-thorax-ap",
   "data-thorax-rotate",
+  "data-thorax-contours",
   "data-thorax-surface",
   "data-thorax-scale",
   "data-thorax-electrodes",
@@ -134,6 +137,17 @@ const required = [
 const missing = required.filter((token) => !html.includes(token));
 if (missing.length) {
   console.error(`Missing viewer scaffold tokens: ${missing.join(", ")}`);
+  process.exit(1);
+}
+const levels = contourLevels(0, 10, 4);
+const contourIndexes = contourNodeIndexes([0, 2.05, 4.01, 6.1, 8.0, 10], levels, 0.12);
+if (
+  levels.length !== 4 ||
+  contourIndexes.join(",") !== "1,2,3,4" ||
+  sequentialRgb(0, 0, 1).length !== 3 ||
+  divergingRgb(-1, 1)[0] >= divergingRgb(1, 1)[0]
+) {
+  console.error("Colormap or contour helper behavior changed unexpectedly");
   process.exit(1);
 }
 if (!mainSource.includes("Depol. slope (stored)")) {

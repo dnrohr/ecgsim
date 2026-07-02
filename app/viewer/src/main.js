@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { contourLevels, contourNodeIndexes, divergingRgb, sequentialRgb } from "./color-maps.js";
 import { baselineWindowForSignal, buildRmsTrace, filterTraces } from "./filtering.js";
 import {
   applyFocusSelection,
@@ -54,6 +55,7 @@ const heartTransition = document.querySelector("[data-heart-transition]");
 const heartSelection = document.querySelector("[data-heart-selection]");
 const heartAp = document.querySelector("[data-heart-ap]");
 const heartRotate = document.querySelector("[data-heart-rotate]");
+const heartContours = document.querySelector("[data-heart-contours]");
 const heartSurface = document.querySelector("[data-heart-surface]");
 const heartValues = document.querySelector("[data-heart-values]");
 const heartWall = document.querySelector("[data-heart-wall]");
@@ -63,6 +65,7 @@ const thoraxViewport = document.querySelector("[data-thorax-viewport]");
 const thoraxMetadata = document.querySelector("[data-thorax-metadata]");
 const thoraxAp = document.querySelector("[data-thorax-ap]");
 const thoraxRotate = document.querySelector("[data-thorax-rotate]");
+const thoraxContours = document.querySelector("[data-thorax-contours]");
 const thoraxSurface = document.querySelector("[data-thorax-surface]");
 const thoraxScale = document.querySelector("[data-thorax-scale]");
 const thoraxElectrodes = document.querySelector("[data-thorax-electrodes]");
@@ -266,6 +269,7 @@ function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange, getTmpE
     !heartTransition ||
     !heartSelection ||
     !heartAp ||
+    !heartContours ||
     !heartSurface ||
     !heartValues ||
     !heartWall ||
@@ -323,6 +327,19 @@ function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange, getTmpE
   selectedMarker.renderOrder = 3;
   mesh.add(selectedMarker);
 
+  const contourGeometry = new THREE.BufferGeometry();
+  const contourPoints = new THREE.Points(
+    contourGeometry,
+    new THREE.PointsMaterial({
+      color: 0x111820,
+      size: 0.006,
+      sizeAttenuation: true,
+      depthTest: false,
+    }),
+  );
+  contourPoints.renderOrder = 4;
+  mesh.add(contourPoints);
+
   const nodePositions = [];
   const positions = geometry.getAttribute("position");
   for (let index = 0; index < positions.count; index += 1) {
@@ -335,8 +352,7 @@ function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange, getTmpE
   }
 
   function valueColor(value, min, span) {
-    const ratio = Math.max(0, Math.min(1, (value - min) / span));
-    return new THREE.Color().setHSL((1 - ratio) * 0.62, 0.78, 0.48);
+    return new THREE.Color(...sequentialRgb(value, min, span));
   }
 
   function applySurfaceFunction() {
@@ -347,6 +363,7 @@ function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange, getTmpE
       for (let index = 0; index < colorAttribute.count; index += 1) {
         colorAttribute.setXYZ(index, 0.7, 0.15, 0.1);
       }
+      updateContourOverlay([]);
       heartSurfaceStatus.value = "Geometry";
     } else {
       const tmpState = getTmpEditState() ?? createTmpEditState(tmpFixture);
@@ -360,6 +377,7 @@ function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange, getTmpE
           colorAttribute.setXYZ(index, 0.48, 0.52, 0.54);
         }
       }
+      updateContourOverlay(values, range);
       const label = heartSurface.selectedOptions[0]?.textContent ?? surface;
       if (surface === "tmpAtTime") {
         const sampleMs = Math.round((timeState.sample / tmpState.sampleRateHz) * 1000);
@@ -372,6 +390,23 @@ function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange, getTmpE
     }
     colorAttribute.needsUpdate = true;
     renderer.render(scene, camera);
+  }
+
+  function updateContourOverlay(values, range = { min: 0, max: 0, span: 1 }) {
+    if (!heartContours.checked || !values.length) {
+      contourGeometry.setAttribute("position", new THREE.Float32BufferAttribute([], 3));
+      return;
+    }
+    const levels = contourLevels(range.min, range.max, 8);
+    const indexes = contourNodeIndexes(values, levels, range.span / 32);
+    const contourPositions = [];
+    indexes.forEach((index) => {
+      if (index < nodePositions.length) {
+        const position = nodePositions[index];
+        contourPositions.push(position.x, position.y, position.z);
+      }
+    });
+    contourGeometry.setAttribute("position", new THREE.Float32BufferAttribute(contourPositions, 3));
   }
 
   function syncWallMappingControls() {
@@ -512,6 +547,7 @@ function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange, getTmpE
   };
   heartSurface.onchange = applySurfaceFunction;
   heartValues.onchange = applySurfaceFunction;
+  heartContours.onchange = applySurfaceFunction;
   renderer.domElement.addEventListener("pointerdown", selectFromPointer);
   renderer.domElement.style.cursor = "crosshair";
 
@@ -526,6 +562,7 @@ function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange, getTmpE
   if (heartRotate) {
     heartRotate.checked = true;
   }
+  heartContours.checked = false;
   applySurfaceFunction();
   updateSelection();
 
@@ -547,6 +584,7 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
     !thoraxMetadata ||
     !thoraxAp ||
     !thoraxRotate ||
+    !thoraxContours ||
     !thoraxSurface ||
     !thoraxScale ||
     !thoraxSurfaceStatus ||
@@ -618,6 +656,19 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
   selectedMarker.renderOrder = 4;
   thoraxMesh?.add(selectedMarker);
 
+  const thoraxContourGeometry = new THREE.BufferGeometry();
+  const thoraxContourPoints = new THREE.Points(
+    thoraxContourGeometry,
+    new THREE.PointsMaterial({
+      color: 0x111820,
+      size: 0.0075,
+      sizeAttenuation: true,
+      depthTest: false,
+    }),
+  );
+  thoraxContourPoints.renderOrder = 5;
+  thoraxMesh?.add(thoraxContourPoints);
+
   const thoraxNodePositions = [];
   if (thoraxMesh) {
     const positions = thoraxMesh.geometry.getAttribute("position");
@@ -688,8 +739,8 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
   }
 
   function potentialColor(value, min, span) {
-    const ratio = Math.max(0, Math.min(1, (value - min) / span));
-    return new THREE.Color().setHSL((1 - ratio) * 0.66, 0.82, 0.48);
+    const maxAbs = Math.max(Math.abs(min), Math.abs(min + span));
+    return new THREE.Color(...divergingRgb(value, maxAbs));
   }
 
   function applyGeometryColors() {
@@ -700,6 +751,7 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
     for (let index = 0; index < colorAttribute.count; index += 1) {
       colorAttribute.setXYZ(index, 0.44, 0.53, 0.56);
     }
+    updateThoraxContours([]);
     colorAttribute.needsUpdate = true;
     materials.thorax.opacity = 0.18;
     materials.thorax.depthWrite = false;
@@ -723,6 +775,11 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
         colorAttribute.setXYZ(index, 0.48, 0.52, 0.54);
       }
     }
+    updateThoraxContours(map.valuesByNode.map((row) => row?.[sample] ?? null), {
+      min,
+      max: map.valueRange.max,
+      span,
+    });
     colorAttribute.needsUpdate = true;
     materials.thorax.opacity = 0.82;
     materials.thorax.depthWrite = true;
@@ -767,9 +824,27 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
         colorAttribute.setXYZ(index, 0.48, 0.52, 0.54);
       }
     }
+    updateThoraxContours(computedValues, { min, max, span });
     colorAttribute.needsUpdate = true;
     materials.thorax.opacity = 0.82;
     materials.thorax.depthWrite = true;
+  }
+
+  function updateThoraxContours(values, range = { min: 0, max: 0, span: 1 }) {
+    if (!thoraxContours.checked || !values.length) {
+      thoraxContourGeometry.setAttribute("position", new THREE.Float32BufferAttribute([], 3));
+      return;
+    }
+    const levels = contourLevels(range.min, range.max, 10);
+    const indexes = contourNodeIndexes(values, levels, range.span / 36);
+    const contourPositions = [];
+    indexes.forEach((index) => {
+      if (index < thoraxNodePositions.length) {
+        const position = thoraxNodePositions[index];
+        contourPositions.push(position.x, position.y, position.z);
+      }
+    });
+    thoraxContourGeometry.setAttribute("position", new THREE.Float32BufferAttribute(contourPositions, 3));
   }
 
   function applyThoraxSurface() {
@@ -917,6 +992,7 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
   });
   thoraxScale.value = "100";
   thoraxRotate.checked = true;
+  thoraxContours.checked = false;
   if (thoraxElectrodes) {
     thoraxElectrodes.checked = false;
     thoraxElectrodes.title = electrodeStatusText();
@@ -937,6 +1013,7 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
   thoraxRotate.onchange = () => {
     isAutoRotating = thoraxRotate.checked;
   };
+  thoraxContours.onchange = applyThoraxSurface;
   thoraxSurface.onchange = () => {
     if (!["measured", "initial", "adapted", "sensitivity"].includes(thoraxSurface.value)) {
       thoraxSurface.value = "geometry";

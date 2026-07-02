@@ -180,6 +180,11 @@ async function assertThoraxControls(page) {
   await page.waitForTimeout(150);
   const mapped = await canvasSignature(page, canvas);
   assert.notEqual(mapped, electrodesShown, "Measured BSPM should recolor the thorax canvas");
+  await page.locator("[data-thorax-contours]").check();
+  await page.waitForTimeout(150);
+  const contouredMapped = await canvasSignature(page, canvas);
+  assert.notEqual(contouredMapped, mapped, "Thorax contours should alter scalar map rendering");
+  await page.locator("[data-thorax-contours]").uncheck();
 
   await page.locator("[data-thorax-surface]").selectOption("initial");
   await expectText(page, "[data-thorax-surface-status]", "Initial BSPM / 100% / simulated 0 ms");
@@ -258,6 +263,11 @@ async function assertHeartViewControls(page) {
   await page.waitForTimeout(150);
   const ariSignature = await canvasSignature(page, canvas);
   assert.notEqual(ariSignature, geometrySignature, "ARI heart surface should recolor mesh");
+  await page.locator("[data-heart-contours]").check();
+  await page.waitForTimeout(150);
+  const contouredAriSignature = await canvasSignature(page, canvas);
+  assert.notEqual(contouredAriSignature, ariSignature, "Heart contours should alter scalar surface rendering");
+  await page.locator("[data-heart-contours]").uncheck();
 
   await page.locator("[data-heart-surface]").selectOption("tmpAtTime");
   await expectText(page, "[data-heart-surface-status]", "TMP at time / adapted / 0 ms");
