@@ -351,6 +351,35 @@ async function assertLeadsFiltering(page) {
   await setRangeValue(page, "[data-leads-scale]", "100");
   await page.locator("[data-leads-rms]").uncheck();
   await page.locator("[data-leads-adapted]").uncheck();
+
+  const importPath = resolve(tmpdir(), "comparison.ecgsim-ecg.json");
+  writeFileSync(importPath, JSON.stringify({
+    schema: "org.ecgsim.ecg-signals",
+    version: 1,
+    name: "Imported comparison ECG",
+    sampleRateHz: 500,
+    units: "mV",
+    leadLabels: ["I", "II", "V1"],
+    valuesByLead: [
+      [0, 0.2, 0.5, 0.1, -0.1, 0],
+      [0.1, 0.3, 0.6, 0.2, 0, -0.1],
+      [-0.1, 0, 0.2, 0.1, -0.2, -0.1],
+    ],
+  }));
+  const caseSignature = await canvasSignature(page, canvas);
+  await page.locator("[data-leads-import]").setInputFiles(importPath);
+  await expectText(page, "[data-status-message]", "comparison.ecgsim-ecg.json imported as external ECG signals");
+  await expectText(page, "[data-leads-metadata]", "Imported comparison ECG: 3 imported traces");
+  await expectText(page, "[data-leads-metadata]", "6 samples / 500 Hz");
+  await expectText(page, "[data-leads-status]", "external imported signal; separate from case and recomputed outputs");
+  assert.equal(await page.locator("[data-leads-source]").inputValue(), "imported", "ECG import should switch Leads source");
+  assert.equal(await page.locator("[data-leads-system]").isDisabled(), true, "Imported signals should not use case lead-system selection");
+  const importedSignature = await canvasSignature(page, canvas);
+  assert.notEqual(importedSignature, caseSignature, "Imported ECG should redraw the Leads canvas");
+
+  await page.locator("[data-leads-source]").selectOption("case");
+  await expectText(page, "[data-leads-metadata]", "standard_12: 9 electrode traces");
+  assert.equal(await page.locator("[data-leads-system]").isEnabled(), true, "Case signals should re-enable lead-system selection");
 }
 
 async function assertLinkedTimeCursor(page) {

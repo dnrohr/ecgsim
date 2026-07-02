@@ -25,6 +25,14 @@ from ecgsim.io.ecgsimcase import (
     read_ecgsimcase_sources,
     read_ecgsimcase_vector,
 )
+from ecgsim.io.ecg_signal_import import (
+    ECG_SIGNAL_SCHEMA,
+    ECG_SIGNAL_VERSION,
+    ECGSignalImportError,
+    ImportedECGSignals,
+    read_ecg_signals,
+    validate_ecg_signal_payload,
+)
 from ecgsim.io.export_directory import (
     ExportDirectoryResult,
     export_case_directory,
@@ -54,6 +62,9 @@ from ecgsim.io.source_info import (
 
 __all__ = [
     "ECGsimCaseFormatError",
+    "ECG_SIGNAL_SCHEMA",
+    "ECG_SIGNAL_VERSION",
+    "ECGSignalImportError",
     "ECGsimCase",
     "ECGsimCaseActivation",
     "ECGsimCaseActivationEntry",
@@ -70,6 +81,7 @@ __all__ = [
     "ExportDirectoryResult",
     "GeometryData",
     "GeometryFormatError",
+    "ImportedECGSignals",
     "MatrixData",
     "MatrixFormatError",
     "SOURCE_INFO_SCHEMA",
@@ -87,6 +99,7 @@ __all__ = [
     "read_ecgsimcase_signal_metadata",
     "read_ecgsimcase_sources",
     "read_ecgsimcase_vector",
+    "read_ecg_signals",
     "read_geometry",
     "read_legacy_row_major_matrix",
     "read_matrix",
@@ -94,6 +107,7 @@ __all__ = [
     "read_vector",
     "source_info_from_case",
     "validate_source_info",
+    "validate_ecg_signal_payload",
     "write_ascii_matrix",
     "write_ascii_tri",
     "write_ascii_vector",

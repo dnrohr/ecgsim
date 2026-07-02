@@ -376,6 +376,37 @@ Beat files are discovered as `user.*` in beat directories.
 - Whether exported source parameters include both initial and adapted values or only adapted values.
 - How multiple beats are represented beyond `beat1`, since `readECGsim.m` only reads `beat1`.
 
+## Modern External ECG Import
+
+Task `0077` adds a browser and Python import path for external ECG signals intended for comparison/display only. This is a modern JSON interchange format, not a legacy ECGSIM export clone.
+
+Required JSON shape:
+
+```json
+{
+  "schema": "org.ecgsim.ecg-signals",
+  "version": 1,
+  "name": "Imported comparison ECG",
+  "sampleRateHz": 500,
+  "units": "mV",
+  "leadLabels": ["I", "II"],
+  "valuesByLead": [[0.0, 0.2, -0.1], [0.1, 0.3, 0.0]]
+}
+```
+
+Validation rules:
+
+- `sampleRateHz` must be positive.
+- `units` must be explicit; the importer does not infer millivolts or volts.
+- `leadLabels` must be non-empty and match the number of rows in `valuesByLead`.
+- `valuesByLead` must be a rectangular numeric matrix arranged as lead traces by time samples.
+
+Viewer behavior:
+
+- Imported ECG signals appear through the Leads pane `Source` selector.
+- Imported signals are not attached to the loaded `.ECGsimcase`, thorax maps, TMP recomputation, or adapted ECG outputs.
+- Filtering, RMS overlay, scale, and PNG export use the existing Leads plotter.
+
 ## Parser Implementation Notes
 
 - Implement ASCII matrix/vector support first; all archived legacy example files are text.

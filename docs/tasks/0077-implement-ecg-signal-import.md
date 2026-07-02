@@ -29,3 +29,12 @@ The legacy app supports ECG workflows beyond bundled signals. Modern import shou
 ## Done When
 
 External ECG data can be inspected without confusing it with model-generated signals.
+
+## Completion Notes
+
+Status: complete.
+
+- Defined modern JSON ECG import schema `org.ecgsim.ecg-signals` version `1` with explicit sample rate, units, labels, and lead-by-time samples.
+- Added Python validation/reader API `ecgsim.io.read_ecg_signals()`.
+- Added Leads pane import and source selector so imported traces can be inspected separately from case signals and recomputed/adapted outputs.
+- Added Python validation tests and browser workflow coverage for importing a small external ECG fixture.

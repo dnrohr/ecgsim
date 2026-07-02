@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { contourLevels, contourNodeIndexes, divergingRgb, sequentialRgb } from "./color-maps.js";
+import { readImportedEcgFile } from "./ecg-import.js";
 import { baselineWindowForSignal, buildRmsTrace, filterTraces } from "./filtering.js";
 import {
   applyFocusSelection,
@@ -73,6 +74,7 @@ const thoraxElectrodes = document.querySelector("[data-thorax-electrodes]");
 const thoraxSurfaceStatus = document.querySelector("[data-thorax-surface-status]");
 const thoraxSelection = document.querySelector("[data-thorax-selection]");
 const leadsMetadata = document.querySelector("[data-leads-metadata]");
+const leadsSource = document.querySelector("[data-leads-source]");
 const leadsSystem = document.querySelector("[data-leads-system]");
 const leadsFilter = document.querySelector("[data-leads-filter]");
 const leadsMeasured = document.querySelector("[data-leads-measured]");
@@ -80,6 +82,7 @@ const leadsInitial = document.querySelector("[data-leads-initial]");
 const leadsAdapted = document.querySelector("[data-leads-adapted]");
 const leadsRms = document.querySelector("[data-leads-rms]");
 const leadsGrid = document.querySelector("[data-leads-grid]");
+const leadsImport = document.querySelector("[data-leads-import]");
 const leadsScale = document.querySelector("[data-leads-scale]");
 const leadsStatus = document.querySelector("[data-leads-status]");
 const tmpMetadata = document.querySelector("[data-tmp-metadata]");
@@ -126,6 +129,7 @@ let tmpEditState = null;
 let tmpCanvas = null;
 let supportedCaseManifest = null;
 let currentCaseMetadata = null;
+let importedEcgSignals = null;
 let timeTimer = null;
 let redrawTimeDependents = () => {};
 
@@ -1074,6 +1078,8 @@ function plotSignals(
   {
     mode = "baseline",
     leadSystem = null,
+    importedSignals = null,
+    source = "case",
     scale = 1,
     showGrid = true,
     showRms = false,
@@ -1095,8 +1101,13 @@ function plotSignals(
   const bottom = 34;
   const plotWidth = width - left - right;
   const plotHeight = height - top - bottom;
-  const signalSet = leadSystemTraces(fixture, leadSystem, { tmpState, showAdapted });
-  const fiducials = fixture.fiducials ?? {};
+  const signalSet = leadSystemTraces(fixture, leadSystem, {
+    tmpState,
+    showAdapted,
+    importedSignals,
+    source,
+  });
+  const fiducials = signalSet.fiducials ?? fixture.fiducials ?? {};
   const filteredTraces = filterTraces(
     signalSet.traces,
     mode,
@@ -1137,9 +1148,13 @@ function plotSignals(
   context.font = "12px Segoe UI, Arial, sans-serif";
   context.fillStyle = "#52616b";
   context.textBaseline = "middle";
-  if (leadSystem) {
+  if (leadSystem && signalSet.source !== "imported") {
     context.textAlign = "right";
     context.fillText(leadSystem.name, width - right, top - 7);
+    context.textAlign = "start";
+  } else if (signalSet.source === "imported") {
+    context.textAlign = "right";
+    context.fillText("Imported", width - right, top - 7);
     context.textAlign = "start";
   }
 
@@ -1195,7 +1210,9 @@ function plotSignals(
   context.fillText(`${durationMs} ms`, width - right, height - 12);
   context.textAlign = "start";
 
-  const systemText = leadSystem
+  const systemText = signalSet.source === "imported"
+    ? `${signalSet.name}: ${signalSet.traces.length} imported traces`
+    : leadSystem
     ? `${leadSystem.name}: ${signalSet.traces.length} electrode traces / ${leadSystem.leadCount} leads`
     : `${signalSet.traces.length} representative traces`;
   leadsMetadata.value =
@@ -1203,6 +1220,8 @@ function plotSignals(
   if (leadsStatus) {
     const classification = signalSet.isRecomputed
       ? "adapted ECG recomputed from TMP transfer; WCT/reference lead transform unresolved"
+      : signalSet.source === "imported"
+      ? "external imported signal; separate from case and recomputed outputs"
       : "measured/initial classification unavailable";
     leadsStatus.value = `${signalSet.signalKind}; ${filteringStatus(mode, signalSet.sampleCount, fiducials)}; ${classification}`;
   }
@@ -1225,9 +1244,32 @@ function filteringStatus(mode, sampleCount, fiducials) {
     : "Baseline fallback uses signal endpoints";
 }
 
-function leadSystemTraces(fixture, leadSystem, { tmpState = null, showAdapted = false } = {}) {
+function leadSystemTraces(
+  fixture,
+  leadSystem,
+  {
+    tmpState = null,
+    showAdapted = false,
+    importedSignals = null,
+    source = "case",
+  } = {},
+) {
+  if (source === "imported" && importedSignals) {
+    return {
+      source: "imported",
+      signalKind: importedSignals.signalKind,
+      name: importedSignals.name,
+      sampleCount: importedSignals.columns,
+      sampleRateHz: importedSignals.sampleRateHz,
+      fiducials: importedSignals.fiducials,
+      isRecomputed: false,
+      traces: importedSignals.traces,
+    };
+  }
+
   if (showAdapted && canRecomputeLeadTraces(fixture, tmpState) && leadSystem?.electrodes?.length) {
     return {
+      source: "case",
       signalKind: `${leadSystem.name} adapted ECG recompute`,
       sampleCount: tmpState.sampleCount,
       sampleRateHz: tmpState.sampleRateHz,
@@ -1238,6 +1280,7 @@ function leadSystemTraces(fixture, leadSystem, { tmpState = null, showAdapted = 
 
   if (leadSystem?.electrodes?.length && fixture.surfaceMap?.valuesByNode) {
     return {
+      source: "case",
       signalKind: `${leadSystem.name} electrode surface potentials`,
       sampleCount: fixture.surfaceMap.sampleCount,
       sampleRateHz: fixture.surfaceMap.sampleRateHz,
@@ -1254,6 +1297,7 @@ function leadSystemTraces(fixture, leadSystem, { tmpState = null, showAdapted = 
   }
 
   return {
+    source: "case",
     signalKind: fixture.signalKind,
     sampleCount: fixture.columns,
     sampleRateHz: fixture.sampleRateHz,
@@ -1902,6 +1946,10 @@ function selectedLeadSystemDetail() {
     ?? null;
 }
 
+function selectedLeadsSource() {
+  return leadsSource?.value === "imported" && importedEcgSignals ? "imported" : "case";
+}
+
 function selectedThoraxContribution(signalFixture) {
   if (selectionState.thoraxNodeIndex < 0 || !canUseThoraxTransfer(signalFixture)) {
     return null;
@@ -1910,6 +1958,22 @@ function selectedThoraxContribution(signalFixture) {
     thoraxNodeIndex: selectionState.thoraxNodeIndex,
     values: contributionValuesForThoraxNode(signalFixture, selectionState.thoraxNodeIndex),
   };
+}
+
+function syncImportedEcgControls() {
+  if (!leadsSource) {
+    return;
+  }
+  const importedOption = leadsSource.querySelector("option[value='imported']");
+  if (importedOption) {
+    importedOption.disabled = !importedEcgSignals;
+  }
+  if (!importedEcgSignals && leadsSource.value === "imported") {
+    leadsSource.value = "case";
+  }
+  if (leadsSystem) {
+    leadsSystem.disabled = selectedLeadsSource() === "imported";
+  }
 }
 
 function syncLeadSystemOptions() {
@@ -2095,10 +2159,13 @@ function applyCaseBundle(bundle, noticeText) {
   tmpEditing.syncControls();
   focusEditing.syncControls();
   syncLeadOverlayControls(bundle.ecgSignals, tmpEditing.getState());
+  syncImportedEcgControls();
   const leadsCanvas = document.querySelector("[data-leads-canvas]");
   redrawSignals = () => plotSignals(leadsCanvas, bundle.ecgSignals, {
     mode: leadsFilter?.value ?? "baseline",
     leadSystem: selectedLeadSystemDetail(),
+    importedSignals: importedEcgSignals,
+    source: selectedLeadsSource(),
     scale: Number.parseFloat(leadsScale?.value ?? "100") / 100,
     showGrid: leadsGrid?.checked ?? true,
     showRms: leadsRms?.checked ?? false,
@@ -2114,6 +2181,19 @@ function applyCaseBundle(bundle, noticeText) {
   }
   if (leadsRms) {
     leadsRms.checked = false;
+  }
+  if (leadsSource) {
+    leadsSource.value = "case";
+    syncImportedEcgControls();
+    leadsSource.onchange = () => {
+      syncImportedEcgControls();
+      redrawSignals();
+    };
+  }
+  if (leadsImport) {
+    leadsImport.onchange = async () => {
+      await importSelectedEcgSignals(leadsImport.files?.[0], redrawSignals);
+    };
   }
   if (leadsSystem && toolbarLeadSystem) {
     leadsSystem.onchange = () => {
@@ -2177,6 +2257,31 @@ function applyCaseBundle(bundle, noticeText) {
     }
   };
   redrawSignals();
+}
+
+async function importSelectedEcgSignals(file, redrawSignals) {
+  if (!file || !currentCaseMetadata) {
+    return;
+  }
+  if (statusMessage) {
+    statusMessage.value = `Importing ECG signals from ${file.name}...`;
+  }
+  try {
+    importedEcgSignals = await readImportedEcgFile(file);
+    if (leadsSource) {
+      leadsSource.value = "imported";
+    }
+    syncImportedEcgControls();
+    redrawSignals();
+    if (statusMessage) {
+      statusMessage.value = `${file.name} imported as external ECG signals.`;
+    }
+  } catch (error) {
+    syncImportedEcgControls();
+    if (statusMessage) {
+      statusMessage.value = `${file.name} could not be imported: ${error.message}`;
+    }
+  }
 }
 
 async function loadSupportedCaseBundle(entry) {

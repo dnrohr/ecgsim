@@ -137,7 +137,7 @@ Each task should end with:
 
 - [x] [0075 Implement ECGsimsource Import Export](0075-implement-ecgsimsource-import-export.md)
 - [x] [0076 Expand Legacy Export Directory Writer](0076-expand-legacy-export-directory-writer.md)
-- [ ] [0077 Implement ECG Signal Import](0077-implement-ecg-signal-import.md)
+- [x] [0077 Implement ECG Signal Import](0077-implement-ecg-signal-import.md)
 - [ ] [0078 Add MATLAB ReadECGsim Compatibility Smoke Tests](0078-add-matlab-read-ecgsim-compatibility-smoke-tests.md)
 
 ## NF5: Product Experience And Release Hardening
