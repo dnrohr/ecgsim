@@ -41,7 +41,7 @@ This matrix tracks what a user can see and manipulate. It does not require the m
 | Thorax | Sensitivity map | Thorax surface `Sensitivity` for selected source node | supported | Transfer-column provenance and canvas delta | `0095` |
 | Thorax | Isofunction lines | Contour overlay plus line-only scalar-map mode | supported | App workflow checks contour visibility, line-only status, and canvas delta | complete |
 | Thorax | Electrodes | Thorax electrode toggle | supported | Parsed electrode count and canvas delta | `0101` |
-| Thorax | Lock to heart orientation | Shared Heart/Thorax camera mode | partial | Camera synchronization workflow | `0094` |
+| Thorax | Lock to heart orientation | Shared Heart/Thorax orientation lock | supported | App workflow checks lock, follow-rotation redraw, AP reset, and unlock | complete |
 | TMP | Initial/adapted TMP traces | TMP plot with initial/adapted toggles | supported | Toggle canvas deltas and selected-node provenance | `0101` |
 | TMP | Parameter handlers | Modern numeric controls plus future handler-style overlay | partial | Handler or documented modern-equivalent workflow | `0096` |
 | TMP | Time bar | Shared yellow cursor | supported | Cursor x-position tests | `0101` |

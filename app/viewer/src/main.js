@@ -91,6 +91,7 @@ const thoraxSurface = document.querySelector("[data-thorax-surface]");
 const thoraxScale = document.querySelector("[data-thorax-scale]");
 const thoraxElectrodes = document.querySelector("[data-thorax-electrodes]");
 const thoraxHeartContext = document.querySelector("[data-thorax-heart-context]");
+const thoraxLockHeart = document.querySelector("[data-thorax-lock-heart]");
 const thoraxSurfaceStatus = document.querySelector("[data-thorax-surface-status]");
 const thoraxSelection = document.querySelector("[data-thorax-selection]");
 const thoraxModeBadge = document.querySelector("[data-thorax-mode-badge]");
@@ -303,6 +304,13 @@ const timeState = {
   sampleCount: 576,
   sampleRateHz: 1000,
   isPlaying: false,
+};
+
+const linkedOrientationState = {
+  locked: false,
+  heartRotation: new THREE.Euler(),
+  applyThoraxRotation: null,
+  applyHeartAp: null,
 };
 
 function buildGeometry(fixture, { center = false } = {}) {
@@ -605,7 +613,15 @@ function mountHeart(
 
   function setMeshRotationAP() {
     mesh.rotation.set(-0.35, 0.2, 0.08);
+    publishHeartOrientation();
     renderer.render(scene, camera);
+  }
+
+  function publishHeartOrientation() {
+    linkedOrientationState.heartRotation.copy(mesh.rotation);
+    if (linkedOrientationState.locked) {
+      linkedOrientationState.applyThoraxRotation?.(mesh.rotation);
+    }
   }
 
   function syncCrossSectionPlane() {
@@ -1006,6 +1022,7 @@ function mountHeart(
   renderer.domElement.style.cursor = "crosshair";
 
   observeViewport(heartViewport, camera, renderer, (width) => (width < 480 ? 0.5 : 0.32));
+  linkedOrientationState.applyHeartAp = setMeshRotationAP;
 
   heartMetadata.value = `${fixture.pointCount} nodes / ${fixture.triangleCount} triangles`;
   heartSurface.value = "geometry";
@@ -1024,6 +1041,7 @@ function mountHeart(
     heartRotate.checked = true;
   }
   heartContours.checked = false;
+  publishHeartOrientation();
   syncCrossSectionPlane();
   syncHeartElectrodes();
   syncHeartVector();
@@ -1033,6 +1051,7 @@ function mountHeart(
   function animate() {
     if (isAutoRotating) {
       mesh.rotation.y += 0.006;
+      publishHeartOrientation();
     }
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
@@ -1057,6 +1076,7 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
     !thoraxSurface ||
     !thoraxScale ||
     !thoraxHeartContext ||
+    !thoraxLockHeart ||
     !thoraxSurfaceStatus ||
     !thoraxSelection
   ) {
@@ -1247,7 +1267,18 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
   }
 
   function setThoraxRotationAP() {
+    if (linkedOrientationState.locked) {
+      linkedOrientationState.applyHeartAp?.();
+      group.rotation.copy(linkedOrientationState.heartRotation);
+      renderThorax();
+      return;
+    }
     group.rotation.set(-0.2, 0.18, 0);
+    renderThorax();
+  }
+
+  function applyLinkedHeartRotation(rotation) {
+    group.rotation.copy(rotation);
     renderThorax();
   }
 
@@ -1552,6 +1583,13 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
   thoraxContours.checked = false;
   thoraxLineOnly.checked = false;
   thoraxHeartContext.checked = false;
+  thoraxLockHeart.disabled = false;
+  thoraxLockHeart.dataset.lockStatus = "available";
+  thoraxLockHeart.title = "Lock Thorax orientation to the Heart view.";
+  thoraxLockHeart.textContent = "Lock";
+  thoraxLockHeart.setAttribute("aria-pressed", "false");
+  linkedOrientationState.locked = false;
+  linkedOrientationState.applyThoraxRotation = applyLinkedHeartRotation;
   thoraxHeartContext.title = `${heartFixture.pointCount} parsed Heart nodes available as Thorax context.`;
   thoraxHeartContext.onchange = syncHeartContext;
   if (thoraxElectrodes) {
@@ -1569,11 +1607,33 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
     thoraxRotate.checked = false;
     setThoraxRotationAP();
     if (statusMessage) {
-      statusMessage.value = "Thorax view reset to AP orientation.";
+      statusMessage.value = linkedOrientationState.locked
+        ? "Thorax view locked to Heart AP orientation."
+        : "Thorax view reset to AP orientation.";
     }
   };
   thoraxRotate.onchange = () => {
-    isAutoRotating = thoraxRotate.checked;
+    if (linkedOrientationState.locked && thoraxRotate.checked) {
+      thoraxRotate.checked = false;
+    }
+    isAutoRotating = thoraxRotate.checked && !linkedOrientationState.locked;
+  };
+  thoraxLockHeart.onclick = () => {
+    linkedOrientationState.locked = !linkedOrientationState.locked;
+    thoraxLockHeart.setAttribute("aria-pressed", linkedOrientationState.locked ? "true" : "false");
+    thoraxLockHeart.textContent = linkedOrientationState.locked ? "Locked" : "Lock";
+    if (linkedOrientationState.locked) {
+      isAutoRotating = false;
+      thoraxRotate.checked = false;
+      applyLinkedHeartRotation(linkedOrientationState.heartRotation);
+      if (statusMessage) {
+        statusMessage.value = "Thorax orientation locked to Heart.";
+      }
+    } else {
+      if (statusMessage) {
+        statusMessage.value = "Thorax orientation unlocked from Heart.";
+      }
+    }
   };
   thoraxContours.onchange = applyThoraxSurface;
   thoraxLineOnly.onchange = applyThoraxSurface;

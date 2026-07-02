@@ -169,7 +169,7 @@ Each task should end with:
 
 - [x] [0092 Add Thorax Heart Context Overlay](0092-add-thorax-heart-context-overlay.md)
 - [x] [0093 Add Thorax Line Only Isofunction Mode](0093-add-thorax-line-only-isofunction-mode.md)
-- [ ] [0094 Add Thorax Lock To Heart Orientation](0094-add-thorax-lock-to-heart-orientation.md)
+- [x] [0094 Add Thorax Lock To Heart Orientation](0094-add-thorax-lock-to-heart-orientation.md)
 - [ ] [0095 Expand Thorax Probe And Electrode Target Workflows](0095-expand-thorax-probe-and-electrode-target-workflows.md)
 
 ## VF4: TMP And ECG View Completeness

@@ -260,11 +260,11 @@ async function assertThoraxControls(page) {
   await expectText(page, "[data-thorax-surface-status]", "Geometry / 100% / measured map available");
   await expectText(page, "[data-thorax-selection]", "9 electrodes");
   assert.equal(await page.locator("[data-thorax-electrodes]").isEnabled(), true, "electrode toggle should be available");
-  assert.equal(await page.locator("[data-thorax-lock-heart]").isDisabled(), true, "lock-to-heart should show unavailable state");
   assert.equal(await page.locator("[data-thorax-surface] option[value='measured']").isDisabled(), false, "measured BSPM should be available");
   assert.equal(await page.locator("[data-thorax-surface] option[value='initial']").isDisabled(), false, "initial BSPM should be recomputable");
   assert.equal(await page.locator("[data-thorax-surface] option[value='adapted']").isDisabled(), false, "adapted BSPM should be recomputable");
   assert.equal(await page.locator("[data-thorax-surface] option[value='sensitivity']").isDisabled(), false, "sensitivity map should be available from transfer matrix");
+  assert.equal(await page.locator("[data-thorax-lock-heart]").isEnabled(), true, "lock-to-heart should be available");
 
   const before = await canvasSignature(page, canvas);
   await page.locator("[data-thorax-heart-context]").check();
@@ -333,12 +333,23 @@ async function assertThoraxControls(page) {
   const scaled = await canvasSignature(page, canvas);
   assert.notEqual(scaled, sensitivity, "Thorax scale control should change canvas output");
 
-  await page.locator("[data-thorax-ap]").click();
-  await expectText(page, "[data-status-message]", "Thorax view reset to AP orientation");
-  assert.equal(await page.locator("[data-thorax-rotate]").isChecked(), false, "Thorax AP reset should stop auto-rotation");
+  await page.locator("[data-thorax-lock-heart]").click();
+  await expectText(page, "[data-status-message]", "Thorax orientation locked to Heart");
+  await expectText(page, "[data-thorax-lock-heart]", "Locked");
+  assert.equal(await page.locator("[data-thorax-rotate]").isChecked(), false, "Thorax lock should stop independent Thorax auto-rotation");
+  const lockedSignature = await canvasSignature(page, canvas);
+  await page.waitForTimeout(220);
+  const followedHeartSignature = await canvasSignature(page, canvas);
+  assert.notEqual(followedHeartSignature, lockedSignature, "Locked Thorax should follow Heart auto-rotation");
 
+  await page.locator("[data-thorax-ap]").click();
+  await expectText(page, "[data-status-message]", "Thorax view locked to Heart AP orientation");
+  assert.equal(await page.locator("[data-thorax-rotate]").isChecked(), false, "Thorax AP reset should keep auto-rotation off while locked");
+
+  await page.locator("[data-thorax-lock-heart]").click();
+  await expectText(page, "[data-status-message]", "Thorax orientation unlocked from Heart");
   await page.locator("[data-thorax-rotate]").check();
-  assert.equal(await page.locator("[data-thorax-rotate]").isChecked(), true, "Thorax rotate toggle should re-enable");
+  assert.equal(await page.locator("[data-thorax-rotate]").isChecked(), true, "Thorax rotate toggle should re-enable after unlock");
 
   const leftLung = page.locator("[data-toggle-mesh='leftLung']");
   await leftLung.uncheck();
@@ -608,6 +619,7 @@ async function assertLinkedTimeCursor(page) {
 }
 
 async function assertHeartSelectionAndTmpEditing(page) {
+  await page.locator("[data-heart-ap]").click();
   const selected = await selectHeartNode(page);
   assert.match(selected, /Node \d+ \/ 20 mm \/ 0 mm transition \/ \d+ nodes \/ 0 weighted/, "heart click should select a node");
 

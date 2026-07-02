@@ -27,6 +27,7 @@ This document maps visualization modes to current automated evidence. It tracks 
 | Thorax | Line-only isofunction mode | App workflow enables line-only mode on measured BSPM and checks status/canvas delta | medium | Exact interpolated legacy isolines unverified |
 | Thorax | Initial/adapted BSPM | App workflow switches recomputed maps and verifies edit-driven redraw | strong smoke | WCT/reference parity unresolved |
 | Thorax | Sensitivity | App workflow checks sensitivity map and scale changes | strong smoke | Selected-electrode target workflow missing |
+| Thorax | Lock to Heart orientation | App workflow enables lock, checks followed Heart rotation, linked AP reset, and unlock | medium | Exact manual drag-rotation parity unverified |
 | TMP | Initial/adapted traces | App workflow toggles initial/grid and verifies canvas deltas | strong smoke | Handler-style controls missing |
 | TMP | Editing/reset/undo/redo | App workflow edits a selected node and checks redraw/status | strong behavior | Exact legacy drag handlers missing |
 | TMP | Time cursor | App workflow checks yellow cursor movement | strong smoke | Interval highlight missing |
