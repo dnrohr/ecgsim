@@ -24,6 +24,7 @@ This document maps visualization modes to current automated evidence. It tracks 
 | Thorax | Geometry/heart/lung layers | App workflow checks nonblank canvas plus Heart context and lung-toggle canvas deltas | strong smoke | Exact legacy transparency style unverified |
 | Thorax | Electrodes | App workflow toggles parsed electrodes and checks canvas delta | strong smoke | Exact electrode glyph geometry unverified |
 | Thorax | Measured BSPM | App workflow switches measured map, time cursor, contours, and scale | strong smoke | No legacy map color/line parity |
+| Thorax | Line-only isofunction mode | App workflow enables line-only mode on measured BSPM and checks status/canvas delta | medium | Exact interpolated legacy isolines unverified |
 | Thorax | Initial/adapted BSPM | App workflow switches recomputed maps and verifies edit-driven redraw | strong smoke | WCT/reference parity unresolved |
 | Thorax | Sensitivity | App workflow checks sensitivity map and scale changes | strong smoke | Selected-electrode target workflow missing |
 | TMP | Initial/adapted traces | App workflow toggles initial/grid and verifies canvas deltas | strong smoke | Handler-style controls missing |

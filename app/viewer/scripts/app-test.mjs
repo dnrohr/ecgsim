@@ -293,6 +293,15 @@ async function assertThoraxControls(page) {
   await page.waitForTimeout(150);
   assert.equal(await page.locator("[data-thorax-contours]").isChecked(), true, "Thorax contours should toggle on");
   assert.ok(await canvasHasContent(page, canvas), "Thorax contour map should remain nonblank");
+  const contourMap = await canvasSignature(page, canvas);
+  assert.equal(await page.locator("[data-thorax-line-only]").isEnabled(), true, "Thorax line-only mode should enable for scalar maps");
+  await page.locator("[data-thorax-line-only]").check();
+  await expectText(page, "[data-thorax-surface-status]", "lines only");
+  assert.equal(await page.locator("[data-thorax-contours]").isChecked(), true, "Thorax line-only mode should keep contours visible");
+  await page.waitForTimeout(150);
+  const lineOnlyMap = await canvasSignature(page, canvas);
+  assert.notEqual(lineOnlyMap, contourMap, "Thorax line-only mode should change scalar map rendering");
+  await page.locator("[data-thorax-line-only]").uncheck();
   await page.locator("[data-thorax-contours]").uncheck();
 
   await page.locator("[data-thorax-surface]").selectOption("initial");

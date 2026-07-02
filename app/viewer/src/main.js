@@ -86,6 +86,7 @@ const thoraxMetadata = document.querySelector("[data-thorax-metadata]");
 const thoraxAp = document.querySelector("[data-thorax-ap]");
 const thoraxRotate = document.querySelector("[data-thorax-rotate]");
 const thoraxContours = document.querySelector("[data-thorax-contours]");
+const thoraxLineOnly = document.querySelector("[data-thorax-line-only]");
 const thoraxSurface = document.querySelector("[data-thorax-surface]");
 const thoraxScale = document.querySelector("[data-thorax-scale]");
 const thoraxElectrodes = document.querySelector("[data-thorax-electrodes]");
@@ -1052,6 +1053,7 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
     !thoraxAp ||
     !thoraxRotate ||
     !thoraxContours ||
+    !thoraxLineOnly ||
     !thoraxSurface ||
     !thoraxScale ||
     !thoraxHeartContext ||
@@ -1181,9 +1183,10 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
   function updateSurfaceStatus() {
     const scale = Number.parseFloat(thoraxScale.value);
     const label = thoraxSurface.selectedOptions[0]?.textContent ?? "Geometry";
+    const lineSuffix = thoraxLineOnly.checked && thoraxLineOnlyEnabled() ? " / lines only" : "";
     if (thoraxSurface.value === "measured" && signalFixture?.surfaceMap) {
       const sampleMs = Math.round((timeState.sample / signalFixture.surfaceMap.sampleRateHz) * 1000);
-      thoraxSurfaceStatus.value = `${label} / ${scale}% / ${sampleMs} ms`;
+      thoraxSurfaceStatus.value = `${label} / ${scale}% / ${sampleMs} ms${lineSuffix}`;
       setPaneBadges(
         thoraxModeBadge,
         thoraxProvenanceBadge,
@@ -1196,7 +1199,7 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
     if (["initial", "adapted"].includes(thoraxSurface.value) && canRecomputeLeadTraces(signalFixture, getTmpEditState())) {
       const state = getTmpEditState();
       const sampleMs = Math.round((timeState.sample / state.sampleRateHz) * 1000);
-      thoraxSurfaceStatus.value = `${label} / ${scale}% / simulated ${sampleMs} ms`;
+      thoraxSurfaceStatus.value = `${label} / ${scale}% / simulated ${sampleMs} ms${lineSuffix}`;
       setPaneBadges(
         thoraxModeBadge,
         thoraxProvenanceBadge,
@@ -1208,7 +1211,7 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
     }
     if (thoraxSurface.value === "sensitivity" && canUseThoraxTransfer(signalFixture)) {
       const sourceNode = selectedSensitivitySourceNode();
-      thoraxSurfaceStatus.value = `${label} / ${scale}% / source node ${sourceNode + 1}`;
+      thoraxSurfaceStatus.value = `${label} / ${scale}% / source node ${sourceNode + 1}${lineSuffix}`;
       setPaneBadges(
         thoraxModeBadge,
         thoraxProvenanceBadge,
@@ -1274,6 +1277,31 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
     materials.thorax.depthWrite = false;
   }
 
+  function thoraxLineOnlyEnabled() {
+    return ["measured", "initial", "adapted", "sensitivity"].includes(thoraxSurface.value);
+  }
+
+  function syncLineOnlyControl() {
+    const enabled = thoraxLineOnlyEnabled();
+    thoraxLineOnly.disabled = !enabled;
+    thoraxLineOnly.title = enabled
+      ? "Show scalar map as contour markers over a neutral thorax surface."
+      : "Line-only mode is available for scalar BSPM and sensitivity maps.";
+  }
+
+  function applyLineOnlyStyle() {
+    if (!thoraxMesh || !thoraxLineOnly.checked || !thoraxLineOnlyEnabled()) {
+      return;
+    }
+    const colorAttribute = thoraxMesh.geometry.getAttribute("color");
+    for (let index = 0; index < colorAttribute.count; index += 1) {
+      colorAttribute.setXYZ(index, 0.72, 0.77, 0.79);
+    }
+    colorAttribute.needsUpdate = true;
+    materials.thorax.opacity = 0.26;
+    materials.thorax.depthWrite = false;
+  }
+
   function applyMeasuredSurfaceMap() {
     if (!thoraxMesh || !signalFixture?.surfaceMap) {
       return;
@@ -1297,9 +1325,12 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
       max: map.valueRange.max,
       span,
     });
+    applyLineOnlyStyle();
     colorAttribute.needsUpdate = true;
-    materials.thorax.opacity = 0.82;
-    materials.thorax.depthWrite = true;
+    if (!thoraxLineOnly.checked) {
+      materials.thorax.opacity = 0.82;
+      materials.thorax.depthWrite = true;
+    }
   }
 
   function applyComputedSurfaceMap(kind) {
@@ -1342,9 +1373,12 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
       }
     }
     updateThoraxContours(computedValues, { min, max, span });
+    applyLineOnlyStyle();
     colorAttribute.needsUpdate = true;
-    materials.thorax.opacity = 0.82;
-    materials.thorax.depthWrite = true;
+    if (!thoraxLineOnly.checked) {
+      materials.thorax.opacity = 0.82;
+      materials.thorax.depthWrite = true;
+    }
   }
 
   function updateThoraxContours(values, range = { min: 0, max: 0, span: 1 }) {
@@ -1365,6 +1399,10 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
   }
 
   function applyThoraxSurface() {
+    syncLineOnlyControl();
+    if (thoraxLineOnly.checked && thoraxLineOnlyEnabled()) {
+      thoraxContours.checked = true;
+    }
     if (thoraxSurface.value === "measured" && signalFixture?.surfaceMap) {
       applyMeasuredSurfaceMap();
     } else if (thoraxSurface.value === "initial" && canRecomputeLeadTraces(signalFixture, getTmpEditState())) {
@@ -1512,6 +1550,7 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
   thoraxScale.value = "100";
   thoraxRotate.checked = true;
   thoraxContours.checked = false;
+  thoraxLineOnly.checked = false;
   thoraxHeartContext.checked = false;
   thoraxHeartContext.title = `${heartFixture.pointCount} parsed Heart nodes available as Thorax context.`;
   thoraxHeartContext.onchange = syncHeartContext;
@@ -1537,6 +1576,7 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
     isAutoRotating = thoraxRotate.checked;
   };
   thoraxContours.onchange = applyThoraxSurface;
+  thoraxLineOnly.onchange = applyThoraxSurface;
   thoraxSurface.onchange = () => {
     if (!["measured", "initial", "adapted", "sensitivity"].includes(thoraxSurface.value)) {
       thoraxSurface.value = "geometry";
