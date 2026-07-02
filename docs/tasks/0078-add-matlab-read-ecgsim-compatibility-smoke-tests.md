@@ -29,3 +29,12 @@ The website archive includes MATLAB helpers, but the modern writer is a supporte
 ## Done When
 
 Interoperability claims are backed by repeatable evidence.
+
+## Completion Notes
+
+Status: complete.
+
+- Added `tools/read_ecgsim_compatibility.py` to report files readable by `loadmat.m`/`loadtri.m` ASCII conventions and files missing for full `readECGsim.m` compatibility.
+- Added tests for a synthetic export and a generated normal-male modern export.
+- Documented the repeatable smoke command and the manual MATLAB/Octave command in `docs/import-export-compatibility.md`.
+- Current expected status is `partial` because transfer matrices, adjacency/distance matrices, cavity geometries, and electrode `.elec` files are not emitted yet.

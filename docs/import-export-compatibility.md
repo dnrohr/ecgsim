@@ -93,6 +93,21 @@ The modern export directory follows legacy-style folder names and ASCII data for
 
 Use current exports as partial data products for geometry, parsed source vectors, and the parsed thorax surface-potential matrix. Do not expect `readECGsim.m` to load the directory as a full ECGSIM export until the missing members are implemented or stubbed with confirmed semantics.
 
+Task `0078` adds a repeatable smoke report:
+
+```powershell
+python tools/read_ecgsim_compatibility.py --case research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
+```
+
+The report verifies that written modern `.tri`, matrix, and vector files are readable by Python readers that mirror the archived `loadtri.m` and `loadmat.m` ASCII conventions. It also lists missing `readECGsim.m` requirements. Current modern exports are expected to report `partial`, not `full`, because `readECGsim.m` unconditionally loads ventricular adjacency, distance, anisotropy, transfer, cavity geometry, and ECG electrode files that are not emitted yet.
+
+Manual MATLAB/Octave verification, once those dependencies are available:
+
+```matlab
+addpath('research/source/www.ecgsim.org/downloads')
+DATA = readECGsim('scratch/normal-export')
+```
+
 ## Source Edit Sidecars
 
 The browser supports a modern JSON sidecar:
