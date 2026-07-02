@@ -60,6 +60,27 @@
           <output>TMP</output>
           <output>ECGs</output>
         </div>
+        <div class="toolbar-group visual-mode-navigator" aria-label="Visual mode navigator">
+          <label>
+            Visual mode
+            <select data-visual-mode-navigator>
+              <option value="heart-geometry">Heart geometry</option>
+              <option value="heart-depolarization">Heart depolarization</option>
+              <option value="heart-ari">Heart ARI</option>
+              <option value="heart-tmp-time">Heart TMP at time</option>
+              <option value="heart-contribution">Heart contribution</option>
+              <option value="thorax-geometry">Thorax geometry</option>
+              <option value="thorax-measured">Thorax measured BSPM</option>
+              <option value="thorax-initial">Thorax initial BSPM</option>
+              <option value="thorax-adapted">Thorax adapted BSPM</option>
+              <option value="thorax-sensitivity">Thorax sensitivity</option>
+              <option value="tmp-traces">TMP traces</option>
+              <option value="leads-case">Leads case ECG</option>
+              <option value="leads-adapted">Leads adapted ECG</option>
+              <option value="leads-vcg">Leads Frank VCG</option>
+            </select>
+          </label>
+        </div>
         <div class="toolbar-group time-toolbar" aria-label="Shared time cursor">
           <button type="button" data-time-step-back>-2</button>
           <button type="button" data-time-play>Play</button>

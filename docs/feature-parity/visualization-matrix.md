@@ -19,7 +19,7 @@ This matrix tracks what a user can see and manipulate. It does not require the m
 | --- | --- | --- | --- | --- | --- |
 | Workspace | Four-pane Heart, Thorax, TMP, Leads workspace visible at launch | Visual-first 2x2 workspace with compact metadata and visible canvases | supported | Browser viewport assertions for pane/canvas visibility | complete |
 | Workspace | Current pane mode and data provenance are visible | Compact mode/provenance badges in each pane header | supported | App workflow checks launch badges and representative mode transitions | complete |
-| Workspace | Menu/toolbar discoverability for visual modes | Pane controls plus visual mode navigator | partial | Mode coverage map and browser navigation checks | `0087` |
+| Workspace | Menu/toolbar discoverability for visual modes | Pane controls plus visual mode navigator | supported | App workflow drives representative Heart, Thorax, TMP, and Leads modes through navigator | complete |
 | Heart | Geometry surface | Heart mesh canvas | supported | Nonblank canvas and mode label | `0101` |
 | Heart | Depolarization surface | Heart surface `Depolarization`, initial/adapted selector | supported | Data-backed source parameter check and canvas delta | `0091` |
 | Heart | Repolarization surface | Heart surface `Repolarization`, initial/adapted selector | supported | Data-backed source parameter check and canvas delta | `0091` |

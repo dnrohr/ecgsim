@@ -8,8 +8,9 @@ This document maps visualization modes to current automated evidence. It tracks 
 
 | Area | Visual mode or workflow | Current evidence | Coverage strength | Gap |
 | --- | --- | --- | --- | --- |
-| Workspace | Four-pane launch layout | `app/viewer/scripts/app-test.mjs` checks shell layout and task `0085` adds first-viewport canvas visibility assertions | strong for default layout | Does not yet test resizable panes or visual mode navigator |
+| Workspace | Four-pane launch layout | `app/viewer/scripts/app-test.mjs` checks shell layout and task `0085` adds first-viewport canvas visibility assertions | strong for default layout | Does not yet test resizable panes |
 | Workspace | Pane mode/provenance labels | App workflow checks launch badges and representative Heart/Thorax/TMP/Leads mode transitions | medium | Needs per-mode coverage expansion in `0101` |
+| Workspace | Visual mode navigator | App workflow selects representative Heart, Thorax, TMP, and Leads destinations through toolbar navigator | medium | Does not yet enumerate every visual matrix row |
 | Heart | Geometry render | App workflow checks nonblank WebGL canvas and metadata | strong smoke | No pane-level legacy screenshot comparison |
 | Heart | Depolarization/repolarization | App workflow switches modes and checks canvas signature changes/status | strong smoke | No exact legacy colormap or scale parity |
 | Heart | ARI | App workflow switches mode and checks canvas signature change/status | strong smoke | No legacy ARI reference scale |

@@ -76,6 +76,7 @@ async function assertInitialState(page) {
   assert.ok(await canvasHasContent(page, ".thorax-viewport canvas"), "thorax WebGL canvas should be nonblank");
   await assertCoreVisualsVisible(page);
   await assertPaneBadges(page);
+  await assertVisualModeNavigator(page);
   await assertVisualPngExports(page);
   await assertMovieExport(page);
   await expectText(page, "[data-time-status]", "0 ms / 575 ms");
@@ -89,6 +90,42 @@ async function assertPaneBadges(page) {
   await expectText(page, "[data-tmp-mode-badge]", "initial+adapted");
   await expectText(page, "[data-tmp-provenance-badge]", "Source params");
   await expectText(page, "[data-leads-mode-badge]", "BASELINE");
+  await expectText(page, "[data-leads-provenance-badge]", "Case signals");
+}
+
+async function assertVisualModeNavigator(page) {
+  const navigator = page.locator("[data-visual-mode-navigator]");
+  assert.equal(await navigator.isEnabled(), true, "visual mode navigator should be enabled at launch");
+
+  await navigator.selectOption("heart-ari");
+  await expectText(page, "[data-heart-mode-badge]", "ARI");
+  await expectText(page, "[data-heart-provenance-badge]", "Derived ARI");
+  assert.equal(await page.locator("[data-heart-surface]").inputValue(), "ariMs", "navigator should set Heart surface mode");
+
+  await navigator.selectOption("thorax-measured");
+  await expectText(page, "[data-thorax-mode-badge]", "Measured BSPM");
+  await expectText(page, "[data-thorax-provenance-badge]", "Case BSPM");
+  assert.equal(await page.locator("[data-thorax-surface]").inputValue(), "measured", "navigator should set Thorax surface mode");
+
+  await navigator.selectOption("leads-vcg");
+  await expectText(page, "[data-leads-metadata]", "VCG_(Frank)");
+  assert.equal(await page.locator("[data-leads-system]").inputValue(), "VCG_(Frank)", "navigator should select Frank VCG traces");
+
+  await navigator.selectOption("leads-adapted");
+  await expectText(page, "[data-leads-provenance-badge]", "Recomputed");
+  assert.equal(await page.locator("[data-leads-adapted]").isChecked(), true, "navigator should enable adapted lead recompute");
+
+  await page.locator("[data-tmp-show-initial]").uncheck();
+  await expectText(page, "[data-tmp-mode-badge]", "adapted");
+  await navigator.selectOption("tmp-traces");
+  await expectText(page, "[data-tmp-mode-badge]", "initial+adapted");
+  assert.equal(await page.locator("[data-tmp-show-initial]").isChecked(), true, "navigator should restore initial TMP traces");
+
+  await navigator.selectOption("heart-geometry");
+  await navigator.selectOption("thorax-geometry");
+  await navigator.selectOption("leads-case");
+  await expectText(page, "[data-heart-mode-badge]", "Geometry");
+  await expectText(page, "[data-thorax-mode-badge]", "Geometry");
   await expectText(page, "[data-leads-provenance-badge]", "Case signals");
 }
 

@@ -137,6 +137,10 @@ h2 {
   font-size: 12px;
 }
 
+.visual-mode-navigator select {
+  min-width: 190px;
+}
+
 .toolbar-mode-group {
   flex-wrap: wrap;
   border-right: 0;

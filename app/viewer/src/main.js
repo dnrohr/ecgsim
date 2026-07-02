@@ -51,6 +51,7 @@ const caseValidation = document.querySelector("[data-case-validation]");
 const caseNotice = document.querySelector("[data-case-notice]");
 const statusMessage = document.querySelector("[data-status-message]");
 const toolbarLeadSystem = document.querySelector("[data-toolbar-lead-system]");
+const visualModeNavigator = document.querySelector("[data-visual-mode-navigator]");
 const timeStepBack = document.querySelector("[data-time-step-back]");
 const timePlay = document.querySelector("[data-time-play]");
 const timeStepForward = document.querySelector("[data-time-step-forward]");
@@ -159,6 +160,131 @@ function setPaneBadges(modeElement, provenanceElement, modeText, provenanceText,
   if (provenanceElement) {
     provenanceElement.value = provenanceText;
     provenanceElement.title = detailText;
+  }
+}
+
+function dispatchChange(control) {
+  control?.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function selectControlValue(control, value) {
+  if (!control) {
+    return false;
+  }
+  const option = [...control.options].find((item) => item.value === value && !item.disabled);
+  if (!option) {
+    return false;
+  }
+  control.value = value;
+  dispatchChange(control);
+  return true;
+}
+
+function scrollPaneIntoView(paneName) {
+  document.querySelector(`[data-pane="${paneName}"]`)?.scrollIntoView({
+    block: "nearest",
+    inline: "nearest",
+  });
+}
+
+function setCheckboxControl(control, checked) {
+  if (!control || control.disabled) {
+    return false;
+  }
+  control.checked = checked;
+  dispatchChange(control);
+  return true;
+}
+
+function selectVisualMode(mode) {
+  const unavailable = (message) => {
+    if (statusMessage) {
+      statusMessage.value = message;
+    }
+  };
+  switch (mode) {
+    case "heart-geometry":
+      scrollPaneIntoView("heart");
+      selectControlValue(heartSurface, "geometry");
+      break;
+    case "heart-depolarization":
+      scrollPaneIntoView("heart");
+      selectControlValue(heartValues, "adapted");
+      selectControlValue(heartSurface, "depolarizationMs");
+      break;
+    case "heart-ari":
+      scrollPaneIntoView("heart");
+      selectControlValue(heartValues, "adapted");
+      selectControlValue(heartSurface, "ariMs");
+      break;
+    case "heart-tmp-time":
+      scrollPaneIntoView("heart");
+      selectControlValue(heartValues, "adapted");
+      selectControlValue(heartSurface, "tmpAtTime");
+      break;
+    case "heart-contribution":
+      scrollPaneIntoView("heart");
+      if (!selectControlValue(heartSurface, "thoraxContribution")) {
+        unavailable("Heart contribution view is unavailable.");
+      }
+      break;
+    case "thorax-geometry":
+      scrollPaneIntoView("thorax");
+      selectControlValue(thoraxSurface, "geometry");
+      break;
+    case "thorax-measured":
+      scrollPaneIntoView("thorax");
+      if (!selectControlValue(thoraxSurface, "measured")) {
+        unavailable("Measured thorax BSPM is unavailable for this case.");
+      }
+      break;
+    case "thorax-initial":
+      scrollPaneIntoView("thorax");
+      if (!selectControlValue(thoraxSurface, "initial")) {
+        unavailable("Initial thorax BSPM recompute is unavailable for this case.");
+      }
+      break;
+    case "thorax-adapted":
+      scrollPaneIntoView("thorax");
+      if (!selectControlValue(thoraxSurface, "adapted")) {
+        unavailable("Adapted thorax BSPM recompute is unavailable for this case.");
+      }
+      break;
+    case "thorax-sensitivity":
+      scrollPaneIntoView("thorax");
+      if (!selectControlValue(thoraxSurface, "sensitivity")) {
+        unavailable("Thorax sensitivity view is unavailable for this case.");
+      }
+      break;
+    case "tmp-traces":
+      scrollPaneIntoView("tmp");
+      setCheckboxControl(tmpShowInitial, true);
+      setCheckboxControl(tmpShowAdapted, true);
+      setCheckboxControl(tmpGrid, true);
+      break;
+    case "leads-case":
+      scrollPaneIntoView("leads");
+      selectControlValue(leadsSource, "case");
+      selectControlValue(leadsSystem, currentCaseMetadata?.leadSystems?.[0] ?? "");
+      setCheckboxControl(leadsAdapted, false);
+      selectControlValue(leadsFilter, "baseline");
+      break;
+    case "leads-adapted":
+      scrollPaneIntoView("leads");
+      selectControlValue(leadsSource, "case");
+      if (!setCheckboxControl(leadsAdapted, true)) {
+        unavailable("Adapted lead ECG recompute is unavailable for this case.");
+      }
+      break;
+    case "leads-vcg":
+      scrollPaneIntoView("leads");
+      selectControlValue(leadsSource, "case");
+      if (!selectControlValue(leadsSystem, "VCG_(Frank)")) {
+        unavailable("Frank VCG lead system is unavailable for this case.");
+      }
+      break;
+    default:
+      unavailable("Visual mode is unavailable.");
   }
 }
 
@@ -2483,6 +2609,10 @@ function applyCaseBundle(bundle, noticeText) {
       stepTime(event.key === "ArrowLeft" ? -2 : 2);
     }
   };
+  if (visualModeNavigator) {
+    visualModeNavigator.value = "heart-geometry";
+    visualModeNavigator.onchange = () => selectVisualMode(visualModeNavigator.value);
+  }
   redrawSignals();
 }
 
