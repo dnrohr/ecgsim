@@ -356,28 +356,40 @@ async function assertLeadsFiltering(page) {
 async function assertLinkedTimeCursor(page) {
   const leadsCanvas = "[data-leads-canvas]";
   const tmpCanvas = "[data-tmp-canvas]";
+  const heartCanvas = ".heart-viewport canvas";
   const thoraxCanvas = ".thorax-viewport canvas";
   await expectText(page, "[data-time-status]", "0 ms / 575 ms");
+  await page.locator("[data-heart-surface]").selectOption("tmpAtTime");
+  await page.locator("[data-thorax-surface]").selectOption("measured");
   const leadsCursorBefore = await yellowCursorX(page, leadsCanvas);
   const tmpCursorBefore = await yellowCursorX(page, tmpCanvas);
+  const heartBefore = await canvasSignature(page, heartCanvas);
   const thoraxBefore = await canvasSignature(page, thoraxCanvas);
 
   await page.locator("[data-time-step-forward]").click();
   await expectText(page, "[data-time-status]", "2 ms / 575 ms");
+  await expectText(page, "[data-heart-surface-status]", "TMP at time / adapted / 2 ms");
 
   await setRangeValue(page, "[data-time-cursor]", "120");
   await expectText(page, "[data-time-status]", "120 ms / 575 ms");
+  await expectText(page, "[data-heart-surface-status]", "TMP at time / adapted / 120 ms");
   assert.ok(await yellowCursorX(page, leadsCanvas) > leadsCursorBefore + 20, "Time range should move Leads cursor line");
   assert.ok(await yellowCursorX(page, tmpCanvas) > tmpCursorBefore + 20, "Time range should move TMP cursor line");
+  assert.notEqual(await canvasSignature(page, heartCanvas), heartBefore, "Time range should update Heart TMP-at-time colors");
   assert.notEqual(await canvasSignature(page, thoraxCanvas), thoraxBefore, "Time range should update measured Thorax BSPM colors");
 
   await page.locator(tmpCanvas).focus();
   await page.keyboard.press("ArrowRight");
   await expectText(page, "[data-time-status]", "122 ms / 575 ms");
 
+  const heartBeforePlayback = await canvasSignature(page, heartCanvas);
+  const thoraxBeforePlayback = await canvasSignature(page, thoraxCanvas);
   await page.locator("[data-time-play]").click();
   await expectText(page, "[data-time-play]", "Pause");
   await page.waitForFunction(() => document.querySelector("[data-time-cursor]")?.value !== "122");
+  await page.waitForTimeout(150);
+  assert.notEqual(await canvasSignature(page, heartCanvas), heartBeforePlayback, "Playback should update Heart TMP-at-time colors");
+  assert.notEqual(await canvasSignature(page, thoraxCanvas), thoraxBeforePlayback, "Playback should update Thorax BSPM colors");
   await page.locator("[data-time-play]").click();
   await expectText(page, "[data-time-play]", "Play");
 

@@ -27,3 +27,12 @@ Time state already links several panes. New TMP-at-time, recomputed BSPM, and mo
 ## Done When
 
 Time-linked behavior is predictable across all implemented dynamic views.
+
+## Completion Notes
+
+Status: complete.
+
+- Audited current time-dependent views: Leads cursor, TMP cursor, Heart TMP-at-time, and Thorax BSPM.
+- Expanded browser workflow coverage so toolbar step, slider changes, TMP keyboard step, plot interaction, and playback are checked against those views.
+- Verified playback updates Heart TMP-at-time and measured Thorax BSPM canvases, not just the shared numeric cursor.
+- Movie export and interval/beat zoom behavior remain separate roadmap tasks.

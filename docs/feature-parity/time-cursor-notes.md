@@ -1,6 +1,6 @@
 # Time Cursor Notes
 
-Status: updated through task `0071`.
+Status: updated through task `0074`.
 
 ## Supported In Current Viewer
 
@@ -12,6 +12,7 @@ Status: updated through task `0071`.
 - Time status reports current milliseconds and available shared duration.
 - Heart TMP-at-time coloring follows the shared cursor.
 - Thorax measured, initial, and adapted BSPM modes follow the shared cursor when their data/recompute prerequisites are available.
+- Browser workflow coverage exercises toolbar stepping, slider changes, TMP keyboard stepping, plot-click cursor updates, and playback across Leads, TMP, Heart TMP-at-time, and Thorax BSPM.
 
 ## Current Limitations
 
