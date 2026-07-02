@@ -1,6 +1,13 @@
 import { readFile } from "node:fs/promises";
 import { baselineWindowForSignal, buildRmsTrace, filterSignal } from "../src/filtering.js";
 import {
+  applyFocusSelection,
+  createFocusEditState,
+  fastestRouteActivationTimes,
+  previewFocusActivation,
+  updateFocusParameters,
+} from "../src/focus-editing.js";
+import {
   canRecomputeLeadTraces,
   recomputeLeadTraces,
   recomputeThoraxSurfaceSample,
@@ -94,6 +101,15 @@ const required = [
   "data-tmp-keep-apd",
   "data-tmp-show-egm",
   "data-tmp-parameter-status",
+  "data-focus-source",
+  "data-focus-use-selection",
+  "data-focus-node",
+  "data-focus-time",
+  "data-focus-velocity",
+  "data-focus-preview",
+  "data-focus-opposite-wall",
+  "data-focus-write-raw",
+  "data-focus-status",
   "data-leads-metadata",
   "data-leads-system",
   "data-leads-filter",
@@ -135,7 +151,8 @@ if (
   caseFixture.leadSystemDetails[2].electrodes.length !== 65 ||
   caseFixture.validation?.status !== "partial" ||
   caseFixture.validation?.unsupportedPayloadCount !== 7 ||
-  !caseFixture.validation?.unavailableCapabilities?.includes("measured/initial ECG classification and WCT/reference lead transform")
+  !caseFixture.validation?.unavailableCapabilities?.includes("measured/initial ECG classification and WCT/reference lead transform") ||
+  !caseFixture.validation?.unavailableCapabilities?.includes("legacy focus raw-field mutation and opposite-wall mapping")
 ) {
   console.error("Unexpected case metadata fixture");
   process.exit(1);
@@ -152,6 +169,48 @@ if (
   !caseManifest.cases.some((entry) => entry.fileName === "WPW_fusionbeat.ECGsimcase")
 ) {
   console.error("Unexpected supported case manifest");
+  process.exit(1);
+}
+const wpwBundleEntry = caseManifest.cases.find((entry) => entry.fileName === "WPW_Bundleonly.ECGsimcase");
+const wpwBundle = JSON.parse(
+  await readFile(new URL(`../public/fixtures/cases/${wpwBundleEntry.bundle}`, import.meta.url), "utf8"),
+);
+const normalFocusState = createFocusEditState(caseFixture, tmpFixture.nodeCount);
+if (normalFocusState.isSupported) {
+  console.error("Normal case should not enable WPW focus preview tools");
+  process.exit(1);
+}
+const wpwFocusState = createFocusEditState(wpwBundle.caseMetadata, wpwBundle.tmpWaveforms.nodeCount);
+if (
+  !wpwFocusState.isSupported ||
+  wpwFocusState.source.entryCount !== 697 ||
+  !applyFocusSelection(wpwFocusState, 12) ||
+  !updateFocusParameters(wpwFocusState, { focusNode: "13", focusTimeMs: "8", velocityMmPerMs: "2" })
+) {
+  console.error("WPW focus edit state did not initialize or accept safe preview edits");
+  process.exit(1);
+}
+const wpwPreview = previewFocusActivation(wpwFocusState);
+if (
+  wpwPreview.node !== 12 ||
+  wpwPreview.reachableCount !== wpwBundle.tmpWaveforms.nodeCount ||
+  wpwPreview.minMs !== 8 ||
+  wpwPreview.maxMs <= wpwPreview.minMs
+) {
+  console.error("WPW focus preview did not recompute expected route summary");
+  process.exit(1);
+}
+const routeTimes = fastestRouteActivationTimes(
+  4,
+  [
+    { nodeA: 0, nodeB: 1, length: 2, velocity: 1 },
+    { nodeA: 1, nodeB: 2, length: 2, velocity: 1 },
+    { nodeA: 2, nodeB: 3, length: 2, velocity: 1 },
+  ],
+  [{ node: 2, time: 5 }],
+);
+if (routeTimes.join(",") !== "9,7,5,7") {
+  console.error("Focus fastest-route recomputation failed");
   process.exit(1);
 }
 

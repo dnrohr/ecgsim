@@ -313,7 +313,7 @@ def case_validation_payload(case) -> dict[str, object]:
 
     for source in case.sources:
         if source.kind == "ventricles" and source.activation and source.activation.interpretation:
-            unavailable.append("interactive focus editing from activation construction records")
+            unavailable.append("legacy focus raw-field mutation and opposite-wall mapping")
             break
 
     unavailable.append("endocardial/epicardial and transmural wall mapping")

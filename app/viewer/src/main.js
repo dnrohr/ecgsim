@@ -1,6 +1,12 @@
 import * as THREE from "three";
 import { baselineWindowForSignal, buildRmsTrace, filterTraces } from "./filtering.js";
 import {
+  applyFocusSelection,
+  createFocusEditState,
+  previewFocusActivation,
+  updateFocusParameters,
+} from "./focus-editing.js";
+import {
   canRecomputeLeadTraces,
   canUseThoraxTransfer,
   recomputeLeadTraces,
@@ -92,6 +98,15 @@ const tmpCombineHandlers = document.querySelector("[data-tmp-combine-handlers]")
 const tmpKeepApd = document.querySelector("[data-tmp-keep-apd]");
 const tmpShowEgm = document.querySelector("[data-tmp-show-egm]");
 const tmpParameterStatus = document.querySelector("[data-tmp-parameter-status]");
+const focusSource = document.querySelector("[data-focus-source]");
+const focusUseSelection = document.querySelector("[data-focus-use-selection]");
+const focusNode = document.querySelector("[data-focus-node]");
+const focusTime = document.querySelector("[data-focus-time]");
+const focusVelocity = document.querySelector("[data-focus-velocity]");
+const focusPreview = document.querySelector("[data-focus-preview]");
+const focusOppositeWall = document.querySelector("[data-focus-opposite-wall]");
+const focusWriteRaw = document.querySelector("[data-focus-write-raw]");
+const focusStatus = document.querySelector("[data-focus-status]");
 
 const selectionState = {
   nodeIndex: -1,
@@ -1521,6 +1536,100 @@ function mountTmpEditing(fixture, onRecompute = () => {}) {
   return { syncControls, redrawTmp, getState: () => tmpEditState };
 }
 
+function mountFocusEditing(metadata, tmpFixture) {
+  if (
+    !focusSource ||
+    !focusUseSelection ||
+    !focusNode ||
+    !focusTime ||
+    !focusVelocity ||
+    !focusPreview ||
+    !focusOppositeWall ||
+    !focusWriteRaw ||
+    !focusStatus
+  ) {
+    throw new Error("Focus editing controls did not mount");
+  }
+
+  const state = createFocusEditState(metadata, tmpFixture.nodeCount);
+  const controls = [focusNode, focusTime, focusVelocity, focusUseSelection, focusPreview];
+  focusSource.replaceChildren();
+  const sourceOption = document.createElement("option");
+  sourceOption.value = state.source?.sourceId ?? "unavailable";
+  sourceOption.textContent = state.source
+    ? `${state.source.sourceKind} / ${state.source.entryCount} records`
+    : "Unavailable";
+  focusSource.appendChild(sourceOption);
+  focusSource.disabled = !state.isSupported;
+  focusSource.title = state.source?.interpretation ?? state.unavailableReason;
+
+  focusOppositeWall.disabled = true;
+  focusOppositeWall.title = "Opposite-wall focus mapping requires decoded wall-pair payloads.";
+  focusWriteRaw.disabled = true;
+  focusWriteRaw.title = "Raw PActivationConstruction field mutation is disabled until field semantics are confirmed.";
+
+  function syncControls() {
+    const canUseSelection = state.isSupported
+      && selectionState.nodeIndex >= 0
+      && selectionState.nodeIndex < state.nodeCount;
+    controls.forEach((control) => {
+      control.disabled = !state.isSupported;
+    });
+    focusUseSelection.disabled = !canUseSelection;
+    focusNode.value = state.isSupported ? String(state.focusNode + 1) : "";
+    focusTime.value = state.isSupported ? String(roundForDisplay(state.focusTimeMs, 3)) : "";
+    focusVelocity.value = state.isSupported ? String(roundForDisplay(state.velocityMmPerMs, 3)) : "";
+    if (!state.isSupported) {
+      focusStatus.value = state.unavailableReason;
+    } else if (state.preview) {
+      focusStatus.value =
+        `Preview ${state.preview.graph}: node ${state.preview.node + 1}, ` +
+        `${roundForDisplay(state.preview.minMs, 2)}-${roundForDisplay(state.preview.maxMs, 2)} ms, ` +
+        `${state.preview.reachableCount} nodes`;
+    } else {
+      focusStatus.value =
+        `WPW focus records inspectable; preview route starts at node ${state.focusNode + 1}.`;
+    }
+  }
+
+  function applyInputsAndPreview() {
+    const ok = updateFocusParameters(state, {
+      focusNode: focusNode.value,
+      focusTimeMs: focusTime.value,
+      velocityMmPerMs: focusVelocity.value,
+    });
+    if (!ok) {
+      focusStatus.value = "Focus preview rejected invalid node, time, or velocity.";
+      return;
+    }
+    previewFocusActivation(state);
+    setTmpStatus("Focus activation preview recomputed.");
+    syncControls();
+  }
+
+  focusUseSelection.onclick = () => {
+    if (applyFocusSelection(state, selectionState.nodeIndex)) {
+      state.preview = null;
+      setTmpStatus(`Focus preview node set to heart node ${selectionState.nodeIndex + 1}.`);
+    }
+    syncControls();
+  };
+  focusPreview.onclick = applyInputsAndPreview;
+  focusNode.onchange = applyInputsAndPreview;
+  focusTime.onchange = applyInputsAndPreview;
+  focusVelocity.onchange = applyInputsAndPreview;
+  syncControls();
+
+  return { syncControls, getState: () => state };
+}
+
+function roundForDisplay(value, decimals) {
+  if (!Number.isFinite(value)) {
+    return "--";
+  }
+  return Number(value.toFixed(decimals));
+}
+
 function sidecarFileName(metadata) {
   const baseName = metadata?.fileName
     ? metadata.fileName.replace(/\.[^.]+$/, "")
@@ -1844,16 +1953,20 @@ function applyCaseBundle(bundle, noticeText) {
   tmpCanvas = document.querySelector("[data-tmp-canvas]");
   let thoraxView = null;
   let redrawSignals = () => {};
+  let focusEditing = null;
   const tmpEditing = mountTmpEditing(bundle.tmpWaveforms, () => {
     thoraxView?.redrawThoraxMap();
     redrawSignals();
   });
+  focusEditing = mountFocusEditing(bundle.caseMetadata, bundle.tmpWaveforms);
   mountHeart(bundle.heart, bundle.tmpWaveforms, bundle.caseMetadata.wallMapping, () => {
     tmpEditing.syncControls();
+    focusEditing.syncControls();
     thoraxView?.redrawThoraxMap();
   });
   thoraxView = mountThorax(bundle.thorax, bundle.ecgSignals, () => tmpEditing.getState());
   tmpEditing.syncControls();
+  focusEditing.syncControls();
   syncLeadOverlayControls(bundle.ecgSignals, tmpEditing.getState());
   const leadsCanvas = document.querySelector("[data-leads-canvas]");
   redrawSignals = () => plotSignals(leadsCanvas, bundle.ecgSignals, {

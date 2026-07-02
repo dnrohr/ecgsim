@@ -124,7 +124,7 @@ Each task should end with:
 - [x] [0067 Implement Initial Adapted And Sensitivity BSPM Modes](0067-implement-initial-adapted-and-sensitivity-bspm-modes.md)
 - [x] [0068 Decode Or Derive Case Fiducials](0068-decode-or-derive-case-fiducials.md)
 - [x] [0069 Capture Additional Numerical Parity Scenarios](0069-capture-additional-numerical-parity-scenarios.md)
-- [ ] [0070 Implement Focus Editing Workflow](0070-implement-focus-editing-workflow.md)
+- [x] [0070 Implement Focus Editing Workflow](0070-implement-focus-editing-workflow.md)
 
 ## NF3: Visualization And Workflow Depth
 

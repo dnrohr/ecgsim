@@ -46,7 +46,7 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | Heart View | Select node | partial | P0 | `0037` | Needs real source-node mapping. |
 | Heart View | Radius/selected zone | partial | P0 | `0044` | Radius, transition zone, and weighted region selection are implemented; exact legacy contour behavior is unverified. |
 | Heart View | Probe mode | unsupported | P1 | `0042` | Requires sensitivity map and transfer data. |
-| Heart View | Foci edit mode | partial | P1 | `0050` | Activation/focus payloads are parsed and graph solver exists; interactive focus editing is not implemented. |
+| Heart View | Foci edit mode | partial | P1 | `0070` | WPW activation records are inspectable and selected heart nodes can drive a focus route preview; exact legacy raw-field edits remain unavailable. |
 | Heart View | Atria/ventricles source switch | partial | P1 | `0031` | Source inventory is parsed; viewer editing remains ventricular-only. |
 | Heart View | Initial/adapted display | partial | P0 | `0037` | Heart view must switch visual state, not only TMP plot. |
 | Heart View | Depolarization surface function | partial | P0 | `0037` | Implemented from parsed source parameters for supported cases; legacy colormap parity unverified. |
@@ -112,9 +112,9 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | Tools, Focus, And Preferences | Global TMP shape adjustments | unsupported | P1 | `0040` | Requires edit transaction model. |
 | Tools, Focus, And Preferences | Timing supervision | unsupported | P1 | `0040` | Add validation when global edits exist. |
 | Tools, Focus, And Preferences | Transition zone editor | partial | P1 | `0044` | Transition-zone radius control exists in Heart selection; legacy tool panel parity is incomplete. |
-| Tools, Focus, And Preferences | Foci edit dock | partial | P1 | `0050` | Activation payload parser and graph solver exist; UI dock editing is not implemented. |
+| Tools, Focus, And Preferences | Foci edit dock | partial | P1 | `0070` | TMP pane Focus controls expose WPW activation records and preview focus route edits; a dockable legacy-style tool remains unnecessary unless workflow testing requires it. |
 | Tools, Focus, And Preferences | Focus opposite wall | deferred | P1 | `0050` | Requires confirmed wall mapping before enabling. |
-| Tools, Focus, And Preferences | Focus propagation velocity | partial | P1 | `0050` | Fastest-route solver accepts graph weights; legacy focus velocity UI is not implemented. |
+| Tools, Focus, And Preferences | Focus propagation velocity | partial | P1 | `0070` | WPW Focus controls accept a preview velocity for deterministic route recomputation; decoded graph-geometry velocity parity remains future work. |
 | Tools, Focus, And Preferences | Global repolarization | unsupported | P1 | `0049` | Needs equations and parity data. |
 | Tools, Focus, And Preferences | Preferences modal | unsupported | P2 | `0036` | Modern settings may replace modal behavior. |
 | Tools, Focus, And Preferences | Color scale preferences | unsupported | P1 | `0042` | Needed for map/surface views. |

@@ -67,6 +67,7 @@ async function assertInitialState(page) {
   await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz / initial+adapted");
   await expectText(page, "[data-leads-metadata]", "standard_12: 9 electrode traces / 12 leads / plotted 9 / 576 samples / 1000 Hz / BASELINE / 100%");
   await expectText(page, "[data-case-validation]", "Partial: 7 unsupported payload groups / 4 unavailable capabilities");
+  await expectText(page, "[data-focus-status]", "Focus preview is enabled only for supported WPW cases");
 
   assert.ok(await canvasHasContent(page, "[data-leads-canvas]"), "leads canvas should be nonblank");
   assert.ok(await canvasHasContent(page, "[data-tmp-canvas]"), "TMP canvas should be nonblank");
@@ -118,6 +119,16 @@ async function assertImportNotices(page) {
     await page.locator("[data-leads-system]").selectOption("BSM_(amsterdam_64)");
     await expectText(page, "[data-leads-metadata]", "BSM_(amsterdam_64): 65 electrode traces");
   }
+
+  await expectText(page, "[data-focus-source]", "ventricles / 697 records");
+  await expectText(page, "[data-focus-status]", "WPW focus records inspectable");
+  assert.equal(await page.locator("[data-focus-opposite-wall]").isDisabled(), true, "Opposite-wall focus mapping should remain unavailable");
+  assert.equal(await page.locator("[data-focus-write-raw]").isDisabled(), true, "Raw focus field writes should remain unavailable");
+  await selectHeartNode(page);
+  assert.equal(await page.locator("[data-focus-use-selection]").isEnabled(), true, "WPW selected heart node should enable focus preview selection");
+  await page.locator("[data-focus-use-selection]").click();
+  await page.locator("[data-focus-preview]").click();
+  await expectText(page, "[data-focus-status]", "Preview linear-index-preview");
 
   const unsupportedPath = resolve(tmpdir(), "unsupported.ECGsimcase");
   writeFileSync(unsupportedPath, "not an ecgsim case");

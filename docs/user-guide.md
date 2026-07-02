@@ -4,7 +4,7 @@ Status: current guide for the modern ECGSIM static viewer, Python tools, and kno
 
 ## What This App Is Today
 
-Modern ECGSIM is currently a static browser viewer plus Python parser/export tools. It can inspect supported legacy case data, render the main ECGSIM workspaces, edit ventricular TMP source parameters in a modern sidecar workflow, export useful data subsets, and validate release candidates.
+Modern ECGSIM is currently a static browser viewer plus Python parser/export tools. It can inspect supported legacy case data, render the main ECGSIM workspaces, edit ventricular TMP source parameters in a modern sidecar workflow, preview WPW focus activation routes, export useful data subsets, and validate release candidates.
 
 It is not yet a full scientific replacement for the legacy ECGSIM application. Full TMP generation parity, recomputation after edits, arbitrary browser-side `.ECGsimcase` parsing, and legacy `.ECGsimcase` write-back remain unsupported.
 
@@ -97,8 +97,10 @@ research/source/www.ecgsim.org/downloads/cases/WPW_ectopicbeat.ECGsimcase
 2. Confirm the case status changes to the selected WPW file.
 3. Review Heart and Thorax geometry counts and lead-system metadata.
 4. Repeat the Heart selection and TMP edit workflow.
-5. Save a `.source-edits.json` sidecar for the WPW case.
-6. Switch back to `normal_male2.ECGsimcase` and confirm the sidecar is rejected if imported into the wrong case.
+5. In TMP, use the Focus controls to inspect ventricular activation records, copy the selected heart node into the focus preview, and recompute the preview route.
+6. Confirm Opposite wall and Write raw fields remain disabled; those require decoded wall-pair and raw activation-field semantics.
+7. Save a `.source-edits.json` sidecar for the WPW case.
+8. Switch back to `normal_male2.ECGsimcase` and confirm the sidecar is rejected if imported into the wrong case.
 
 ## Python CLI Tools
 
@@ -157,6 +159,7 @@ Current unsupported outputs:
 
 - TMP waveform generation is calibrated against the normal male ECGSIM 3.0.1 `.user.source` export; additional cases and edited-source workflows still need parity coverage.
 - Initial/adapted Thorax BSPM, sensitivity maps, and adapted lead traces recompute when the generated bundle includes the ventricles-to-thorax transfer candidate.
+- WPW Focus controls use a documented `linear-index-preview` route calculation for safe UI workflow testing. The preview does not write raw activation construction fields and does not yet propagate into TMP, ECG, or BSPM recomputation.
 - Baseline coupling reports whether fiducials are available. `normal_male2` uses derived samples `(5, 499)` from the promoted ECGSIM 3.0.1 `standard_12.adaptECG` export; WPW bundles still use fallback signal endpoints because P-wave/T-wave samples have not been located or derived for those cases.
 - The Validation field summarizes known partial-support limits for the loaded bundle; it is not a failure when the main views remain available.
 - Endocardial/epicardial and transmural controls are disabled until explicit wall pairings are parsed.
@@ -171,6 +174,7 @@ Automated coverage includes:
 - Viewer smoke tests.
 - Full browser workflow tests against the source viewer.
 - Full browser workflow tests against the static package.
+- WPW focus inspection and preview recomputation checks.
 - PNG export checks for all primary panes.
 - Source edit sidecar download/import checks.
 - Release validation logs and packaged screenshot capture.
