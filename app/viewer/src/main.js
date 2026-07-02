@@ -70,6 +70,8 @@ const heartValues = document.querySelector("[data-heart-values]");
 const heartWall = document.querySelector("[data-heart-wall]");
 const heartTransmural = document.querySelector("[data-heart-transmural]");
 const heartSurfaceStatus = document.querySelector("[data-heart-surface-status]");
+const heartModeBadge = document.querySelector("[data-heart-mode-badge]");
+const heartProvenanceBadge = document.querySelector("[data-heart-provenance-badge]");
 const thoraxViewport = document.querySelector("[data-thorax-viewport]");
 const thoraxMetadata = document.querySelector("[data-thorax-metadata]");
 const thoraxAp = document.querySelector("[data-thorax-ap]");
@@ -80,6 +82,8 @@ const thoraxScale = document.querySelector("[data-thorax-scale]");
 const thoraxElectrodes = document.querySelector("[data-thorax-electrodes]");
 const thoraxSurfaceStatus = document.querySelector("[data-thorax-surface-status]");
 const thoraxSelection = document.querySelector("[data-thorax-selection]");
+const thoraxModeBadge = document.querySelector("[data-thorax-mode-badge]");
+const thoraxProvenanceBadge = document.querySelector("[data-thorax-provenance-badge]");
 const leadsMetadata = document.querySelector("[data-leads-metadata]");
 const leadsSource = document.querySelector("[data-leads-source]");
 const leadsSystem = document.querySelector("[data-leads-system]");
@@ -92,6 +96,8 @@ const leadsGrid = document.querySelector("[data-leads-grid]");
 const leadsImport = document.querySelector("[data-leads-import]");
 const leadsScale = document.querySelector("[data-leads-scale]");
 const leadsStatus = document.querySelector("[data-leads-status]");
+const leadsModeBadge = document.querySelector("[data-leads-mode-badge]");
+const leadsProvenanceBadge = document.querySelector("[data-leads-provenance-badge]");
 const tmpMetadata = document.querySelector("[data-tmp-metadata]");
 const tmpShowInitial = document.querySelector("[data-tmp-show-initial]");
 const tmpShowAdapted = document.querySelector("[data-tmp-show-adapted]");
@@ -113,6 +119,8 @@ const tmpCombineHandlers = document.querySelector("[data-tmp-combine-handlers]")
 const tmpKeepApd = document.querySelector("[data-tmp-keep-apd]");
 const tmpShowEgm = document.querySelector("[data-tmp-show-egm]");
 const tmpParameterStatus = document.querySelector("[data-tmp-parameter-status]");
+const tmpModeBadge = document.querySelector("[data-tmp-mode-badge]");
+const tmpProvenanceBadge = document.querySelector("[data-tmp-provenance-badge]");
 const focusSource = document.querySelector("[data-focus-source]");
 const focusUseSelection = document.querySelector("[data-focus-use-selection]");
 const focusNode = document.querySelector("[data-focus-node]");
@@ -142,6 +150,17 @@ let currentCaseMetadata = null;
 let importedEcgSignals = null;
 let timeTimer = null;
 let redrawTimeDependents = () => {};
+
+function setPaneBadges(modeElement, provenanceElement, modeText, provenanceText, detailText = provenanceText) {
+  if (modeElement) {
+    modeElement.value = modeText;
+    modeElement.title = modeText;
+  }
+  if (provenanceElement) {
+    provenanceElement.value = provenanceText;
+    provenanceElement.title = detailText;
+  }
+}
 
 const timeState = {
   sample: 0,
@@ -388,6 +407,13 @@ function mountHeart(
       }
       updateContourOverlay([]);
       heartSurfaceStatus.value = "Geometry";
+      setPaneBadges(
+        heartModeBadge,
+        heartProvenanceBadge,
+        "Geometry",
+        "Parsed mesh",
+        "Parsed PGeometry heart mesh from the loaded ECGSIM case bundle.",
+      );
     } else {
       const tmpState = getTmpEditState() ?? createTmpEditState(tmpFixture);
       const contribution = surface === "thoraxContribution" ? getContributionValues() : null;
@@ -406,14 +432,44 @@ function mountHeart(
       if (surface === "tmpAtTime") {
         const sampleMs = Math.round((timeState.sample / tmpState.sampleRateHz) * 1000);
         heartSurfaceStatus.value = `${label} / ${valueState} / ${sampleMs} ms`;
+        setPaneBadges(
+          heartModeBadge,
+          heartProvenanceBadge,
+          label,
+          `${valueState} TMP`,
+          `Generated ${valueState} TMP waveform values at ${sampleMs} ms from source parameters.`,
+        );
       } else if (surface === "thoraxContribution") {
         heartSurfaceStatus.value = contribution
           ? `${label} / thorax node ${contribution.thoraxNodeIndex + 1}`
           : `${label} / select thorax node`;
+        setPaneBadges(
+          heartModeBadge,
+          heartProvenanceBadge,
+          label,
+          contribution ? "Transfer row" : "Select thorax",
+          contribution
+            ? `Ventricles-to-thorax transfer row for thorax node ${contribution.thoraxNodeIndex + 1}.`
+            : "Select a thorax node to map transfer contribution back onto the heart.",
+        );
       } else if (surface === "ariMs") {
         heartSurfaceStatus.value = `${label} / ${valueState} / ms`;
+        setPaneBadges(
+          heartModeBadge,
+          heartProvenanceBadge,
+          label,
+          "Derived ARI",
+          `Derived from ${valueState} repolarization minus depolarization source parameters.`,
+        );
       } else {
         heartSurfaceStatus.value = `${label} / ${valueState}`;
+        setPaneBadges(
+          heartModeBadge,
+          heartProvenanceBadge,
+          label,
+          `${valueState} params`,
+          `Parsed ${valueState} source-parameter vector from the loaded case bundle.`,
+        );
       }
     }
     colorAttribute.needsUpdate = true;
@@ -728,21 +784,49 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null, onPro
     if (thoraxSurface.value === "measured" && signalFixture?.surfaceMap) {
       const sampleMs = Math.round((timeState.sample / signalFixture.surfaceMap.sampleRateHz) * 1000);
       thoraxSurfaceStatus.value = `${label} / ${scale}% / ${sampleMs} ms`;
+      setPaneBadges(
+        thoraxModeBadge,
+        thoraxProvenanceBadge,
+        label,
+        "Case BSPM",
+        `Parsed body-surface potential map at ${sampleMs} ms from the loaded case bundle.`,
+      );
       return;
     }
     if (["initial", "adapted"].includes(thoraxSurface.value) && canRecomputeLeadTraces(signalFixture, getTmpEditState())) {
       const state = getTmpEditState();
       const sampleMs = Math.round((timeState.sample / state.sampleRateHz) * 1000);
       thoraxSurfaceStatus.value = `${label} / ${scale}% / simulated ${sampleMs} ms`;
+      setPaneBadges(
+        thoraxModeBadge,
+        thoraxProvenanceBadge,
+        label,
+        "Recomputed",
+        `Recomputed ${thoraxSurface.value} BSPM at ${sampleMs} ms from TMP parameters and transfer matrix.`,
+      );
       return;
     }
     if (thoraxSurface.value === "sensitivity" && canUseThoraxTransfer(signalFixture)) {
       const sourceNode = selectedSensitivitySourceNode();
       thoraxSurfaceStatus.value = `${label} / ${scale}% / source node ${sourceNode + 1}`;
+      setPaneBadges(
+        thoraxModeBadge,
+        thoraxProvenanceBadge,
+        label,
+        "Transfer col",
+        `Ventricles-to-thorax transfer-column sensitivity for source node ${sourceNode + 1}.`,
+      );
       return;
     }
     const mapStatus = signalFixture?.surfaceMap ? "measured map available" : "maps unavailable";
     thoraxSurfaceStatus.value = `${label} / ${scale}% / ${mapStatus}`;
+    setPaneBadges(
+      thoraxModeBadge,
+      thoraxProvenanceBadge,
+      label,
+      "Parsed meshes",
+      "Parsed thorax and lung PGeometry meshes from the loaded ECGSIM case bundle.",
+    );
   }
 
   function updateSelectionStatus() {
@@ -1235,6 +1319,18 @@ function plotSignals(
       : "measured/initial classification unavailable";
     leadsStatus.value = `${signalSet.signalKind}; ${filteringStatus(mode, signalSet.sampleCount, fiducials)}; ${classification}`;
   }
+  const modeText = `${mode.toUpperCase()}${showRms ? "+RMS" : ""}`;
+  const provenanceText = signalSet.isRecomputed
+    ? "Recomputed"
+    : signalSet.source === "imported"
+    ? "Imported"
+    : "Case signals";
+  const provenanceDetail = signalSet.isRecomputed
+    ? "Adapted ECG traces recomputed from TMP source parameters and the transfer matrix candidate."
+    : signalSet.source === "imported"
+    ? "External imported ECG signal, separate from case and recomputed outputs."
+    : "Lead traces read from case surface potentials or representative signal fixtures.";
+  setPaneBadges(leadsModeBadge, leadsProvenanceBadge, modeText, provenanceText, provenanceDetail);
 }
 
 function filteringStatus(mode, sampleCount, fiducials) {
@@ -1414,6 +1510,13 @@ function plotTmp(
     showAdapted ? "adapted" : null,
   ].filter(Boolean).join("+") || "none";
   tmpMetadata.value = `${nodes.length} nodes / ${fixture.sampleCount} samples / ${fixture.sampleRateHz} Hz / ${traceModes}`;
+  setPaneBadges(
+    tmpModeBadge,
+    tmpProvenanceBadge,
+    traceModes,
+    "Source params",
+    "TMP traces generated from parsed source-parameter vectors for preview nodes.",
+  );
 }
 
 function drawTimeCursor(context, selectedSample, sampleCount, left, right, top, bottom) {

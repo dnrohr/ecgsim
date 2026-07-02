@@ -155,7 +155,7 @@ Each task should end with:
 ## VF1: Visual-First Workspace
 
 - [x] [0085 Make Core Visual Workspace Prominent](0085-make-core-visual-workspace-prominent.md)
-- [ ] [0086 Add Pane Mode Badges And Data Provenance Labels](0086-add-pane-mode-badges-and-data-provenance-labels.md)
+- [x] [0086 Add Pane Mode Badges And Data Provenance Labels](0086-add-pane-mode-badges-and-data-provenance-labels.md)
 - [ ] [0087 Add Visual Mode Navigator](0087-add-visual-mode-navigator.md)
 
 ## VF2: Heart View Completeness

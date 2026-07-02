@@ -75,9 +75,21 @@ async function assertInitialState(page) {
   assert.ok(await canvasHasContent(page, ".heart-viewport canvas"), "heart WebGL canvas should be nonblank");
   assert.ok(await canvasHasContent(page, ".thorax-viewport canvas"), "thorax WebGL canvas should be nonblank");
   await assertCoreVisualsVisible(page);
+  await assertPaneBadges(page);
   await assertVisualPngExports(page);
   await assertMovieExport(page);
   await expectText(page, "[data-time-status]", "0 ms / 575 ms");
+}
+
+async function assertPaneBadges(page) {
+  await expectText(page, "[data-heart-mode-badge]", "Geometry");
+  await expectText(page, "[data-heart-provenance-badge]", "Parsed mesh");
+  await expectText(page, "[data-thorax-mode-badge]", "Geometry");
+  await expectText(page, "[data-thorax-provenance-badge]", "Parsed meshes");
+  await expectText(page, "[data-tmp-mode-badge]", "initial+adapted");
+  await expectText(page, "[data-tmp-provenance-badge]", "Source params");
+  await expectText(page, "[data-leads-mode-badge]", "BASELINE");
+  await expectText(page, "[data-leads-provenance-badge]", "Case signals");
 }
 
 async function assertCoreVisualsVisible(page) {
@@ -225,6 +237,8 @@ async function assertThoraxControls(page) {
 
   await page.locator("[data-thorax-surface]").selectOption("measured");
   await expectText(page, "[data-thorax-surface-status]", "Measured BSPM / 100% / 0 ms");
+  await expectText(page, "[data-thorax-mode-badge]", "Measured BSPM");
+  await expectText(page, "[data-thorax-provenance-badge]", "Case BSPM");
   await expectText(page, "[data-status-message]", "Measured thorax BSPM map shown");
   await page.waitForTimeout(150);
   const mapped = await canvasSignature(page, canvas);
@@ -237,6 +251,7 @@ async function assertThoraxControls(page) {
 
   await page.locator("[data-thorax-surface]").selectOption("initial");
   await expectText(page, "[data-thorax-surface-status]", "Initial BSPM / 100% / simulated 0 ms");
+  await expectText(page, "[data-thorax-provenance-badge]", "Recomputed");
   await expectText(page, "[data-status-message]", "Initial thorax BSPM recomputed");
   await page.waitForTimeout(150);
   const initial = await canvasSignature(page, canvas);
@@ -251,6 +266,7 @@ async function assertThoraxControls(page) {
 
   await page.locator("[data-thorax-surface]").selectOption("sensitivity");
   await expectText(page, "[data-thorax-surface-status]", "Sensitivity / 100% / source node 1");
+  await expectText(page, "[data-thorax-provenance-badge]", "Transfer col");
   await expectText(page, "[data-status-message]", "Thorax sensitivity map");
   await page.waitForTimeout(150);
   const sensitivity = await canvasSignature(page, canvas);
@@ -299,6 +315,8 @@ async function assertHeartViewControls(page) {
 
   await page.locator("[data-heart-surface]").selectOption("depolarizationMs");
   await expectText(page, "[data-heart-surface-status]", "Depolarization / adapted");
+  await expectText(page, "[data-heart-mode-badge]", "Depolarization");
+  await expectText(page, "[data-heart-provenance-badge]", "adapted params");
   await page.waitForTimeout(150);
   const depolarizationSignature = await canvasSignature(page, canvas);
   assert.notEqual(depolarizationSignature, geometrySignature, "Heart surface function should recolor mesh");
@@ -310,12 +328,14 @@ async function assertHeartViewControls(page) {
   await selectThoraxNode(page);
   await page.locator("[data-heart-surface]").selectOption("thoraxContribution");
   await expectText(page, "[data-heart-surface-status]", "Thorax contribution / thorax node");
+  await expectText(page, "[data-heart-provenance-badge]", "Transfer row");
   await page.waitForTimeout(150);
   const contributionSignature = await canvasSignature(page, canvas);
   assert.notEqual(contributionSignature, geometrySignature, "Thorax contribution should recolor the heart surface");
 
   await page.locator("[data-heart-surface]").selectOption("ariMs");
   await expectText(page, "[data-heart-surface-status]", "ARI / adapted / ms");
+  await expectText(page, "[data-heart-provenance-badge]", "Derived ARI");
   await page.waitForTimeout(150);
   const ariSignature = await canvasSignature(page, canvas);
   assert.notEqual(ariSignature, geometrySignature, "ARI heart surface should recolor mesh");
@@ -327,6 +347,7 @@ async function assertHeartViewControls(page) {
 
   await page.locator("[data-heart-surface]").selectOption("tmpAtTime");
   await expectText(page, "[data-heart-surface-status]", "TMP at time / adapted / 0 ms");
+  await expectText(page, "[data-heart-provenance-badge]", "adapted TMP");
   const tmpAtZeroSignature = await canvasSignature(page, canvas);
   await setRangeValue(page, "[data-time-cursor]", "80");
   await expectText(page, "[data-heart-surface-status]", "TMP at time / adapted / 80 ms");
@@ -349,6 +370,8 @@ async function assertLeadsFiltering(page) {
   const canvas = "[data-leads-canvas]";
   await expectText(page, "[data-leads-status]", "Baseline P/T fiducials 5-499");
   await expectText(page, "[data-leads-status]", "measured/initial classification unavailable");
+  await expectText(page, "[data-leads-mode-badge]", "BASELINE");
+  await expectText(page, "[data-leads-provenance-badge]", "Case signals");
   assert.equal(await page.locator("[data-leads-measured]").isDisabled(), true, "measured overlay should be unavailable");
   assert.equal(await page.locator("[data-leads-initial]").isDisabled(), true, "initial overlay should be unavailable");
   assert.equal(await page.locator("[data-leads-adapted]").isDisabled(), false, "adapted overlay should be recomputable");
@@ -356,6 +379,7 @@ async function assertLeadsFiltering(page) {
   const baselineSignature = await canvasSignature(page, canvas);
   await page.locator("[data-leads-adapted]").check();
   await expectText(page, "[data-leads-status]", "adapted ECG recomputed from TMP transfer");
+  await expectText(page, "[data-leads-provenance-badge]", "Recomputed");
   const adaptedSignature = await canvasSignature(page, canvas);
   assert.notEqual(adaptedSignature, baselineSignature, "Adapted lead ECG recompute should redraw traces");
   await page.locator("[data-leads-adapted]").uncheck();
@@ -384,12 +408,14 @@ async function assertLeadsFiltering(page) {
 
   await page.locator("[data-leads-filter]").selectOption("ac");
   await expectText(page, "[data-leads-metadata]", "/ AC");
+  await expectText(page, "[data-leads-mode-badge]", "AC");
   await expectText(page, "[data-leads-status]", "AC coupling, time mean removed");
   const acSignature = await canvasSignature(page, canvas);
   assert.notEqual(acSignature, noGridSignature, "AC coupling should redraw leads");
 
   await page.locator("[data-leads-filter]").selectOption("dc");
   await expectText(page, "[data-leads-metadata]", "/ DC");
+  await expectText(page, "[data-leads-mode-badge]", "DC");
   await expectText(page, "[data-leads-status]", "DC coupling, unfiltered");
   assert.equal(await page.locator("[data-leads-filter]").inputValue(), "dc", "DC coupling should be selected");
 
@@ -421,6 +447,7 @@ async function assertLeadsFiltering(page) {
   await expectText(page, "[data-leads-metadata]", "Imported comparison ECG: 3 imported traces");
   await expectText(page, "[data-leads-metadata]", "6 samples / 500 Hz");
   await expectText(page, "[data-leads-status]", "external imported signal; separate from case and recomputed outputs");
+  await expectText(page, "[data-leads-provenance-badge]", "Imported");
   assert.equal(await page.locator("[data-leads-source]").inputValue(), "imported", "ECG import should switch Leads source");
   assert.equal(await page.locator("[data-leads-system]").isDisabled(), true, "Imported signals should not use case lead-system selection");
   const importedSignature = await canvasSignature(page, canvas);
@@ -521,6 +548,7 @@ async function assertHeartSelectionAndTmpEditing(page) {
   const tmpControlsBefore = await canvasSignature(page, "[data-tmp-canvas]");
   await page.locator("[data-tmp-show-initial]").uncheck();
   await expectText(page, "[data-tmp-metadata]", "/ adapted");
+  await expectText(page, "[data-tmp-mode-badge]", "adapted");
   const adaptedOnly = await canvasSignature(page, "[data-tmp-canvas]");
   assert.notEqual(adaptedOnly, tmpControlsBefore, "TMP initial visibility toggle should redraw");
   await page.locator("[data-tmp-show-initial]").check();

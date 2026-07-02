@@ -372,6 +372,35 @@ h2 {
   white-space: nowrap;
 }
 
+.pane-badges {
+  min-width: 120px;
+  display: inline-flex;
+  flex: 0 1 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  overflow: hidden;
+}
+
+.pane-badges output {
+  flex: 0 1 auto;
+  max-width: 132px;
+  padding: 2px 6px;
+  border: 1px solid #c4d0d5;
+  border-radius: 999px;
+  background: #f2f6f7;
+  color: #24323a;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.pane-badges output + output {
+  background: #fff7dc;
+  border-color: #dec15a;
+  color: #5f4700;
+  font-weight: 600;
+}
+
 .pane-actions {
   display: flex;
   flex: 0 0 auto;
@@ -400,6 +429,11 @@ h2 {
 
 .pane-tmp .pane-header output {
   max-width: 46%;
+}
+
+.pane-leads .pane-badges output,
+.pane-tmp .pane-badges output {
+  max-width: 116px;
 }
 
 .pane-tmp {
