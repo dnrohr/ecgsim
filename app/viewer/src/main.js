@@ -1827,6 +1827,15 @@ function mountVisualExportControls() {
       }
     });
   });
+  document.querySelectorAll("[data-export-movie]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      try {
+        await exportVisualMovie(button.dataset.exportMovie);
+      } catch (error) {
+        setTmpStatus(error instanceof Error ? error.message : "Unable to export movie.");
+      }
+    });
+  });
   document.querySelectorAll("[data-copy-image]").forEach((button) => {
     button.addEventListener("click", async () => {
       try {
@@ -1841,8 +1850,56 @@ function mountVisualExportControls() {
 async function exportVisualImage(targetId) {
   const target = visualExportTarget(targetId);
   const blob = await canvasToPngBlob(target.canvas);
-  downloadBlobFile(visualExportFileName(targetId), blob);
+  downloadBlobFile(visualExportFileName(targetId, "png"), blob);
   setTmpStatus(`${target.label} PNG exported (${target.canvas.width} x ${target.canvas.height}).`);
+}
+
+async function exportVisualMovie(targetId) {
+  const target = visualExportTarget(targetId);
+  if (typeof target.canvas.captureStream !== "function" || typeof MediaRecorder === "undefined") {
+    throw new Error("WebM movie export is unavailable in this browser.");
+  }
+  const mimeType = supportedMovieMimeType();
+  if (!mimeType) {
+    throw new Error("WebM movie encoding is unavailable in this browser.");
+  }
+
+  const originalSample = timeState.sample;
+  const frameCount = Math.min(24, Math.max(8, timeState.sampleCount));
+  const frameStep = Math.max(1, Math.floor((timeState.sampleCount - 1) / Math.max(1, frameCount - 1)));
+  const stream = target.canvas.captureStream(8);
+  const chunks = [];
+  const recorder = new MediaRecorder(stream, { mimeType });
+  const stopped = new Promise((resolve, reject) => {
+    recorder.ondataavailable = (event) => {
+      if (event.data?.size) {
+        chunks.push(event.data);
+      }
+    };
+    recorder.onerror = () => reject(new Error("Movie recorder failed."));
+    recorder.onstop = resolve;
+  });
+
+  setTmpStatus(`Recording ${target.label} WebM movie...`);
+  recorder.start();
+  try {
+    for (let frame = 0; frame < frameCount; frame += 1) {
+      setTimeSample(Math.min(timeState.sampleCount - 1, frame * frameStep));
+      await nextAnimationFrame();
+      await delay(120);
+    }
+  } finally {
+    setTimeSample(originalSample);
+    recorder.stop();
+    stream.getTracks().forEach((track) => track.stop());
+  }
+  await stopped;
+  const blob = new Blob(chunks, { type: mimeType });
+  if (blob.size < 1) {
+    throw new Error("Movie recorder produced an empty WebM file.");
+  }
+  downloadBlobFile(visualExportFileName(targetId, "webm"), blob);
+  setTmpStatus(`${target.label} WebM movie exported (${frameCount} frames).`);
 }
 
 async function copyVisualImage(targetId) {
@@ -1877,19 +1934,37 @@ function canvasToPngBlob(canvas) {
   });
 }
 
-function visualExportFileName(targetId) {
+function visualExportFileName(targetId, extension = "png") {
   const baseName = currentCaseMetadata?.fileName
     ? currentCaseMetadata.fileName.replace(/\.[^.]+$/, "")
     : "ecgsim-case";
   const safeBase = baseName.replace(/[^a-zA-Z0-9._-]+/g, "-") || "ecgsim-case";
   const safeTarget = String(targetId ?? "view").replace(/[^a-zA-Z0-9._-]+/g, "-") || "view";
-  return `${safeBase}-${safeTarget}.png`;
+  const safeExtension = String(extension).replace(/[^a-zA-Z0-9]+/g, "") || "png";
+  return `${safeBase}-${safeTarget}.${safeExtension}`;
 }
 
 function setTmpStatus(message) {
   if (statusMessage) {
     statusMessage.value = message;
   }
+}
+
+function supportedMovieMimeType() {
+  const candidates = [
+    "video/webm;codecs=vp9",
+    "video/webm;codecs=vp8",
+    "video/webm",
+  ];
+  return candidates.find((candidate) => MediaRecorder.isTypeSupported(candidate)) ?? "";
+}
+
+function nextAnimationFrame() {
+  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+function delay(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
 function updateCaseMetadata(metadata, noticeText) {

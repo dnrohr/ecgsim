@@ -29,3 +29,12 @@ PNG export exists. The legacy manual confirms movie/playback behavior, but this 
 ## Done When
 
 Users can export dynamic ECGSIM views for teaching or review without screen recording.
+
+## Completion Notes
+
+Status: complete.
+
+- Added per-pane `Movie` controls that export short WebM animations through browser `MediaRecorder`.
+- Movie capture steps the shared time cursor across the current case range, redraws the active pane, and restores the original time sample after recording.
+- Documented WebM browser requirements and the remaining legacy movie parity gap in `docs/feature-parity/visual-export-notes.md`.
+- Extended the browser workflow test to download a Leads WebM and verify the EBML signature and nontrivial file size.

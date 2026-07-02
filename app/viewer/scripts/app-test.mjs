@@ -75,6 +75,7 @@ async function assertInitialState(page) {
   assert.ok(await canvasHasContent(page, ".heart-viewport canvas"), "heart WebGL canvas should be nonblank");
   assert.ok(await canvasHasContent(page, ".thorax-viewport canvas"), "thorax WebGL canvas should be nonblank");
   await assertVisualPngExports(page);
+  await assertMovieExport(page);
   await expectText(page, "[data-time-status]", "0 ms / 575 ms");
 }
 
@@ -588,6 +589,18 @@ async function assertVisualPngExports(page) {
     assertPngImage(image, `${target} PNG`);
     await expectText(page, "[data-status-message]", "PNG exported");
   }
+}
+
+async function assertMovieExport(page) {
+  const downloadPromise = page.waitForEvent("download");
+  await page.locator("[data-export-movie='leads']").click();
+  const download = await downloadPromise;
+  assert.match(download.suggestedFilename(), /-leads\.webm$/, "Movie export should name a WebM file");
+  const moviePath = await download.path();
+  const movie = readFileSync(moviePath);
+  assert.equal(movie.subarray(0, 4).toString("hex"), "1a45dfa3", "WebM should have EBML signature");
+  assert.ok(movie.length > 1000, "WebM should contain movie data");
+  await expectText(page, "[data-status-message]", "Leads WebM movie exported");
 }
 
 function assertPngImage(buffer, label) {
