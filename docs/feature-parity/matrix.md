@@ -32,7 +32,7 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | File, Case, And Export Workflows | Open default case | supported | P0 | `0033` | Bundled normal case loads by default from generated fixtures. |
 | File, Case, And Export Workflows | Download case files | partial | P2 | `0061` | User docs identify archived case locations; in-app Help/download action is not implemented. |
 | File, Case, And Export Workflows | Save case | partial | P1 | `0055` | Modern `.source-edits.json` sidecar is supported; legacy `.ECGsimcase` write-back is unsupported. |
-| File, Case, And Export Workflows | Open/save source info | partial | P1 | `0055` | Modern sidecar import/export is supported; legacy `.ECGsimsource` compatibility is unsupported. |
+| File, Case, And Export Workflows | Open/save source info | partial | P1 | `0075` | Modern `.ECGsimsource.json` source-info export/import validation is supported; byte-compatible legacy `.ECGsimsource` remains undocumented. |
 | File, Case, And Export Workflows | Load ECG file | unsupported | P1 | `0032` | Requires ECG import format and measured/simulated model. |
 | File, Case, And Export Workflows | Export directory | partial | P0 | `0054` | Python writer emits supported legacy-style subset; normal male legacy raw export is captured, but full `File -> Export` parity still needs comparison work. |
 | File, Case, And Export Workflows | Export ECG files | partial | P0 | `0054` | `ecgs/thorax.refECG` surface-potential matrix is exported; adapted ECG recomputation is unsupported. |

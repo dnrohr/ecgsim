@@ -12,6 +12,7 @@ Status: task `0057` compatibility guide for implemented modern ECGSIM import/exp
 | Read legacy matrix/vector/`.tri` files | Supported by Python readers | Supports documented ASCII formats plus selected binary variants | Useful for scripts/tests; MATLAB can read documented ASCII files |
 | Export directory | Supported subset by Python CLI | Uses legacy-style folders and ASCII matrix/vector/`.tri` formats, but not full legacy `File -> Export` parity | Files read back through project readers; many are readable by MATLAB-style helpers |
 | Source edit sidecar | Supported in browser | Modern-only; not a legacy `.ECGsimcase` or `.ECGsimsource` file | JSON sidecar with stable schema |
+| Source info interchange | Supported by Python CLI | Modern `.ECGsimsource.json`, not byte-compatible legacy `.ECGsimsource` | JSON source-parameter vectors with validation |
 | Visual PNG export | Supported in browser | Modern equivalent to pane image capture, not legacy clipboard byte parity | Standard PNG files |
 | Clipboard image copy | Best effort in browser | Modern browser clipboard behavior differs from legacy app lifetime semantics | Depends on browser/OS image clipboard support |
 | Movie export | Unsupported | Legacy behavior still needs confirmation | None |
@@ -114,6 +115,30 @@ Sidecars store adapted TMP parameter vectors plus undo/redo transaction stacks. 
 - Adapted vector lengths for every known parameter.
 
 Sidecars are the chosen safe persistence path for now. Legacy `.ECGsimcase` write-back and `.ECGsimsource` compatibility are not implemented.
+
+## Source Info Interchange
+
+The Python tools can export a modern source-info file:
+
+```text
+<case>.ECGsimsource.json
+```
+
+Run:
+
+```powershell
+python -m ecgsim.cli.source_info research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase scratch/normal_male2.ECGsimsource.json
+```
+
+The schema is:
+
+```text
+org.ecgsim.source-info
+```
+
+This preserves parsed initial and adapted source-parameter vectors for every source and beat with units and case identity. It is validated on read/write and can reject files from a different case by SHA-256.
+
+This is not a byte-compatible legacy `.ECGsimsource` file. The legacy manual only states that source parameter values are saved to `.ECGsimsource`; no byte-level fixture or writer specification has been captured. See `docs/file-formats/ecgsimsource.md` for capture requirements before implementing the true legacy format.
 
 ## Visual Exports
 

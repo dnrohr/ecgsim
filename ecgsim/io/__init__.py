@@ -41,6 +41,16 @@ from ecgsim.io.matrix import (
     read_matrix,
     read_vector,
 )
+from ecgsim.io.source_info import (
+    SOURCE_INFO_SCHEMA,
+    SOURCE_INFO_VERSION,
+    SourceInfoError,
+    export_case_source_info,
+    read_source_info,
+    source_info_from_case,
+    validate_source_info,
+    write_source_info,
+)
 
 __all__ = [
     "ECGsimCaseFormatError",
@@ -62,9 +72,13 @@ __all__ = [
     "GeometryFormatError",
     "MatrixData",
     "MatrixFormatError",
+    "SOURCE_INFO_SCHEMA",
+    "SOURCE_INFO_VERSION",
+    "SourceInfoError",
     "StringEntry",
     "VectorData",
     "export_case_directory",
+    "export_case_source_info",
     "load_case",
     "read_ecgsimcase_geometries",
     "read_ecgsimcase_lead_systems",
@@ -76,8 +90,12 @@ __all__ = [
     "read_geometry",
     "read_legacy_row_major_matrix",
     "read_matrix",
+    "read_source_info",
     "read_vector",
+    "source_info_from_case",
+    "validate_source_info",
     "write_ascii_matrix",
     "write_ascii_tri",
     "write_ascii_vector",
+    "write_source_info",
 ]

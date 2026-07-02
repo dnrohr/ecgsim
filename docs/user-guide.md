@@ -144,6 +144,7 @@ Current supported outputs:
 - Static viewer package under `app/viewer/dist/viewer-static/`.
 - Legacy-style export-directory subset from Python.
 - Modern `.source-edits.json` sidecars from the browser.
+- Modern `.ECGsimsource.json` source-info interchange from Python.
 - PNG captures for Heart, Thorax, TMP, and Leads.
 - Browser-permitted image clipboard copy.
 
@@ -151,7 +152,7 @@ Current unsupported outputs:
 
 - Full legacy `File -> Export` parity.
 - Legacy `.ECGsimcase` write-back.
-- `.ECGsimsource` import/export.
+- Byte-compatible legacy `.ECGsimsource` import/export.
 - ECG file import.
 - Movie export.
 - Signed native installers.
@@ -182,6 +183,7 @@ Automated coverage includes:
 - WPW focus inspection and preview recomputation checks.
 - PNG export checks for all primary panes.
 - Source edit sidecar download/import checks.
+- Source-info JSON round-trip checks.
 - Release validation logs and packaged screenshot capture.
 
 No workflow is currently marked `parity-tested` against raw legacy numerical exports.
