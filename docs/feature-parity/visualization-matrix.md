@@ -27,7 +27,7 @@ This matrix tracks what a user can see and manipulate. It does not require the m
 | Heart | Amplitude surface | Heart surface `Amplitude` | supported | App workflow checks labels, provenance, canvas delta, and initial/adapted redraw | complete |
 | Heart | Resting-potential surface | Heart surface `Resting potential` | supported | App workflow checks labels, provenance, canvas delta, and initial/adapted redraw | complete |
 | Heart | TMP at selected time | Heart surface `TMP at time`, linked cursor/playback | supported | App workflow checks time cursor canvas/status redraw | complete |
-| Heart | Heart contribution map | Heart surface `Thorax contribution` after thorax-node selection | partial | Transfer-row provenance and selected-node workflow test | `0095` |
+| Heart | Heart contribution map | Heart surface `Thorax contribution` after thorax-node or electrode-target selection | supported | App workflow checks parsed electrode target, transfer-row provenance, and canvas delta | complete |
 | Heart | Node visibility and selected-zone rings | Node overlay plus radius/transition rings | supported | App workflow checks overlay toggles and canvas deltas | complete |
 | Heart | Cross plane | Movable Heart clipping-plane prototype | modern-equivalent | App workflow checks cut and plane movement; exact legacy orientation still needs curated reference | `0102` |
 | Heart | Heart vector | Computed TMP-centroid vector path and current-time arrow | modern-equivalent | App workflow checks vector canvas delta and time-linked redraw; exact legacy vector equation still needs capture | `0102` |
@@ -38,7 +38,7 @@ This matrix tracks what a user can see and manipulate. It does not require the m
 | Thorax | Measured BSPM | Thorax surface `Measured BSPM` | supported | Surface matrix provenance and time canvas delta | `0101` |
 | Thorax | Initial BSPM | Thorax surface `Initial BSPM` | supported | TMP/transfer recomputation provenance and canvas delta | `0101` |
 | Thorax | Adapted BSPM | Thorax surface `Adapted BSPM` | supported | TMP edit changes recomputed map | `0101` |
-| Thorax | Sensitivity map | Thorax surface `Sensitivity` for selected source node | supported | Transfer-column provenance and canvas delta | `0095` |
+| Thorax | Sensitivity map | Thorax surface `Sensitivity` for selected source node | supported | App workflow checks transfer-column provenance and canvas delta | complete |
 | Thorax | Isofunction lines | Contour overlay plus line-only scalar-map mode | supported | App workflow checks contour visibility, line-only status, and canvas delta | complete |
 | Thorax | Electrodes | Thorax electrode toggle | supported | Parsed electrode count and canvas delta | `0101` |
 | Thorax | Lock to heart orientation | Shared Heart/Thorax orientation lock | supported | App workflow checks lock, follow-rotation redraw, AP reset, and unlock | complete |

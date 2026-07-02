@@ -9,6 +9,7 @@ Status: updated through task `0073`.
 - Thorax scale control.
 - Thorax, left-lung, and right-lung visibility toggles.
 - Thorax node click selection with selected-node marker and status text.
+- Parsed lead-system electrode target selector for selecting mapped thorax nodes.
 - Selected Thorax nodes can drive Heart contribution maps.
 - Geometry, measured BSPM, initial BSPM, adapted BSPM, and sensitivity-map modes.
 - Contour overlay and line-only isofunction toggles for scalar Thorax maps.
@@ -23,5 +24,5 @@ Status: updated through task `0073`.
 - Linked movie playback, keyboard time stepping, and clipboard export remain future parity work.
 - Lock-to-heart uses the current explicit Heart orientation state; exact legacy drag-rotation behavior remains future interaction polish.
 - Contours and line-only mode are scalar-node overlays rather than exact legacy interpolated isofunction lines.
-- Electrode-marker click/probe shortcuts and confirmed lead-transfer contribution roles remain future work.
+- Direct marker-click shortcuts and confirmed lead-transfer contribution roles remain future work.
 - Scale currently changes the geometry view size; legacy potential amplitude scaling will be added with map rendering.

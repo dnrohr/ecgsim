@@ -94,6 +94,8 @@ const thoraxHeartContext = document.querySelector("[data-thorax-heart-context]")
 const thoraxLockHeart = document.querySelector("[data-thorax-lock-heart]");
 const thoraxSurfaceStatus = document.querySelector("[data-thorax-surface-status]");
 const thoraxSelection = document.querySelector("[data-thorax-selection]");
+const thoraxElectrodeTarget = document.querySelector("[data-thorax-electrode-target]");
+const thoraxTargetElectrode = document.querySelector("[data-thorax-target-electrode]");
 const thoraxModeBadge = document.querySelector("[data-thorax-mode-badge]");
 const thoraxProvenanceBadge = document.querySelector("[data-thorax-provenance-badge]");
 const leadsMetadata = document.querySelector("[data-leads-metadata]");
@@ -1078,7 +1080,9 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
     !thoraxHeartContext ||
     !thoraxLockHeart ||
     !thoraxSurfaceStatus ||
-    !thoraxSelection
+    !thoraxSelection ||
+    !thoraxElectrodeTarget ||
+    !thoraxTargetElectrode
   ) {
     throw new Error("Thorax viewport did not mount");
   }
@@ -1255,6 +1259,12 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
   function updateSelectionStatus() {
     const nodeText = selectedNodeIndex >= 0 ? `Node ${selectedNodeIndex + 1}` : "Node --";
     thoraxSelection.value = `${nodeText} / ${electrodeStatusText()} / maps unavailable`;
+  }
+
+  function selectedLeadSystemForThorax() {
+    return currentCaseMetadata?.leadSystemDetails?.find(
+      (item) => item.name === toolbarLeadSystem?.value,
+    ) ?? currentCaseMetadata?.leadSystemDetails?.[0] ?? null;
   }
 
   function renderThorax() {
@@ -1452,9 +1462,7 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
 
   function syncElectrodeMarkers() {
     electrodeGroup.clear();
-    const selectedLeadSystem = currentCaseMetadata?.leadSystemDetails?.find(
-      (item) => item.name === toolbarLeadSystem?.value,
-    );
+    const selectedLeadSystem = selectedLeadSystemForThorax();
     const electrodes = selectedLeadSystem?.electrodes ?? [];
     if (thoraxElectrodes) {
       thoraxElectrodes.disabled = electrodes.length === 0;
@@ -1478,8 +1486,45 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
         electrodeGroup.add(marker);
       });
     }
+    syncElectrodeTargetOptions(electrodes, selectedLeadSystem?.name);
     updateSelectionStatus();
     renderThorax();
+  }
+
+  function syncElectrodeTargetOptions(electrodes, leadSystemName = "") {
+    thoraxElectrodeTarget.replaceChildren();
+    electrodes.forEach((electrode, index) => {
+      const option = document.createElement("option");
+      option.value = String(index);
+      option.textContent = `${electrode.label ?? `E${index + 1}`} -> node ${(electrode.thoraxNodeIndex ?? index) + 1}`;
+      thoraxElectrodeTarget.appendChild(option);
+    });
+    const hasTargets = electrodes.length > 0;
+    thoraxElectrodeTarget.disabled = !hasTargets;
+    thoraxTargetElectrode.disabled = !hasTargets;
+    thoraxElectrodeTarget.title = hasTargets
+      ? `${electrodes.length} parsed ${leadSystemName} electrode targets`
+      : "No parsed electrode targets for selected lead system.";
+    thoraxTargetElectrode.title = thoraxElectrodeTarget.title;
+  }
+
+  function selectThoraxNodeIndex(nodeIndex, message = null) {
+    if (!thoraxMesh || nodeIndex < 0 || nodeIndex >= thoraxNodePositions.length) {
+      return false;
+    }
+    selectedNodeIndex = nodeIndex;
+    selectionState.thoraxNodeIndex = selectedNodeIndex;
+    isAutoRotating = false;
+    thoraxRotate.checked = false;
+    selectedMarker.position.copy(thoraxNodePositions[selectedNodeIndex]);
+    selectedMarker.visible = true;
+    updateSelectionStatus();
+    if (statusMessage) {
+      statusMessage.value = message ?? `Thorax node ${selectedNodeIndex + 1} selected.`;
+    }
+    onProbeChange(selectionState.thoraxNodeIndex);
+    renderThorax();
+    return true;
   }
 
   function nearestFaceVertex(hit) {
@@ -1529,18 +1574,7 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
     if (nearest < 0) {
       return;
     }
-    selectedNodeIndex = nearest;
-    selectionState.thoraxNodeIndex = selectedNodeIndex;
-    isAutoRotating = false;
-    thoraxRotate.checked = false;
-    selectedMarker.position.copy(thoraxNodePositions[selectedNodeIndex]);
-    selectedMarker.visible = true;
-    updateSelectionStatus();
-    if (statusMessage) {
-      statusMessage.value = `Thorax node ${selectedNodeIndex + 1} selected.`;
-    }
-    onProbeChange(selectionState.thoraxNodeIndex);
-    renderThorax();
+    selectThoraxNodeIndex(nearest);
   }
 
   document.querySelectorAll("[data-toggle-mesh]").forEach((toggle) => {
@@ -1597,6 +1631,17 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
     thoraxElectrodes.title = electrodeStatusText();
     thoraxElectrodes.onchange = syncElectrodeMarkers;
   }
+  thoraxTargetElectrode.onclick = () => {
+    const leadSystem = selectedLeadSystemForThorax();
+    const electrode = leadSystem?.electrodes?.[Number.parseInt(thoraxElectrodeTarget.value, 10)];
+    const nodeIndex = electrode?.thoraxNodeIndex;
+    if (Number.isInteger(nodeIndex)) {
+      selectThoraxNodeIndex(
+        nodeIndex,
+        `Thorax electrode ${electrode.label ?? "target"} selected at node ${nodeIndex + 1}.`,
+      );
+    }
+  };
   applyThoraxSurface();
   syncHeartContext();
   syncElectrodeMarkers();

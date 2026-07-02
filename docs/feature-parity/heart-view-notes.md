@@ -23,7 +23,7 @@ Status: updated through task `0073`.
 - Contours are node-marker overlays near scalar levels rather than interpolated triangle isolines.
 - Atria/ventricles switching is not exposed yet even though source containers are parsed.
 - Endocardial/epicardial switching and transmural handling are disabled per case until explicit wall pairings are parsed. See `docs/feature-parity/wall-mapping-notes.md`.
-- Electrode-target probe shortcuts, legacy named-region accumulation variants, movie playback, and clipboard export remain unsupported until their roadmap tasks.
+- Legacy named-region accumulation variants, movie playback, and clipboard export remain unsupported until their roadmap tasks.
 - Heart vector display is a modern-equivalent computed TMP-centroid preview; exact legacy vector-equation parity remains blocked on reference capture.
 - Contribution maps use the selected Thorax node's transfer row from the current ventricles-to-thorax candidate; confirmed legacy lead-transfer roles remain unresolved.
 - Color scales are automatic and use a legacy-informed sequential palette; exact palette stops and user-configurable scales remain future work.

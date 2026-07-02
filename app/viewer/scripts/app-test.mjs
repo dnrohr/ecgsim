@@ -260,6 +260,8 @@ async function assertThoraxControls(page) {
   await expectText(page, "[data-thorax-surface-status]", "Geometry / 100% / measured map available");
   await expectText(page, "[data-thorax-selection]", "9 electrodes");
   assert.equal(await page.locator("[data-thorax-electrodes]").isEnabled(), true, "electrode toggle should be available");
+  assert.equal(await page.locator("[data-thorax-electrode-target]").isEnabled(), true, "electrode target selector should be available");
+  assert.equal(await page.locator("[data-thorax-target-electrode]").isEnabled(), true, "electrode target button should be available");
   assert.equal(await page.locator("[data-thorax-surface] option[value='measured']").isDisabled(), false, "measured BSPM should be available");
   assert.equal(await page.locator("[data-thorax-surface] option[value='initial']").isDisabled(), false, "initial BSPM should be recomputable");
   assert.equal(await page.locator("[data-thorax-surface] option[value='adapted']").isDisabled(), false, "adapted BSPM should be recomputable");
@@ -280,6 +282,10 @@ async function assertThoraxControls(page) {
   await page.waitForTimeout(150);
   const electrodesShown = await canvasSignature(page, canvas);
   assert.notEqual(electrodesShown, heartContextShown, "Thorax electrode toggle should draw selected lead-system markers");
+  await page.locator("[data-thorax-electrode-target]").selectOption("1");
+  await page.locator("[data-thorax-target-electrode]").click();
+  await expectText(page, "[data-status-message]", "Thorax electrode E2 selected at node 26");
+  await expectText(page, "[data-thorax-selection]", "Node 26 / 9 electrodes");
 
   await page.locator("[data-thorax-surface]").selectOption("measured");
   await expectText(page, "[data-thorax-surface-status]", "Measured BSPM / 100% / 0 ms");
@@ -447,9 +453,11 @@ async function assertHeartViewControls(page) {
   }
 
   await page.locator("[data-heart-values]").selectOption("adapted");
-  await selectThoraxNode(page);
+  await page.locator("[data-thorax-electrode-target]").selectOption("2");
+  await page.locator("[data-thorax-target-electrode]").click();
+  await expectText(page, "[data-status-message]", "Thorax electrode E3 selected at node 65");
   await page.locator("[data-heart-surface]").selectOption("thoraxContribution");
-  await expectText(page, "[data-heart-surface-status]", "Thorax contribution / thorax node");
+  await expectText(page, "[data-heart-surface-status]", "Thorax contribution / thorax node 65");
   await expectText(page, "[data-heart-provenance-badge]", "Transfer row");
   await page.waitForTimeout(150);
   const contributionSignature = await canvasSignature(page, canvas);
