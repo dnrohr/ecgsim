@@ -2,7 +2,7 @@
 
 These task descriptions split the roadmap into agent-sized units. Start with the lowest unfinished task number unless the user explicitly chooses a different one.
 
-Tasks `0001` through `0025` completed the initial prototype roadmap. Tasks `0026` through `0061` follow the feature-parity roadmap in `docs/feature-parity-roadmap.md`. Tasks `0062` and later follow the modernization roadmap in `docs/modernization-roadmap.md`.
+Tasks `0001` through `0025` completed the initial prototype roadmap. Tasks `0026` through `0061` follow the feature-parity roadmap in `docs/feature-parity-roadmap.md`. Tasks `0062` through `0082` follow the modernization roadmap in `docs/modernization-roadmap.md`. Tasks `0083` and later follow the visualization feature-parity roadmap in `docs/visualization-feature-parity-roadmap.md`.
 
 Each task should end with:
 
@@ -146,3 +146,42 @@ Each task should end with:
 - [x] [0080 Implement Movie Export](0080-implement-movie-export.md)
 - [x] [0081 Add Legacy Visual Regression Harness](0081-add-legacy-visual-regression-harness.md)
 - [x] [0082 Harden Signed Release Pipeline](0082-harden-signed-release-pipeline.md)
+
+## VF0: Visual Inventory And Evidence
+
+- [x] [0083 Create Visualization Feature Parity Matrix](0083-create-visualization-feature-parity-matrix.md)
+- [x] [0084 Add Visual Mode Test Coverage Map](0084-add-visual-mode-test-coverage-map.md)
+
+## VF1: Visual-First Workspace
+
+- [x] [0085 Make Core Visual Workspace Prominent](0085-make-core-visual-workspace-prominent.md)
+- [ ] [0086 Add Pane Mode Badges And Data Provenance Labels](0086-add-pane-mode-badges-and-data-provenance-labels.md)
+- [ ] [0087 Add Visual Mode Navigator](0087-add-visual-mode-navigator.md)
+
+## VF2: Heart View Completeness
+
+- [ ] [0088 Add Heart Node Overlay And Selection Rings](0088-add-heart-node-overlay-and-selection-rings.md)
+- [ ] [0089 Add Heart Cross Section Plane Prototype](0089-add-heart-cross-section-plane-prototype.md)
+- [ ] [0090 Add Heart Electrode And Vector Overlays](0090-add-heart-electrode-and-vector-overlays.md)
+- [ ] [0091 Expand Heart Surface Mode Tests Across Initial Adapted And Time](0091-expand-heart-surface-mode-tests-across-initial-adapted-and-time.md)
+
+## VF3: Thorax View Completeness
+
+- [ ] [0092 Add Thorax Heart Context Overlay](0092-add-thorax-heart-context-overlay.md)
+- [ ] [0093 Add Thorax Line Only Isofunction Mode](0093-add-thorax-line-only-isofunction-mode.md)
+- [ ] [0094 Add Thorax Lock To Heart Orientation](0094-add-thorax-lock-to-heart-orientation.md)
+- [ ] [0095 Expand Thorax Probe And Electrode Target Workflows](0095-expand-thorax-probe-and-electrode-target-workflows.md)
+
+## VF4: TMP And ECG View Completeness
+
+- [ ] [0096 Add TMP Handler Style Visual Controls](0096-add-tmp-handler-style-visual-controls.md)
+- [ ] [0097 Add Leads Interval Selection And TMP Highlight](0097-add-leads-interval-selection-and-tmp-highlight.md)
+- [ ] [0098 Add Beat Zoom Workflow](0098-add-beat-zoom-workflow.md)
+- [ ] [0099 Add VCG Visualization Mode](0099-add-vcg-visualization-mode.md)
+- [ ] [0100 Add Electrogram Visualization Or Evidence Blocker](0100-add-electrogram-visualization-or-evidence-blocker.md)
+
+## VF5: Validation And Reference Capture
+
+- [ ] [0101 Add Per Mode Canvas Smoke Tests](0101-add-per-mode-canvas-smoke-tests.md)
+- [ ] [0102 Capture Curated Legacy Pane References](0102-capture-curated-legacy-pane-references.md)
+- [ ] [0103 Add Visual Parity Completion Audit](0103-add-visual-parity-completion-audit.md)

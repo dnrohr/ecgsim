@@ -74,9 +74,41 @@ async function assertInitialState(page) {
   assert.ok(await canvasHasContent(page, "[data-tmp-canvas]"), "TMP canvas should be nonblank");
   assert.ok(await canvasHasContent(page, ".heart-viewport canvas"), "heart WebGL canvas should be nonblank");
   assert.ok(await canvasHasContent(page, ".thorax-viewport canvas"), "thorax WebGL canvas should be nonblank");
+  await assertCoreVisualsVisible(page);
   await assertVisualPngExports(page);
   await assertMovieExport(page);
   await expectText(page, "[data-time-status]", "0 ms / 575 ms");
+}
+
+async function assertCoreVisualsVisible(page) {
+  const layout = await page.evaluate(() => {
+    const viewportHeight = window.innerHeight;
+    const rectFor = (selector) => {
+      const rect = document.querySelector(selector).getBoundingClientRect();
+      const visibleTop = Math.max(0, rect.top);
+      const visibleBottom = Math.min(viewportHeight, rect.bottom);
+      return {
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+        visibleHeight: Math.max(0, visibleBottom - visibleTop),
+      };
+    };
+    return {
+      viewportHeight,
+      heart: rectFor(".heart-viewport canvas"),
+      thorax: rectFor(".thorax-viewport canvas"),
+      tmp: rectFor("[data-tmp-canvas]"),
+      leads: rectFor("[data-leads-canvas]"),
+    };
+  });
+
+  assert.ok(layout.heart.top < layout.viewportHeight * 0.45, "Heart canvas should start in the upper half of the first viewport");
+  assert.ok(layout.thorax.top < layout.viewportHeight * 0.45, "Thorax canvas should start in the upper half of the first viewport");
+  assert.ok(layout.heart.visibleHeight >= 180, "Heart canvas should have useful visible height at launch");
+  assert.ok(layout.thorax.visibleHeight >= 160, "Thorax canvas should have useful visible height at launch");
+  assert.ok(layout.tmp.visibleHeight > 0, "TMP canvas should be visible at launch");
+  assert.ok(layout.leads.visibleHeight > 0, "Leads canvas should be visible at launch");
 }
 
 async function assertShellLayout(page) {
