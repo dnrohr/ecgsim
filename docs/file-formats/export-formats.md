@@ -4,7 +4,7 @@ Task: `docs/tasks/0002-document-legacy-export-formats.md`
 
 Status: implementation reference for the first parser tasks. This document summarizes the ECGSIM manual plus the MATLAB helpers in `research/source/www.ecgsim.org/downloads/`.
 
-Implementation status: task `0054` adds a supported-subset writer in `ecgsim.io.export_case_directory()`. It emits documented ASCII matrix/vector/`.tri` files plus `metadata.json`; unsupported legacy export members remain documented in `docs/feature-parity/export-directory-writer-notes.md`.
+Implementation status: task `0054` adds a supported-subset writer in `ecgsim.io.export_case_directory()`. Task `0076` expands it with generated TMP `.user.source` matrices when adapted TMP parameters are available. It emits documented ASCII matrix/vector/`.tri` files plus `metadata.json`; unsupported legacy export members remain documented in `docs/feature-parity/export-directory-writer-notes.md`.
 
 ## Export Directory Shape
 
@@ -134,8 +134,8 @@ Known units:
 
 - `.user.dep`: depolarization time in milliseconds.
 - `.user.rep`: repolarization time in milliseconds.
-- `.user.ampl`: amplitude in millivolts.
-- `.user.rest`: resting potential in millivolts.
+- `.user.ampl`: raw legacy source amplitude units. Archived cases store values such as `2.0`; do not assume millivolts without a captured export comparison.
+- `.user.rest`: raw legacy resting-potential units. Archived cases store values such as `-0.85`; do not assume millivolts without a captured export comparison.
 
 Unknown units:
 
@@ -151,11 +151,11 @@ Known extension:
 
 The manual describes this as the TMP waveform at every source node for user-adapted parameter settings. It uses matrix format.
 
-Likely dimensions are source nodes by time samples, but confirm with exported cases before implementing semantic assumptions.
+Captured ECGSIM 3.0.1 exports and the modern writer use source nodes by time samples. The modern writer emits an ASCII matrix generated from adapted TMP source parameters with the calibrated TMP generator.
 
 Units:
 
-- TMP amplitude is likely millivolts, based on source parameter units, but the matrix unit is not explicitly documented in the export text.
+- TMP values are emitted in the same raw source-parameter units used by the parsed `.user.rest` and `.user.ampl` vectors. Do not multiply by `1000` unless future raw legacy export captures prove that the Windows app writes millivolts.
 - Time sampling should be checked against the case or ECG sample rate.
 
 ## ECG Matrices

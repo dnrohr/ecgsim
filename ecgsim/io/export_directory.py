@@ -62,7 +62,7 @@ def export_case_directory(case_or_path: ECGsimCase | str | Path, output_dir: str
     unsupported: list[str] = []
 
     written.extend(_write_geometries(case.geometries, output_root, unsupported))
-    written.extend(_write_sources(case.sources, output_root, unsupported))
+    written.extend(_write_sources(case.sources, output_root, unsupported, sample_count=case.signal_metadata.columns))
     written.extend(_write_signal_matrix(case, output_root))
 
     metadata_path = output_root / "metadata.json"
@@ -156,7 +156,13 @@ def _write_geometries(
     return written
 
 
-def _write_sources(sources: Iterable[ECGsimCaseSource], output_root: Path, unsupported: list[str]) -> list[Path]:
+def _write_sources(
+    sources: Iterable[ECGsimCaseSource],
+    output_root: Path,
+    unsupported: list[str],
+    *,
+    sample_count: int,
+) -> list[Path]:
     written: list[Path] = []
     for source in sources:
         if source.kind == "atria":
@@ -181,12 +187,46 @@ def _write_sources(sources: Iterable[ECGsimCaseSource], output_root: Path, unsup
                     unsupported.append(f"{source.kind}/{beat.id}/{export_name}: empty or missing vector")
                     continue
                 written.append(write_ascii_vector(source_dir / export_name, vector.values))
+            tmp_matrix = _tmp_matrix_for_beat(source, beat.id, sample_count)
+            if tmp_matrix:
+                written.append(write_ascii_matrix(source_dir / "user.source", tmp_matrix))
+            else:
+                unsupported.append(f"{source.kind}/{beat.id}/user.source: missing TMP parameters")
 
         if source.activation is not None:
             unsupported.append(f"{source.kind}/activation: parsed but no confirmed legacy export filename")
         if source.unknown_vectors:
             unsupported.append(f"{source.kind}/unknownVectors: {len(source.unknown_vectors)} vector(s) not exported")
     return written
+
+
+def _tmp_matrix_for_beat(
+    source: ECGsimCaseSource, beat_id: str, sample_count: int
+) -> tuple[tuple[float, ...], ...]:
+    from ecgsim.core.tmp import generate_tmp_matrix_from_vectors
+
+    beat = next((candidate for candidate in source.beats if candidate.id == beat_id), None)
+    if beat is None:
+        return ()
+    parameter_vectors = {
+        parameter.name: {
+            "initial": parameter.initial.values if parameter.initial else (),
+            "adapted": parameter.adapted.values if parameter.adapted else (),
+        }
+        for parameter in beat.parameters
+    }
+    required = (
+        "depolarizationMs",
+        "repolarizationMs",
+        "restingPotential",
+        "amplitude",
+        "plateauSlope",
+        "depolarizationSlope",
+        "repolarizationSlope",
+    )
+    if any(not parameter_vectors.get(name, {}).get("adapted") for name in required):
+        return ()
+    return generate_tmp_matrix_from_vectors(parameter_vectors, "adapted", sample_count, 1000.0)
 
 
 def _write_signal_matrix(case: ECGsimCase, output_root: Path) -> list[Path]:
@@ -200,7 +240,6 @@ def _known_unsupported_members(case: ECGsimCase) -> tuple[str, ...]:
         "model adjacency, distance, anisotropy, transfer, and lead transfer matrices",
         "electrode .elec files",
         "adapted ECG recomputation output",
-        "TMP waveform .user.source matrices",
         "raw legacy display/layout state",
     ]
     members.extend(case.metadata.unsupported_payloads)

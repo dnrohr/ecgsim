@@ -30,3 +30,12 @@ The current writer emits a supported subset. Missing high-value artifacts includ
 ## Done When
 
 Modern export directories contain the highest-value scientifically honest legacy-style outputs.
+
+## Completion Notes
+
+Status: complete.
+
+- Added generated `ventricular_beats/beat1/user.source` TMP waveform matrix output when all adapted TMP source parameters are available.
+- Kept the writer on documented ASCII matrix format and continued recording unsupported legacy members in `metadata.json`.
+- Updated export compatibility docs to identify `user.source` as generated modern output from the calibrated TMP generator, not broad byte/value parity for every legacy case.
+- Expanded export-directory tests to read the emitted `user.source` matrix back and verify dimensions and representative values.

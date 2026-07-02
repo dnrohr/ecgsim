@@ -13,6 +13,7 @@ from ecgsim.io import (
     read_matrix,
     read_vector,
 )
+from ecgsim.core.tmp import generate_tmp_matrix_from_vectors
 
 
 CASE = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")
@@ -32,6 +33,7 @@ class ExportDirectoryTests(unittest.TestCase):
             self.assertTrue((output_dir / "model" / "thorax.tri").exists())
             self.assertTrue((output_dir / "ecgs" / "thorax.refECG").exists())
             self.assertTrue((output_dir / "ventricular_beats" / "beat1" / "user.dep").exists())
+            self.assertTrue((output_dir / "ventricular_beats" / "beat1" / "user.source").exists())
 
             heart = next(geometry for geometry in case.geometries if geometry.name == "heart")
             exported_heart = read_geometry(output_dir / "model" / "ventricle.tri")
@@ -53,6 +55,19 @@ class ExportDirectoryTests(unittest.TestCase):
             self.assertEqual(exported_depolarization.length, depolarization.adapted.length)
             self.assertAlmostEqual(exported_depolarization.values[0], depolarization.adapted.values[0])
 
+            exported_tmp = read_matrix(output_dir / "ventricular_beats" / "beat1" / "user.source")
+            self.assertEqual(exported_tmp.rows, depolarization.adapted.length)
+            self.assertEqual(exported_tmp.columns, case.signal_metadata.columns)
+            parameter_vectors = {
+                parameter.name: {"adapted": parameter.adapted.values}
+                for parameter in ventricles.beats[0].parameters
+                if parameter.adapted.length
+            }
+            generated_tmp = generate_tmp_matrix_from_vectors(
+                parameter_vectors, "adapted", case.signal_metadata.columns, 1000.0
+            )
+            self.assertAlmostEqual(exported_tmp.values[0][0], generated_tmp[0][0])
+
             source_matrix = read_ecgsimcase_matrix(CASE, case.signal_metadata.matrix_offset)
             exported_matrix = read_matrix(output_dir / "ecgs" / "thorax.refECG")
             self.assertEqual(exported_matrix.rows, source_matrix.rows)
@@ -63,8 +78,9 @@ class ExportDirectoryTests(unittest.TestCase):
             self.assertEqual(metadata["format"], "org.ecgsim.export-directory")
             self.assertIn("model/ventricle.tri", metadata["writtenFiles"])
             self.assertIn("ecgs/thorax.refECG", metadata["writtenFiles"])
+            self.assertIn("ventricular_beats/beat1/user.source", metadata["writtenFiles"])
             self.assertIn("electrode .elec files", metadata["unsupportedMembers"])
-            self.assertIn("TMP waveform .user.source matrices", metadata["unsupportedMembers"])
+            self.assertNotIn("TMP waveform .user.source matrices", metadata["unsupportedMembers"])
 
     def test_module_command_exports_case(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

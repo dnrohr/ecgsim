@@ -71,6 +71,7 @@ The writer emits a supported subset:
 - `model/llung.tri`
 - `ventricular_beats/beat1/user.*` source-parameter vectors when available
 - `atrial_beats/beat1/user.*` source-parameter vectors when non-empty vectors are available
+- `ventricular_beats/beat1/user.source` generated TMP waveform matrix when all adapted TMP parameters are available
 - `ecgs/thorax.refECG`
 - `metadata.json`
 
@@ -83,7 +84,6 @@ Known missing export-directory members include:
 - Model adjacency, distance, anisotropy, transfer, and lead transfer matrices.
 - Electrode `.elec` files.
 - Adapted ECG recomputation output.
-- TMP waveform `.user.source` matrices.
 - Activation/focus export files.
 - Raw display/layout state.
 

@@ -38,7 +38,7 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | File, Case, And Export Workflows | Export ECG files | partial | P0 | `0054` | `ecgs/thorax.refECG` surface-potential matrix is exported; adapted ECG recomputation is unsupported. |
 | File, Case, And Export Workflows | Export triangulation files | supported | P1 | `0054` | Heart, thorax, and lung `.tri` files export in documented ASCII format. |
 | File, Case, And Export Workflows | Export source parameters | supported | P0 | `0054` | Supported source parameter vectors export as legacy-style `user.*` files when present. |
-| File, Case, And Export Workflows | Export TMP waveforms | unsupported | P0 | `0054` | Captured `.user.source` evidence calibrated the task `0049` generator; modern export writing remains unsupported. |
+| File, Case, And Export Workflows | Export TMP waveforms | partial | P0 | `0076` | Modern export directories include generated ventricular `user.source` matrices from adapted TMP parameters; broader legacy value parity remains case-limited. |
 | File, Case, And Export Workflows | Export electrode locations | unsupported | P1 | `0054` | Depends on lead/electrode parser. |
 | Heart View | Geometry and surface functions | partial | P0 | `0072` | Geometry, parameter, ARI, TMP-at-time, and scalar contour overlays are implemented for supported cases; exact legacy colormaps remain approximate. |
 | Heart View | Rotate/AP reset | supported | P1 | `0037` | AP reset and auto-rotation controls are implemented and tested. |
