@@ -28,3 +28,12 @@ Heart already supports several parameter surface functions. ARI and TMP-at-time 
 ## Done When
 
 Heart surface mode coverage includes geometry, timing parameters, ARI, and TMP-at-time behavior.
+
+## Completion Notes
+
+Status: complete.
+
+- Added ARI Heart surface values as `repolarizationMs - depolarizationMs`, reported in milliseconds.
+- Added TMP-at-time Heart surface values generated from the current TMP edit state and synchronized with the shared time cursor.
+- Added unit-level viewer smoke coverage for ARI/TMP-at-time transforms and browser workflow coverage for ARI rendering plus TMP-at-time recoloring on time changes.
+- Updated Heart/time/parity/user documentation to keep legacy colormap parity and mapping limits explicit.

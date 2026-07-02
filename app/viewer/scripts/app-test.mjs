@@ -252,6 +252,22 @@ async function assertHeartViewControls(page) {
   await page.locator("[data-heart-values]").selectOption("initial");
   await expectText(page, "[data-heart-surface-status]", "Depolarization / initial");
 
+  await page.locator("[data-heart-values]").selectOption("adapted");
+  await page.locator("[data-heart-surface]").selectOption("ariMs");
+  await expectText(page, "[data-heart-surface-status]", "ARI / adapted / ms");
+  await page.waitForTimeout(150);
+  const ariSignature = await canvasSignature(page, canvas);
+  assert.notEqual(ariSignature, geometrySignature, "ARI heart surface should recolor mesh");
+
+  await page.locator("[data-heart-surface]").selectOption("tmpAtTime");
+  await expectText(page, "[data-heart-surface-status]", "TMP at time / adapted / 0 ms");
+  const tmpAtZeroSignature = await canvasSignature(page, canvas);
+  await setRangeValue(page, "[data-time-cursor]", "80");
+  await expectText(page, "[data-heart-surface-status]", "TMP at time / adapted / 80 ms");
+  const tmpAtTimeSignature = await canvasSignature(page, canvas);
+  assert.notEqual(tmpAtTimeSignature, tmpAtZeroSignature, "TMP-at-time heart surface should follow shared time");
+  await setRangeValue(page, "[data-time-cursor]", "0");
+
   await page.locator("[data-heart-ap]").click();
   await expectText(page, "[data-status-message]", "Heart view reset to AP orientation");
   assert.equal(await page.locator("[data-heart-rotate]").isChecked(), false, "AP reset should stop auto-rotation");

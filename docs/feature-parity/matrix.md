@@ -40,7 +40,7 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | File, Case, And Export Workflows | Export source parameters | supported | P0 | `0054` | Supported source parameter vectors export as legacy-style `user.*` files when present. |
 | File, Case, And Export Workflows | Export TMP waveforms | unsupported | P0 | `0054` | Captured `.user.source` evidence calibrated the task `0049` generator; modern export writing remains unsupported. |
 | File, Case, And Export Workflows | Export electrode locations | unsupported | P1 | `0054` | Depends on lead/electrode parser. |
-| Heart View | Geometry and surface functions | partial | P0 | `0037` | Geometry and parameter surface coloring are implemented for supported cases; parity colormaps remain approximate. |
+| Heart View | Geometry and surface functions | partial | P0 | `0071` | Geometry, parameter, ARI, and TMP-at-time surface coloring are implemented for supported cases; parity colormaps remain approximate. |
 | Heart View | Rotate/AP reset | supported | P1 | `0037` | AP reset and auto-rotation controls are implemented and tested. |
 | Heart View | Cross plane | unsupported | P1 | `0037` | Requires geometry clipping. |
 | Heart View | Select node | partial | P0 | `0037` | Needs real source-node mapping. |
@@ -51,10 +51,10 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | Heart View | Initial/adapted display | partial | P0 | `0037` | Heart view must switch visual state, not only TMP plot. |
 | Heart View | Depolarization surface function | partial | P0 | `0037` | Implemented from parsed source parameters for supported cases; legacy colormap parity unverified. |
 | Heart View | Repolarization surface function | partial | P0 | `0037` | Implemented from parsed source parameters for supported cases; legacy colormap parity unverified. |
-| Heart View | ARI surface function | unsupported | P1 | `0037` | Computed from repolarization minus depolarization. |
+| Heart View | ARI surface function | partial | P1 | `0071` | Computed as repolarization minus depolarization in milliseconds; legacy colormap parity unverified. |
 | Heart View | Amplitude surface function | partial | P1 | `0037` | Implemented from parsed source parameters for supported cases; legacy colormap parity unverified. |
 | Heart View | Resting-potential surface function | partial | P1 | `0037` | Implemented from parsed source parameters for supported cases; legacy colormap parity unverified. |
-| Heart View | TMP-at-time surface function | unsupported | P0 | `0041` | Requires shared time cursor and TMP matrices. |
+| Heart View | TMP-at-time surface function | partial | P0 | `0071` | Generated from current TMP parameter state and synchronized to the shared time cursor; legacy colormap parity unverified. |
 | Heart View | Geometry/nodes function | partial | P1 | `0037` | Needs node overlay mode. |
 | Heart View | Heart contribution map | unsupported | P1 | `0042` | Requires thorax node selection and transfer data. |
 | Heart View | Potential field strength | unsupported | P2 | `0042` | Data/equation source still needs confirmation. |

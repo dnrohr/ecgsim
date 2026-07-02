@@ -6,6 +6,7 @@ import {
   previewFocusActivation,
   updateFocusParameters,
 } from "./focus-editing.js";
+import { finiteRange, heartSurfaceValues } from "./heart-surfaces.js";
 import {
   canRecomputeLeadTraces,
   canUseThoraxTransfer,
@@ -256,7 +257,7 @@ function sampleFromCanvasEvent(canvas, event, leftPaddingPx) {
   return ratio * (timeState.sampleCount - 1);
 }
 
-function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange) {
+function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange, getTmpEditState = () => null) {
   if (
     !heartViewport ||
     !heartMetadata ||
@@ -348,20 +349,26 @@ function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange) {
       }
       heartSurfaceStatus.value = "Geometry";
     } else {
-      const values = tmpFixture.parameterVectors?.[surface]?.[valueState] ?? [];
-      const finite = values.filter((value) => Number.isFinite(value));
-      const min = Math.min(...finite);
-      const span = Math.max(Math.max(...finite) - min, 1e-9);
+      const tmpState = getTmpEditState() ?? createTmpEditState(tmpFixture);
+      const values = heartSurfaceValues(tmpState, surface, valueState, timeState.sample);
+      const range = finiteRange(values);
       for (let index = 0; index < colorAttribute.count; index += 1) {
         if (index < values.length) {
-          const color = valueColor(values[index], min, span);
+          const color = valueColor(values[index], range.min, range.span);
           colorAttribute.setXYZ(index, color.r, color.g, color.b);
         } else {
           colorAttribute.setXYZ(index, 0.48, 0.52, 0.54);
         }
       }
       const label = heartSurface.selectedOptions[0]?.textContent ?? surface;
-      heartSurfaceStatus.value = `${label} / ${valueState}`;
+      if (surface === "tmpAtTime") {
+        const sampleMs = Math.round((timeState.sample / tmpState.sampleRateHz) * 1000);
+        heartSurfaceStatus.value = `${label} / ${valueState} / ${sampleMs} ms`;
+      } else if (surface === "ariMs") {
+        heartSurfaceStatus.value = `${label} / ${valueState} / ms`;
+      } else {
+        heartSurfaceStatus.value = `${label} / ${valueState}`;
+      }
     }
     colorAttribute.needsUpdate = true;
     renderer.render(scene, camera);
@@ -530,6 +537,8 @@ function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange) {
     requestAnimationFrame(animate);
   }
   animate();
+
+  return { redrawHeartSurface: applySurfaceFunction };
 }
 
 function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
@@ -1951,19 +1960,27 @@ function applyCaseBundle(bundle, noticeText) {
     heartValues.value = "adapted";
   }
   tmpCanvas = document.querySelector("[data-tmp-canvas]");
+  let heartView = null;
   let thoraxView = null;
   let redrawSignals = () => {};
   let focusEditing = null;
   const tmpEditing = mountTmpEditing(bundle.tmpWaveforms, () => {
+    heartView?.redrawHeartSurface();
     thoraxView?.redrawThoraxMap();
     redrawSignals();
   });
   focusEditing = mountFocusEditing(bundle.caseMetadata, bundle.tmpWaveforms);
-  mountHeart(bundle.heart, bundle.tmpWaveforms, bundle.caseMetadata.wallMapping, () => {
-    tmpEditing.syncControls();
-    focusEditing.syncControls();
-    thoraxView?.redrawThoraxMap();
-  });
+  heartView = mountHeart(
+    bundle.heart,
+    bundle.tmpWaveforms,
+    bundle.caseMetadata.wallMapping,
+    () => {
+      tmpEditing.syncControls();
+      focusEditing.syncControls();
+      thoraxView?.redrawThoraxMap();
+    },
+    () => tmpEditing.getState(),
+  );
   thoraxView = mountThorax(bundle.thorax, bundle.ecgSignals, () => tmpEditing.getState());
   tmpEditing.syncControls();
   focusEditing.syncControls();
@@ -2010,6 +2027,7 @@ function applyCaseBundle(bundle, noticeText) {
   }
   redrawTimeDependents = () => {
     redrawSignals();
+    heartView.redrawHeartSurface();
     tmpEditing.redrawTmp();
     thoraxView.redrawThoraxMap();
     if (statusMessage) {

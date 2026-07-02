@@ -65,14 +65,14 @@ The case summary includes a Validation field. `Partial` means the case loaded an
 
 ## Normal Case Walkthrough
 
-Use any supported WPW variant, for example:
+Use the bundled normal case, for example:
 
 ```text
 research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
 ```
 
 1. Confirm the case status shows `normal_male2.ECGsimcase`.
-2. In Heart, switch Surface between Geometry, Depolarization, Repolarization, Amplitude, and Resting potential.
+2. In Heart, switch Surface between Geometry, Depolarization, Repolarization, ARI, TMP at time, Amplitude, and Resting potential.
 3. Click the Heart surface to select a node.
 4. Adjust Radius and Transition to change the weighted source region.
 5. In TMP, choose a parameter and change Value.
@@ -82,7 +82,7 @@ research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
 9. Use Import edits to reload that sidecar into the same case.
 10. In Thorax, switch between geometry, measured BSPM, initial BSPM, adapted BSPM, and sensitivity where available; toggle lungs/electrodes; adjust Scale.
 11. In Leads, switch Coupling between Baseline, AC, and DC; toggle Adapted to recompute electrode traces from edited TMP parameters; change Scale; toggle Grid and RMS.
-12. Use the shared time cursor or arrow keys on TMP/Leads canvases to step through time.
+12. Use the shared time cursor or arrow keys on TMP/Leads canvases to step through time; TMP at time and Thorax BSPM modes update with the cursor.
 13. Use each pane's PNG button to download the current Heart, Thorax, TMP, or Leads image.
 
 ## WPW Case Walkthrough
@@ -159,6 +159,7 @@ Current unsupported outputs:
 
 - TMP waveform generation is calibrated against the normal male ECGSIM 3.0.1 `.user.source` export; additional cases and edited-source workflows still need parity coverage.
 - Initial/adapted Thorax BSPM, sensitivity maps, and adapted lead traces recompute when the generated bundle includes the ventricles-to-thorax transfer candidate.
+- Heart ARI is computed as repolarization minus depolarization in milliseconds. Heart TMP at time is generated from the current TMP parameter state and shared time cursor.
 - WPW Focus controls use a documented `linear-index-preview` route calculation for safe UI workflow testing. The preview does not write raw activation construction fields and does not yet propagate into TMP, ECG, or BSPM recomputation.
 - Baseline coupling reports whether fiducials are available. `normal_male2` uses derived samples `(5, 499)` from the promoted ECGSIM 3.0.1 `standard_12.adaptECG` export; WPW bundles still use fallback signal endpoints because P-wave/T-wave samples have not been located or derived for those cases.
 - The Validation field summarizes known partial-support limits for the loaded bundle; it is not a failure when the main views remain available.
@@ -174,6 +175,7 @@ Automated coverage includes:
 - Viewer smoke tests.
 - Full browser workflow tests against the source viewer.
 - Full browser workflow tests against the static package.
+- Heart ARI and TMP-at-time transform/rendering checks.
 - WPW focus inspection and preview recomputation checks.
 - PNG export checks for all primary panes.
 - Source edit sidecar download/import checks.

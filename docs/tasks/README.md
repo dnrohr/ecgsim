@@ -128,7 +128,7 @@ Each task should end with:
 
 ## NF3: Visualization And Workflow Depth
 
-- [ ] [0071 Implement ARI And TMP At Time Heart Surfaces](0071-implement-ari-and-tmp-at-time-heart-surfaces.md)
+- [x] [0071 Implement ARI And TMP At Time Heart Surfaces](0071-implement-ari-and-tmp-at-time-heart-surfaces.md)
 - [ ] [0072 Implement Isofunction Contours And Colormap Parity](0072-implement-isofunction-contours-and-colormap-parity.md)
 - [ ] [0073 Implement Thorax Probe Contribution Views](0073-implement-thorax-probe-contribution-views.md)
 - [ ] [0074 Expand Linked Time And Playback Coverage](0074-expand-linked-time-and-playback-coverage.md)

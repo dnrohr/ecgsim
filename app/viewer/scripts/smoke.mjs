@@ -7,6 +7,7 @@ import {
   previewFocusActivation,
   updateFocusParameters,
 } from "../src/focus-editing.js";
+import { ariValues, heartSurfaceValues, tmpAtTimeValues } from "../src/heart-surfaces.js";
 import {
   canRecomputeLeadTraces,
   recomputeLeadTraces,
@@ -69,6 +70,8 @@ const required = [
   "data-heart-ap",
   "data-heart-rotate",
   "data-heart-surface",
+  "value=\"ariMs\"",
+  "value=\"tmpAtTime\"",
   "data-heart-values",
   "data-heart-wall",
   "data-heart-transmural",
@@ -326,6 +329,21 @@ if (
   process.exit(1);
 }
 const editState = createTmpEditState(tmpFixture);
+const ari = ariValues(editState.parameters, "adapted");
+const tmpAtZero = tmpAtTimeValues(editState, "adapted", 0);
+const surfaceAri = heartSurfaceValues(editState, "ariMs", "adapted", 0);
+const surfaceTmp = heartSurfaceValues(editState, "tmpAtTime", "adapted", 12);
+if (
+  ari.length !== editState.nodeCount ||
+  ari[0] !== editState.parameters.repolarizationMs.adapted[0] - editState.parameters.depolarizationMs.adapted[0] ||
+  tmpAtZero.length !== editState.nodeCount ||
+  surfaceAri[0] !== ari[0] ||
+  surfaceTmp.length !== editState.nodeCount ||
+  !Number.isFinite(surfaceTmp[0])
+) {
+  console.error("Heart ARI or TMP-at-time surface transforms failed");
+  process.exit(1);
+}
 if (!canRecomputeLeadTraces(ecgFixture, editState)) {
   console.error("Lead ECG recompute prerequisites were not detected");
   process.exit(1);
