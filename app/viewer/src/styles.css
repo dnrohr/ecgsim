@@ -536,6 +536,10 @@ h2 {
   accent-color: #175c8a;
 }
 
+.heart-controls input[type="range"] {
+  width: 88px;
+}
+
 .thorax-controls input[type="range"] {
   width: 104px;
 }

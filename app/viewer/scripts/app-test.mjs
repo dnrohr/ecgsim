@@ -350,6 +350,21 @@ async function assertHeartViewControls(page) {
   assert.match(wallTitle ?? "", /PGraphGeometry payload semantics/, "Endo/Epi disabled state should explain the missing mapping");
   assert.match(transmuralTitle ?? "", /PGraphGeometry payload semantics/, "Transmural disabled state should explain the missing mapping");
 
+  assert.equal(await page.locator("[data-heart-cross-section-plane]").isDisabled(), true, "Cross-section plane slider should start disabled");
+  await page.locator("[data-heart-cross-section]").check();
+  await expectText(page, "[data-heart-cross-section-status]", "Cut 0 mm");
+  assert.equal(await page.locator("[data-heart-cross-section-plane]").isEnabled(), true, "Cross-section plane slider should enable with cut mode");
+  await page.waitForTimeout(150);
+  const cutSignature = await canvasSignature(page, canvas);
+  assert.notEqual(cutSignature, geometrySignature, "Heart cross-section cut should change the geometry canvas");
+  await setRangeValue(page, "[data-heart-cross-section-plane]", "20");
+  await expectText(page, "[data-heart-cross-section-status]", "Cut 20 mm");
+  await page.waitForTimeout(150);
+  const movedCutSignature = await canvasSignature(page, canvas);
+  assert.notEqual(movedCutSignature, cutSignature, "Moving the Heart cross-section plane should redraw the cut");
+  await page.locator("[data-heart-cross-section]").uncheck();
+  await expectText(page, "[data-heart-cross-section-status]", "Full heart");
+
   await page.locator("[data-heart-surface]").selectOption("depolarizationMs");
   await expectText(page, "[data-heart-surface-status]", "Depolarization / adapted");
   await expectText(page, "[data-heart-mode-badge]", "Depolarization");

@@ -72,6 +72,9 @@ const heartSurface = document.querySelector("[data-heart-surface]");
 const heartValues = document.querySelector("[data-heart-values]");
 const heartWall = document.querySelector("[data-heart-wall]");
 const heartTransmural = document.querySelector("[data-heart-transmural]");
+const heartCrossSection = document.querySelector("[data-heart-cross-section]");
+const heartCrossSectionPlane = document.querySelector("[data-heart-cross-section-plane]");
+const heartCrossSectionStatus = document.querySelector("[data-heart-cross-section-status]");
 const heartSurfaceStatus = document.querySelector("[data-heart-surface-status]");
 const heartModeBadge = document.querySelector("[data-heart-mode-badge]");
 const heartProvenanceBadge = document.querySelector("[data-heart-provenance-badge]");
@@ -445,17 +448,22 @@ function mountHeart(
     !heartSurface ||
     !heartValues ||
     !heartWall ||
-    !heartTransmural
+    !heartTransmural ||
+    !heartCrossSection ||
+    !heartCrossSectionPlane ||
+    !heartCrossSectionStatus
   ) {
     throw new Error("Heart viewport did not mount");
   }
   heartViewport.replaceChildren();
 
   const { scene, camera, renderer } = createScene(heartViewport, 0.32);
+  renderer.localClippingEnabled = true;
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   let selectedNodeIndex = -1;
   let isAutoRotating = true;
+  const crossSectionPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
 
   const geometry = buildGeometry(fixture, { center: true });
   const colors = new Float32Array(geometry.getAttribute("position").count * 3);
@@ -556,6 +564,17 @@ function mountHeart(
 
   function setMeshRotationAP() {
     mesh.rotation.set(-0.35, 0.2, 0.08);
+    renderer.render(scene, camera);
+  }
+
+  function syncCrossSectionPlane() {
+    const enabled = heartCrossSection.checked;
+    const offsetMm = Number.parseFloat(heartCrossSectionPlane.value);
+    heartCrossSectionPlane.disabled = !enabled;
+    crossSectionPlane.constant = offsetMm / 1000;
+    mesh.material.clippingPlanes = enabled ? [crossSectionPlane] : [];
+    mesh.material.needsUpdate = true;
+    heartCrossSectionStatus.value = enabled ? `Cut ${offsetMm} mm` : "Full heart";
     renderer.render(scene, camera);
   }
 
@@ -830,6 +849,8 @@ function mountHeart(
   heartSurface.onchange = applySurfaceFunction;
   heartValues.onchange = applySurfaceFunction;
   heartContours.onchange = applySurfaceFunction;
+  heartCrossSection.onchange = syncCrossSectionPlane;
+  heartCrossSectionPlane.oninput = syncCrossSectionPlane;
   renderer.domElement.addEventListener("pointerdown", selectFromPointer);
   renderer.domElement.style.cursor = "crosshair";
 
@@ -843,11 +864,14 @@ function mountHeart(
   heartTransition.value = "0";
   heartNodeOverlay.checked = false;
   heartSelectionRings.checked = false;
+  heartCrossSection.checked = false;
+  heartCrossSectionPlane.value = "0";
   syncWallMappingControls();
   if (heartRotate) {
     heartRotate.checked = true;
   }
   heartContours.checked = false;
+  syncCrossSectionPlane();
   applySurfaceFunction();
   updateSelection();
 

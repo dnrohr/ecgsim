@@ -29,7 +29,7 @@ This matrix tracks what a user can see and manipulate. It does not require the m
 | Heart | TMP at selected time | Heart surface `TMP at time`, linked cursor/playback | supported | Time cursor changes canvas and status | `0091` |
 | Heart | Heart contribution map | Heart surface `Thorax contribution` after thorax-node selection | partial | Transfer-row provenance and selected-node workflow test | `0095` |
 | Heart | Node visibility and selected-zone rings | Node overlay plus radius/transition rings | supported | App workflow checks overlay toggles and canvas deltas | complete |
-| Heart | Cross plane | Geometry clipping plane | blocked-on-evidence | Confirm expected legacy clipping behavior | `0089` |
+| Heart | Cross plane | Movable Heart clipping-plane prototype | modern-equivalent | App workflow checks cut and plane movement; exact legacy orientation still needs curated reference | `0102` |
 | Heart | Heart vector | Time arrow/vector overlay | blocked-on-evidence | Equation/data source for vector path | `0090` |
 | Heart | Electrode visibility | Lead-system electrode overlay in Heart and Thorax | partial | Parsed electrode mapping and overlay tests | `0090` |
 | Heart | Endocardial/epicardial and transmural mapping | Disabled until wall mappings are parsed | blocked-on-evidence | PGraphGeometry/wall mapping semantics | future |
