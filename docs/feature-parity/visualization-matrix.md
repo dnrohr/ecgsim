@@ -30,8 +30,8 @@ This matrix tracks what a user can see and manipulate. It does not require the m
 | Heart | Heart contribution map | Heart surface `Thorax contribution` after thorax-node selection | partial | Transfer-row provenance and selected-node workflow test | `0095` |
 | Heart | Node visibility and selected-zone rings | Node overlay plus radius/transition rings | supported | App workflow checks overlay toggles and canvas deltas | complete |
 | Heart | Cross plane | Movable Heart clipping-plane prototype | modern-equivalent | App workflow checks cut and plane movement; exact legacy orientation still needs curated reference | `0102` |
-| Heart | Heart vector | Time arrow/vector overlay | blocked-on-evidence | Equation/data source for vector path | `0090` |
-| Heart | Electrode visibility | Lead-system electrode overlay in Heart and Thorax | partial | Parsed electrode mapping and overlay tests | `0090` |
+| Heart | Heart vector | Computed TMP-centroid vector path and current-time arrow | modern-equivalent | App workflow checks vector canvas delta and time-linked redraw; exact legacy vector equation still needs capture | `0102` |
+| Heart | Electrode visibility | Lead-system electrode overlay in Heart and Thorax | supported | App workflow checks parsed electrode counts and lead-system overlay redraw | complete |
 | Heart | Endocardial/epicardial and transmural mapping | Disabled until wall mappings are parsed | blocked-on-evidence | PGraphGeometry/wall mapping semantics | future |
 | Thorax | Geometry with lungs | Thorax, left lung, right lung toggles | supported | Nonblank canvas and layer-toggle deltas | `0101` |
 | Thorax | Heart context inside thorax | Heart-context overlay in Thorax geometry mode | partial | Visible overlay and layer controls | `0092` |

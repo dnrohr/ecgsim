@@ -365,6 +365,33 @@ async function assertHeartViewControls(page) {
   await page.locator("[data-heart-cross-section]").uncheck();
   await expectText(page, "[data-heart-cross-section-status]", "Full heart");
 
+  await expectText(page, "[data-heart-overlay-status]", "Overlays off");
+  await page.locator("[data-heart-electrodes]").check();
+  await expectText(page, "[data-heart-overlay-status]", "9 electrodes");
+  await page.waitForTimeout(150);
+  const standardElectrodesSignature = await canvasSignature(page, canvas);
+  assert.notEqual(standardElectrodesSignature, geometrySignature, "Heart electrode overlay should draw selected lead-system electrodes");
+  await page.locator("[data-leads-system]").selectOption("VCG_(Frank)");
+  await expectText(page, "[data-heart-overlay-status]", "7 electrodes");
+  await page.waitForTimeout(150);
+  const vcgElectrodesSignature = await canvasSignature(page, canvas);
+  assert.notEqual(vcgElectrodesSignature, standardElectrodesSignature, "Heart electrode overlay should update with lead-system changes");
+  await page.locator("[data-heart-electrodes]").uncheck();
+  await page.locator("[data-leads-system]").selectOption("standard_12");
+
+  await page.locator("[data-heart-vector]").check();
+  await expectText(page, "[data-heart-overlay-status]", "TMP vector 0 ms");
+  await page.waitForTimeout(150);
+  const vectorSignature = await canvasSignature(page, canvas);
+  assert.notEqual(vectorSignature, geometrySignature, "Heart vector overlay should draw a computed TMP vector path");
+  await setRangeValue(page, "[data-time-cursor]", "80");
+  await expectText(page, "[data-heart-overlay-status]", "TMP vector 80 ms");
+  await page.waitForTimeout(150);
+  const vectorAtTimeSignature = await canvasSignature(page, canvas);
+  assert.notEqual(vectorAtTimeSignature, vectorSignature, "Heart vector arrow should follow the shared time cursor");
+  await page.locator("[data-heart-vector]").uncheck();
+  await setRangeValue(page, "[data-time-cursor]", "0");
+
   await page.locator("[data-heart-surface]").selectOption("depolarizationMs");
   await expectText(page, "[data-heart-surface-status]", "Depolarization / adapted");
   await expectText(page, "[data-heart-mode-badge]", "Depolarization");

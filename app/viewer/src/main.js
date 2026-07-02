@@ -8,7 +8,7 @@ import {
   previewFocusActivation,
   updateFocusParameters,
 } from "./focus-editing.js";
-import { finiteRange, heartSurfaceValues } from "./heart-surfaces.js";
+import { finiteRange, heartSurfaceValues, tmpAtTimeValues } from "./heart-surfaces.js";
 import {
   canRecomputeLeadTraces,
   canUseThoraxTransfer,
@@ -75,6 +75,9 @@ const heartTransmural = document.querySelector("[data-heart-transmural]");
 const heartCrossSection = document.querySelector("[data-heart-cross-section]");
 const heartCrossSectionPlane = document.querySelector("[data-heart-cross-section-plane]");
 const heartCrossSectionStatus = document.querySelector("[data-heart-cross-section-status]");
+const heartElectrodes = document.querySelector("[data-heart-electrodes]");
+const heartVector = document.querySelector("[data-heart-vector]");
+const heartOverlayStatus = document.querySelector("[data-heart-overlay-status]");
 const heartSurfaceStatus = document.querySelector("[data-heart-surface-status]");
 const heartModeBadge = document.querySelector("[data-heart-mode-badge]");
 const heartProvenanceBadge = document.querySelector("[data-heart-provenance-badge]");
@@ -316,6 +319,14 @@ function buildGeometry(fixture, { center = false } = {}) {
   return geometry;
 }
 
+function centerOfPoints(points) {
+  const box = new THREE.Box3();
+  points.forEach((point) => {
+    box.expandByPoint(new THREE.Vector3(point[0], point[1], point[2]));
+  });
+  return box.getCenter(new THREE.Vector3());
+}
+
 function createScene(viewport, cameraDistance) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xf8fafb);
@@ -451,7 +462,10 @@ function mountHeart(
     !heartTransmural ||
     !heartCrossSection ||
     !heartCrossSectionPlane ||
-    !heartCrossSectionStatus
+    !heartCrossSectionStatus ||
+    !heartElectrodes ||
+    !heartVector ||
+    !heartOverlayStatus
   ) {
     throw new Error("Heart viewport did not mount");
   }
@@ -464,6 +478,7 @@ function mountHeart(
   let selectedNodeIndex = -1;
   let isAutoRotating = true;
   const crossSectionPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
+  const heartCenter = centerOfPoints(fixture.points);
 
   const geometry = buildGeometry(fixture, { center: true });
   const colors = new Float32Array(geometry.getAttribute("position").count * 3);
@@ -562,6 +577,30 @@ function mountHeart(
   mesh.add(radiusRing);
   mesh.add(transitionRing);
 
+  const electrodeGroup = new THREE.Group();
+  electrodeGroup.renderOrder = 7;
+  scene.add(electrodeGroup);
+
+  const vectorGroup = new THREE.Group();
+  const vectorPath = new THREE.Line(
+    new THREE.BufferGeometry(),
+    new THREE.LineBasicMaterial({ color: 0x111820, depthTest: false, linewidth: 2 }),
+  );
+  const vectorArrow = new THREE.ArrowHelper(
+    new THREE.Vector3(1, 0, 0),
+    new THREE.Vector3(0, 0, 0),
+    0.04,
+    0xf2b705,
+    0.012,
+    0.008,
+  );
+  vectorPath.renderOrder = 8;
+  vectorArrow.renderOrder = 9;
+  vectorGroup.add(vectorPath);
+  vectorGroup.add(vectorArrow);
+  vectorGroup.visible = false;
+  scene.add(vectorGroup);
+
   function setMeshRotationAP() {
     mesh.rotation.set(-0.35, 0.2, 0.08);
     renderer.render(scene, camera);
@@ -604,6 +643,114 @@ function mountHeart(
       updateRingGeometry(transitionRing, center, (selectionState.radiusMm + selectionState.transitionMm) / 1000);
     }
     renderer.render(scene, camera);
+  }
+
+  function selectedLeadSystemDetailForHeart() {
+    const name = toolbarLeadSystem?.value ?? currentCaseMetadata?.leadSystems?.[0];
+    return currentCaseMetadata?.leadSystemDetails?.find((item) => item.name === name)
+      ?? currentCaseMetadata?.leadSystemDetails?.[0]
+      ?? null;
+  }
+
+  function syncHeartElectrodes() {
+    electrodeGroup.clear();
+    const leadSystem = selectedLeadSystemDetailForHeart();
+    const electrodes = leadSystem?.electrodes ?? [];
+    heartElectrodes.disabled = electrodes.length === 0;
+    heartElectrodes.title = electrodes.length
+      ? `${electrodes.length} parsed electrode positions for ${leadSystem.name}.`
+      : "No parsed electrode positions for selected lead system.";
+    if (heartElectrodes.checked && electrodes.length) {
+      electrodes.forEach((electrode) => {
+        const marker = new THREE.Mesh(
+          new THREE.SphereGeometry(0.0065, 14, 10),
+          new THREE.MeshStandardMaterial({
+            color: 0xd7dde1,
+            emissive: 0x2c343a,
+            emissiveIntensity: 0.18,
+            roughness: 0.42,
+          }),
+        );
+        marker.position.set(
+          electrode.position[0] - heartCenter.x,
+          electrode.position[1] - heartCenter.y,
+          electrode.position[2] - heartCenter.z,
+        );
+        electrodeGroup.add(marker);
+      });
+    }
+    updateHeartOverlayStatus();
+    renderer.render(scene, camera);
+  }
+
+  function computedVectorPoints(tmpState) {
+    if (!tmpState?.parameters || !nodePositions.length) {
+      return [];
+    }
+    const count = Math.min(nodePositions.length, tmpState.nodeCount);
+    const step = Math.max(1, Math.floor(tmpState.sampleCount / 96));
+    const points = [];
+    for (let sample = 0; sample < tmpState.sampleCount; sample += step) {
+      points.push(computedVectorPoint(tmpState, sample, count));
+    }
+    if ((tmpState.sampleCount - 1) % step !== 0) {
+      points.push(computedVectorPoint(tmpState, tmpState.sampleCount - 1, count));
+    }
+    return points;
+  }
+
+  function computedVectorPoint(tmpState, sample, count) {
+    const values = tmpAtTimeValues(tmpState, "adapted", sample);
+    let mean = 0;
+    for (let index = 0; index < count; index += 1) {
+      mean += values[index] ?? 0;
+    }
+    mean /= count || 1;
+    const centroid = new THREE.Vector3();
+    let weightTotal = 0;
+    for (let index = 0; index < count; index += 1) {
+      const weight = Math.abs((values[index] ?? mean) - mean);
+      centroid.addScaledVector(nodePositions[index], weight);
+      weightTotal += weight;
+    }
+    if (weightTotal > 1e-9) {
+      centroid.multiplyScalar(1 / weightTotal);
+    }
+    return centroid;
+  }
+
+  function syncHeartVector() {
+    const tmpState = getTmpEditState() ?? createTmpEditState(tmpFixture);
+    vectorGroup.visible = heartVector.checked;
+    if (heartVector.checked) {
+      const points = computedVectorPoints(tmpState);
+      vectorPath.geometry.setFromPoints(points);
+      const current = computedVectorPoint(tmpState, timeState.sample, Math.min(nodePositions.length, tmpState.nodeCount));
+      const direction = current.clone();
+      const length = Math.max(0.018, Math.min(0.085, direction.length()));
+      if (direction.lengthSq() < 1e-12) {
+        direction.set(1, 0, 0);
+      } else {
+        direction.normalize();
+      }
+      vectorArrow.position.set(0, 0, 0);
+      vectorArrow.setDirection(direction);
+      vectorArrow.setLength(length, 0.012, 0.008);
+    }
+    updateHeartOverlayStatus();
+    renderer.render(scene, camera);
+  }
+
+  function updateHeartOverlayStatus() {
+    const leadSystem = selectedLeadSystemDetailForHeart();
+    const parts = [];
+    if (heartElectrodes.checked && !heartElectrodes.disabled) {
+      parts.push(`${leadSystem?.electrodes?.length ?? 0} electrodes`);
+    }
+    if (heartVector.checked) {
+      parts.push(`TMP vector ${Math.round((timeState.sample / timeState.sampleRateHz) * 1000)} ms`);
+    }
+    heartOverlayStatus.value = parts.length ? parts.join(" / ") : "Overlays off";
   }
 
   function valueColor(value, min, span) {
@@ -851,6 +998,8 @@ function mountHeart(
   heartContours.onchange = applySurfaceFunction;
   heartCrossSection.onchange = syncCrossSectionPlane;
   heartCrossSectionPlane.oninput = syncCrossSectionPlane;
+  heartElectrodes.onchange = syncHeartElectrodes;
+  heartVector.onchange = syncHeartVector;
   renderer.domElement.addEventListener("pointerdown", selectFromPointer);
   renderer.domElement.style.cursor = "crosshair";
 
@@ -866,12 +1015,16 @@ function mountHeart(
   heartSelectionRings.checked = false;
   heartCrossSection.checked = false;
   heartCrossSectionPlane.value = "0";
+  heartElectrodes.checked = false;
+  heartVector.checked = false;
   syncWallMappingControls();
   if (heartRotate) {
     heartRotate.checked = true;
   }
   heartContours.checked = false;
   syncCrossSectionPlane();
+  syncHeartElectrodes();
+  syncHeartVector();
   applySurfaceFunction();
   updateSelection();
 
@@ -884,7 +1037,11 @@ function mountHeart(
   }
   animate();
 
-  return { redrawHeartSurface: applySurfaceFunction };
+  return {
+    redrawHeartSurface: applySurfaceFunction,
+    redrawHeartVector: syncHeartVector,
+    syncLeadSystem: syncHeartElectrodes,
+  };
 }
 
 function mountThorax(fixture, signalFixture, getTmpEditState = () => null, onProbeChange = () => {}) {
@@ -2586,6 +2743,7 @@ function applyCaseBundle(bundle, noticeText) {
   let focusEditing = null;
   const tmpEditing = mountTmpEditing(bundle.tmpWaveforms, () => {
     heartView?.redrawHeartSurface();
+    heartView?.redrawHeartVector();
     thoraxView?.redrawThoraxMap();
     redrawSignals();
   });
@@ -2650,6 +2808,7 @@ function applyCaseBundle(bundle, noticeText) {
   if (leadsSystem && toolbarLeadSystem) {
     leadsSystem.onchange = () => {
       toolbarLeadSystem.value = leadsSystem.value;
+      heartView?.syncLeadSystem();
       thoraxView.syncLeadSystem();
       redrawSignals();
     };
@@ -2670,6 +2829,7 @@ function applyCaseBundle(bundle, noticeText) {
   redrawTimeDependents = () => {
     redrawSignals();
     heartView.redrawHeartSurface();
+    heartView.redrawHeartVector();
     tmpEditing.redrawTmp();
     thoraxView.redrawThoraxMap();
     if (statusMessage) {
