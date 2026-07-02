@@ -29,3 +29,12 @@ Packaging and release validation exist, but signed/notarized delivery and packag
 ## Done When
 
 Release artifacts are trustworthy enough for external testers or collaborators.
+
+## Completion Notes
+
+Status: complete.
+
+- Added environment/build metadata to `tools/run_release_validation.py` summaries, including platform, Python, Node, npm, Git branch, Git commit, and dirty-worktree status.
+- Added a `visual-regression` release-validation step that compares the packaged screenshot against the captured legacy baseline with the loose smoke harness.
+- Documented `internal-dev`, `external-preview`, and future `desktop-signed` release channels in `docs/release-validation.md`.
+- Documented signing/notarization requirements and manual release steps that remain outside automation.

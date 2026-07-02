@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
+import platform
 import subprocess
 import sys
 import time
@@ -53,6 +54,19 @@ STEPS = (
         description="Capture a full-page screenshot of the packaged viewer for review.",
     ),
     ValidationStep(
+        id="visual-regression",
+        command=(
+            sys.executable,
+            "tools/visual_regression.py",
+            str(ARTIFACT_ROOT / "packaged-viewer.png"),
+            "--reference",
+            "research/legacy-exports/screenshots/normal-male-main-window.png",
+            "--output",
+            str(ARTIFACT_ROOT / "visual-regression.json"),
+        ),
+        description="Run broad PNG visual smoke comparison against the captured legacy baseline.",
+    ),
+    ValidationStep(
         id="whitespace",
         command=("git", "diff", "--check"),
         description="Whitespace sanity check for the release candidate worktree.",
@@ -74,9 +88,11 @@ def main() -> int:
 
     summary = {
         "schema": "org.ecgsim.release-validation",
-        "version": 1,
+        "version": 2,
         "status": "failed" if failed else "passed",
         "artifactRoot": str(ARTIFACT_ROOT),
+        "createdAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "environment": collect_environment(),
         "steps": results,
     }
     (ARTIFACT_ROOT / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
@@ -118,6 +134,34 @@ def run_step(step: ValidationStep) -> dict[str, object]:
     }
 
 
+def collect_environment() -> dict[str, object]:
+    return {
+        "platform": platform.platform(),
+        "python": sys.version.split()[0],
+        "node": command_output(("node", "--version")),
+        "npm": command_output(platform_command(("npm", "--version"))),
+        "gitCommit": command_output(("git", "rev-parse", "HEAD")),
+        "gitBranch": command_output(("git", "branch", "--show-current")),
+        "gitDirty": bool(command_output(("git", "status", "--porcelain"))),
+    }
+
+
+def command_output(command: tuple[str, ...]) -> str:
+    try:
+        completed = subprocess.run(
+            command,
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return "unavailable"
+    if completed.returncode != 0:
+        return "unavailable"
+    return completed.stdout.strip()
+
+
 def platform_command(command: tuple[str, ...]) -> tuple[str, ...]:
     if os.name == "nt" and command[0] == "npm":
         return ("npm.cmd",) + command[1:]
@@ -131,6 +175,18 @@ def format_markdown_summary(summary: dict[str, object]) -> str:
         f"Status: {summary['status']}",
         "",
         f"Artifacts: `{summary['artifactRoot']}`",
+        "",
+        "## Environment",
+        "",
+        f"- Platform: `{summary['environment']['platform']}`",
+        f"- Python: `{summary['environment']['python']}`",
+        f"- Node: `{summary['environment']['node']}`",
+        f"- npm: `{summary['environment']['npm']}`",
+        f"- Git branch: `{summary['environment']['gitBranch']}`",
+        f"- Git commit: `{summary['environment']['gitCommit']}`",
+        f"- Git dirty: `{summary['environment']['gitDirty']}`",
+        "",
+        "## Steps",
         "",
         "| Step | Exit | Elapsed | Log |",
         "| --- | ---: | ---: | --- |",
