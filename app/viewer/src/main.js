@@ -89,6 +89,7 @@ const thoraxContours = document.querySelector("[data-thorax-contours]");
 const thoraxSurface = document.querySelector("[data-thorax-surface]");
 const thoraxScale = document.querySelector("[data-thorax-scale]");
 const thoraxElectrodes = document.querySelector("[data-thorax-electrodes]");
+const thoraxHeartContext = document.querySelector("[data-thorax-heart-context]");
 const thoraxSurfaceStatus = document.querySelector("[data-thorax-surface-status]");
 const thoraxSelection = document.querySelector("[data-thorax-selection]");
 const thoraxModeBadge = document.querySelector("[data-thorax-mode-badge]");
@@ -1044,7 +1045,7 @@ function mountHeart(
   };
 }
 
-function mountThorax(fixture, signalFixture, getTmpEditState = () => null, onProbeChange = () => {}) {
+function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () => null, onProbeChange = () => {}) {
   if (
     !thoraxViewport ||
     !thoraxMetadata ||
@@ -1053,6 +1054,7 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null, onPro
     !thoraxContours ||
     !thoraxSurface ||
     !thoraxScale ||
+    !thoraxHeartContext ||
     !thoraxSurfaceStatus ||
     !thoraxSelection
   ) {
@@ -1108,6 +1110,22 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null, onPro
     }
     group.add(mesh);
   }
+
+  const heartContextMesh = new THREE.Mesh(
+    buildGeometry(heartFixture),
+    new THREE.MeshStandardMaterial({
+      color: 0xb3261e,
+      opacity: 0.68,
+      roughness: 0.7,
+      side: THREE.DoubleSide,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+    }),
+  );
+  heartContextMesh.visible = false;
+  heartContextMesh.renderOrder = 3;
+  group.add(heartContextMesh);
 
   const selectedMarker = new THREE.Mesh(
     new THREE.SphereGeometry(0.009, 16, 12),
@@ -1218,6 +1236,11 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null, onPro
 
   function renderThorax() {
     renderer.render(scene, camera);
+  }
+
+  function syncHeartContext() {
+    heartContextMesh.visible = thoraxHeartContext.checked;
+    renderThorax();
   }
 
   function setThoraxRotationAP() {
@@ -1489,12 +1512,16 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null, onPro
   thoraxScale.value = "100";
   thoraxRotate.checked = true;
   thoraxContours.checked = false;
+  thoraxHeartContext.checked = false;
+  thoraxHeartContext.title = `${heartFixture.pointCount} parsed Heart nodes available as Thorax context.`;
+  thoraxHeartContext.onchange = syncHeartContext;
   if (thoraxElectrodes) {
     thoraxElectrodes.checked = false;
     thoraxElectrodes.title = electrodeStatusText();
     thoraxElectrodes.onchange = syncElectrodeMarkers;
   }
   applyThoraxSurface();
+  syncHeartContext();
   syncElectrodeMarkers();
   updateSelectionStatus();
 
@@ -2763,6 +2790,7 @@ function applyCaseBundle(bundle, noticeText) {
   thoraxView = mountThorax(
     bundle.thorax,
     bundle.ecgSignals,
+    bundle.heart,
     () => tmpEditing.getState(),
     () => heartView?.redrawHeartSurface(),
   );

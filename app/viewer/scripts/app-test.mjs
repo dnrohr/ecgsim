@@ -267,10 +267,19 @@ async function assertThoraxControls(page) {
   assert.equal(await page.locator("[data-thorax-surface] option[value='sensitivity']").isDisabled(), false, "sensitivity map should be available from transfer matrix");
 
   const before = await canvasSignature(page, canvas);
+  await page.locator("[data-thorax-heart-context]").check();
+  assert.equal(await page.locator("[data-thorax-heart-context]").isChecked(), true, "Thorax heart context layer should toggle on");
+  await page.waitForTimeout(150);
+  const heartContextShown = await canvasSignature(page, canvas);
+  assert.notEqual(heartContextShown, before, "Thorax heart context overlay should draw the parsed Heart mesh");
+  await page.locator("[data-thorax-heart-context]").uncheck();
+  assert.equal(await page.locator("[data-thorax-heart-context]").isChecked(), false, "Thorax heart context layer should toggle off");
+  await page.waitForTimeout(150);
+
   await page.locator("[data-thorax-electrodes]").check();
   await page.waitForTimeout(150);
   const electrodesShown = await canvasSignature(page, canvas);
-  assert.notEqual(electrodesShown, before, "Thorax electrode toggle should draw selected lead-system markers");
+  assert.notEqual(electrodesShown, heartContextShown, "Thorax electrode toggle should draw selected lead-system markers");
 
   await page.locator("[data-thorax-surface]").selectOption("measured");
   await expectText(page, "[data-thorax-surface-status]", "Measured BSPM / 100% / 0 ms");

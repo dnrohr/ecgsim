@@ -34,7 +34,7 @@ This matrix tracks what a user can see and manipulate. It does not require the m
 | Heart | Electrode visibility | Lead-system electrode overlay in Heart and Thorax | supported | App workflow checks parsed electrode counts and lead-system overlay redraw | complete |
 | Heart | Endocardial/epicardial and transmural mapping | Disabled until wall mappings are parsed | blocked-on-evidence | PGraphGeometry/wall mapping semantics | future |
 | Thorax | Geometry with lungs | Thorax, left lung, right lung toggles | supported | Nonblank canvas and layer-toggle deltas | `0101` |
-| Thorax | Heart context inside thorax | Heart-context overlay in Thorax geometry mode | partial | Visible overlay and layer controls | `0092` |
+| Thorax | Heart context inside thorax | Heart-context overlay in Thorax geometry mode | supported | App workflow checks layer toggle and canvas delta | complete |
 | Thorax | Measured BSPM | Thorax surface `Measured BSPM` | supported | Surface matrix provenance and time canvas delta | `0101` |
 | Thorax | Initial BSPM | Thorax surface `Initial BSPM` | supported | TMP/transfer recomputation provenance and canvas delta | `0101` |
 | Thorax | Adapted BSPM | Thorax surface `Adapted BSPM` | supported | TMP edit changes recomputed map | `0101` |

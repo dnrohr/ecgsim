@@ -21,7 +21,7 @@ This document maps visualization modes to current automated evidence. It tracks 
 | Heart | Cross-section plane | App workflow enables Heart cut mode, moves the plane, and checks canvas deltas/status | medium | Exact legacy Shift+wheel/arrow behavior and plane orientation unverified |
 | Heart | Electrode overlay | App workflow toggles Heart electrodes and verifies parsed lead-system count plus canvas delta | strong smoke | Exact legacy grey patch shape unverified |
 | Heart | Heart vector | App workflow toggles computed TMP vector path and checks time-linked canvas redraw/status | medium | Exact legacy heart-vector equation unverified |
-| Thorax | Geometry/lung layers | App workflow checks nonblank canvas and lung-toggle canvas delta | strong smoke | Heart context overlay missing |
+| Thorax | Geometry/heart/lung layers | App workflow checks nonblank canvas plus Heart context and lung-toggle canvas deltas | strong smoke | Exact legacy transparency style unverified |
 | Thorax | Electrodes | App workflow toggles parsed electrodes and checks canvas delta | strong smoke | Exact electrode glyph geometry unverified |
 | Thorax | Measured BSPM | App workflow switches measured map, time cursor, contours, and scale | strong smoke | No legacy map color/line parity |
 | Thorax | Initial/adapted BSPM | App workflow switches recomputed maps and verifies edit-driven redraw | strong smoke | WCT/reference parity unresolved |
