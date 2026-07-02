@@ -34,6 +34,13 @@ import {
 
 const status = document.querySelector("[data-case-status]");
 const shell = document.querySelector("[data-viewer-shell]");
+const helpOpen = document.querySelector("[data-help-open]");
+const helpClose = document.querySelector("[data-help-close]");
+const helpDialog = document.querySelector("[data-help-dialog]");
+const helpVersion = document.querySelector("[data-help-version]");
+const helpCase = document.querySelector("[data-help-case]");
+const helpValidation = document.querySelector("[data-help-validation]");
+const helpCases = document.querySelector("[data-help-cases]");
 const caseFile = document.querySelector("[data-case-file]");
 const caseBundleFile = document.querySelector("[data-case-bundle-file]");
 const caseSize = document.querySelector("[data-case-size]");
@@ -115,6 +122,9 @@ const focusPreview = document.querySelector("[data-focus-preview]");
 const focusOppositeWall = document.querySelector("[data-focus-opposite-wall]");
 const focusWriteRaw = document.querySelector("[data-focus-write-raw]");
 const focusStatus = document.querySelector("[data-focus-status]");
+
+const APP_VERSION = "0.1.0";
+const BUILD_LABEL = "browser-static";
 
 const selectionState = {
   nodeIndex: -1,
@@ -1911,6 +1921,45 @@ function updateCaseMetadata(metadata, noticeText) {
   if (statusMessage) {
     statusMessage.value = noticeText ?? `Ready: ${metadata.fileName}`;
   }
+  syncHelpContent(metadata);
+}
+
+function syncHelpContent(metadata = currentCaseMetadata) {
+  if (helpVersion) {
+    helpVersion.textContent = `${APP_VERSION} / ${BUILD_LABEL}`;
+  }
+  if (helpCase) {
+    helpCase.textContent = metadata?.fileName ?? "No case loaded";
+  }
+  if (helpValidation) {
+    helpValidation.textContent = metadata?.validation
+      ? validationSummaryText(metadata.validation)
+      : "Validation unavailable";
+  }
+  if (helpCases) {
+    const names = supportedCaseManifest?.cases?.map((item) => item.fileName) ?? [];
+    helpCases.textContent = names.length ? names.join(", ") : "Bundle manifest not loaded";
+  }
+}
+
+function openHelpDialog() {
+  syncHelpContent();
+  if (typeof helpDialog?.showModal === "function") {
+    helpDialog.showModal();
+  } else if (helpDialog) {
+    helpDialog.setAttribute("open", "");
+  }
+  if (statusMessage) {
+    statusMessage.value = "Help and references opened.";
+  }
+}
+
+function closeHelpDialog() {
+  if (typeof helpDialog?.close === "function") {
+    helpDialog.close();
+  } else {
+    helpDialog?.removeAttribute("open");
+  }
 }
 
 function validationSummaryText(validation) {
@@ -2392,6 +2441,14 @@ async function mount() {
   );
   caseFile?.addEventListener("change", () => openSelectedCase(caseFile.files?.[0]));
   caseBundleFile?.addEventListener("change", () => openSelectedCaseBundle(caseBundleFile.files?.[0]));
+  helpOpen?.addEventListener("click", openHelpDialog);
+  helpClose?.addEventListener("click", closeHelpDialog);
+  helpDialog?.addEventListener("click", (event) => {
+    if (event.target === helpDialog) {
+      closeHelpDialog();
+    }
+  });
+  syncHelpContent(caseMetadata);
   mountVisualExportControls();
 }
 

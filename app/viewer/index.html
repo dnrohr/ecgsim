@@ -21,7 +21,10 @@
           <h1>ECGSIM Viewer</h1>
           <p>Read-only compatibility workspace</p>
         </div>
-        <output class="case-status" data-case-status>normal_male2.ECGsimcase</output>
+        <div class="topbar-actions">
+          <button type="button" data-help-open>Help</button>
+          <output class="case-status" data-case-status>normal_male2.ECGsimcase</output>
+        </div>
       </header>
       <nav class="menu-strip" aria-label="ECGSIM menu groups" data-shell-menu>
         <span>File</span>
@@ -306,6 +309,60 @@
       <footer class="statusbar" aria-label="ECGSIM status">
         <output data-status-message>Ready</output>
       </footer>
+      <dialog class="help-dialog" data-help-dialog aria-labelledby="help-title">
+        <div class="help-header">
+          <div>
+            <h2 id="help-title">About ECGSIM Viewer</h2>
+            <p>Modernized educational and research workspace for ECGSIM case data.</p>
+          </div>
+          <button type="button" data-help-close>Close</button>
+        </div>
+        <div class="help-content">
+          <section>
+            <h3>Status</h3>
+            <dl>
+              <div>
+                <dt>Version</dt>
+                <dd data-help-version>--</dd>
+              </div>
+              <div>
+                <dt>Current case</dt>
+                <dd data-help-case>--</dd>
+              </div>
+              <div>
+                <dt>Validation</dt>
+                <dd data-help-validation>--</dd>
+              </div>
+              <div>
+                <dt>Bundled cases</dt>
+                <dd data-help-cases>--</dd>
+              </div>
+            </dl>
+          </section>
+          <section>
+            <h3>Attribution</h3>
+            <p>ECGSIM was created as an interactive forward simulator for studying how myocardial transmembrane potentials generate ECG and body-surface potentials.</p>
+            <p>Data, manuals, cases, MATLAB helpers, tutorials, and papers were archived from <a href="https://www.ecgsim.org/" target="_blank" rel="noreferrer">ecgsim.org</a>.</p>
+          </section>
+          <section>
+            <h3>References</h3>
+            <ul>
+              <li>van Oosterom A, Oostendorp T. ECGSIM; an interactive tool for studying the genesis of QRST waveforms. Heart, 2004.</li>
+              <li>van Dam PM, van Oosterom A. Atrial Excitation Assuming Uniform Propagation. Journal of Cardiovascular Electrophysiology, 2003.</li>
+              <li>Patuwo, Wagner, Ajijola. Comparison of teaching basic ECG concepts with and without ECGSIM. Computers in Cardiology, 2007.</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Known Limits</h3>
+            <ul>
+              <li>Use for education and research, not clinical diagnosis or inverse reconstruction.</li>
+              <li>Browser case opening is limited to supported bundles or generated bundle JSON files.</li>
+              <li>Lead polarity/reference semantics, arbitrary case fiducials, full legacy export parity, and movie export remain incomplete.</li>
+              <li>Recomputed adapted ECG traces are previews until WCT/reference lead transforms are fully decoded and parity-tested.</li>
+            </ul>
+          </section>
+        </div>
+      </dialog>
     </main>
     <script type="module" src="./src/main.js"></script>
   </body>

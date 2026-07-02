@@ -54,6 +54,25 @@ h2 {
   font-size: 13px;
 }
 
+.topbar-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+}
+
+.topbar-actions button,
+.help-header button {
+  min-height: 28px;
+  border: 1px solid #a9b5bb;
+  background: #ffffff;
+  color: #182026;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+}
+
 .case-status {
   max-width: min(42vw, 360px);
   overflow: hidden;
@@ -190,6 +209,88 @@ h2 {
   background: #eef2f4;
   color: #52616b;
   font-size: 12px;
+}
+
+.help-dialog {
+  width: min(760px, calc(100vw - 28px));
+  max-height: calc(100vh - 44px);
+  padding: 0;
+  border: 1px solid #7f9098;
+  background: #ffffff;
+  color: #182026;
+}
+
+.help-dialog::backdrop {
+  background: rgba(24, 32, 38, 0.42);
+}
+
+.help-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #cfd8dc;
+  background: #eef2f4;
+}
+
+.help-header p {
+  margin-top: 4px;
+  color: #52616b;
+  font-size: 13px;
+}
+
+.help-content {
+  display: grid;
+  gap: 14px;
+  padding: 14px 16px 18px;
+  overflow: auto;
+}
+
+.help-content h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.help-content p,
+.help-content li,
+.help-content dd,
+.help-content dt {
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.help-content p {
+  margin: 0 0 7px;
+}
+
+.help-content dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 14px;
+  margin: 0;
+}
+
+.help-content dl div {
+  min-width: 0;
+}
+
+.help-content dt {
+  color: #52616b;
+}
+
+.help-content dd {
+  margin: 2px 0 0;
+}
+
+.help-content ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.help-content a {
+  color: #175c8a;
 }
 
 .case-summary dl {
@@ -563,16 +664,16 @@ canvas {
   .topbar {
     align-items: flex-start;
     flex-direction: column;
+    gap: 7px;
   }
 
-  .case-actions {
-    align-items: flex-start;
-    flex-direction: column;
-    max-width: 100%;
+  .topbar-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .case-status {
-    max-width: 100%;
+    max-width: calc(100vw - 96px);
   }
 
   .menu-strip {
@@ -658,5 +759,9 @@ canvas {
   .focus-controls output {
     white-space: normal;
     overflow-wrap: anywhere;
+  }
+
+  .help-content dl {
+    grid-template-columns: 1fr;
   }
 }

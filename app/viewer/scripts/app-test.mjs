@@ -41,6 +41,7 @@ try {
 
   await assertInitialState(page);
   await assertShellLayout(page);
+  await assertHelpAbout(page);
   await assertImportNotices(page);
   await assertHeartViewControls(page);
   await assertThoraxControls(page);
@@ -89,6 +90,21 @@ async function assertShellLayout(page) {
   assert.deepEqual(shell.modes, ["Heart", "Thorax", "TMP", "ECGs"]);
   assert.ok(shell.workspaceColumns.includes("px"), "workspace should render as a visible grid");
   assert.ok(shell.statusHeight >= 20, "status bar should remain visible");
+}
+
+async function assertHelpAbout(page) {
+  await page.locator("[data-help-open]").click();
+  await expectText(page, "[data-help-dialog]", "About ECGSIM Viewer");
+  await expectText(page, "[data-help-version]", "0.1.0 / browser-static");
+  await expectText(page, "[data-help-case]", "normal_male2.ECGsimcase");
+  await expectText(page, "[data-help-validation]", "Partial");
+  await expectText(page, "[data-help-cases]", "WPW_fusionbeat.ECGsimcase");
+  await expectText(page, "[data-help-dialog]", "van Oosterom");
+  await expectText(page, "[data-help-dialog]", "ecgsim.org");
+  await expectText(page, "[data-help-dialog]", "not clinical diagnosis");
+  await expectText(page, "[data-status-message]", "Help and references opened");
+  await page.locator("[data-help-close]").click();
+  await page.waitForFunction(() => !document.querySelector("[data-help-dialog]")?.open);
 }
 
 async function assertImportNotices(page) {

@@ -29,3 +29,12 @@ Docs and static package metadata exist, but users do not yet have an in-app plac
 ## Done When
 
 Users can inspect what the app is, what data it uses, and what limitations remain from inside the app.
+
+## Completion Notes
+
+Status: complete.
+
+- Added an in-app Help/About dialog reachable from the viewer top bar.
+- Included version/build label, current case, validation summary, bundled supported cases, ECGSIM source attribution, core references, and known limitations.
+- Updated GW-014 in the golden workflow matrix to point at the browser workflow test.
+- Extended the app workflow test to open and verify the Help/About dialog.
