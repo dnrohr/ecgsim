@@ -29,3 +29,12 @@ Thorax node/electrode selection exists, but contribution and sensitivity visuali
 ## Done When
 
 Thorax probe workflows produce meaningful, testable scientific views.
+
+## Completion Notes
+
+Status: complete.
+
+- Added `contributionValuesForThoraxNode` to extract the selected Thorax target's ventricles-to-thorax transfer row.
+- Added Heart `Thorax contribution` surface mode, driven by the currently selected Thorax node.
+- Browser workflow tests select a Thorax target and verify the Heart contribution map renders; smoke tests cover contribution vector dimensions and representative values.
+- Documented that electrode target shortcuts, lead-transfer contribution roles, and WCT/reference parity remain unresolved.

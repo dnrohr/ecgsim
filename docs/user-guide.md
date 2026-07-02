@@ -81,9 +81,10 @@ research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
 8. Use Export edits to download a `.source-edits.json` sidecar.
 9. Use Import edits to reload that sidecar into the same case.
 10. In Thorax, switch between geometry, measured BSPM, initial BSPM, adapted BSPM, and sensitivity where available; toggle Contours, lungs/electrodes; adjust Scale.
-11. In Leads, switch Coupling between Baseline, AC, and DC; toggle Adapted to recompute electrode traces from edited TMP parameters; change Scale; toggle Grid and RMS.
-12. Use the shared time cursor or arrow keys on TMP/Leads canvases to step through time; TMP at time and Thorax BSPM modes update with the cursor.
-13. Use each pane's PNG button to download the current Heart, Thorax, TMP, or Leads image.
+11. Click a Thorax node, then switch Heart Surface to Thorax contribution to inspect that target's transfer-row contribution across source nodes.
+12. In Leads, switch Coupling between Baseline, AC, and DC; toggle Adapted to recompute electrode traces from edited TMP parameters; change Scale; toggle Grid and RMS.
+13. Use the shared time cursor or arrow keys on TMP/Leads canvases to step through time; TMP at time and Thorax BSPM modes update with the cursor.
+14. Use each pane's PNG button to download the current Heart, Thorax, TMP, or Leads image.
 
 ## WPW Case Walkthrough
 
@@ -161,6 +162,7 @@ Current unsupported outputs:
 - Initial/adapted Thorax BSPM, sensitivity maps, and adapted lead traces recompute when the generated bundle includes the ventricles-to-thorax transfer candidate.
 - Heart ARI is computed as repolarization minus depolarization in milliseconds. Heart TMP at time is generated from the current TMP parameter state and shared time cursor.
 - Heart and Thorax Contours are scalar-node overlays near evenly spaced levels. They are useful inspection aids, not exact interpolated legacy isofunction lines.
+- Heart Thorax contribution mode displays the selected Thorax node's ventricles-to-thorax transfer row. Electrode target shortcuts, lead-transfer contribution roles, and WCT/reference parity remain unresolved.
 - WPW Focus controls use a documented `linear-index-preview` route calculation for safe UI workflow testing. The preview does not write raw activation construction fields and does not yet propagate into TMP, ECG, or BSPM recomputation.
 - Baseline coupling reports whether fiducials are available. `normal_male2` uses derived samples `(5, 499)` from the promoted ECGSIM 3.0.1 `standard_12.adaptECG` export; WPW bundles still use fallback signal endpoints because P-wave/T-wave samples have not been located or derived for those cases.
 - The Validation field summarizes known partial-support limits for the loaded bundle; it is not a failure when the main views remain available.

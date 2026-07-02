@@ -45,7 +45,7 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | Heart View | Cross plane | unsupported | P1 | `0037` | Requires geometry clipping. |
 | Heart View | Select node | partial | P0 | `0037` | Needs real source-node mapping. |
 | Heart View | Radius/selected zone | partial | P0 | `0044` | Radius, transition zone, and weighted region selection are implemented; exact legacy contour behavior is unverified. |
-| Heart View | Probe mode | unsupported | P1 | `0042` | Requires sensitivity map and transfer data. |
+| Heart View | Probe mode | partial | P1 | `0073` | Selected Thorax nodes can drive Heart contribution maps through the transfer row; electrode probe shortcuts remain future work. |
 | Heart View | Foci edit mode | partial | P1 | `0070` | WPW activation records are inspectable and selected heart nodes can drive a focus route preview; exact legacy raw-field edits remain unavailable. |
 | Heart View | Atria/ventricles source switch | partial | P1 | `0031` | Source inventory is parsed; viewer editing remains ventricular-only. |
 | Heart View | Initial/adapted display | partial | P0 | `0037` | Heart view must switch visual state, not only TMP plot. |
@@ -56,7 +56,7 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | Heart View | Resting-potential surface function | partial | P1 | `0037` | Implemented from parsed source parameters for supported cases; legacy colormap parity unverified. |
 | Heart View | TMP-at-time surface function | partial | P0 | `0071` | Generated from current TMP parameter state and synchronized to the shared time cursor; legacy colormap parity unverified. |
 | Heart View | Geometry/nodes function | partial | P1 | `0037` | Needs node overlay mode. |
-| Heart View | Heart contribution map | unsupported | P1 | `0042` | Requires thorax node selection and transfer data. |
+| Heart View | Heart contribution map | partial | P1 | `0073` | Heart contribution surface displays the selected Thorax node's ventricles-to-thorax transfer row; transfer-role parity remains incomplete. |
 | Heart View | Potential field strength | unsupported | P2 | `0042` | Data/equation source still needs confirmation. |
 | Heart View | Endocardial/epicardial switch | deferred | P1 | `0045` | Control is explicitly disabled per case until wall-side mappings are parsed. |
 | Heart View | Transmural toggle | deferred | P1 | `0045` | Control is explicitly disabled per case until transmural mappings and edit semantics are known. |
@@ -67,7 +67,7 @@ No row is `parity-tested` yet. The first rows should move to that status only af
 | Heart View | Movie | unsupported | P2 | `0056` | Requires time cursor/playback and map frames. |
 | Thorax View | Geometry display | supported | P0 | `0038` | Parsed thorax and lung geometry render for supported cases. |
 | Thorax View | Rotate/AP reset | supported | P1 | `0038` | AP reset and auto-rotation controls are implemented and tested. |
-| Thorax View | Select thorax node | partial | P1 | `0038` | Thorax node selection is implemented; downstream contribution maps are not. |
+| Thorax View | Select thorax node | partial | P1 | `0073` | Thorax node selection drives Heart contribution maps; electrode target shortcuts remain future work. |
 | Thorax View | Surface function: default geometry | supported | P1 | `0038` | Default geometry/transparency mode is implemented for supported cases. |
 | Thorax View | Surface function: measured BSPM | partial | P0 | `0042` | Measured surface-potential map from parsed fixture is shown; classification and legacy parity remain incomplete. |
 | Thorax View | Surface function: initial BSPM | partial | P0 | `0067` | Initial BSPM recomputes from initial TMP parameters through the transfer candidate; legacy numerical parity remains incomplete. |

@@ -11,6 +11,7 @@ import { finiteRange, heartSurfaceValues } from "./heart-surfaces.js";
 import {
   canRecomputeLeadTraces,
   canUseThoraxTransfer,
+  contributionValuesForThoraxNode,
   recomputeLeadTraces,
   recomputeThoraxSurfaceSample,
   sensitivityValuesForSourceNode,
@@ -119,6 +120,7 @@ const selectionState = {
   radiusMm: 20,
   transitionMm: 0,
   mode: "replace",
+  thoraxNodeIndex: -1,
 };
 let tmpEditState = null;
 let tmpCanvas = null;
@@ -260,7 +262,14 @@ function sampleFromCanvasEvent(canvas, event, leftPaddingPx) {
   return ratio * (timeState.sampleCount - 1);
 }
 
-function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange, getTmpEditState = () => null) {
+function mountHeart(
+  fixture,
+  tmpFixture,
+  wallMapping,
+  onSelectionChange,
+  getTmpEditState = () => null,
+  getContributionValues = () => null,
+) {
   if (
     !heartViewport ||
     !heartMetadata ||
@@ -367,7 +376,8 @@ function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange, getTmpE
       heartSurfaceStatus.value = "Geometry";
     } else {
       const tmpState = getTmpEditState() ?? createTmpEditState(tmpFixture);
-      const values = heartSurfaceValues(tmpState, surface, valueState, timeState.sample);
+      const contribution = surface === "thoraxContribution" ? getContributionValues() : null;
+      const values = contribution?.values ?? heartSurfaceValues(tmpState, surface, valueState, timeState.sample);
       const range = finiteRange(values);
       for (let index = 0; index < colorAttribute.count; index += 1) {
         if (index < values.length) {
@@ -382,6 +392,10 @@ function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange, getTmpE
       if (surface === "tmpAtTime") {
         const sampleMs = Math.round((timeState.sample / tmpState.sampleRateHz) * 1000);
         heartSurfaceStatus.value = `${label} / ${valueState} / ${sampleMs} ms`;
+      } else if (surface === "thoraxContribution") {
+        heartSurfaceStatus.value = contribution
+          ? `${label} / thorax node ${contribution.thoraxNodeIndex + 1}`
+          : `${label} / select thorax node`;
       } else if (surface === "ariMs") {
         heartSurfaceStatus.value = `${label} / ${valueState} / ms`;
       } else {
@@ -578,7 +592,7 @@ function mountHeart(fixture, tmpFixture, wallMapping, onSelectionChange, getTmpE
   return { redrawHeartSurface: applySurfaceFunction };
 }
 
-function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
+function mountThorax(fixture, signalFixture, getTmpEditState = () => null, onProbeChange = () => {}) {
   if (
     !thoraxViewport ||
     !thoraxMetadata ||
@@ -944,6 +958,7 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
       return;
     }
     selectedNodeIndex = nearest;
+    selectionState.thoraxNodeIndex = selectedNodeIndex;
     isAutoRotating = false;
     thoraxRotate.checked = false;
     selectedMarker.position.copy(thoraxNodePositions[selectedNodeIndex]);
@@ -952,6 +967,7 @@ function mountThorax(fixture, signalFixture, getTmpEditState = () => null) {
     if (statusMessage) {
       statusMessage.value = `Thorax node ${selectedNodeIndex + 1} selected.`;
     }
+    onProbeChange(selectionState.thoraxNodeIndex);
     renderThorax();
   }
 
@@ -1886,6 +1902,16 @@ function selectedLeadSystemDetail() {
     ?? null;
 }
 
+function selectedThoraxContribution(signalFixture) {
+  if (selectionState.thoraxNodeIndex < 0 || !canUseThoraxTransfer(signalFixture)) {
+    return null;
+  }
+  return {
+    thoraxNodeIndex: selectionState.thoraxNodeIndex,
+    values: contributionValuesForThoraxNode(signalFixture, selectionState.thoraxNodeIndex),
+  };
+}
+
 function syncLeadSystemOptions() {
   if (!leadsSystem || !currentCaseMetadata) {
     return;
@@ -2024,6 +2050,7 @@ function applyCaseBundle(bundle, noticeText) {
   validateCaseBundle(bundle);
   selectionState.nodeIndex = -1;
   selectionState.region = [];
+  selectionState.thoraxNodeIndex = -1;
   updateCaseMetadata(bundle.caseMetadata, noticeText);
   configureTimeState({
     sampleCount: Math.min(bundle.tmpWaveforms.sampleCount, bundle.ecgSignals.columns),
@@ -2057,8 +2084,14 @@ function applyCaseBundle(bundle, noticeText) {
       thoraxView?.redrawThoraxMap();
     },
     () => tmpEditing.getState(),
+    () => selectedThoraxContribution(bundle.ecgSignals),
   );
-  thoraxView = mountThorax(bundle.thorax, bundle.ecgSignals, () => tmpEditing.getState());
+  thoraxView = mountThorax(
+    bundle.thorax,
+    bundle.ecgSignals,
+    () => tmpEditing.getState(),
+    () => heartView?.redrawHeartSurface(),
+  );
   tmpEditing.syncControls();
   focusEditing.syncControls();
   syncLeadOverlayControls(bundle.ecgSignals, tmpEditing.getState());

@@ -1,6 +1,6 @@
 # Heart View Notes
 
-Status: updated through task `0072`.
+Status: updated through task `0073`.
 
 ## Supported In Current Viewer
 
@@ -9,6 +9,7 @@ Status: updated through task `0072`.
 - Node click selection and radius-based selected-region display.
 - Single and expand selection modes with explicit transition-zone weights.
 - Surface preview modes for geometry, depolarization, repolarization, ARI, TMP-at-time, amplitude, and resting potential.
+- Thorax contribution surface mode driven by the selected Thorax node.
 - Contour overlay toggle for scalar Heart surfaces.
 - Initial/adapted value switching for supported source-parameter previews.
 - TMP-at-time coloring follows the shared time cursor and current adapted TMP edit state.
@@ -20,5 +21,6 @@ Status: updated through task `0072`.
 - Contours are node-marker overlays near scalar levels rather than interpolated triangle isolines.
 - Atria/ventricles switching is not exposed yet even though source containers are parsed.
 - Endocardial/epicardial switching and transmural handling are disabled per case until explicit wall pairings are parsed. See `docs/feature-parity/wall-mapping-notes.md`.
-- Cross-plane clipping, probe mode, contribution maps, legacy named-region accumulation variants, heart vector display, electrode visibility, movie playback, and clipboard export remain unsupported until their roadmap tasks.
+- Cross-plane clipping, electrode-target probe shortcuts, legacy named-region accumulation variants, heart vector display, electrode visibility, movie playback, and clipboard export remain unsupported until their roadmap tasks.
+- Contribution maps use the selected Thorax node's transfer row from the current ventricles-to-thorax candidate; confirmed legacy lead-transfer roles remain unresolved.
 - Color scales are automatic and use a legacy-informed sequential palette; exact palette stops and user-configurable scales remain future work.

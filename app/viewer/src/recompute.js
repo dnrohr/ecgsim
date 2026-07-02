@@ -50,6 +50,17 @@ export function sensitivityValuesForSourceNode(signalFixture, sourceNodeIndex) {
   return transfer.values.map((row) => row[sourceNodeIndex]);
 }
 
+export function contributionValuesForThoraxNode(signalFixture, thoraxNodeIndex) {
+  const transfer = signalFixture?.transferMatrices?.ventriclesToThorax;
+  if (!canUseThoraxTransfer(signalFixture)) {
+    throw new Error("Contribution map requires a ventricles-to-thorax transfer matrix.");
+  }
+  if (thoraxNodeIndex < 0 || thoraxNodeIndex >= transfer.rows) {
+    throw new Error(`Contribution thorax node ${thoraxNodeIndex} is outside the transfer matrix.`);
+  }
+  return transfer.values[thoraxNodeIndex];
+}
+
 export function recomputeLeadTraces(signalFixture, tmpState, leadSystem, kind = "adapted") {
   const transfer = signalFixture?.transferMatrices?.ventriclesToThorax;
   if (!canRecomputeLeadTraces(signalFixture, tmpState)) {

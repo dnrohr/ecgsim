@@ -13,6 +13,7 @@ import {
   canRecomputeLeadTraces,
   recomputeLeadTraces,
   recomputeThoraxSurfaceSample,
+  contributionValuesForThoraxNode,
   sensitivityValuesForSourceNode,
 } from "../src/recompute.js";
 import {
@@ -74,6 +75,7 @@ const required = [
   "data-heart-surface",
   "value=\"ariMs\"",
   "value=\"tmpAtTime\"",
+  "value=\"thoraxContribution\"",
   "data-heart-values",
   "data-heart-wall",
   "data-heart-transmural",
@@ -374,15 +376,18 @@ if (
 const initialBspm = recomputeThoraxSurfaceSample(ecgFixture, editState, 0, "initial");
 const adaptedBspm = recomputeThoraxSurfaceSample(ecgFixture, editState, 0, "adapted");
 const sensitivityValues = sensitivityValuesForSourceNode(ecgFixture, 0);
+const contributionValues = contributionValuesForThoraxNode(ecgFixture, 0);
 if (
   initialBspm.length !== ecgFixture.transferMatrices.ventriclesToThorax.rows ||
   adaptedBspm.length !== ecgFixture.transferMatrices.ventriclesToThorax.rows ||
   sensitivityValues.length !== ecgFixture.transferMatrices.ventriclesToThorax.rows ||
+  contributionValues.length !== ecgFixture.transferMatrices.ventriclesToThorax.columns ||
   !Number.isFinite(initialBspm[0]) ||
   !Number.isFinite(adaptedBspm[0]) ||
-  sensitivityValues[0] !== ecgFixture.transferMatrices.ventriclesToThorax.values[0][0]
+  sensitivityValues[0] !== ecgFixture.transferMatrices.ventriclesToThorax.values[0][0] ||
+  contributionValues[0] !== ecgFixture.transferMatrices.ventriclesToThorax.values[0][0]
 ) {
-  console.error("Thorax BSPM or sensitivity recompute produced unexpected dimensions");
+  console.error("Thorax BSPM, sensitivity, or contribution recompute produced unexpected dimensions");
   process.exit(1);
 }
 const originalDep = nodeParameterValue(editState, "depolarizationMs", 0, "adapted");
