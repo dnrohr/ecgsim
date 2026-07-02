@@ -144,5 +144,5 @@ Each task should end with:
 
 - [x] [0079 Add In App Help About And References](0079-add-in-app-help-about-and-references.md)
 - [x] [0080 Implement Movie Export](0080-implement-movie-export.md)
-- [ ] [0081 Add Legacy Visual Regression Harness](0081-add-legacy-visual-regression-harness.md)
+- [x] [0081 Add Legacy Visual Regression Harness](0081-add-legacy-visual-regression-harness.md)
 - [ ] [0082 Harden Signed Release Pipeline](0082-harden-signed-release-pipeline.md)

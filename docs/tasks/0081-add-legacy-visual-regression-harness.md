@@ -29,3 +29,12 @@ The project has a legacy screenshot and browser rendering tests, but no stable v
 ## Done When
 
 Visual regressions are caught earlier while scientific numerical parity remains separately tested.
+
+## Completion Notes
+
+Status: complete.
+
+- Added `tools/visual_regression.py` for PNG metrics, blank-image detection, sampled edge/color checks, and broad reference comparison.
+- Added unit tests for generated passing/failing screenshots and the tracked legacy normal-male screenshot.
+- Documented commands and interpretation in `docs/feature-parity/visual-regression-notes.md`.
+- Updated parity and GW-001 docs to describe this as loose visual smoke coverage, not pixel-perfect legacy parity.

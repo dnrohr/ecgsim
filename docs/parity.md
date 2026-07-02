@@ -33,7 +33,7 @@ Tests should state which reference they use. Do not compare a derived preview ag
 | Adapted lead recompute preview | Generated viewer bundle transfer matrix and edited TMP state | exact shape match: selected electrode count x TMP sample count; browser redraw after source edit | Task `0066` wires adapted lead traces through the same ventricles-to-thorax transfer candidate as adapted BSPM. This is a responsive preview, not yet a legacy lead-transform parity claim because WCT/reference and measured/initial classifications remain unresolved. |
 | Numerical harness diagnostics | Injected sample differences | sequence failures include label, index, actual, expected, and errors; matrix failures include label, row, column, flat index, max absolute error, and RMS error | Task `0053` adds reusable sequence and matrix helpers so future raw-export comparisons fail loudly and locally. |
 | Rendered line plots | Canvas/SVG presence and rough bounds | no blank render; axes/traces visible inside viewport | Rendering tests should catch broken UI, not imply pixel-perfect scientific parity. |
-| Legacy screenshot | Whole-window visual smoke comparison | perceptual/snapshot review only until an image-diff harness exists | The captured screenshot is useful as a layout/reference oracle, but native app rendering varies by Windows scale, fonts, GPU, and window size. |
+| Legacy screenshot | Whole-window visual smoke comparison | PNG smoke metrics pass; broad aspect/luminance comparison only | The captured screenshot is useful as a layout/reference oracle, but native app rendering varies by Windows scale, fonts, GPU, and window size. Task `0081` adds a loose visual smoke harness, not pixel-perfect parity. |
 
 ## Current Baselines
 
@@ -68,5 +68,5 @@ Current viewer fixtures expose these dimensions:
 - The reusable numerical harness covers parsed fixtures, injected-difference diagnostics, promoted fixture manifest verification, row-major legacy matrix scenario checks, and full generated TMP matrix comparisons against the promoted normal male `.user.source` fixture.
 - `tools/compare_export_directories.py` can compare captured legacy export directories against the modern supported export subset. It reports missing matching paths, shape mismatches, and value mismatches with numerical diagnostics.
 - TMP generated waveform parity is currently proven for the promoted normal male ECGSIM 3.0.1 `.user.source` capture only; more cases and edited-source captures should tighten or generalize the calibrated constants.
-- Visual comparison thresholds should become automated only after a stable browser screenshot harness is added.
+- Visual comparison thresholds are automated only as broad smoke checks. See `docs/feature-parity/visual-regression-notes.md`.
 - Coordinate unit expectations for electrode files remain unknown until raw `.elec` exports are available.
