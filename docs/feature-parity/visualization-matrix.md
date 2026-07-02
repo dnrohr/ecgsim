@@ -28,7 +28,7 @@ This matrix tracks what a user can see and manipulate. It does not require the m
 | Heart | Resting-potential surface | Heart surface `Resting potential` | supported | Parameter vector check and canvas delta | `0091` |
 | Heart | TMP at selected time | Heart surface `TMP at time`, linked cursor/playback | supported | Time cursor changes canvas and status | `0091` |
 | Heart | Heart contribution map | Heart surface `Thorax contribution` after thorax-node selection | partial | Transfer-row provenance and selected-node workflow test | `0095` |
-| Heart | Node visibility and selected-zone rings | Node overlay plus radius/transition rings | partial | Canvas overlay delta and selection summary | `0088` |
+| Heart | Node visibility and selected-zone rings | Node overlay plus radius/transition rings | supported | App workflow checks overlay toggles and canvas deltas | complete |
 | Heart | Cross plane | Geometry clipping plane | blocked-on-evidence | Confirm expected legacy clipping behavior | `0089` |
 | Heart | Heart vector | Time arrow/vector overlay | blocked-on-evidence | Equation/data source for vector path | `0090` |
 | Heart | Electrode visibility | Lead-system electrode overlay in Heart and Thorax | partial | Parsed electrode mapping and overlay tests | `0090` |

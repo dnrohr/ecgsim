@@ -553,6 +553,18 @@ async function assertHeartSelectionAndTmpEditing(page) {
   const transitionSelection = await page.locator("[data-heart-selection]").textContent();
   assert.notEqual(transitionSelection, radiusSelection, "Transition zone should alter selected-region summary");
 
+  const selectedCanvas = await canvasSignature(page, ".heart-viewport canvas");
+  await page.locator("[data-heart-node-overlay]").check();
+  await page.waitForTimeout(150);
+  const nodesShown = await canvasSignature(page, ".heart-viewport canvas");
+  assert.notEqual(nodesShown, selectedCanvas, "Heart node overlay should visibly add parsed node dots");
+  await page.locator("[data-heart-selection-rings]").check();
+  await page.waitForTimeout(150);
+  const ringsShown = await canvasSignature(page, ".heart-viewport canvas");
+  assert.notEqual(ringsShown, nodesShown, "Heart selection rings should visibly show radius and transition overlays");
+  await page.locator("[data-heart-node-overlay]").uncheck();
+  await page.locator("[data-heart-selection-rings]").uncheck();
+
   await page.locator("[data-heart-selection-mode]").selectOption("expand");
   assert.equal(await page.locator("[data-heart-selection-mode]").inputValue(), "expand", "Expand selection mode should be selected");
 

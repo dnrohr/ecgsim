@@ -160,7 +160,7 @@ Each task should end with:
 
 ## VF2: Heart View Completeness
 
-- [ ] [0088 Add Heart Node Overlay And Selection Rings](0088-add-heart-node-overlay-and-selection-rings.md)
+- [x] [0088 Add Heart Node Overlay And Selection Rings](0088-add-heart-node-overlay-and-selection-rings.md)
 - [ ] [0089 Add Heart Cross Section Plane Prototype](0089-add-heart-cross-section-plane-prototype.md)
 - [ ] [0090 Add Heart Electrode And Vector Overlays](0090-add-heart-electrode-and-vector-overlays.md)
 - [ ] [0091 Expand Heart Surface Mode Tests Across Initial Adapted And Time](0091-expand-heart-surface-mode-tests-across-initial-adapted-and-time.md)

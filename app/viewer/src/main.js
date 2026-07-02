@@ -62,6 +62,8 @@ const heartMetadata = document.querySelector("[data-heart-metadata]");
 const heartSelectionMode = document.querySelector("[data-heart-selection-mode]");
 const heartRadius = document.querySelector("[data-heart-radius]");
 const heartTransition = document.querySelector("[data-heart-transition]");
+const heartNodeOverlay = document.querySelector("[data-heart-node-overlay]");
+const heartSelectionRings = document.querySelector("[data-heart-selection-rings]");
 const heartSelection = document.querySelector("[data-heart-selection]");
 const heartAp = document.querySelector("[data-heart-ap]");
 const heartRotate = document.querySelector("[data-heart-rotate]");
@@ -435,6 +437,8 @@ function mountHeart(
     !heartSelectionMode ||
     !heartRadius ||
     !heartTransition ||
+    !heartNodeOverlay ||
+    !heartSelectionRings ||
     !heartSelection ||
     !heartAp ||
     !heartContours ||
@@ -514,8 +518,72 @@ function mountHeart(
     nodePositions.push(new THREE.Vector3().fromBufferAttribute(positions, index));
   }
 
+  const nodeOverlayGeometry = new THREE.BufferGeometry();
+  const nodeOverlayPositions = [];
+  nodePositions.forEach((position) => {
+    nodeOverlayPositions.push(position.x, position.y, position.z);
+  });
+  nodeOverlayGeometry.setAttribute("position", new THREE.Float32BufferAttribute(nodeOverlayPositions, 3));
+  const nodeOverlayPoints = new THREE.Points(
+    nodeOverlayGeometry,
+    new THREE.PointsMaterial({
+      color: 0xf8fafb,
+      opacity: 0.72,
+      size: 0.0036,
+      sizeAttenuation: true,
+      transparent: true,
+      depthTest: false,
+    }),
+  );
+  nodeOverlayPoints.visible = false;
+  nodeOverlayPoints.renderOrder = 5;
+  mesh.add(nodeOverlayPoints);
+
+  const radiusRing = new THREE.LineLoop(
+    new THREE.BufferGeometry(),
+    new THREE.LineBasicMaterial({ color: 0xf2b705, depthTest: false, transparent: true, opacity: 0.92 }),
+  );
+  const transitionRing = new THREE.LineLoop(
+    new THREE.BufferGeometry(),
+    new THREE.LineBasicMaterial({ color: 0x175c8a, depthTest: false, transparent: true, opacity: 0.76 }),
+  );
+  radiusRing.visible = false;
+  transitionRing.visible = false;
+  radiusRing.renderOrder = 6;
+  transitionRing.renderOrder = 6;
+  mesh.add(radiusRing);
+  mesh.add(transitionRing);
+
   function setMeshRotationAP() {
     mesh.rotation.set(-0.35, 0.2, 0.08);
+    renderer.render(scene, camera);
+  }
+
+  function updateRingGeometry(ring, center, radiusMeters) {
+    const segments = 96;
+    const points = [];
+    for (let index = 0; index < segments; index += 1) {
+      const angle = (index / segments) * Math.PI * 2;
+      points.push(
+        center.x + Math.cos(angle) * radiusMeters,
+        center.y + Math.sin(angle) * radiusMeters,
+        center.z,
+      );
+    }
+    ring.geometry.setAttribute("position", new THREE.Float32BufferAttribute(points, 3));
+    ring.geometry.computeBoundingSphere();
+  }
+
+  function syncSelectionOverlays() {
+    nodeOverlayPoints.visible = heartNodeOverlay.checked;
+    const showRings = heartSelectionRings.checked && selectedNodeIndex >= 0;
+    radiusRing.visible = showRings;
+    transitionRing.visible = showRings && selectionState.transitionMm > 0;
+    if (showRings) {
+      const center = nodePositions[selectedNodeIndex];
+      updateRingGeometry(radiusRing, center, selectionState.radiusMm / 1000);
+      updateRingGeometry(transitionRing, center, (selectionState.radiusMm + selectionState.transitionMm) / 1000);
+    }
     renderer.render(scene, camera);
   }
 
@@ -650,6 +718,7 @@ function mountHeart(
       selectionState.nodeIndex = -1;
       selectionState.region = [];
       selectionState.weightedRegion = [];
+      syncSelectionOverlays();
       onSelectionChange(selectionState);
       return;
     }
@@ -681,6 +750,7 @@ function mountHeart(
     const weightedCount = region.filter((node) => node.weight < 1).length;
     heartSelection.value =
       `Node ${selectedNodeIndex + 1} / ${radiusMm} mm / ${transitionMm} mm transition / ${region.length} nodes / ${weightedCount} weighted`;
+    syncSelectionOverlays();
     onSelectionChange(selectionState);
   }
 
@@ -736,6 +806,8 @@ function mountHeart(
 
   heartRadius.oninput = updateSelection;
   heartTransition.oninput = updateSelection;
+  heartNodeOverlay.onchange = syncSelectionOverlays;
+  heartSelectionRings.onchange = syncSelectionOverlays;
   heartSelectionMode.onchange = () => {
     if (heartSelectionMode.value === "replace") {
       selectionState.weightedRegion = [];
@@ -767,7 +839,10 @@ function mountHeart(
   heartSurface.value = "geometry";
   heartValues.value = "adapted";
   heartSelectionMode.value = "replace";
+  heartRadius.value = "20";
   heartTransition.value = "0";
+  heartNodeOverlay.checked = false;
+  heartSelectionRings.checked = false;
   syncWallMappingControls();
   if (heartRotate) {
     heartRotate.checked = true;
