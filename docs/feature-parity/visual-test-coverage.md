@@ -42,6 +42,7 @@ This document maps visualization modes to current automated evidence. It tracks 
 | Visual output | WebM movie export | App workflow downloads Leads WebM and checks EBML signature/size | medium artifact | Other panes use same code path but are not individually downloaded |
 | Help/About | References/status | App workflow opens Help/About and verifies core text | strong smoke | Case-download shortcut missing |
 | Visual regression | Legacy screenshot and pane-region smoke | `tests/test_visual_regression.py` checks tracked screenshot; curated pane manifest validates Heart/Thorax/TMP/Leads regions | strong smoke | Pane regions are from one initial-view screenshot; mode-specific captures still needed |
+| Completion audit | Visualization matrix status audit | `tools/audit_visual_parity.py` and `tests/test_visual_parity_audit.py` verify accepted statuses and current blockers | strong process gate | Goal remains active while blockers remain |
 
 ## Priority Coverage Gaps
 
