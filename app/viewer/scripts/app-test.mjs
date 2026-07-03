@@ -66,7 +66,7 @@ async function assertInitialState(page) {
   await expectText(page, "[data-status-message]", "normal_male2.ECGsimcase");
   await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
   await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz / initial+adapted");
-  await expectText(page, "[data-leads-metadata]", "standard_12: 9 electrode traces / 12 leads / plotted 9 / 576 samples / 1000 Hz / BASELINE / 100%");
+  await expectText(page, "[data-leads-metadata]", "standard_12: 12 parsed lead traces / 12 leads / plotted 12 / 576 samples / 1000 Hz / BASELINE / 100%");
   await expectText(page, "[data-case-validation]", "Partial: 7 unsupported payload groups / 4 unavailable capabilities");
   await expectText(page, "[data-focus-status]", "Focus preview is enabled only for supported WPW cases");
 
@@ -223,7 +223,7 @@ async function assertImportNotices(page) {
     await expectText(page, "[data-heart-metadata]", "1216 nodes / 2272 triangles");
     await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz");
     await page.locator("[data-leads-system]").selectOption("BSM_(amsterdam_64)");
-    await expectText(page, "[data-leads-metadata]", "BSM_(amsterdam_64): 65 electrode traces");
+    await expectText(page, "[data-leads-metadata]", "BSM_(amsterdam_64): 65 parsed lead traces");
   }
 
   await expectText(page, "[data-focus-source]", "ventricles / 697 records");
@@ -248,7 +248,7 @@ async function assertImportNotices(page) {
   await expectText(page, "[data-case-leads]", "standard_12");
   await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
   await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz");
-  await expectText(page, "[data-leads-metadata]", "standard_12: 9 electrode traces");
+  await expectText(page, "[data-leads-metadata]", "standard_12: 12 parsed lead traces");
 
   const invalidBundlePath = resolve(tmpdir(), "invalid-bundle.json");
   writeFileSync(invalidBundlePath, JSON.stringify({ caseMetadata: { fileName: "broken" } }));
@@ -517,7 +517,7 @@ async function assertLeadsFiltering(page) {
   await page.locator("[data-leads-adapted]").uncheck();
 
   await page.locator("[data-leads-system]").selectOption("VCG_(Frank)");
-  await expectText(page, "[data-leads-metadata]", "VCG_(Frank): 7 electrode traces / 10 leads");
+  await expectText(page, "[data-leads-metadata]", "VCG_(Frank): 7 parsed lead traces / 10 leads");
   const vcgSignature = await canvasSignature(page, canvas);
   assert.notEqual(vcgSignature, baselineSignature, "Lead-system metadata switch should redraw leads");
 
@@ -621,7 +621,7 @@ async function assertLeadsFiltering(page) {
   assert.notEqual(importedSignature, caseSignature, "Imported ECG should redraw the Leads canvas");
 
   await page.locator("[data-leads-source]").selectOption("case");
-  await expectText(page, "[data-leads-metadata]", "standard_12: 9 electrode traces");
+  await expectText(page, "[data-leads-metadata]", "standard_12: 12 parsed lead traces");
   assert.equal(await page.locator("[data-leads-system]").isEnabled(), true, "Case signals should re-enable lead-system selection");
 }
 

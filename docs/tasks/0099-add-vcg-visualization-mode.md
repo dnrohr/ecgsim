@@ -6,7 +6,7 @@ Add a discoverable VCG loop visualization for Frank VCG lead-system cases.
 
 ## Minimal Context
 
-The ECGSIM manual describes the VCG view as three projections of a 3D vector loop derived from the Frank lead system: horizontal, frontal, and sagittal. The current parser exposes Frank lead-system electrode traces, but exact legacy Frank transform/reference semantics are still unresolved. This task adds a data-backed modern preview while documenting that limitation.
+The ECGSIM manual describes the VCG view as three projections of a 3D vector loop derived from the Frank lead system: horizontal, frontal, and sagittal. The current parser exposes Frank lead-system traces from parsed lead definitions where direct electrode indices are available, but exact legacy Frank transform/reference semantics are still unresolved. This task adds a data-backed modern preview while documenting that limitation.
 
 ## Inputs
 

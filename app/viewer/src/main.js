@@ -13,6 +13,7 @@ import {
   canRecomputeLeadTraces,
   canUseThoraxTransfer,
   contributionValuesForThoraxNode,
+  leadDefinitionTracesFromElectrodes,
   recomputeLeadTraces,
   recomputeThoraxSurfaceSample,
   sensitivityValuesForSourceNode,
@@ -1864,7 +1865,7 @@ function plotSignals(
       selectedSample,
       zoom,
     });
-    const systemText = `${leadSystem.name}: VCG loop preview / ${signalSet.traces.length} electrode traces`;
+    const systemText = `${leadSystem.name}: VCG loop preview / ${signalSet.traces.length} parsed lead traces`;
     leadsMetadata.value =
       `${systemText} / ${signalSet.sampleCount} samples / ${signalSet.sampleRateHz} Hz / ${mode.toUpperCase()}${zoom?.enabled ? ` / zoom ${sampleWindow.start}-${sampleWindow.end}` : ""}`;
     if (leadsStatus) {
@@ -1937,16 +1938,16 @@ function plotSignals(
   const systemText = signalSet.source === "imported"
     ? `${signalSet.name}: ${signalSet.traces.length} imported traces`
     : leadSystem
-    ? `${leadSystem.name}: ${signalSet.traces.length} electrode traces / ${leadSystem.leadCount} leads`
+    ? `${leadSystem.name}: ${signalSet.traces.length} parsed lead traces / ${leadSystem.leadCount} leads`
     : `${signalSet.traces.length} representative traces`;
   leadsMetadata.value =
     `${systemText} / plotted ${traces.length} / ${signalSet.sampleCount} samples / ${signalSet.sampleRateHz} Hz / ${mode.toUpperCase()} / ${Math.round(scale * 100)}%${zoom?.enabled ? ` / zoom ${sampleWindow.start}-${sampleWindow.end}` : ""}`;
   if (leadsStatus) {
     const classification = signalSet.isRecomputed
-      ? "adapted ECG recomputed from TMP transfer; lead reference-weight equations unresolved"
+      ? "adapted ECG recomputed from TMP transfer and parsed lead definitions; lead reference-weight parity unresolved"
       : signalSet.source === "imported"
       ? "external imported signal; separate from case and recomputed outputs"
-      : "measured/initial classification unavailable";
+      : "parsed lead definitions from measured thorax potentials; measured/initial classification unavailable";
     leadsStatus.value = `${signalSet.signalKind}; ${filteringStatus(mode, signalSet.sampleCount, fiducials)}; ${classification}`;
   }
   const modeText = `${mode.toUpperCase()}${showRms ? "+RMS" : ""}`;
@@ -1959,7 +1960,7 @@ function plotSignals(
     ? "Adapted ECG traces recomputed from TMP source parameters and the transfer matrix candidate."
     : signalSet.source === "imported"
     ? "External imported ECG signal, separate from case and recomputed outputs."
-    : "Lead traces read from case surface potentials or representative signal fixtures.";
+    : "Lead traces are composed from parsed lead definitions and case surface potentials.";
   setPaneBadges(leadsModeBadge, leadsProvenanceBadge, modeText, provenanceText, provenanceDetail);
 }
 
@@ -2093,14 +2094,14 @@ function leadSystemTraces(
       sampleCount: fixture.surfaceMap.sampleCount,
       sampleRateHz: fixture.surfaceMap.sampleRateHz,
       isRecomputed: false,
-      traces: leadSystem.electrodes.map((electrode, index) => {
+      traces: leadDefinitionTracesFromElectrodes(leadSystem.electrodes.map((electrode, index) => {
         const nodeIndex = electrode.thoraxNodeIndex ?? index;
         return {
           name: electrode.label ?? `E${index + 1}`,
           sourceRow: nodeIndex,
           values: fixture.surfaceMap.valuesByNode[nodeIndex],
         };
-      }),
+      }), leadSystem),
     };
   }
 
@@ -3031,7 +3032,7 @@ function syncLeadOverlayControls(signalFixture, tmpState) {
   leadsAdapted.checked = false;
   leadsAdapted.disabled = !canRecompute;
   leadsAdapted.title = canRecompute
-    ? "Recompute adapted electrode traces from edited TMP parameters and the ventricles-to-thorax transfer candidate."
+    ? "Recompute adapted lead-definition traces from edited TMP parameters and the ventricles-to-thorax transfer candidate."
     : "Adapted ECG recomputation requires a transfer matrix matching TMP source nodes.";
 }
 

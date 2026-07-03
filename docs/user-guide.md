@@ -82,7 +82,7 @@ research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
 9. Use Import edits to reload that sidecar into the same case.
 10. In Thorax, switch between geometry, measured BSPM, initial BSPM, adapted BSPM, and sensitivity where available; toggle Contours, lungs/electrodes; adjust Scale.
 11. Click a Thorax node, then switch Heart Surface to Thorax contribution to inspect that target's transfer-row contribution across source nodes.
-12. In Leads, switch Coupling between Baseline, AC, and DC; toggle Adapted to recompute electrode traces from edited TMP parameters; change Scale; toggle Grid and RMS.
+12. In Leads, switch Coupling between Baseline, AC, and DC; toggle Adapted to recompute parsed lead traces from edited TMP parameters; change Scale; toggle Grid and RMS.
 13. Use the shared time cursor or arrow keys on TMP/Leads canvases to step through time; TMP at time and Thorax BSPM modes update with the cursor.
 14. Use each pane's PNG button to download the current Heart, Thorax, TMP, or Leads image.
 

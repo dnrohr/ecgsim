@@ -71,7 +71,7 @@ export function recomputeLeadTraces(signalFixture, tmpState, leadSystem, kind = 
   }
 
   const sourceMatrix = buildTmpSourceMatrix(tmpState, kind);
-  return leadSystem.electrodes.map((electrode, index) => {
+  const electrodeTraces = leadSystem.electrodes.map((electrode, index) => {
     const rowIndex = electrode.thoraxNodeIndex ?? index;
     const transferRow = transfer.values[rowIndex];
     if (!Array.isArray(transferRow) || transferRow.length !== tmpState.nodeCount) {
@@ -83,6 +83,58 @@ export function recomputeLeadTraces(signalFixture, tmpState, leadSystem, kind = 
       values: multiplyTransferRow(transferRow, sourceMatrix, tmpState.sampleCount),
     };
   });
+  return leadDefinitionTracesFromElectrodes(electrodeTraces, leadSystem);
+}
+
+export function leadDefinitionTracesFromElectrodes(electrodeTraces, leadSystem) {
+  const leadDefinitions = leadSystem?.leadDefinitions ?? [];
+  if (!leadDefinitions.length || !Array.isArray(electrodeTraces) || !electrodeTraces.length) {
+    return electrodeTraces;
+  }
+
+  const leadTraces = leadDefinitions
+    .map((lead, index) => {
+      const electrodeTrace = electrodeTraces[lead.electrodeIndex];
+      if (!electrodeTrace?.values?.length) {
+        return null;
+      }
+      const referenceTrace = referenceTraceForLead(electrodeTraces, leadSystem, lead);
+      return {
+        name: lead.label ?? `Lead ${index + 1}`,
+        sourceRow: electrodeTrace.sourceRow,
+        referenceIndex: lead.referenceIndex ?? null,
+        values: referenceTrace
+          ? electrodeTrace.values.map((value, sampleIndex) => value - referenceTrace[sampleIndex])
+          : [...electrodeTrace.values],
+      };
+    })
+    .filter(Boolean);
+
+  if (!leadSystem?.shownLeadDefinitions?.length) {
+    return leadTraces;
+  }
+
+  const shownOrdered = [];
+  const seen = new Set();
+  leadSystem.shownLeadDefinitions.forEach((shown) => {
+    const primaryIndex = shown.primaryLeadIndex;
+    if (!Number.isInteger(primaryIndex) || seen.has(primaryIndex) || !leadTraces[primaryIndex]) {
+      return;
+    }
+    seen.add(primaryIndex);
+    shownOrdered.push({
+      ...leadTraces[primaryIndex],
+      name: shown.label ?? leadTraces[primaryIndex].name,
+      displayGroup: shown.displayGroup ?? null,
+      gridPosition: shown.gridPosition ?? null,
+    });
+  });
+  leadTraces.forEach((trace, index) => {
+    if (!seen.has(index)) {
+      shownOrdered.push(trace);
+    }
+  });
+  return shownOrdered;
 }
 
 export function buildTmpSourceMatrix(tmpState, kind = "adapted") {
@@ -92,6 +144,21 @@ export function buildTmpSourceMatrix(tmpState, kind = "adapted") {
       generateTmpSample(parameters, sampleIndex, tmpState.sampleRateHz)
     ));
   });
+}
+
+function referenceTraceForLead(electrodeTraces, leadSystem, lead) {
+  const reference = leadSystem?.referenceDefinitions?.[lead.referenceIndex];
+  const indices = reference?.electrodeIndices ?? [];
+  const memberTraces = indices
+    .map((index) => electrodeTraces[index]?.values)
+    .filter((values) => Array.isArray(values) && values.length);
+  if (!memberTraces.length) {
+    return null;
+  }
+  const sampleCount = memberTraces[0].length;
+  return Array.from({ length: sampleCount }, (_, sampleIndex) => (
+    memberTraces.reduce((sum, values) => sum + values[sampleIndex], 0) / memberTraces.length
+  ));
 }
 
 function multiplyTransferRow(transferRow, sourceMatrix, sampleCount) {

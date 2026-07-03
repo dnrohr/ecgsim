@@ -5,7 +5,7 @@ Status: task `0039` parity notes for the modern Leads pane.
 ## Supported In Current Viewer
 
 - Lead-system selector populated from parsed case metadata and electrode positions.
-- Switching lead systems redraws electrode surface-potential traces sampled from the measured thorax map at each system's nearest thorax nodes.
+- Switching lead systems redraws parsed lead traces composed from measured thorax potentials, parsed lead definitions, and parsed reference definitions where available.
 - Coupling selector for baseline, AC, and DC modes.
 - Amplitude scale control for plotted traces.
 - Grid visibility toggle.
@@ -20,11 +20,12 @@ Status: task `0039` parity notes for the modern Leads pane.
 - `read_ecgsimcase_lead_object_inventory()` records `PLead`, `PLeadReference`, and `PShowLead` labels with raw trailing fields.
 - `read_ecgsimcase_lead_systems()` now uses embedded lead-object labels instead of fallback names.
 - Viewer fixture metadata now includes parsed lead definitions, reference definitions, and show-lead display definitions.
+- The Leads pane now renders parsed lead-definition traces instead of raw electrode rows when direct electrode indices are available.
 
 ## Current Limitations
 
 - Exact standard 12-lead, Frank VCG, BSPM, and minimap lead transforms remain unsupported until lead polarity/reference-weight equations are interpreted from raw fields.
-- Current lead-system plots are electrode surface-potential traces, not transformed clinical lead signals.
+- Current lead-system plots use parsed electrode/reference indices, but final clinical transform parity still needs reference-weight and polarity validation.
 - Current VCG loop is a projection preview from parsed Frank traces, not a verified legacy Frank transform.
 - Measured and initial overlays require parsed signal classification; selected-heart-node electrogram remains blocked until an electrogram payload or derivation equation is identified.
 - Clipboard export remains future parity work.
@@ -61,3 +62,5 @@ Task `0109` promotes the stable trailing-field layer into structured parser outp
 - `PShowLead` fields become primary/secondary lead indices, display group, grid position, and extra fields.
 
 The remaining blocker is no longer raw index/layout access; it is the final weighting/polarity equation needed to claim clinical lead-transform parity.
+
+Task `0110` uses the parsed definitions in the browser Leads pane. `standard_12` now plots 12 lead-labeled traces, BSPM systems plot their parsed lead labels, and Frank VCG keeps only directly backed traces where definitions expose electrode indices.

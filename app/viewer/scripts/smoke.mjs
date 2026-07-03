@@ -11,6 +11,7 @@ import {
 import { ariValues, heartSurfaceValues, tmpAtTimeValues } from "../src/heart-surfaces.js";
 import {
   canRecomputeLeadTraces,
+  leadDefinitionTracesFromElectrodes,
   recomputeLeadTraces,
   recomputeThoraxSurfaceSample,
   contributionValuesForThoraxNode,
@@ -365,12 +366,25 @@ if (!canRecomputeLeadTraces(ecgFixture, editState)) {
   process.exit(1);
 }
 const recomputedLeadTraces = recomputeLeadTraces(ecgFixture, editState, caseFixture.leadSystemDetails[0]);
+const standardElectrodeTraces = caseFixture.leadSystemDetails[0].electrodes.map((electrode, index) => ({
+  name: electrode.label ?? `E${index + 1}`,
+  sourceRow: electrode.thoraxNodeIndex,
+  values: ecgFixture.surfaceMap.valuesByNode[electrode.thoraxNodeIndex],
+}));
+const standardLeadTraces = leadDefinitionTracesFromElectrodes(
+  standardElectrodeTraces,
+  caseFixture.leadSystemDetails[0],
+);
 if (
-  recomputedLeadTraces.length !== caseFixture.leadSystemDetails[0].electrodes.length ||
+  recomputedLeadTraces.length !== caseFixture.leadSystemDetails[0].leadDefinitions.length ||
   recomputedLeadTraces[0].values.length !== editState.sampleCount ||
-  !Number.isFinite(recomputedLeadTraces[0].values[0])
+  !Number.isFinite(recomputedLeadTraces[0].values[0]) ||
+  standardLeadTraces.length !== caseFixture.leadSystemDetails[0].leadDefinitions.length ||
+  standardLeadTraces[0].name !== "I" ||
+  standardLeadTraces[3].name !== "V1" ||
+  standardLeadTraces[0].values[0] === standardElectrodeTraces[7].values[0]
 ) {
-  console.error("Lead ECG recompute produced unexpected trace dimensions");
+  console.error("Lead ECG recompute or lead-definition traces produced unexpected dimensions");
   process.exit(1);
 }
 const initialBspm = recomputeThoraxSurfaceSample(ecgFixture, editState, 0, "initial");
