@@ -174,7 +174,7 @@ Each task should end with:
 
 ## VF4: TMP And ECG View Completeness
 
-- [ ] [0096 Add TMP Handler Style Visual Controls](0096-add-tmp-handler-style-visual-controls.md)
+- [x] [0096 Add TMP Handler Style Visual Controls](0096-add-tmp-handler-style-visual-controls.md)
 - [ ] [0097 Add Leads Interval Selection And TMP Highlight](0097-add-leads-interval-selection-and-tmp-highlight.md)
 - [ ] [0098 Add Beat Zoom Workflow](0098-add-beat-zoom-workflow.md)
 - [ ] [0099 Add VCG Visualization Mode](0099-add-vcg-visualization-mode.md)

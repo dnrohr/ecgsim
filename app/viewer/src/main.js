@@ -116,6 +116,7 @@ const tmpMetadata = document.querySelector("[data-tmp-metadata]");
 const tmpShowInitial = document.querySelector("[data-tmp-show-initial]");
 const tmpShowAdapted = document.querySelector("[data-tmp-show-adapted]");
 const tmpGrid = document.querySelector("[data-tmp-grid]");
+const tmpHandlers = document.querySelector("[data-tmp-handlers]");
 const tmpParameter = document.querySelector("[data-tmp-parameter]");
 const tmpValue = document.querySelector("[data-tmp-value]");
 const tmpDecrement = document.querySelector("[data-tmp-decrement]");
@@ -1973,6 +1974,7 @@ function plotTmp(
     showInitial = true,
     showAdapted = true,
     showGrid = true,
+    showHandlers = false,
     selectedSample = 0,
   } = {},
 ) {
@@ -2043,6 +2045,9 @@ function plotTmp(
     if (showAdapted) {
       drawTmpLine(context, node.adapted, min, span, left, plotWidth, centerY, amplitude, "#b3261e", 1.9);
     }
+    if (showHandlers && fixture.selectedNode === node.sourceNode) {
+      drawTmpHandlers(context, node, min, span, left, plotWidth, centerY, amplitude, fixture.sampleRateHz, fixture.sampleCount);
+    }
   });
 
   context.strokeStyle = "#78909c";
@@ -2071,6 +2076,44 @@ function plotTmp(
     "Source params",
     "TMP traces generated from parsed source-parameter vectors for preview nodes.",
   );
+}
+
+function drawTmpHandlers(context, node, min, span, left, plotWidth, centerY, amplitude, sampleRateHz, sampleCount) {
+  const parameters = {
+    depolarizationMs: node.parameters?.depolarizationMs?.adapted,
+    repolarizationMs: node.parameters?.repolarizationMs?.adapted,
+    restingPotential: node.parameters?.restingPotential?.adapted,
+    amplitude: node.parameters?.amplitude?.adapted,
+  };
+  if (!Object.values(parameters).every(Number.isFinite)) {
+    return;
+  }
+  const xForMs = (ms) => {
+    const sample = Math.max(0, Math.min(sampleCount - 1, (ms / 1000) * sampleRateHz));
+    return left + (sample / (sampleCount - 1)) * plotWidth;
+  };
+  const yForValue = (value) => centerY - (((value - min) / span - 0.5) * amplitude * 2);
+  const depX = xForMs(parameters.depolarizationMs);
+  const repX = xForMs(parameters.repolarizationMs);
+  const restY = yForValue(parameters.restingPotential);
+  const peakY = yForValue(parameters.restingPotential + parameters.amplitude);
+  context.save();
+  context.strokeStyle = "#111820";
+  context.fillStyle = "#f2b705";
+  context.lineWidth = 1.4;
+  [depX, repX].forEach((x) => {
+    context.beginPath();
+    context.moveTo(x, centerY - amplitude);
+    context.lineTo(x, centerY + amplitude);
+    context.stroke();
+  });
+  [[depX, restY], [repX, peakY]].forEach(([x, y]) => {
+    context.beginPath();
+    context.arc(x, y, 5, 0, Math.PI * 2);
+    context.fill();
+    context.stroke();
+  });
+  context.restore();
 }
 
 function drawTimeCursor(context, selectedSample, sampleCount, left, right, top, bottom) {
@@ -2106,6 +2149,7 @@ function mountTmpEditing(fixture, onRecompute = () => {}) {
     !tmpShowInitial ||
     !tmpShowAdapted ||
     !tmpGrid ||
+    !tmpHandlers ||
     !tmpParameter ||
     !tmpValue ||
     !tmpDecrement ||
@@ -2146,6 +2190,7 @@ function mountTmpEditing(fixture, onRecompute = () => {}) {
   tmpShowInitial.checked = true;
   tmpShowAdapted.checked = true;
   tmpGrid.checked = true;
+  tmpHandlers.checked = false;
 
   function selectedRegion() {
     return selectionState.region.filter((nodeIndex) => nodeIndex >= 0 && nodeIndex < tmpEditState.nodeCount);
@@ -2162,11 +2207,13 @@ function mountTmpEditing(fixture, onRecompute = () => {}) {
     plotTmp(tmpCanvas, {
       sampleRateHz: tmpEditState.sampleRateHz,
       sampleCount: tmpEditState.sampleCount,
+      selectedNode: tmpEditState.selectedNode,
       nodes: buildTmpPlotNodes(tmpEditState),
     }, {
       showInitial: tmpShowInitial.checked,
       showAdapted: tmpShowAdapted.checked,
       showGrid: tmpGrid.checked,
+      showHandlers: tmpHandlers.checked,
       selectedSample: timeState.sample,
     });
   }
@@ -2289,6 +2336,7 @@ function mountTmpEditing(fixture, onRecompute = () => {}) {
   tmpShowInitial.onchange = redrawTmp;
   tmpShowAdapted.onchange = redrawTmp;
   tmpGrid.onchange = redrawTmp;
+  tmpHandlers.onchange = redrawTmp;
   tmpDecrement.onclick = () => nudgeParameter(-1);
   tmpIncrement.onclick = () => nudgeParameter(1);
   tmpApply.onclick = () => {

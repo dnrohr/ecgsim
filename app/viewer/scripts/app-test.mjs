@@ -683,6 +683,12 @@ async function assertHeartSelectionAndTmpEditing(page) {
   await expectText(page, "[data-tmp-parameter-status]", "Initial");
 
   const tmpControlsBefore = await canvasSignature(page, "[data-tmp-canvas]");
+  await page.locator("[data-tmp-handlers]").check();
+  await page.waitForTimeout(150);
+  const tmpHandlersShown = await canvasSignature(page, "[data-tmp-canvas]");
+  assert.notEqual(tmpHandlersShown, tmpControlsBefore, "TMP handler overlay should draw selected-node parameter handles");
+  await page.locator("[data-tmp-handlers]").uncheck();
+
   await page.locator("[data-tmp-show-initial]").uncheck();
   await expectText(page, "[data-tmp-metadata]", "/ adapted");
   await expectText(page, "[data-tmp-mode-badge]", "adapted");
