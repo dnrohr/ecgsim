@@ -18,6 +18,7 @@ Status: task `0039` parity notes for the modern Leads pane.
 - Measured, initial, and adapted signal overlays are visible but disabled when the current fixture lacks signal classification.
 - `read_ecgsimcase_matrix_inventory()` records root signal, thorax-by-source transfer, and lead-system matrix role hints for archived cases.
 - `read_ecgsimcase_lead_object_inventory()` records `PLead`, `PLeadReference`, and `PShowLead` labels with raw trailing fields.
+- `read_ecgsimcase_lead_systems()` now uses embedded lead-object labels instead of fallback names.
 
 ## Current Limitations
 
@@ -49,3 +50,5 @@ Task `0107` adds `research/lead-object-inventory.json`. The case payloads now de
 - `PShowLead`: version, embedded display label, trailing int32 fields, and layout-like float values.
 
 The standard 12-lead system exposes labels `I`, `II`, `III`, `V1` through `V6`, `aVr`, `aVl`, and `aVf`, plus references `Zeromean`, `extremities`, `vr`, and `vl`. This is enough to preserve labels and reference objects, but not enough to assign final polarity/WCT equations without matching the trailing fields to legacy transforms.
+
+Task `0108` promotes these embedded labels into the high-level lead-system parser. The first standard lead now surfaces as `I` rather than fallback `lead1`.

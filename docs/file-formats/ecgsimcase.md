@@ -244,3 +244,5 @@ trailing numeric fields
 ```
 
 The trailing bytes are preserved as int32 and float32 views in `read_ecgsimcase_lead_object_inventory(path)` and `research/lead-object-inventory.json`. Standard 12-lead labels and reference names are now parsed, but the trailing-field semantics still need to be matched to WCT/reference and polarity equations before clinical lead overlays can be marked decoded.
+
+Task 0108 updated `read_ecgsimcase_lead_systems(path)` to use the embedded lead-object labels for `lead_labels`, `reference_labels`, and `shown_lead_labels`. Fallback labels are now only used when a labeled payload cannot be decoded.

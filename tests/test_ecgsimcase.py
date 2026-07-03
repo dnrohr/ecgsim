@@ -349,7 +349,7 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
         self.assertEqual([len(system.electrodes) for system in systems], [9, 7, 65, 9])
         self.assertEqual([len(system.lead_labels) for system in systems], [12, 10, 64, 12])
         self.assertEqual([len(system.shown_lead_labels) for system in systems], [12, 6, 64, 9])
-        self.assertEqual(systems[0].lead_labels[:4], ("lead1", "II", "III", "V1"))
+        self.assertEqual(systems[0].lead_labels[:4], ("I", "II", "III", "V1"))
         self.assertEqual(systems[0].reference_labels, ("Zeromean", "extremities", "vr", "vl"))
         self.assertEqual(systems[1].shown_lead_labels[:3], ("horizontal", "frontal", "left sagital"))
         self.assertEqual(systems[0].matrix_offsets, (11312384,))

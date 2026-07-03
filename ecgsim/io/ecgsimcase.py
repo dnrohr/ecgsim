@@ -568,11 +568,15 @@ def read_ecgsimcase_lead_systems(path: str | Path) -> tuple[ECGsimCaseLeadSystem
                 name=name_entry.text,
                 source_offset=offset,
                 electrodes=electrodes,
-                lead_labels=_labels_for_nested_markers(metadata, PLEAD_SIGNATURE, offset, end, "lead"),
-                reference_labels=_labels_for_nested_markers(
-                    metadata, PLEAD_REFERENCE_SIGNATURE, offset, end, "reference"
+                lead_labels=_labels_for_labeled_payloads(
+                    data, source_path, metadata, PLEAD_SIGNATURE, offset, end, "lead"
                 ),
-                shown_lead_labels=_labels_for_nested_markers(metadata, PSHOW_LEAD_SIGNATURE, offset, end, "shown"),
+                reference_labels=_labels_for_labeled_payloads(
+                    data, source_path, metadata, PLEAD_REFERENCE_SIGNATURE, offset, end, "reference"
+                ),
+                shown_lead_labels=_labels_for_labeled_payloads(
+                    data, source_path, metadata, PSHOW_LEAD_SIGNATURE, offset, end, "shown"
+                ),
                 matrix_offsets=_marker_offsets_in_range(metadata, PMATRIX_SIGNATURE, offset, end),
                 unsupported_fields=(
                     "lead polarity/reference electrode fields",
@@ -1086,6 +1090,26 @@ def _labels_for_nested_markers(
         if next_string is not None and next_string.offset < end and not next_string.text.startswith("P"):
             labels.append(next_string.text)
         else:
+            labels.append(f"{fallback_prefix}{index + 1}")
+    return tuple(labels)
+
+
+def _labels_for_labeled_payloads(
+    data: bytes,
+    source_path: Path,
+    metadata: ECGsimCaseMetadata,
+    marker: str,
+    start: int,
+    end: int,
+    fallback_prefix: str,
+) -> tuple[str, ...]:
+    labels: list[str] = []
+    offsets = _marker_offsets_in_range(metadata, marker, start, end)
+    for index, offset in enumerate(offsets):
+        try:
+            _version, label, _trailing = _read_labeled_payload_tail(data, source_path, offset, marker)
+            labels.append(label)
+        except ECGsimCaseFormatError:
             labels.append(f"{fallback_prefix}{index + 1}")
     return tuple(labels)
 
