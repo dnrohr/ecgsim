@@ -45,7 +45,7 @@ This matrix tracks what a user can see and manipulate. It does not require the m
 | TMP | Initial/adapted TMP traces | TMP plot with initial/adapted toggles | supported | Toggle canvas deltas and selected-node provenance | `0101` |
 | TMP | Parameter handlers | Numeric controls plus selected-node handler overlay | modern-equivalent | App workflow checks handler overlay canvas delta after Heart selection | complete |
 | TMP | Time bar | Shared yellow cursor | supported | Cursor x-position tests | `0101` |
-| TMP | Interval highlight | Linked Leads interval highlight | partial | Interval model and canvas delta | `0097` |
+| TMP | Interval highlight | Linked Leads interval highlight | supported | App workflow checks interval redraw on Leads and TMP canvases | complete |
 | TMP | Electrogram | EGM toggle disabled until data/equation exists | blocked-on-evidence | Electrogram data or derivation | `0100` |
 | Leads | Standard and alternate lead systems | Lead-system selector with parsed electrodes/traces | supported | Lead-system switch canvas/metadata tests | `0101` |
 | Leads | Measured/initial/adapted overlays | Measured/initial disabled; adapted recompute preview | partial | Signal classification and WCT/reference parity | future |

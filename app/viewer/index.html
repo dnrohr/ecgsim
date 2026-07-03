@@ -353,6 +353,15 @@
             <label><input type="checkbox" data-leads-adapted disabled> Adapted</label>
             <label><input type="checkbox" data-leads-rms> RMS</label>
             <label><input type="checkbox" data-leads-grid checked> Grid</label>
+            <label><input type="checkbox" data-leads-interval> Interval</label>
+            <label>
+              Start
+              <input type="number" min="0" max="575" step="1" value="80" data-leads-interval-start>
+            </label>
+            <label>
+              End
+              <input type="number" min="0" max="575" step="1" value="160" data-leads-interval-end>
+            </label>
             <label>
               Import ECG
               <input type="file" accept=".json,.ecgsim-ecg.json,application/json" data-leads-import>

@@ -107,6 +107,9 @@ const leadsInitial = document.querySelector("[data-leads-initial]");
 const leadsAdapted = document.querySelector("[data-leads-adapted]");
 const leadsRms = document.querySelector("[data-leads-rms]");
 const leadsGrid = document.querySelector("[data-leads-grid]");
+const leadsInterval = document.querySelector("[data-leads-interval]");
+const leadsIntervalStart = document.querySelector("[data-leads-interval-start]");
+const leadsIntervalEnd = document.querySelector("[data-leads-interval-end]");
 const leadsImport = document.querySelector("[data-leads-import]");
 const leadsScale = document.querySelector("[data-leads-scale]");
 const leadsStatus = document.querySelector("[data-leads-status]");
@@ -307,6 +310,12 @@ const timeState = {
   sampleCount: 576,
   sampleRateHz: 1000,
   isPlaying: false,
+};
+
+const intervalState = {
+  enabled: false,
+  startSample: 80,
+  endSample: 160,
 };
 
 const linkedOrientationState = {
@@ -1733,6 +1742,7 @@ function plotSignals(
     showGrid = true,
     showRms = false,
     selectedSample = 0,
+    interval = null,
     tmpState = null,
     showAdapted = false,
   } = {},
@@ -1793,6 +1803,7 @@ function plotSignals(
       context.stroke();
     }
   }
+  drawIntervalHighlight(context, interval, signalSet.sampleCount, left, width - right, top, height - bottom);
 
   context.font = "12px Segoe UI, Arial, sans-serif";
   context.fillStyle = "#52616b";
@@ -1976,6 +1987,7 @@ function plotTmp(
     showGrid = true,
     showHandlers = false,
     selectedSample = 0,
+    interval = null,
   } = {},
 ) {
   if (!canvas || !tmpMetadata) {
@@ -2017,6 +2029,7 @@ function plotTmp(
       context.stroke();
     }
   }
+  drawIntervalHighlight(context, interval, fixture.sampleCount, left, width - right, top, height - bottom);
   context.font = "12px Segoe UI, Arial, sans-serif";
   context.textBaseline = "middle";
 
@@ -2076,6 +2089,28 @@ function plotTmp(
     "Source params",
     "TMP traces generated from parsed source-parameter vectors for preview nodes.",
   );
+}
+
+function drawIntervalHighlight(context, interval, sampleCount, left, right, top, bottom) {
+  if (!interval?.enabled || sampleCount < 2) {
+    return;
+  }
+  const start = Math.max(0, Math.min(sampleCount - 1, Math.min(interval.startSample, interval.endSample)));
+  const end = Math.max(0, Math.min(sampleCount - 1, Math.max(interval.startSample, interval.endSample)));
+  const x1 = left + (start / (sampleCount - 1)) * (right - left);
+  const x2 = left + (end / (sampleCount - 1)) * (right - left);
+  context.save();
+  context.fillStyle = "rgba(242, 183, 5, 0.18)";
+  context.fillRect(x1, top, Math.max(2, x2 - x1), bottom - top);
+  context.strokeStyle = "rgba(138, 91, 19, 0.55)";
+  context.lineWidth = 1;
+  [x1, x2].forEach((x) => {
+    context.beginPath();
+    context.moveTo(x, top);
+    context.lineTo(x, bottom);
+    context.stroke();
+  });
+  context.restore();
 }
 
 function drawTmpHandlers(context, node, min, span, left, plotWidth, centerY, amplitude, sampleRateHz, sampleCount) {
@@ -2215,6 +2250,7 @@ function mountTmpEditing(fixture, onRecompute = () => {}) {
       showGrid: tmpGrid.checked,
       showHandlers: tmpHandlers.checked,
       selectedSample: timeState.sample,
+      interval: intervalState,
     });
   }
 
@@ -2991,6 +3027,10 @@ function applyCaseBundle(bundle, noticeText) {
   focusEditing.syncControls();
   syncLeadOverlayControls(bundle.ecgSignals, tmpEditing.getState());
   syncImportedEcgControls();
+  intervalState.enabled = false;
+  intervalState.startSample = 80;
+  intervalState.endSample = 160;
+  syncIntervalControls();
   const leadsCanvas = document.querySelector("[data-leads-canvas]");
   redrawSignals = () => plotSignals(leadsCanvas, bundle.ecgSignals, {
     mode: leadsFilter?.value ?? "baseline",
@@ -3001,6 +3041,7 @@ function applyCaseBundle(bundle, noticeText) {
     showGrid: leadsGrid?.checked ?? true,
     showRms: leadsRms?.checked ?? false,
     selectedSample: timeState.sample,
+    interval: intervalState,
     tmpState: tmpEditing.getState(),
     showAdapted: leadsAdapted?.checked ?? false,
   });
@@ -3013,6 +3054,23 @@ function applyCaseBundle(bundle, noticeText) {
   if (leadsRms) {
     leadsRms.checked = false;
   }
+  if (leadsInterval) {
+    leadsInterval.checked = false;
+    leadsInterval.onchange = () => {
+      syncIntervalStateFromControls();
+      redrawSignals();
+      tmpEditing.redrawTmp();
+    };
+  }
+  [leadsIntervalStart, leadsIntervalEnd].forEach((control) => {
+    if (control) {
+      control.onchange = () => {
+        syncIntervalStateFromControls();
+        redrawSignals();
+        tmpEditing.redrawTmp();
+      };
+    }
+  });
   if (leadsSource) {
     leadsSource.value = "case";
     syncImportedEcgControls();
@@ -3094,6 +3152,36 @@ function applyCaseBundle(bundle, noticeText) {
     visualModeNavigator.onchange = () => selectVisualMode(visualModeNavigator.value);
   }
   redrawSignals();
+}
+
+function syncIntervalControls() {
+  const max = Math.max(0, timeState.sampleCount - 1);
+  [leadsIntervalStart, leadsIntervalEnd].forEach((control) => {
+    if (!control) {
+      return;
+    }
+    control.min = "0";
+    control.max = String(max);
+  });
+  intervalState.startSample = Math.max(0, Math.min(max, intervalState.startSample));
+  intervalState.endSample = Math.max(0, Math.min(max, intervalState.endSample));
+  if (leadsIntervalStart) {
+    leadsIntervalStart.value = String(intervalState.startSample);
+  }
+  if (leadsIntervalEnd) {
+    leadsIntervalEnd.value = String(intervalState.endSample);
+  }
+  if (leadsInterval) {
+    leadsInterval.checked = intervalState.enabled;
+  }
+}
+
+function syncIntervalStateFromControls() {
+  const max = Math.max(0, timeState.sampleCount - 1);
+  intervalState.enabled = leadsInterval?.checked ?? false;
+  intervalState.startSample = Math.max(0, Math.min(max, Number.parseInt(leadsIntervalStart?.value ?? "0", 10)));
+  intervalState.endSample = Math.max(0, Math.min(max, Number.parseInt(leadsIntervalEnd?.value ?? String(max), 10)));
+  syncIntervalControls();
 }
 
 async function importSelectedEcgSignals(file, redrawSignals) {

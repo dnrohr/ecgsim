@@ -530,6 +530,16 @@ async function assertLeadsFiltering(page) {
   assert.notEqual(noGridSignature, rmsSignature, "Grid toggle should redraw leads");
   await page.locator("[data-leads-grid]").check();
 
+  const leadsBeforeInterval = await canvasSignature(page, canvas);
+  const tmpBeforeInterval = await canvasSignature(page, "[data-tmp-canvas]");
+  await setInputValue(page, "[data-leads-interval-start]", "90");
+  await setInputValue(page, "[data-leads-interval-end]", "180");
+  await page.locator("[data-leads-interval]").check();
+  await page.waitForTimeout(150);
+  assert.notEqual(await canvasSignature(page, canvas), leadsBeforeInterval, "Leads interval highlight should redraw the Leads canvas");
+  assert.notEqual(await canvasSignature(page, "[data-tmp-canvas]"), tmpBeforeInterval, "Leads interval highlight should redraw the TMP canvas");
+  await page.locator("[data-leads-interval]").uncheck();
+
   await page.locator("[data-leads-filter]").selectOption("ac");
   await expectText(page, "[data-leads-metadata]", "/ AC");
   await expectText(page, "[data-leads-mode-badge]", "AC");
@@ -888,6 +898,14 @@ async function setRangeValue(page, selector, value) {
   await page.locator(selector).evaluate((element, nextValue) => {
     element.value = nextValue;
     element.dispatchEvent(new Event("input", { bubbles: true }));
+  }, value);
+}
+
+async function setInputValue(page, selector, value) {
+  await page.locator(selector).evaluate((element, nextValue) => {
+    element.value = nextValue;
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+    element.dispatchEvent(new Event("change", { bubbles: true }));
   }, value);
 }
 
