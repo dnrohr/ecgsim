@@ -171,8 +171,34 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertEqual(electrogram["rejectedShapeEvidence"]["thoraxTimeSeriesCount"], 1)
         self.assertEqual(electrogram["rejectedShapeEvidence"]["sourceSquareMatrixCount"], 7)
         self.assertEqual(electrogram["rejectedShapeEvidence"]["thoraxBySourceTransferCount"], 1)
+        self.assertEqual(len(electrogram["sourceToSourceTransferCandidates"]), 1)
+        transfer_candidate = electrogram["sourceToSourceTransferCandidates"][0]
+        self.assertEqual(transfer_candidate["index"], 27)
+        self.assertEqual(transfer_candidate["classification"], "dense signed source-to-source transfer candidate")
+        self.assertLess(transfer_candidate["stats"]["min"], 0)
+        self.assertGreater(transfer_candidate["stats"]["max"], 0)
+        self.assertEqual(transfer_candidate["stats"]["zeroFraction"], 0.0)
         self.assertIn("no source-node-by-time electrogram payload", electrogram["reason"])
-        self.assertIn("confirmed electrogram derivation equation", electrogram["requiredEvidence"])
+        self.assertIn("confirmed source-to-source transfer role", electrogram["requiredEvidence"])
+        self.assertIn("legacy-validated selected-node EGM output", electrogram["requiredEvidence"])
+
+    def test_source_square_matrix_evidence_identifies_one_transfer_candidate_per_case(self) -> None:
+        report = json.loads(Path("research/source-square-matrix-evidence.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(len(report["cases"]), 4)
+        for case in report["cases"]:
+            with self.subTest(case=case["case"]):
+                self.assertEqual(case["sourceSquareMatrixCount"], 7)
+                self.assertEqual(case["transferCandidateCount"], 1)
+                transfer_candidates = [
+                    matrix for matrix in case["matrices"]
+                    if matrix["classification"] == "dense signed source-to-source transfer candidate"
+                ]
+                self.assertEqual(len(transfer_candidates), 1)
+                self.assertEqual(transfer_candidates[0]["index"], 27)
+                self.assertLess(transfer_candidates[0]["stats"]["min"], 0)
+                self.assertGreater(transfer_candidates[0]["stats"]["max"], 0)
+                self.assertEqual(transfer_candidates[0]["stats"]["zeroFraction"], 0.0)
 
     def test_case_metadata_fixture_includes_activation_construction_summaries(self) -> None:
         fixture = json.loads(Path("app/viewer/public/fixtures/case-metadata.json").read_text(encoding="utf-8"))
@@ -240,6 +266,7 @@ class ParityRegressionTests(unittest.TestCase):
                 self.assertEqual(metadata["electrogram"]["status"], "unavailable")
                 self.assertEqual(metadata["electrogram"]["candidateMatrixCount"], 0)
                 self.assertEqual(metadata["electrogram"]["sourceNodeCount"], bundle["tmpWaveforms"]["nodeCount"])
+                self.assertEqual(len(metadata["electrogram"]["sourceToSourceTransferCandidates"]), 1)
                 self.assertEqual(validation["status"], "partial")
                 self.assertEqual(validation["unsupportedPayloadCount"], len(case.metadata.unsupported_payloads))
                 if case.signal_metadata.fiducials.status == "unavailable":

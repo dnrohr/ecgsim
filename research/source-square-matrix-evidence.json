@@ -1,0 +1,877 @@
+{
+  "interpretation": "Source-square matrices are classified by numeric shape only. Dense signed candidates may support computed heart-surface electrogram previews, but EGM parity still requires mapping the matrix role to legacy VENTR.VENTRICLES semantics and validating the output against ECGSIM.",
+  "cases": [
+    {
+      "case": "research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase",
+      "sourceNodeCount": 576,
+      "sourceSquareMatrixCount": 7,
+      "transferCandidateCount": 1,
+      "matrices": [
+        {
+          "index": 8,
+          "offset": 1235490,
+          "rows": 576,
+          "columns": 576,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "sparse graph adjacency/distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 44.67363,
+            "mean": 0.326779,
+            "meanAbs": 0.326779,
+            "zeroFraction": 0.979733,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.020267,
+            "integerLikeFraction": 0.979733,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "index": 9,
+          "offset": 2562624,
+          "rows": 576,
+          "columns": 576,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense nonnegative source-distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 244.672073,
+            "mean": 106.453096,
+            "meanAbs": 106.453096,
+            "zeroFraction": 0.001736,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.998264,
+            "integerLikeFraction": 0.001742,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              77.16626,
+              87.684723,
+              99.821495,
+              113.471275,
+              127.904747,
+              128.469742,
+              114.863281
+            ]
+          }
+        },
+        {
+          "index": 10,
+          "offset": 3889758,
+          "rows": 576,
+          "columns": 576,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "sparse graph adjacency/distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 49.996498,
+            "mean": 1.95486,
+            "meanAbs": 1.95486,
+            "zeroFraction": 0.927722,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.072278,
+            "integerLikeFraction": 0.927728,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "index": 11,
+          "offset": 5216892,
+          "rows": 576,
+          "columns": 576,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense nonnegative source-distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 173.258774,
+            "mean": 77.775132,
+            "meanAbs": 77.775132,
+            "zeroFraction": 0.001736,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.998264,
+            "integerLikeFraction": 0.001748,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              76.934647,
+              87.684723,
+              99.589081,
+              113.471275,
+              125.28653,
+              128.469742,
+              114.863281
+            ]
+          }
+        },
+        {
+          "index": 12,
+          "offset": 6544026,
+          "rows": 576,
+          "columns": 576,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "sparse graph adjacency/distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 65.36821,
+            "mean": 2.236963,
+            "meanAbs": 2.236963,
+            "zeroFraction": 0.927722,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.072278,
+            "integerLikeFraction": 0.927722,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "index": 13,
+          "offset": 7871160,
+          "rows": 576,
+          "columns": 576,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense nonnegative source-distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 180.312851,
+            "mean": 81.284126,
+            "meanAbs": 81.284126,
+            "zeroFraction": 0.001736,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.998264,
+            "integerLikeFraction": 0.001742,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              77.16626,
+              87.684723,
+              99.821495,
+              113.471275,
+              127.904747,
+              128.469742,
+              114.863281
+            ]
+          }
+        },
+        {
+          "index": 27,
+          "offset": 9944294,
+          "rows": 576,
+          "columns": 576,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense signed source-to-source transfer candidate",
+          "stats": {
+            "min": -31.150492,
+            "max": 12.50749,
+            "mean": 0.0,
+            "meanAbs": 0.127413,
+            "zeroFraction": 0.0,
+            "negativeFraction": 0.453891,
+            "positiveFraction": 0.546109,
+            "integerLikeFraction": 1.2e-05,
+            "diagonalZeroFraction": 0.0,
+            "maxAbsAsymmetry": 9.252994,
+            "firstRowPreview": [
+              -23.034563,
+              0.066029,
+              0.050884,
+              0.04199,
+              0.040112,
+              0.034911,
+              0.032952,
+              0.051241
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "research/source/www.ecgsim.org/downloads/cases/WPW_Bundleonly.ECGsimcase",
+      "sourceNodeCount": 697,
+      "sourceSquareMatrixCount": 7,
+      "transferCandidateCount": 1,
+      "matrices": [
+        {
+          "index": 8,
+          "offset": 1683494,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "sparse graph adjacency/distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 35.613831,
+            "mean": 0.224818,
+            "meanAbs": 0.224818,
+            "zeroFraction": 0.982783,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.017217,
+            "integerLikeFraction": 0.982783,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "index": 9,
+          "offset": 3626760,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense nonnegative source-distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 240.621735,
+            "mean": 90.555519,
+            "meanAbs": 90.555519,
+            "zeroFraction": 0.001435,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.998565,
+            "integerLikeFraction": 0.001439,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              91.151276,
+              47.319687,
+              70.506706,
+              65.440651,
+              136.695236,
+              95.956406,
+              163.276367
+            ]
+          }
+        },
+        {
+          "index": 10,
+          "offset": 5570026,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "sparse graph adjacency/distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 49.998192,
+            "mean": 1.57671,
+            "meanAbs": 1.57671,
+            "zeroFraction": 0.940425,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.059575,
+            "integerLikeFraction": 0.940425,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "index": 11,
+          "offset": 7513292,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense nonnegative source-distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 151.782288,
+            "mean": 68.44736,
+            "meanAbs": 68.44736,
+            "zeroFraction": 0.001435,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.998565,
+            "integerLikeFraction": 0.001435,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              78.86438,
+              47.319687,
+              45.029961,
+              65.440651,
+              102.402466,
+              95.956406,
+              107.797043
+            ]
+          }
+        },
+        {
+          "index": 12,
+          "offset": 9456558,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "sparse graph adjacency/distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 69.228432,
+            "mean": 1.882867,
+            "meanAbs": 1.882867,
+            "zeroFraction": 0.940425,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.059575,
+            "integerLikeFraction": 0.940425,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "index": 13,
+          "offset": 11399824,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense nonnegative source-distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 161.033386,
+            "mean": 72.059478,
+            "meanAbs": 72.059478,
+            "zeroFraction": 0.001435,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.998565,
+            "integerLikeFraction": 0.001439,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              84.241089,
+              47.319687,
+              48.886406,
+              65.440651,
+              112.071976,
+              95.956406,
+              117.777924
+            ]
+          }
+        },
+        {
+          "index": 27,
+          "offset": 14806470,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense signed source-to-source transfer candidate",
+          "stats": {
+            "min": -21.754993,
+            "max": 6.390893,
+            "mean": 0.0,
+            "meanAbs": 0.108843,
+            "zeroFraction": 0.0,
+            "negativeFraction": 0.436357,
+            "positiveFraction": 0.563643,
+            "integerLikeFraction": 8e-06,
+            "diagonalZeroFraction": 0.0,
+            "maxAbsAsymmetry": 4.027207,
+            "firstRowPreview": [
+              -9.349926,
+              0.229496,
+              -0.074774,
+              0.337951,
+              -0.139945,
+              0.137594,
+              -0.067499,
+              0.075404
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "research/source/www.ecgsim.org/downloads/cases/WPW_ectopicbeat.ECGsimcase",
+      "sourceNodeCount": 697,
+      "sourceSquareMatrixCount": 7,
+      "transferCandidateCount": 1,
+      "matrices": [
+        {
+          "index": 8,
+          "offset": 2325494,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "sparse graph adjacency/distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 35.613831,
+            "mean": 0.224818,
+            "meanAbs": 0.224818,
+            "zeroFraction": 0.982783,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.017217,
+            "integerLikeFraction": 0.982783,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "index": 9,
+          "offset": 4268760,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense nonnegative source-distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 240.621735,
+            "mean": 90.555519,
+            "meanAbs": 90.555519,
+            "zeroFraction": 0.001435,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.998565,
+            "integerLikeFraction": 0.001439,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              91.151276,
+              47.319687,
+              70.506706,
+              65.440651,
+              136.695236,
+              95.956406,
+              163.276367
+            ]
+          }
+        },
+        {
+          "index": 10,
+          "offset": 6212026,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "sparse graph adjacency/distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 49.998192,
+            "mean": 1.57671,
+            "meanAbs": 1.57671,
+            "zeroFraction": 0.940425,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.059575,
+            "integerLikeFraction": 0.940425,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "index": 11,
+          "offset": 8155292,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense nonnegative source-distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 151.782288,
+            "mean": 68.44736,
+            "meanAbs": 68.44736,
+            "zeroFraction": 0.001435,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.998565,
+            "integerLikeFraction": 0.001435,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              78.86438,
+              47.319687,
+              45.029961,
+              65.440651,
+              102.402466,
+              95.956406,
+              107.797043
+            ]
+          }
+        },
+        {
+          "index": 12,
+          "offset": 10098558,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "sparse graph adjacency/distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 69.228432,
+            "mean": 1.882867,
+            "meanAbs": 1.882867,
+            "zeroFraction": 0.940425,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.059575,
+            "integerLikeFraction": 0.940425,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "index": 13,
+          "offset": 12041824,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense nonnegative source-distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 161.033386,
+            "mean": 72.059478,
+            "meanAbs": 72.059478,
+            "zeroFraction": 0.001435,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.998565,
+            "integerLikeFraction": 0.001439,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              84.241089,
+              47.319687,
+              48.886406,
+              65.440651,
+              112.071976,
+              95.956406,
+              117.777924
+            ]
+          }
+        },
+        {
+          "index": 27,
+          "offset": 15448470,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense signed source-to-source transfer candidate",
+          "stats": {
+            "min": -21.754993,
+            "max": 6.390893,
+            "mean": 0.0,
+            "meanAbs": 0.108843,
+            "zeroFraction": 0.0,
+            "negativeFraction": 0.436357,
+            "positiveFraction": 0.563643,
+            "integerLikeFraction": 8e-06,
+            "diagonalZeroFraction": 0.0,
+            "maxAbsAsymmetry": 4.027207,
+            "firstRowPreview": [
+              -9.349926,
+              0.229496,
+              -0.074774,
+              0.337951,
+              -0.139945,
+              0.137594,
+              -0.067499,
+              0.075404
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "research/source/www.ecgsim.org/downloads/cases/WPW_fusionbeat.ECGsimcase",
+      "sourceNodeCount": 697,
+      "sourceSquareMatrixCount": 7,
+      "transferCandidateCount": 1,
+      "matrices": [
+        {
+          "index": 8,
+          "offset": 1749494,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "sparse graph adjacency/distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 35.613831,
+            "mean": 0.224818,
+            "meanAbs": 0.224818,
+            "zeroFraction": 0.982783,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.017217,
+            "integerLikeFraction": 0.982783,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "index": 9,
+          "offset": 3692760,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense nonnegative source-distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 240.621735,
+            "mean": 90.555519,
+            "meanAbs": 90.555519,
+            "zeroFraction": 0.001435,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.998565,
+            "integerLikeFraction": 0.001439,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              91.151276,
+              47.319687,
+              70.506706,
+              65.440651,
+              136.695236,
+              95.956406,
+              163.276367
+            ]
+          }
+        },
+        {
+          "index": 10,
+          "offset": 5636026,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "sparse graph adjacency/distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 49.998192,
+            "mean": 1.57671,
+            "meanAbs": 1.57671,
+            "zeroFraction": 0.940425,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.059575,
+            "integerLikeFraction": 0.940425,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "index": 11,
+          "offset": 7579292,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense nonnegative source-distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 151.782288,
+            "mean": 68.44736,
+            "meanAbs": 68.44736,
+            "zeroFraction": 0.001435,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.998565,
+            "integerLikeFraction": 0.001435,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              78.86438,
+              47.319687,
+              45.029961,
+              65.440651,
+              102.402466,
+              95.956406,
+              107.797043
+            ]
+          }
+        },
+        {
+          "index": 12,
+          "offset": 9522558,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "sparse graph adjacency/distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 69.228432,
+            "mean": 1.882867,
+            "meanAbs": 1.882867,
+            "zeroFraction": 0.940425,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.059575,
+            "integerLikeFraction": 0.940425,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "index": 13,
+          "offset": 11465824,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense nonnegative source-distance candidate",
+          "stats": {
+            "min": 0.0,
+            "max": 161.033386,
+            "mean": 72.059478,
+            "meanAbs": 72.059478,
+            "zeroFraction": 0.001435,
+            "negativeFraction": 0.0,
+            "positiveFraction": 0.998565,
+            "integerLikeFraction": 0.001439,
+            "diagonalZeroFraction": 1.0,
+            "maxAbsAsymmetry": 0.0,
+            "firstRowPreview": [
+              0.0,
+              84.241089,
+              47.319687,
+              48.886406,
+              65.440651,
+              112.071976,
+              95.956406,
+              117.777924
+            ]
+          }
+        },
+        {
+          "index": 27,
+          "offset": 14872470,
+          "rows": 697,
+          "columns": 697,
+          "roleHint": "source graph distance/adjacency or source transfer candidate",
+          "classification": "dense signed source-to-source transfer candidate",
+          "stats": {
+            "min": -21.754993,
+            "max": 6.390893,
+            "mean": 0.0,
+            "meanAbs": 0.108843,
+            "zeroFraction": 0.0,
+            "negativeFraction": 0.436357,
+            "positiveFraction": 0.563643,
+            "integerLikeFraction": 8e-06,
+            "diagonalZeroFraction": 0.0,
+            "maxAbsAsymmetry": 4.027207,
+            "firstRowPreview": [
+              -9.349926,
+              0.229496,
+              -0.074774,
+              0.337951,
+              -0.139945,
+              0.137594,
+              -0.067499,
+              0.075404
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

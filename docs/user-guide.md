@@ -168,6 +168,7 @@ Current unsupported outputs:
 - Baseline coupling reports whether fiducials are available. `normal_male2` uses derived samples `(5, 499)` from the promoted ECGSIM 3.0.1 `standard_12.adaptECG` export; WPW bundles still use fallback signal endpoints because P-wave/T-wave samples have not been located or derived for those cases.
 - The Validation field summarizes known partial-support limits for the loaded bundle; it is not a failure when the main views remain available.
 - The Heart Source mesh overlay shows the parsed `PGraphGeometry` source topology. Endocardial/epicardial and transmural controls are still disabled until explicit wall pairings are parsed.
+- Show EGM remains disabled. The case metadata now identifies one dense signed source-to-source transfer candidate that may support computed electrograms later, but it needs legacy output validation before users can rely on it.
 - Surface-potential matrix values are parsed and displayed. Normal-male measured Leads can be shown from promoted `.refECG` exports, but arbitrary case-payload measured/initial signal classification and lead reference-weight equations remain incomplete.
 - Normal male and normal young male ECGSIM 3.0.1 raw legacy exports have been captured. Promoted parity fixtures cover full normal-male numerical artifacts and ECG-only normal-young artifacts; full export parity still needs edited workflow coverage and broader value-level comparisons.
 

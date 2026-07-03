@@ -180,6 +180,9 @@ if (
   caseFixture.electrogram?.sampleCount !== 1000 ||
   caseFixture.electrogram?.rejectedShapeEvidence?.sourceSquareMatrixCount !== 7 ||
   !caseFixture.electrogram?.reason?.includes("no source-node-by-time electrogram payload") ||
+  !caseFixture.electrogram?.reason?.includes("source-to-source transfer candidate") ||
+  caseFixture.electrogram?.sourceToSourceTransferCandidates?.[0]?.index !== 27 ||
+  caseFixture.electrogram?.sourceToSourceTransferCandidates?.[0]?.classification !== "dense signed source-to-source transfer candidate" ||
   caseFixture.activationConstructions?.[1]?.entryCount !== 576 ||
   caseFixture.activationConstructions?.[1]?.sampleEntries?.[0]?.integerField !== -1 ||
   caseFixture.leadSystemDetails[0].electrodes.length !== 9 ||

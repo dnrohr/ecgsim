@@ -99,7 +99,8 @@ async function assertElectrogramEvidenceBlocker(page) {
   assert.equal(await egmControl.isDisabled(), true, "EGM display should stay disabled until selected-node electrogram evidence exists");
   const title = await egmControl.locator("xpath=..").getAttribute("title");
   assert.match(title ?? "", /no source-node-by-time electrogram payload/i, "EGM blocker should name the missing source-node time-series evidence");
-  assert.match(title ?? "", /derivation equation has been confirmed/i, "EGM blocker should name the missing derivation equation");
+  assert.match(title ?? "", /source-to-source transfer candidate/i, "EGM blocker should name the candidate source transfer evidence");
+  assert.match(title ?? "", /legacy validation/i, "EGM blocker should name the missing legacy output validation");
   assert.equal(await egmControl.getAttribute("data-evidence-status"), "unavailable", "EGM evidence status should come from case metadata");
   assert.equal(await egmControl.getAttribute("data-candidate-matrix-count"), "0", "EGM evidence should report no candidate matrices");
 }

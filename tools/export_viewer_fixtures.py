@@ -18,6 +18,7 @@ from ecgsim.io import (
     read_ecgsimcase_matrix_inventory,
     read_legacy_row_major_matrix,
 )
+from tools.inspect_source_square_matrices import classify_source_square, matrix_stats
 
 
 SIGNAL_SOURCE = ROOT / "research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase"
@@ -210,6 +211,22 @@ def electrogram_payload(case, case_path: Path) -> dict[str, object]:
         and matrix.rows == source_node_count
         and matrix.columns == source_node_count
     )
+    source_square_evidence = []
+    for matrix_entry in source_square_matrices:
+        matrix = read_ecgsimcase_matrix(case_path, matrix_entry.offset)
+        stats = matrix_stats(matrix)
+        classification = classify_source_square(stats)
+        if classification == "dense signed source-to-source transfer candidate":
+            source_square_evidence.append(
+                {
+                    "index": matrix_entry.index,
+                    "offset": matrix_entry.offset,
+                    "rows": matrix_entry.rows,
+                    "columns": matrix_entry.columns,
+                    "classification": classification,
+                    "stats": stats,
+                }
+            )
     thorax_time_matrices = tuple(
         matrix for matrix in inventory
         if matrix.status == "parsed"
@@ -224,8 +241,9 @@ def electrogram_payload(case, case_path: Path) -> dict[str, object]:
     )
     reason = (
         "Selected-node electrogram remains unavailable: manual text names the EGM display, "
-        "but case matrices contain no source-node-by-time electrogram payload and no derivation "
-        "equation has been confirmed."
+        "but case matrices contain no source-node-by-time electrogram payload. A dense signed "
+        "source-to-source transfer candidate exists, but its VENTR.VENTRICLES role and EGM output "
+        "still need legacy validation before enabling the display."
     )
     return {
         "status": "unavailable",
@@ -233,7 +251,8 @@ def electrogram_payload(case, case_path: Path) -> dict[str, object]:
         "reason": reason,
         "requiredEvidence": (
             "source-node-by-time electrogram payload",
-            "confirmed electrogram derivation equation",
+            "confirmed source-to-source transfer role",
+            "legacy-validated selected-node EGM output",
         ),
         "inspectedMatrixCount": len(inventory),
         "sourceNodeCount": source_node_count,
@@ -255,6 +274,7 @@ def electrogram_payload(case, case_path: Path) -> dict[str, object]:
             "sourceSquareMatrixCount": len(source_square_matrices),
             "thoraxBySourceTransferCount": len(transfer_matrices),
         },
+        "sourceToSourceTransferCandidates": tuple(source_square_evidence),
     }
 
 
