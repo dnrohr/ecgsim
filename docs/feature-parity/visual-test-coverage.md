@@ -41,10 +41,10 @@ This document maps visualization modes to current automated evidence. It tracks 
 | Visual output | PNG exports | App workflow downloads all pane PNGs and checks signatures/dimensions | strong artifact | Clipboard remains browser-permission dependent |
 | Visual output | WebM movie export | App workflow downloads Leads WebM and checks EBML signature/size | medium artifact | Other panes use same code path but are not individually downloaded |
 | Help/About | References/status | App workflow opens Help/About and verifies core text | strong smoke | Case-download shortcut missing |
-| Visual regression | Legacy screenshot smoke | `tests/test_visual_regression.py` checks tracked screenshot and synthetic pass/fail fixtures | strong smoke | Broad comparison only; not pane-level parity |
+| Visual regression | Legacy screenshot and pane-region smoke | `tests/test_visual_regression.py` checks tracked screenshot; curated pane manifest validates Heart/Thorax/TMP/Leads regions | strong smoke | Pane regions are from one initial-view screenshot; mode-specific captures still needed |
 
 ## Priority Coverage Gaps
 
 1. Promote exact Frank VCG transform/reference evidence when lead semantics are parsed.
-2. Capture curated pane-level legacy references for specific modes once the modern equivalents are stable.
+2. Capture mode-specific legacy pane references once the legacy app can be driven reliably.
 3. Add per-mode Leads/TMP matrix enumeration if those modes continue to grow beyond the main app workflow.

@@ -35,6 +35,22 @@ Use the comparison as an early warning for broken rendering or gross layout drif
 
 The modern and legacy apps have different UI layout, fonts, rendering engines, canvas contents, and supported workflows. The harness is intentionally loose until curated pane-level reference screenshots exist for specific modes and view states.
 
+## Curated Pane References
+
+Task `0102` adds a curated pane-reference manifest:
+
+```text
+research/legacy-exports/curated-pane-references.json
+```
+
+It records Heart, Thorax, TMP, and Leads pane regions cropped from the tracked normal-male legacy screenshot. Validate it with:
+
+```powershell
+python tools/validate_curated_visual_references.py research/legacy-exports/curated-pane-references.json
+```
+
+These regions are useful for nonblank pane evidence and human review. They are still not pixel-perfect references and do not replace future mode-specific pane captures.
+
 ## Verification
 
 `tests/test_visual_regression.py` verifies:

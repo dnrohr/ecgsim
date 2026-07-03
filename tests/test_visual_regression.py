@@ -10,6 +10,7 @@ from tools.visual_regression import (
     assert_visual_smoke,
     compare_visual_smoke,
 )
+from tools.validate_curated_visual_references import validate_manifest
 
 
 class VisualRegressionTests(unittest.TestCase):
@@ -59,6 +60,19 @@ class VisualRegressionTests(unittest.TestCase):
         failed = compare_visual_smoke(narrow, reference)
         self.assertEqual(failed["status"], "failed")
         self.assertIn("aspect", failed["message"])
+
+    def test_curated_legacy_pane_reference_manifest_validates(self) -> None:
+        report = validate_manifest(Path("research/legacy-exports/curated-pane-references.json"))
+
+        self.assertEqual(report["status"], "passed")
+        self.assertEqual(report["referenceCount"], 1)
+        self.assertEqual(report["regionCount"], 4)
+        panes = {
+            region["pane"]
+            for reference in report["references"]
+            for region in reference["regions"]
+        }
+        self.assertEqual(panes, {"Heart", "Thorax", "TMP", "Leads"})
 
 
 def write_rgb_png(path: Path, width: int, height: int, *, gradient: bool) -> None:

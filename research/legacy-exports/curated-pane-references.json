@@ -1,0 +1,67 @@
+{
+  "schema": "org.ecgsim.curated-legacy-pane-references",
+  "version": 1,
+  "purpose": "Curated legacy ECGSIM visual references for non-pixel-perfect pane comparison and agent handoff.",
+  "references": [
+    {
+      "id": "normal-male-main-window",
+      "caseId": "normal-male",
+      "caseFile": "ECGsim-3.0.1/cases/normal_male.ECGsimcase",
+      "source": "legacy ECGSIM 3.0.1 Windows app",
+      "image": "research/legacy-exports/screenshots/normal-male-main-window.png",
+      "sha256": "6b5c3c3da22794d7a31d43ed7c40b59c1dfb8c7cb9b712bbd6176de02b151138",
+      "width": 1920,
+      "height": 1111,
+      "capturedState": {
+        "leadSystem": "standard_12",
+        "heartMode": "activation/depolarization timing map",
+        "thoraxMode": "geometry with lungs and heart context",
+        "tmpMode": "selected-node TMP grid",
+        "leadsMode": "standard_12 ECG traces"
+      },
+      "regions": [
+        {
+          "id": "heart-pane",
+          "pane": "Heart",
+          "x": 8,
+          "y": 121,
+          "width": 775,
+          "height": 599,
+          "visualEvidence": "Heart surface mesh, colored timing map, contour/isofunction lines, timing color scale."
+        },
+        {
+          "id": "thorax-pane",
+          "pane": "Thorax",
+          "x": 789,
+          "y": 121,
+          "width": 1131,
+          "height": 403,
+          "visualEvidence": "Thorax body geometry with lung surfaces and heart context."
+        },
+        {
+          "id": "tmp-pane",
+          "pane": "TMP",
+          "x": 8,
+          "y": 726,
+          "width": 775,
+          "height": 385,
+          "visualEvidence": "TMP plot area, grid, axes, and time/amplitude labels."
+        },
+        {
+          "id": "leads-pane",
+          "pane": "Leads",
+          "x": 789,
+          "y": 531,
+          "width": 1131,
+          "height": 580,
+          "visualEvidence": "Standard 12-lead ECG grid with red traces and yellow time cursor."
+        }
+      ],
+      "limitations": [
+        "Regions are cropped from one full-window legacy screenshot rather than separate pane clipboard exports.",
+        "This reference supports layout/content recognition and visual smoke checks, not pixel-perfect comparison.",
+        "Additional mode-specific pane captures are still needed for Heart scalar modes, Thorax BSPM modes, TMP editing states, VCG loop, and linked interval/zoom workflows."
+      ]
+    }
+  ]
+}
