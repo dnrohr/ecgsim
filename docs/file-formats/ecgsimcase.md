@@ -200,9 +200,9 @@ float32 x/y/z electrode triplets
 nested PMatrix/PLead/PLeadReference/PShowLead payloads
 ```
 
-The parser exposes lead-system names, electrode positions, nested lead/reference/shown-lead labels where string labels are present, and stable fallback labels where they are absent. Lead polarity, shown-lead layout fields, decoded fiducial/time-base fields, and exact measured/initial/adapted signal classification remain unsupported fields. The normal male case additionally exposes a derived baseline window `(5, 499)` from promoted legacy export evidence, not from decoded case payload fields.
+The parser exposes lead-system names, electrode positions, nested lead/reference/shown-lead labels where string labels are present, and stable fallback labels where they are absent. Later tasks also expose decoded lead/reference/display indices. Lead polarity/reference-weight equations, decoded fiducial/time-base fields, and exact measured/initial/adapted signal classification remain unsupported fields. The normal male case additionally exposes a derived baseline window `(5, 499)` from promoted legacy export evidence, not from decoded case payload fields.
 
-Task 0035 added compact regression summaries in `tests/fixtures/case-summaries.json` for the normal case and all three WPW cases. The summaries pin case size/checksum, signal shape, key geometry counts, ventricular source dimensions, representative parameter values, lead-system dimensions, and case-level unsupported fields. The current unsupported fields include lead polarity/reference electrode semantics, shown-lead layout fields, fiducial/time-base fields, and measured/initial/adapted signal classification. WPW cases still include P-wave/T-wave fiducial samples for baseline correction as unavailable; the normal case uses the derived export-evidence window instead.
+Task 0035 added compact regression summaries in `tests/fixtures/case-summaries.json` for the normal case and all three WPW cases. The summaries pin case size/checksum, signal shape, key geometry counts, ventricular source dimensions, representative parameter values, lead-system dimensions, and case-level unsupported fields. The current unsupported fields include lead polarity/reference-weight equations, fiducial/time-base fields, and measured/initial/adapted signal classification. WPW cases still include P-wave/T-wave fiducial samples for baseline correction as unavailable; the normal case uses the derived export-evidence window instead.
 
 Task 0105 decoded `PGraphGeometry` as a source mesh payload:
 
@@ -231,7 +231,7 @@ Task 0106 added `read_ecgsimcase_matrix_inventory(path)` and `research/pmatrix-i
 | VCG transform candidate | `3 x 7` | `3 x 7` |
 | Minimap transform candidate | `3 x 9` | `3 x 9` |
 
-The empty standard 12-lead and BSPM matrix slots mean WCT/reference and measured/initial/adapted overlay semantics still require decoded `PLead`/`PLeadReference` fields or external legacy evidence.
+The empty standard 12-lead and BSPM matrix slots mean measured/initial/adapted overlay semantics and final reference-weight equations still require decoded lead-field semantics or external legacy evidence.
 
 Task 0107 decoded the common labeled-object envelope for `PLead`, `PLeadReference`, and `PShowLead`:
 
@@ -246,3 +246,11 @@ trailing numeric fields
 The trailing bytes are preserved as int32 and float32 views in `read_ecgsimcase_lead_object_inventory(path)` and `research/lead-object-inventory.json`. Standard 12-lead labels and reference names are now parsed, but the trailing-field semantics still need to be matched to WCT/reference and polarity equations before clinical lead overlays can be marked decoded.
 
 Task 0108 updated `read_ecgsimcase_lead_systems(path)` to use the embedded lead-object labels for `lead_labels`, `reference_labels`, and `shown_lead_labels`. Fallback labels are now only used when a labeled payload cannot be decoded.
+
+Task 0109 added structured lead-system definitions:
+
+- `lead_definitions`: each `PLead` label plus parsed signal-electrode index, reference index, and preserved extra fields.
+- `reference_definitions`: each `PLeadReference` label plus parsed member electrode indices and preserved extra fields.
+- `shown_lead_definitions`: each `PShowLead` label plus parsed primary/secondary lead indices, display group, grid position, and preserved extra fields.
+
+These definitions are also exported into viewer fixture metadata. They decode the index/layout layer, but not final polarity or reference-weight equations.

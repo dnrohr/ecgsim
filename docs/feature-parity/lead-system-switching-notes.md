@@ -12,7 +12,7 @@ Status: task `0043` first functional lead-system switching slice.
 
 ## Current Limitations
 
-- Clinical lead transforms are not yet parity-complete because lead polarity/reference and shown-lead layout semantics remain unsupported parser fields.
+- Clinical lead transforms are not yet parity-complete because final lead polarity/reference-weight equations remain unresolved after parsing reference and shown-lead index fields.
 - Standard 12-lead and Frank VCG selections currently display electrode potentials, not transformed lead signals.
 - Exact electrode patch geometry is not implemented; markers use small spheres at parsed electrode coordinates.
 - Initial/adapted simulated lead systems require recomputation and signal classification.

@@ -206,6 +206,37 @@ class ECGsimCaseElectrode:
 
 
 @dataclass(frozen=True)
+class ECGsimCaseLeadReferenceDefinition:
+    """Decoded reference-electrode membership for one ``PLeadReference``."""
+
+    label: str
+    electrode_indices: tuple[int, ...]
+    extra_fields: tuple[int, ...]
+
+
+@dataclass(frozen=True)
+class ECGsimCaseLeadDefinition:
+    """Decoded signal electrode and reference indices for one ``PLead``."""
+
+    label: str
+    electrode_index: int | None
+    reference_index: int | None
+    extra_fields: tuple[int, ...]
+
+
+@dataclass(frozen=True)
+class ECGsimCaseShownLeadDefinition:
+    """Decoded display placement for one ``PShowLead``."""
+
+    label: str
+    primary_lead_index: int | None
+    secondary_lead_index: int | None
+    display_group: int | None
+    grid_position: tuple[float, float] | None
+    extra_fields: tuple[int, ...]
+
+
+@dataclass(frozen=True)
 class ECGsimCaseLeadSystem:
     """Lead-system metadata and confirmed electrode positions."""
 
@@ -216,6 +247,9 @@ class ECGsimCaseLeadSystem:
     lead_labels: tuple[str, ...]
     reference_labels: tuple[str, ...]
     shown_lead_labels: tuple[str, ...]
+    lead_definitions: tuple[ECGsimCaseLeadDefinition, ...]
+    reference_definitions: tuple[ECGsimCaseLeadReferenceDefinition, ...]
+    shown_lead_definitions: tuple[ECGsimCaseShownLeadDefinition, ...]
     matrix_offsets: tuple[int, ...]
     unsupported_fields: tuple[str, ...]
 
@@ -577,10 +611,12 @@ def read_ecgsimcase_lead_systems(path: str | Path) -> tuple[ECGsimCaseLeadSystem
                 shown_lead_labels=_labels_for_labeled_payloads(
                     data, source_path, metadata, PSHOW_LEAD_SIGNATURE, offset, end, "shown"
                 ),
+                lead_definitions=_lead_definitions_for_range(data, source_path, metadata, offset, end),
+                reference_definitions=_reference_definitions_for_range(data, source_path, metadata, offset, end),
+                shown_lead_definitions=_shown_lead_definitions_for_range(data, source_path, metadata, offset, end),
                 matrix_offsets=_marker_offsets_in_range(metadata, PMATRIX_SIGNATURE, offset, end),
                 unsupported_fields=(
-                    "lead polarity/reference electrode fields",
-                    "shown-lead layout fields",
+                    "lead polarity and reference-weight equations",
                     "fiducial/time-base fields",
                 ),
             )
@@ -1112,6 +1148,130 @@ def _labels_for_labeled_payloads(
         except ECGsimCaseFormatError:
             labels.append(f"{fallback_prefix}{index + 1}")
     return tuple(labels)
+
+
+def _lead_definitions_for_range(
+    data: bytes,
+    source_path: Path,
+    metadata: ECGsimCaseMetadata,
+    start: int,
+    end: int,
+) -> tuple[ECGsimCaseLeadDefinition, ...]:
+    definitions: list[ECGsimCaseLeadDefinition] = []
+    offsets = _marker_offsets_in_range(metadata, PLEAD_SIGNATURE, start, end)
+    for index, offset in enumerate(offsets):
+        try:
+            _version, label, trailing = _read_labeled_payload_tail(data, source_path, offset, PLEAD_SIGNATURE)
+            fields = _trailing_int32_fields(trailing)
+            definitions.append(
+                ECGsimCaseLeadDefinition(
+                    label=label,
+                    electrode_index=_non_negative_field(fields, 0),
+                    reference_index=_non_negative_field(fields, 1),
+                    extra_fields=tuple(fields[2:]),
+                )
+            )
+        except ECGsimCaseFormatError:
+            definitions.append(
+                ECGsimCaseLeadDefinition(
+                    label=f"lead{index + 1}",
+                    electrode_index=None,
+                    reference_index=None,
+                    extra_fields=(),
+                )
+            )
+    return tuple(definitions)
+
+
+def _reference_definitions_for_range(
+    data: bytes,
+    source_path: Path,
+    metadata: ECGsimCaseMetadata,
+    start: int,
+    end: int,
+) -> tuple[ECGsimCaseLeadReferenceDefinition, ...]:
+    definitions: list[ECGsimCaseLeadReferenceDefinition] = []
+    offsets = _marker_offsets_in_range(metadata, PLEAD_REFERENCE_SIGNATURE, start, end)
+    for index, offset in enumerate(offsets):
+        try:
+            _version, label, trailing = _read_labeled_payload_tail(
+                data, source_path, offset, PLEAD_REFERENCE_SIGNATURE
+            )
+            fields = _trailing_int32_fields(trailing)
+            member_count = max(fields[0], 0) if fields else 0
+            member_end = min(member_count + 1, len(fields))
+            definitions.append(
+                ECGsimCaseLeadReferenceDefinition(
+                    label=label,
+                    electrode_indices=tuple(value for value in fields[1:member_end] if value >= 0),
+                    extra_fields=tuple(fields[member_end:]),
+                )
+            )
+        except ECGsimCaseFormatError:
+            definitions.append(
+                ECGsimCaseLeadReferenceDefinition(
+                    label=f"reference{index + 1}",
+                    electrode_indices=(),
+                    extra_fields=(),
+                )
+            )
+    return tuple(definitions)
+
+
+def _shown_lead_definitions_for_range(
+    data: bytes,
+    source_path: Path,
+    metadata: ECGsimCaseMetadata,
+    start: int,
+    end: int,
+) -> tuple[ECGsimCaseShownLeadDefinition, ...]:
+    definitions: list[ECGsimCaseShownLeadDefinition] = []
+    offsets = _marker_offsets_in_range(metadata, PSHOW_LEAD_SIGNATURE, start, end)
+    for index, offset in enumerate(offsets):
+        try:
+            _version, label, trailing = _read_labeled_payload_tail(data, source_path, offset, PSHOW_LEAD_SIGNATURE)
+            fields = _trailing_int32_fields(trailing)
+            definitions.append(
+                ECGsimCaseShownLeadDefinition(
+                    label=label,
+                    primary_lead_index=_non_negative_field(fields, 0),
+                    secondary_lead_index=_non_negative_field(fields, 1),
+                    display_group=_non_negative_field(fields, 2),
+                    grid_position=_show_lead_grid_position(trailing),
+                    extra_fields=tuple(fields[5:]),
+                )
+            )
+        except ECGsimCaseFormatError:
+            definitions.append(
+                ECGsimCaseShownLeadDefinition(
+                    label=f"shown{index + 1}",
+                    primary_lead_index=None,
+                    secondary_lead_index=None,
+                    display_group=None,
+                    grid_position=None,
+                    extra_fields=(),
+                )
+            )
+    return tuple(definitions)
+
+
+def _trailing_int32_fields(trailing: bytes) -> tuple[int, ...]:
+    return struct.unpack_from(f"<{len(trailing) // 4}i", trailing) if len(trailing) >= 4 else ()
+
+
+def _non_negative_field(fields: tuple[int, ...], index: int) -> int | None:
+    if index >= len(fields) or fields[index] < 0:
+        return None
+    return fields[index]
+
+
+def _show_lead_grid_position(trailing: bytes) -> tuple[float, float] | None:
+    if len(trailing) < 20:
+        return None
+    grid_x, grid_y = struct.unpack_from("<ff", trailing, 12)
+    if not (math.isfinite(grid_x) and math.isfinite(grid_y)):
+        return None
+    return (float(grid_x), float(grid_y))
 
 
 def _slug(value: str) -> str:

@@ -1943,7 +1943,7 @@ function plotSignals(
     `${systemText} / plotted ${traces.length} / ${signalSet.sampleCount} samples / ${signalSet.sampleRateHz} Hz / ${mode.toUpperCase()} / ${Math.round(scale * 100)}%${zoom?.enabled ? ` / zoom ${sampleWindow.start}-${sampleWindow.end}` : ""}`;
   if (leadsStatus) {
     const classification = signalSet.isRecomputed
-      ? "adapted ECG recomputed from TMP transfer; WCT/reference lead transform unresolved"
+      ? "adapted ECG recomputed from TMP transfer; lead reference-weight equations unresolved"
       : signalSet.source === "imported"
       ? "external imported signal; separate from case and recomputed outputs"
       : "measured/initial classification unavailable";

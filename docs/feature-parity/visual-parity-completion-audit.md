@@ -30,7 +30,7 @@ Use `--require-complete` when a release gate should fail while evidence blockers
 | --- | --- | --- |
 | Heart | Endocardial/epicardial and transmural mapping | `PGraphGeometry` source meshes are parsed, but wall-side pairing semantics are not decoded. |
 | TMP | Electrogram | Selected-heart-node electrogram payload or derivation equation has not been identified. |
-| Leads | Measured/initial/adapted overlays | Lead labels are parsed from payloads, but measured/initial signal classification and standard/BSPM WCT/reference trailing-field semantics are not decoded. |
+| Leads | Measured/initial/adapted overlays | Lead/reference/display indices are parsed from payloads, but measured/initial signal classification and final reference-weight equations are not decoded. |
 
 ## Completion Interpretation
 

@@ -180,7 +180,10 @@ class ParityRegressionTests(unittest.TestCase):
                     self.assertIn("P-wave/T-wave fiducials for baseline coupling", validation["unavailableCapabilities"])
                 else:
                     self.assertNotIn("P-wave/T-wave fiducials for baseline coupling", validation["unavailableCapabilities"])
-                self.assertIn("measured/initial ECG classification and WCT/reference lead transform", validation["unavailableCapabilities"])
+                self.assertIn(
+                    "measured/initial ECG classification and lead reference-weight equations",
+                    validation["unavailableCapabilities"],
+                )
                 self.assertIn("partial support", validation["messages"][0])
                 self.assertEqual(bundle["heart"]["pointCount"], next(
                     geometry.point_count for geometry in case.geometries if geometry.name == "heart"

@@ -304,6 +304,6 @@ Until the viewer can parse cases through a service or local bridge, the browser 
 - How `PSourceParameter` names are encoded, or whether names must be inferred from ordering.
 - Whether `initial` and `adapted` values are always paired in the case.
 - How multiple beats beyond `beat1` are represented.
-- Lead polarity, reference definitions, and shown-lead layout fields.
+- Final lead polarity/reference-weight equations after parsed reference and shown-lead index fields.
 - Sample rate/fiducial fields for ECG and BSPM matrices.
 - Whether transfer matrices are already WCT-referenced inside `.ECGsimcase`.

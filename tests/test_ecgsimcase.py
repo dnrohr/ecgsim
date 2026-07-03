@@ -352,9 +352,21 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
         self.assertEqual(systems[0].lead_labels[:4], ("I", "II", "III", "V1"))
         self.assertEqual(systems[0].reference_labels, ("Zeromean", "extremities", "vr", "vl"))
         self.assertEqual(systems[1].shown_lead_labels[:3], ("horizontal", "frontal", "left sagital"))
+        self.assertEqual(
+            [(lead.label, lead.electrode_index, lead.reference_index) for lead in systems[0].lead_definitions[:4]],
+            [("I", 7, 2), ("II", 2, 2), ("III", 2, 3), ("V1", 0, 1)],
+        )
+        self.assertEqual(systems[0].reference_definitions[0].label, "Zeromean")
+        self.assertEqual(systems[0].reference_definitions[0].electrode_indices, tuple(range(9)))
+        self.assertEqual(systems[0].reference_definitions[1].electrode_indices, (6, 7, 2))
+        self.assertEqual(systems[0].shown_lead_definitions[4].label, "V2")
+        self.assertEqual(systems[0].shown_lead_definitions[4].primary_lead_index, 4)
+        self.assertEqual(systems[0].shown_lead_definitions[4].secondary_lead_index, None)
+        self.assertEqual(systems[0].shown_lead_definitions[4].grid_position, (2.0, 1.0))
         self.assertEqual(systems[0].matrix_offsets, (11312384,))
         self.assertAlmostEqual(systems[0].electrodes[0].position[0], 109.0, places=4)
         self.assertIn("fiducial/time-base fields", systems[0].unsupported_fields)
+        self.assertNotIn("shown-lead layout fields", systems[0].unsupported_fields)
 
     def test_reads_wpw_lead_system_inventory(self) -> None:
         path = Path("research/source/www.ecgsim.org/downloads/cases/WPW_fusionbeat.ECGsimcase")
@@ -364,6 +376,14 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
         self.assertEqual([len(system.electrodes) for system in systems], [9, 7, 65, 9])
         self.assertEqual(systems[2].name, "BSM_(amsterdam_64)")
         self.assertEqual(len(systems[2].shown_lead_labels), 65)
+        self.assertEqual(len(systems[2].lead_definitions), 65)
+        self.assertEqual(systems[2].lead_definitions[0].label, "V2")
+        self.assertEqual(systems[2].lead_definitions[0].electrode_index, 17)
+        self.assertEqual(systems[2].lead_definitions[0].reference_index, 1)
+        self.assertEqual(systems[2].reference_definitions[1].label, "extremities")
+        self.assertEqual(systems[2].reference_definitions[1].electrode_indices, (63, 62, 64))
+        self.assertEqual(systems[2].reference_definitions[1].extra_fields, (65,))
+        self.assertEqual(systems[2].shown_lead_definitions[0].grid_position, (5.0, 4.0))
 
     def test_reads_signal_metadata(self) -> None:
         path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")

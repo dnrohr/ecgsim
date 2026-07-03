@@ -278,6 +278,34 @@ def case_metadata_payload(case, case_path: Path) -> dict[str, object]:
                 "leadCount": len(system.lead_labels),
                 "shownLeadCount": len(system.shown_lead_labels),
                 "referenceCount": len(system.reference_labels),
+                "leadDefinitions": [
+                    {
+                        "label": lead.label,
+                        "electrodeIndex": lead.electrode_index,
+                        "referenceIndex": lead.reference_index,
+                        "extraFields": lead.extra_fields,
+                    }
+                    for lead in system.lead_definitions
+                ],
+                "referenceDefinitions": [
+                    {
+                        "label": reference.label,
+                        "electrodeIndices": reference.electrode_indices,
+                        "extraFields": reference.extra_fields,
+                    }
+                    for reference in system.reference_definitions
+                ],
+                "shownLeadDefinitions": [
+                    {
+                        "label": shown.label,
+                        "primaryLeadIndex": shown.primary_lead_index,
+                        "secondaryLeadIndex": shown.secondary_lead_index,
+                        "displayGroup": shown.display_group,
+                        "gridPosition": shown.grid_position,
+                        "extraFields": shown.extra_fields,
+                    }
+                    for shown in system.shown_lead_definitions
+                ],
                 "electrodes": [
                     {
                         "id": electrode.id,
@@ -317,7 +345,7 @@ def case_validation_payload(case) -> dict[str, object]:
             break
 
     unavailable.append("endocardial/epicardial and transmural wall mapping")
-    unavailable.append("measured/initial ECG classification and WCT/reference lead transform")
+    unavailable.append("measured/initial ECG classification and lead reference-weight equations")
 
     status = "partial" if unavailable else "supported"
     return {

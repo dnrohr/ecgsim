@@ -193,3 +193,4 @@ Each task should end with:
 - [x] [0106 Inventory PMatrix Lead Signal Roles](0106-inventory-pmatrix-lead-signal-roles.md)
 - [x] [0107 Inventory Lead Reference Payloads](0107-inventory-lead-reference-payloads.md)
 - [x] [0108 Use Embedded Lead Labels](0108-use-embedded-lead-labels.md)
+- [x] [0109 Expose Lead Reference Definitions](0109-expose-lead-reference-definitions.md)

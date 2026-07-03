@@ -168,7 +168,7 @@ Current unsupported outputs:
 - Baseline coupling reports whether fiducials are available. `normal_male2` uses derived samples `(5, 499)` from the promoted ECGSIM 3.0.1 `standard_12.adaptECG` export; WPW bundles still use fallback signal endpoints because P-wave/T-wave samples have not been located or derived for those cases.
 - The Validation field summarizes known partial-support limits for the loaded bundle; it is not a failure when the main views remain available.
 - Endocardial/epicardial and transmural controls are disabled until explicit wall pairings are parsed.
-- Surface-potential matrix values are parsed and displayed, but measured/initial signal classification and WCT/reference lead transforms remain incomplete.
+- Surface-potential matrix values are parsed and displayed, but measured/initial signal classification and lead reference-weight equations remain incomplete.
 - Normal male and normal young male ECGSIM 3.0.1 raw legacy exports have been captured. Promoted parity fixtures cover full normal-male numerical artifacts and ECG-only normal-young artifacts; full export parity still needs edited workflow coverage and broader value-level comparisons.
 
 ## Validation Status

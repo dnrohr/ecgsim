@@ -170,7 +170,7 @@ if (
   caseFixture.leadSystemDetails[2].electrodes.length !== 65 ||
   caseFixture.validation?.status !== "partial" ||
   caseFixture.validation?.unsupportedPayloadCount !== 7 ||
-  !caseFixture.validation?.unavailableCapabilities?.includes("measured/initial ECG classification and WCT/reference lead transform") ||
+  !caseFixture.validation?.unavailableCapabilities?.includes("measured/initial ECG classification and lead reference-weight equations") ||
   !caseFixture.validation?.unavailableCapabilities?.includes("legacy focus raw-field mutation and opposite-wall mapping")
 ) {
   console.error("Unexpected case metadata fixture");

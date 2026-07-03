@@ -24,8 +24,7 @@
         ["minimap_montage", 9, 12, 9]
       ],
       "unsupportedFields": [
-        "lead polarity/reference electrode fields",
-        "shown-lead layout fields",
+        "lead polarity and reference-weight equations",
         "fiducial/time-base fields",
         "measured/initial/adapted signal classification"
       ]
@@ -54,8 +53,7 @@
         ["minimap_montage", 9, 12, 9]
       ],
       "unsupportedFields": [
-        "lead polarity/reference electrode fields",
-        "shown-lead layout fields",
+        "lead polarity and reference-weight equations",
         "fiducial/time-base fields",
         "measured/initial/adapted signal classification",
         "P-wave/T-wave fiducial samples for baseline correction"
@@ -85,8 +83,7 @@
         ["minimap_montage", 9, 12, 9]
       ],
       "unsupportedFields": [
-        "lead polarity/reference electrode fields",
-        "shown-lead layout fields",
+        "lead polarity and reference-weight equations",
         "fiducial/time-base fields",
         "measured/initial/adapted signal classification",
         "P-wave/T-wave fiducial samples for baseline correction"
@@ -116,8 +113,7 @@
         ["minimap_montage", 9, 12, 9]
       ],
       "unsupportedFields": [
-        "lead polarity/reference electrode fields",
-        "shown-lead layout fields",
+        "lead polarity and reference-weight equations",
         "fiducial/time-base fields",
         "measured/initial/adapted signal classification",
         "P-wave/T-wave fiducial samples for baseline correction"
