@@ -219,6 +219,8 @@ int32 triangle index triplets, zero-based
 
 Each inspected case has two graph geometries. The first is empty. The second contains the source mesh used by source-node visual workflows: `576` points and `1148` triangles for `normal_male2`, and `697` points and `1394` triangles for each WPW case. This confirms a mesh layout, not endocardial/epicardial opposite-wall pairings.
 
+Task 0111 added source-mesh alignment evidence to viewer metadata. The non-empty graph mesh point count matches the ventricular source-node count for all bundled cases. It is not an exact subset of the parsed Heart `PGeometry`: nearest-distance checks report `0` exact point matches, with normal-case mean nearest distance `40.739383` mm and WPW mean nearest distance `37.283103` mm. These checks make the blocker narrower: source meshes are decoded and source-node aligned, but explicit wall-pairing and transmural grouping semantics are still unknown.
+
 Task 0106 added `read_ecgsimcase_matrix_inventory(path)` and `research/pmatrix-inventory.json` for repeatable `PMatrix` role evidence. Confirmed shape patterns:
 
 | Matrix role hint | Normal case | WPW cases |

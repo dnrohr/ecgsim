@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 import sys
 
@@ -70,6 +71,95 @@ def nearest_point_index(points: tuple[tuple[float, float, float], ...], target: 
             nearest = index
             nearest_distance = distance
     return nearest
+
+
+def nearest_distance_summary(
+    points: tuple[tuple[float, float, float], ...],
+    targets: tuple[tuple[float, float, float], ...],
+) -> dict[str, object] | None:
+    if not points or not targets:
+        return None
+
+    distances = []
+    exact_match_count = 0
+    for point in points:
+        nearest_squared = min(
+            (point[0] - target[0]) ** 2
+            + (point[1] - target[1]) ** 2
+            + (point[2] - target[2]) ** 2
+            for target in targets
+        )
+        distance = math.sqrt(nearest_squared)
+        distances.append(distance)
+        if distance < 1e-5:
+            exact_match_count += 1
+
+    return {
+        "min": round(min(distances), 6),
+        "mean": round(sum(distances) / len(distances), 6),
+        "max": round(max(distances), 6),
+        "exactMatchCount": exact_match_count,
+        "units": "mm",
+    }
+
+
+def ventricular_source_node_count(case) -> int:
+    return next(
+        (
+            parameter.initial.length
+            for source in case.sources
+            if source.kind == "ventricles"
+            for beat in source.beats
+            for parameter in beat.parameters
+            if parameter.initial is not None and parameter.initial.length > 0
+        ),
+        0,
+    )
+
+
+def wall_mapping_payload(case) -> dict[str, object]:
+    source_mesh = next((graph for graph in case.graph_geometries if graph.point_count > 0), None)
+    heart = next((geometry for geometry in case.geometries if geometry.name == "heart"), None)
+    node_count = ventricular_source_node_count(case)
+    reason = (
+        "PGraphGeometry source mesh is parsed and matches source-node count, but explicit "
+        "endocardial/epicardial pairings and transmural grouping semantics are not decoded."
+    )
+    payload: dict[str, object] = {
+        "status": "unavailable",
+        "supportsEndocardialEpicardialSwitch": False,
+        "supportsTransmuralSelection": False,
+        "pairCount": 0,
+        "reason": reason,
+        "requiredPayloads": ("wall-pairing semantics", "transmural grouping semantics"),
+    }
+    if not source_mesh:
+        payload.update(
+            {
+                "sourceMeshStatus": "missing",
+                "sourceNodeCount": node_count,
+                "sourceMeshMatchesSourceNodeCount": False,
+            }
+        )
+        return payload
+
+    payload.update(
+        {
+            "sourceMeshStatus": "parsed",
+            "sourceMeshId": source_mesh.id,
+            "sourceMeshOffset": source_mesh.marker_offset,
+            "sourceMeshPointCount": source_mesh.point_count,
+            "sourceMeshTriangleCount": source_mesh.triangle_count,
+            "sourceMeshScale": source_mesh.scale,
+            "sourceNodeCount": node_count,
+            "sourceMeshMatchesSourceNodeCount": source_mesh.point_count == node_count,
+            "nearestHeartDistance": nearest_distance_summary(
+                source_mesh.geometry.points,
+                heart.geometry.points if heart else (),
+            ),
+        }
+    )
+    return payload
 
 
 def ecg_signal_payload(case, case_path: Path) -> dict[str, object]:
@@ -238,24 +328,13 @@ def case_metadata_payload(case, case_path: Path) -> dict[str, object]:
     metadata = case.metadata
     lead_systems = case.lead_systems
     thorax_points = next(geometry for geometry in case.geometries if geometry.name == "thorax").geometry.points
-    wall_mapping_reason = (
-        "Endocardial/epicardial and transmural node pairing is unavailable because "
-        "PGraphGeometry payload semantics have not been confirmed for this case."
-    )
     return {
         "source": case_path_text(case_path),
         "fileName": case_path.name,
         "byteSize": metadata.byte_size,
         "sha256": metadata.sha256,
         "rootSignature": metadata.root_signature,
-        "wallMapping": {
-            "status": "unavailable",
-            "supportsEndocardialEpicardialSwitch": False,
-            "supportsTransmuralSelection": False,
-            "pairCount": 0,
-            "reason": wall_mapping_reason,
-            "requiredPayloads": ("PGraphGeometry",),
-        },
+        "wallMapping": wall_mapping_payload(case),
         "activationConstructions": [
             {
                 "sourceId": source.id,

@@ -165,6 +165,13 @@ if (
   caseFixture.wallMapping?.status !== "unavailable" ||
   caseFixture.wallMapping?.supportsEndocardialEpicardialSwitch !== false ||
   caseFixture.wallMapping?.supportsTransmuralSelection !== false ||
+  caseFixture.wallMapping?.sourceMeshStatus !== "parsed" ||
+  caseFixture.wallMapping?.sourceMeshPointCount !== 576 ||
+  caseFixture.wallMapping?.sourceMeshTriangleCount !== 1148 ||
+  caseFixture.wallMapping?.sourceNodeCount !== 576 ||
+  caseFixture.wallMapping?.sourceMeshMatchesSourceNodeCount !== true ||
+  caseFixture.wallMapping?.nearestHeartDistance?.exactMatchCount !== 0 ||
+  !caseFixture.wallMapping?.reason?.includes("source mesh is parsed") ||
   caseFixture.activationConstructions?.[1]?.entryCount !== 576 ||
   caseFixture.activationConstructions?.[1]?.sampleEntries?.[0]?.integerField !== -1 ||
   caseFixture.leadSystemDetails[0].electrodes.length !== 9 ||

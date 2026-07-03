@@ -1,6 +1,6 @@
 # Wall Mapping Notes
 
-Status: task `0045` parity notes, updated by tasks `0104` and `0105` with parser evidence.
+Status: task `0045` parity notes, updated by tasks `0104`, `0105`, and `0111` with parser evidence.
 
 ## Current Capability
 
@@ -10,6 +10,7 @@ Status: task `0045` parity notes, updated by tasks `0104` and `0105` with parser
 - `read_ecgsimcase_graph_geometries` parses `PGraphGeometry` source meshes for archived cases.
 - `load_case()` exposes the parsed graph geometries on the normalized case object.
 - `research/pgraphgeometry-inventory.json` records the repeatable two-block pattern: one empty mesh and one source-node mesh.
+- Viewer metadata exports source-mesh alignment evidence under `wallMapping`, including source-node count matching and nearest parsed-Heart-mesh distance summaries.
 
 ## Why Unavailable
 
@@ -20,6 +21,8 @@ The current evidence shows:
 - archived cases contain two `PGraphGeometry` payloads;
 - the first payload is an empty mesh;
 - the second payload matches the case source-node scale: `576` points and `1148` triangles for `normal_male2`, and `697` points and `1394` triangles for the WPW cases;
+- the source mesh point count matches the ventricular source-node count for all bundled cases;
+- the source mesh is not an exact subset of the parsed Heart geometry: nearest-distance checks report `0` exact point matches for the normal and WPW bundles;
 - no nested `PMatrix` payload markers appear inside these graph mesh payloads.
 
 ## Enablement Criteria

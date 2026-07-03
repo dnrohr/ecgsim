@@ -390,8 +390,10 @@ async function assertHeartViewControls(page) {
   assert.equal(await page.locator("[data-heart-transmural]").isDisabled(), true, "Transmural control should be unavailable without wall mapping");
   const wallTitle = await page.locator("[data-heart-wall]").getAttribute("title");
   const transmuralTitle = await page.locator("[data-heart-transmural]").getAttribute("title");
-  assert.match(wallTitle ?? "", /PGraphGeometry payload semantics/, "Endo/Epi disabled state should explain the missing mapping");
-  assert.match(transmuralTitle ?? "", /PGraphGeometry payload semantics/, "Transmural disabled state should explain the missing mapping");
+  assert.match(wallTitle ?? "", /source mesh is parsed/i, "Endo/Epi disabled state should explain available mesh evidence");
+  assert.match(wallTitle ?? "", /pairings/i, "Endo/Epi disabled state should name the missing pairing evidence");
+  assert.match(transmuralTitle ?? "", /source mesh is parsed/i, "Transmural disabled state should explain available mesh evidence");
+  assert.match(transmuralTitle ?? "", /transmural grouping semantics are not decoded/i, "Transmural disabled state should name missing grouping evidence");
 
   assert.equal(await page.locator("[data-heart-cross-section-plane]").isDisabled(), true, "Cross-section plane slider should start disabled");
   await page.locator("[data-heart-cross-section]").check();

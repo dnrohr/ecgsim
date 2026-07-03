@@ -195,3 +195,4 @@ Each task should end with:
 - [x] [0108 Use Embedded Lead Labels](0108-use-embedded-lead-labels.md)
 - [x] [0109 Expose Lead Reference Definitions](0109-expose-lead-reference-definitions.md)
 - [x] [0110 Render Lead Definition Traces](0110-render-lead-definition-traces.md)
+- [x] [0111 Document Source Mesh Alignment Evidence](0111-document-source-mesh-alignment-evidence.md)

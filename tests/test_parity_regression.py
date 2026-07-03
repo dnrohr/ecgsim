@@ -115,8 +115,16 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertFalse(wall_mapping["supportsEndocardialEpicardialSwitch"])
         self.assertFalse(wall_mapping["supportsTransmuralSelection"])
         self.assertEqual(wall_mapping["pairCount"], 0)
-        self.assertIn("PGraphGeometry", wall_mapping["requiredPayloads"])
-        self.assertIn("PGraphGeometry payload semantics", wall_mapping["reason"])
+        self.assertEqual(wall_mapping["sourceMeshStatus"], "parsed")
+        self.assertEqual(wall_mapping["sourceMeshPointCount"], 576)
+        self.assertEqual(wall_mapping["sourceMeshTriangleCount"], 1148)
+        self.assertEqual(wall_mapping["sourceNodeCount"], 576)
+        self.assertTrue(wall_mapping["sourceMeshMatchesSourceNodeCount"])
+        self.assertEqual(wall_mapping["nearestHeartDistance"]["exactMatchCount"], 0)
+        self.assertAlmostEqual(wall_mapping["nearestHeartDistance"]["mean"], 40.739383, places=6)
+        self.assertIn("wall-pairing semantics", wall_mapping["requiredPayloads"])
+        self.assertIn("source mesh is parsed", wall_mapping["reason"])
+        self.assertIn("transmural grouping semantics are not decoded", wall_mapping["reason"])
 
     def test_case_metadata_fixture_includes_activation_construction_summaries(self) -> None:
         fixture = json.loads(Path("app/viewer/public/fixtures/case-metadata.json").read_text(encoding="utf-8"))
@@ -174,6 +182,13 @@ class ParityRegressionTests(unittest.TestCase):
                 self.assertEqual(entry["byteSize"], case.metadata.byte_size)
                 self.assertEqual(entry["sha256"], case.metadata.sha256)
                 self.assertEqual(metadata["leadSystems"], [system.name for system in case.lead_systems])
+                self.assertEqual(metadata["wallMapping"]["sourceMeshStatus"], "parsed")
+                self.assertEqual(
+                    metadata["wallMapping"]["sourceMeshPointCount"],
+                    metadata["wallMapping"]["sourceNodeCount"],
+                )
+                self.assertTrue(metadata["wallMapping"]["sourceMeshMatchesSourceNodeCount"])
+                self.assertEqual(metadata["wallMapping"]["nearestHeartDistance"]["exactMatchCount"], 0)
                 self.assertEqual(validation["status"], "partial")
                 self.assertEqual(validation["unsupportedPayloadCount"], len(case.metadata.unsupported_payloads))
                 if case.signal_metadata.fiducials.status == "unavailable":
