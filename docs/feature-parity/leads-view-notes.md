@@ -15,7 +15,7 @@ Status: task `0039` parity notes for the modern Leads pane.
 - RMS trace overlay computed from currently plotted traces.
 - Plot metadata shows selected lead-system counts, plotted trace count, sample count, sample rate, coupling mode, and scale.
 - Coupling status reports AC/DC behavior or whether baseline mode uses parsed fiducials versus signal-end fallback.
-- Measured, initial, and adapted signal overlays are visible but disabled when the current fixture lacks signal classification.
+- Measured ECG overlays are enabled for matching promoted legacy `.refECG` exports; initial and adapted recompute overlays are enabled when the current fixture includes TMP vectors and a compatible transfer candidate.
 - `read_ecgsimcase_matrix_inventory()` records root signal, thorax-by-source transfer, and lead-system matrix role hints for archived cases.
 - `read_ecgsimcase_lead_object_inventory()` records `PLead`, `PLeadReference`, and `PShowLead` labels with raw trailing fields.
 - `read_ecgsimcase_lead_systems()` now uses embedded lead-object labels instead of fallback names.
@@ -28,7 +28,7 @@ Status: task `0039` parity notes for the modern Leads pane.
 - Exact standard 12-lead, Frank VCG, BSPM, and minimap lead transforms remain unsupported until lead polarity/reference-weight equations are interpreted from raw fields.
 - Current lead-system plots use parsed electrode/reference indices, but final clinical transform parity still needs reference-weight and polarity validation.
 - Current VCG loop is a projection preview from parsed Frank traces, not a verified legacy Frank transform.
-- Measured overlays require parsed signal classification; selected-heart-node electrogram remains blocked until an electrogram payload or derivation equation is identified.
+- Measured overlays for arbitrary `.ECGsimcase` payloads remain blocked until case-payload signal classification is decoded; selected-heart-node electrogram remains blocked until an electrogram payload or derivation equation is identified.
 - Clipboard export remains future parity work.
 - Multi-beat atrial/ventricular beat inventory is not yet parsed; current zoom uses interval or fiducial sample windows.
 - `normal_male2` uses derived baseline samples `(5, 499)` from promoted legacy export evidence. Bundled cases without matching evidence use signal-end fallback until P-wave and T-wave fiducial samples are parsed or derived.
@@ -66,4 +66,6 @@ The remaining blocker is no longer raw index/layout access; it is the final weig
 
 Task `0110` uses the parsed definitions in the browser Leads pane. `standard_12` now plots 12 lead-labeled traces, BSPM systems plot their parsed lead labels, and Frank VCG keeps only directly backed traces where definitions expose electrode indices.
 
-Task `0112` enables data-backed initial and adapted recompute overlays in the same lead lanes. These overlays are generated from stored TMP parameter vectors, the thorax transfer candidate, and parsed lead definitions. This resolves the viewer's initial/adapted visibility gap, but the measured overlay and final reference-weight/polarity parity are still blocked on decoded case semantics.
+Task `0112` enables data-backed initial and adapted recompute overlays in the same lead lanes. These overlays are generated from stored TMP parameter vectors, the thorax transfer candidate, and parsed lead definitions. This resolves the viewer's initial/adapted visibility gap, but final reference-weight/polarity parity is still blocked on decoded case semantics.
+
+Task `0114` enables measured Leads traces for the default normal-male bundle when the selected lead system has a matching promoted ECGSIM 3.0.1 `.refECG` export. The evidence currently covers `standard_12`, `VCG_(Frank)`, `BSM_(nijmegen_64)`, and `minimap_montage` from `tests/fixtures/legacy-parity/normal-male-ecgsim301/`. This is export-backed measured ECG evidence, not proof that arbitrary `.ECGsimcase` payloads expose decoded measured/initial/adapted classification fields.

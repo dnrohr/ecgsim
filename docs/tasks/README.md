@@ -198,3 +198,4 @@ Each task should end with:
 - [x] [0111 Document Source Mesh Alignment Evidence](0111-document-source-mesh-alignment-evidence.md)
 - [x] [0112 Add Initial Lead Recompute Overlay](0112-add-initial-lead-recompute-overlay.md)
 - [x] [0113 Document Electrogram Matrix Evidence](0113-document-electrogram-matrix-evidence.md)
+- [x] [0114 Add Legacy Measured ECG Export Overlay](0114-add-legacy-measured-ecg-export-overlay.md)

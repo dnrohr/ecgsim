@@ -1779,6 +1779,7 @@ function plotSignals(
     interval = null,
     zoom = null,
     tmpState = null,
+    showMeasured = false,
     showInitial = false,
     showAdapted = false,
   } = {},
@@ -1798,6 +1799,7 @@ function plotSignals(
   const plotHeight = height - top - bottom;
   const signalSet = leadSystemTraces(fixture, leadSystem, {
     tmpState,
+    showMeasured,
     showInitial,
     showAdapted,
     importedSignals,
@@ -1949,7 +1951,9 @@ function plotSignals(
     `${systemText} / plotted ${traces.length} / ${signalSet.sampleCount} samples / ${signalSet.sampleRateHz} Hz / ${mode.toUpperCase()} / ${Math.round(scale * 100)}%${zoom?.enabled ? ` / zoom ${sampleWindow.start}-${sampleWindow.end}` : ""}`;
   if (leadsStatus) {
     const classification = signalSet.isRecomputed
-      ? `${signalSet.recomputeKinds.join("+")} ECG recomputed from TMP transfer and parsed lead definitions; measured classification and final reference-weight parity unresolved`
+      ? `${signalSet.recomputeKinds.join("+")} ECG recomputed from TMP transfer and parsed lead definitions; case-payload measured classification and final reference-weight parity unresolved`
+      : signalSet.isLegacyMeasured
+      ? "measured ECG from promoted legacy .refECG export; arbitrary case payload classification remains unresolved"
       : signalSet.source === "imported"
       ? "external imported signal; separate from case and recomputed outputs"
       : "parsed lead definitions from measured thorax potentials; measured/initial classification unavailable";
@@ -1958,11 +1962,15 @@ function plotSignals(
   const modeText = `${mode.toUpperCase()}${showRms ? "+RMS" : ""}`;
   const provenanceText = signalSet.isRecomputed
     ? "Recomputed"
+    : signalSet.isLegacyMeasured
+    ? "Legacy export"
     : signalSet.source === "imported"
     ? "Imported"
     : "Case signals";
   const provenanceDetail = signalSet.isRecomputed
     ? `${signalSet.recomputeKinds.join("+")} ECG traces recomputed from TMP source parameters and the transfer matrix candidate.`
+    : signalSet.isLegacyMeasured
+    ? signalSet.provenance
     : signalSet.source === "imported"
     ? "External imported ECG signal, separate from case and recomputed outputs."
     : "Lead traces are composed from parsed lead definitions and case surface potentials.";
@@ -2074,6 +2082,7 @@ function leadSystemTraces(
   leadSystem,
   {
     tmpState = null,
+    showMeasured = false,
     showInitial = false,
     showAdapted = false,
     importedSignals = null,
@@ -2090,6 +2099,21 @@ function leadSystemTraces(
       fiducials: importedSignals.fiducials,
       isRecomputed: false,
       traces: importedSignals.traces,
+    };
+  }
+
+  const measuredExport = legacyReferenceEcgForLeadSystem(fixture, leadSystem);
+  if (showMeasured && measuredExport) {
+    return {
+      source: "case",
+      signalKind: `${leadSystem.name} measured ECG export`,
+      sampleCount: measuredExport.columns,
+      sampleRateHz: measuredExport.sampleRateHz,
+      fiducials: fixture.fiducials,
+      isRecomputed: false,
+      isLegacyMeasured: true,
+      provenance: measuredExport.provenance,
+      traces: measuredExport.traces,
     };
   }
 
@@ -2146,6 +2170,14 @@ function leadSystemTraces(
     isRecomputed: false,
     traces: fixture.traces,
   };
+}
+
+function legacyReferenceEcgForLeadSystem(fixture, leadSystem) {
+  const systems = fixture?.legacyReferenceEcg?.systems;
+  if (!leadSystem?.name || !Array.isArray(systems)) {
+    return null;
+  }
+  return systems.find((system) => system.name === leadSystem.name) ?? null;
 }
 
 function plotTmp(
@@ -3059,10 +3091,13 @@ function syncLeadSystemOptions() {
 }
 
 function syncLeadOverlayControls(signalFixture, tmpState) {
+  const measuredExport = legacyReferenceEcgForLeadSystem(signalFixture, selectedLeadSystemDetail());
   if (leadsMeasured) {
     leadsMeasured.checked = false;
-    leadsMeasured.disabled = true;
-    leadsMeasured.title = "Measured lead classification is not available in current fixtures.";
+    leadsMeasured.disabled = !measuredExport;
+    leadsMeasured.title = measuredExport
+      ? "Show measured lead traces from the promoted ECGSIM 3.0.1 .refECG export for this lead system."
+      : "Measured lead classification is not available for the selected case or lead system.";
   }
   const canRecompute = canRecomputeLeadTraces(signalFixture, tmpState);
   [
@@ -3254,6 +3289,7 @@ function applyCaseBundle(bundle, noticeText) {
     interval: intervalState,
     zoom: zoomState,
     tmpState: tmpEditing.getState(),
+    showMeasured: leadsMeasured?.checked ?? false,
     showInitial: leadsInitial?.checked ?? false,
     showAdapted: leadsAdapted?.checked ?? false,
   });
@@ -3321,6 +3357,7 @@ function applyCaseBundle(bundle, noticeText) {
       }
       heartView?.syncLeadSystem();
       thoraxView.syncLeadSystem();
+      syncLeadOverlayControls(bundle.ecgSignals, tmpEditing.getState());
       redrawSignals();
     };
   }
@@ -3337,9 +3374,27 @@ function applyCaseBundle(bundle, noticeText) {
   if (leadsVcgLoop) {
     leadsVcgLoop.onchange = redrawSignals;
   }
+  if (leadsMeasured) {
+    leadsMeasured.onchange = () => {
+      if (leadsMeasured.checked) {
+        if (leadsInitial) {
+          leadsInitial.checked = false;
+        }
+        if (leadsAdapted) {
+          leadsAdapted.checked = false;
+        }
+      }
+      redrawSignals();
+    };
+  }
   [leadsInitial, leadsAdapted].forEach((control) => {
     if (control) {
-      control.onchange = redrawSignals;
+      control.onchange = () => {
+        if (control.checked && leadsMeasured) {
+          leadsMeasured.checked = false;
+        }
+        redrawSignals();
+      };
     }
   });
   redrawTimeDependents = () => {

@@ -16,6 +16,7 @@ from ecgsim.io import (
     load_case,
     read_ecgsimcase_matrix,
     read_ecgsimcase_matrix_inventory,
+    read_legacy_row_major_matrix,
 )
 
 
@@ -34,6 +35,7 @@ CASE_METADATA_TARGET = ROOT / "app/viewer/public/fixtures/case-metadata.json"
 CASE_BUNDLE_DIR = ROOT / "app/viewer/public/fixtures/cases"
 CASE_MANIFEST_TARGET = CASE_BUNDLE_DIR / "manifest.json"
 SURFACE_MAP_SAMPLE_COUNT = 576
+LEGACY_NORMAL_MALE_FIXTURE = ROOT / "tests/fixtures/legacy-parity/normal-male-ecgsim301"
 
 
 def case_path_text(case_path: Path) -> str:
@@ -229,6 +231,63 @@ def electrogram_payload(case, case_path: Path) -> dict[str, object]:
     }
 
 
+def trace_labels_for_matrix(lead_system, row_count: int) -> tuple[str, ...]:
+    shown_labels = tuple(
+        shown.label for shown in lead_system.shown_lead_definitions
+        if shown.label
+    )
+    lead_labels = tuple(label for label in lead_system.lead_labels if label)
+    labels = shown_labels if len(shown_labels) == row_count else lead_labels
+    if len(labels) == row_count:
+        return labels
+    return tuple(f"Trace {index + 1}" for index in range(row_count))
+
+
+def legacy_reference_ecg_exports(case_path: Path, lead_systems) -> dict[str, object] | None:
+    if case_path.name != "normal_male2.ECGsimcase" or not LEGACY_NORMAL_MALE_FIXTURE.exists():
+        return None
+
+    systems = []
+    by_name = {system.name: system for system in lead_systems}
+    for path in sorted((LEGACY_NORMAL_MALE_FIXTURE / "ecgs").glob("*.refECG")):
+        system_name = path.name.removesuffix(".refECG")
+        lead_system = by_name.get(system_name)
+        if not lead_system:
+            continue
+        matrix = read_legacy_row_major_matrix(path)
+        labels = trace_labels_for_matrix(lead_system, matrix.rows)
+        systems.append(
+            {
+                "name": system_name,
+                "kind": "legacy-measured-reference-ecg",
+                "source": case_path_text(path),
+                "rows": matrix.rows,
+                "columns": matrix.columns,
+                "sampleRateHz": 1000,
+                "units": "mV",
+                "provenance": (
+                    "Promoted ECGSIM 3.0.1 File -> Export .refECG matrix; "
+                    "measured classification is export-backed, not decoded from the .ECGsimcase payload."
+                ),
+                "traces": [
+                    {
+                        "name": labels[index],
+                        "sourceRow": index,
+                        "values": matrix.values[index],
+                    }
+                    for index in range(matrix.rows)
+                ],
+            }
+        )
+
+    if not systems:
+        return None
+    return {
+        "sourceCaseId": "normal-male-ecgsim301",
+        "systems": tuple(systems),
+    }
+
+
 def ecg_signal_payload(case, case_path: Path) -> dict[str, object]:
     signal = case.signal_metadata
     matrix = read_ecgsimcase_matrix(case_path, signal.matrix_offset)
@@ -302,6 +361,7 @@ def ecg_signal_payload(case, case_path: Path) -> dict[str, object]:
                 else None
             ),
         },
+        "legacyReferenceEcg": legacy_reference_ecg_exports(case_path, case.lead_systems),
         "traces": [
             {
                 "name": f"Node {row + 1}",
@@ -493,7 +553,7 @@ def case_validation_payload(case) -> dict[str, object]:
 
     unavailable.append("endocardial/epicardial and transmural wall mapping")
     unavailable.append("selected-node electrogram visualization")
-    unavailable.append("measured/initial ECG classification and lead reference-weight equations")
+    unavailable.append("case-payload measured ECG classification and lead reference-weight equations")
 
     status = "partial" if unavailable else "supported"
     return {

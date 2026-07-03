@@ -4,7 +4,7 @@ Status: complete.
 
 ## Goal
 
-Expose the legacy Leads initial/adapted visual comparison with data-backed modern recompute traces, while keeping measured-signal classification and final clinical lead-transform parity explicitly blocked.
+Expose the legacy Leads initial/adapted visual comparison with data-backed modern recompute traces, while keeping arbitrary case-payload measured-signal classification and final clinical lead-transform parity explicitly blocked.
 
 ## Context
 
@@ -15,7 +15,7 @@ The legacy Leads pane can superpose measured, initial simulated, and adapted sim
 - Enabled the Leads `Initial` checkbox when transfer/TMP prerequisites are available.
 - Added initial and adapted recompute series as overlaid traces in the same lead lanes.
 - Preserved baseline/AC/DC filtering across all overlaid series.
-- Kept `Measured` disabled because measured-signal classification is still not decoded from case payloads.
+- Kept `Measured` disabled during this task because measured-signal classification was not decoded from case payloads. Task `0114` later enabled measured traces for matching promoted normal-male `.refECG` exports only.
 - Updated workflow and smoke tests for initial recompute, initial+adapted overlay redraws, and overlay filtering.
 
 ## Out Of Scope

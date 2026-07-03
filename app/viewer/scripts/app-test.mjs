@@ -227,6 +227,7 @@ async function assertImportNotices(page) {
     await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz");
     await page.locator("[data-leads-system]").selectOption("BSM_(amsterdam_64)");
     await expectText(page, "[data-leads-metadata]", "BSM_(amsterdam_64): 65 parsed lead traces");
+    assert.equal(await page.locator("[data-leads-measured]").isDisabled(), true, "WPW measured overlay should stay unavailable without promoted .refECG evidence");
   }
 
   await expectText(page, "[data-focus-source]", "ventricles / 697 records");
@@ -509,11 +510,19 @@ async function assertLeadsFiltering(page) {
   await expectText(page, "[data-leads-status]", "measured/initial classification unavailable");
   await expectText(page, "[data-leads-mode-badge]", "BASELINE");
   await expectText(page, "[data-leads-provenance-badge]", "Case signals");
-  assert.equal(await page.locator("[data-leads-measured]").isDisabled(), true, "measured overlay should be unavailable");
+  assert.equal(await page.locator("[data-leads-measured]").isDisabled(), false, "measured overlay should be available from promoted legacy export");
   assert.equal(await page.locator("[data-leads-initial]").isDisabled(), false, "initial overlay should be recomputable");
   assert.equal(await page.locator("[data-leads-adapted]").isDisabled(), false, "adapted overlay should be recomputable");
 
   const baselineSignature = await canvasSignature(page, canvas);
+  await page.locator("[data-leads-measured]").check();
+  await expectText(page, "[data-leads-status]", "measured ECG from promoted legacy .refECG export");
+  await expectText(page, "[data-leads-provenance-badge]", "Legacy export");
+  await expectText(page, "[data-leads-metadata]", "500 samples");
+  const measuredSignature = await canvasSignature(page, canvas);
+  assert.notEqual(measuredSignature, baselineSignature, "Measured legacy ECG export should redraw traces");
+  await page.locator("[data-leads-measured]").uncheck();
+
   await page.locator("[data-leads-initial]").check();
   await expectText(page, "[data-leads-status]", "initial ECG recomputed from TMP transfer");
   await expectText(page, "[data-leads-provenance-badge]", "Recomputed");

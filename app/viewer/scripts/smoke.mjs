@@ -185,7 +185,7 @@ if (
   caseFixture.leadSystemDetails[2].electrodes.length !== 65 ||
   caseFixture.validation?.status !== "partial" ||
   caseFixture.validation?.unsupportedPayloadCount !== 7 ||
-  !caseFixture.validation?.unavailableCapabilities?.includes("measured/initial ECG classification and lead reference-weight equations") ||
+  !caseFixture.validation?.unavailableCapabilities?.includes("case-payload measured ECG classification and lead reference-weight equations") ||
   !caseFixture.validation?.unavailableCapabilities?.includes("selected-node electrogram visualization") ||
   !caseFixture.validation?.unavailableCapabilities?.includes("legacy focus raw-field mutation and opposite-wall mapping")
 ) {
@@ -300,7 +300,16 @@ if (
   ecgFixture.surfaceMap.sampleCount !== 576 ||
   ecgFixture.fiducials?.status !== "derived-from-legacy-export" ||
   ecgFixture.fiducials?.baselineStartIndex !== 5 ||
-  ecgFixture.fiducials?.baselineEndIndex !== 499
+  ecgFixture.fiducials?.baselineEndIndex !== 499 ||
+  ecgFixture.legacyReferenceEcg?.sourceCaseId !== "normal-male-ecgsim301" ||
+  !ecgFixture.legacyReferenceEcg?.systems?.some((system) => (
+    system.name === "standard_12" &&
+    system.kind === "legacy-measured-reference-ecg" &&
+    system.rows === 12 &&
+    system.columns === 500 &&
+    system.traces?.[0]?.name === "I" &&
+    Number.isFinite(system.traces?.[0]?.values?.[0])
+  ))
 ) {
   console.error("Unexpected ECG signal fixture metadata");
   process.exit(1);

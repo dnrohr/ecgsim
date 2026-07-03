@@ -3,7 +3,13 @@ import json
 from pathlib import Path
 import unittest
 
-from ecgsim.io import load_case, read_ecgsimcase_geometries, read_ecgsimcase_matrix, read_ecgsimcase_sources
+from ecgsim.io import (
+    load_case,
+    read_ecgsimcase_geometries,
+    read_ecgsimcase_matrix,
+    read_ecgsimcase_sources,
+    read_legacy_row_major_matrix,
+)
 from tools.promote_legacy_parity_fixtures import verify_fixture_manifest
 
 
@@ -80,6 +86,16 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertEqual(fixture["fiducials"]["baselineStartIndex"], 5)
         self.assertEqual(fixture["fiducials"]["baselineEndIndex"], 499)
         self.assertIn("standard_12.adaptECG", fixture["fiducials"]["interpretation"])
+        legacy_reference = fixture["legacyReferenceEcg"]
+        standard_reference = next(
+            system for system in legacy_reference["systems"] if system["name"] == "standard_12"
+        )
+        self.assertEqual(legacy_reference["sourceCaseId"], "normal-male-ecgsim301")
+        self.assertEqual(standard_reference["kind"], "legacy-measured-reference-ecg")
+        self.assertEqual(standard_reference["rows"], 12)
+        self.assertEqual(standard_reference["columns"], 500)
+        self.assertEqual(standard_reference["traces"][0]["name"], "I")
+        self.assertIn(".refECG", standard_reference["source"])
         self.assertEqual(len(fixture["traces"]), 6)
         self.assertEqual(len(fixture["traces"][0]["values"]), 1000)
         self.assertEqual(fixture["surfaceMap"]["kind"], "measured")
@@ -106,6 +122,12 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertAlmostEqual(fixture["surfaceMap"]["valuesByNode"][299][575], matrix.values[299][575], delta=1e-6)
         self.assertAlmostEqual(transfer["values"][0][0], transfer_matrix.values[0][0], delta=1e-6)
         self.assertAlmostEqual(transfer["values"][299][575], transfer_matrix.values[299][575], delta=1e-6)
+        legacy_matrix = read_legacy_row_major_matrix(Path(standard_reference["source"]))
+        self.assertAlmostEqual(
+            standard_reference["traces"][0]["values"][0],
+            legacy_matrix.values[0][0],
+            delta=1e-6,
+        )
 
     def test_case_metadata_fixture_marks_wall_mapping_unavailable(self) -> None:
         fixture = json.loads(Path("app/viewer/public/fixtures/case-metadata.json").read_text(encoding="utf-8"))
@@ -216,7 +238,7 @@ class ParityRegressionTests(unittest.TestCase):
                 else:
                     self.assertNotIn("P-wave/T-wave fiducials for baseline coupling", validation["unavailableCapabilities"])
                 self.assertIn(
-                    "measured/initial ECG classification and lead reference-weight equations",
+                    "case-payload measured ECG classification and lead reference-weight equations",
                     validation["unavailableCapabilities"],
                 )
                 self.assertIn("partial support", validation["messages"][0])
