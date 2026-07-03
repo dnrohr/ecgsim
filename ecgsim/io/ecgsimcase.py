@@ -244,6 +244,21 @@ class ECGsimCaseSignalMetadata:
     unsupported_fields: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class ECGsimCaseMatrixInventoryEntry:
+    """Shape and role hint for one ``PMatrix`` marker in an ECGsimcase file."""
+
+    index: int
+    offset: int
+    version: int | None
+    rows: int | None
+    columns: int | None
+    status: str
+    role_hint: str
+    owner_hint: str | None = None
+    error: str | None = None
+
+
 DERIVED_FIDUCIALS_BY_SHA256 = {
     "4da15b759b8bc4880843bc647a257f66e36b64042583d0ad1c3e11bdc6169c4a": ECGsimCaseFiducials(
         status="derived-from-legacy-export",
@@ -586,6 +601,87 @@ def read_ecgsimcase_signal_metadata(path: str | Path) -> ECGsimCaseSignalMetadat
     )
 
 
+def read_ecgsimcase_matrix_inventory(path: str | Path) -> tuple[ECGsimCaseMatrixInventoryEntry, ...]:
+    """Inventory all ``PMatrix`` markers with conservative role hints."""
+
+    source_path = Path(path)
+    data = source_path.read_bytes()
+    metadata = read_ecgsimcase_metadata(source_path)
+    lead_systems = read_ecgsimcase_lead_systems(source_path)
+    lead_owner_by_offset = {
+        offset: lead_system.name
+        for lead_system in lead_systems
+        for offset in lead_system.matrix_offsets
+    }
+    lead_counts_by_offset = {
+        offset: (len(lead_system.electrodes), len(lead_system.lead_labels), len(lead_system.shown_lead_labels))
+        for lead_system in lead_systems
+        for offset in lead_system.matrix_offsets
+    }
+    graph_counts = tuple(
+        graph.point_count for graph in read_ecgsimcase_graph_geometries(source_path) if graph.point_count
+    )
+    source_counts = tuple(
+        parameter.adapted.length
+        for source in read_ecgsimcase_sources(source_path)
+        for beat in source.beats
+        for parameter in beat.parameters
+        if parameter.adapted is not None and parameter.adapted.length
+    )
+    signal_rows = None
+    signal_columns = None
+    try:
+        signal = read_ecgsimcase_signal_metadata(source_path)
+        signal_rows = signal.rows
+        signal_columns = signal.columns
+    except ECGsimCaseFormatError:
+        pass
+
+    entries: list[ECGsimCaseMatrixInventoryEntry] = []
+    for index, offset in enumerate(metadata.marker_offsets.get(PMATRIX_SIGNATURE, ()), start=1):
+        error = None
+        try:
+            version, rows, columns = _read_ecgsimcase_matrix_header(data, source_path, offset)
+            if rows <= 0 or columns <= 0:
+                status = "empty-placeholder"
+            else:
+                read_ecgsimcase_matrix(source_path, offset)
+                status = "parsed"
+        except ECGsimCaseFormatError as exc:
+            error = str(exc)
+            status = "unsupported"
+            try:
+                version, rows, columns = _read_ecgsimcase_matrix_header(data, source_path, offset)
+            except ECGsimCaseFormatError:
+                version = rows = columns = None
+
+        entries.append(
+            ECGsimCaseMatrixInventoryEntry(
+                index=index,
+                offset=offset,
+                version=version,
+                rows=rows,
+                columns=columns,
+                status=status,
+                role_hint=_matrix_role_hint(
+                    offset,
+                    rows,
+                    columns,
+                    index,
+                    signal_rows,
+                    signal_columns,
+                    graph_counts,
+                    source_counts,
+                    lead_counts_by_offset,
+                ),
+                owner_hint=lead_owner_by_offset.get(offset),
+                error=error,
+            )
+        )
+
+    return tuple(entries)
+
+
 def read_ecgsimcase_matrix(path: str | Path, offset: int) -> MatrixData:
     """Read a known ``PMatrix`` payload from an ECGsimcase file.
 
@@ -597,31 +693,14 @@ def read_ecgsimcase_matrix(path: str | Path, offset: int) -> MatrixData:
 
     source_path = Path(path)
     data = source_path.read_bytes()
-    if offset < 0 or offset + 4 > len(data):
-        raise ECGsimCaseFormatError(f"{source_path} PMatrix offset {offset} is outside the file")
-
-    byte_length = struct.unpack_from("<I", data, offset)[0]
-    text_start = offset + 4
-    text_end = text_start + byte_length
-    if text_end > len(data):
-        raise ECGsimCaseFormatError(f"{source_path} PMatrix marker at {offset} overruns the file")
-    try:
-        marker = data[text_start:text_end].decode("utf-16le")
-    except UnicodeDecodeError as exc:
-        raise ECGsimCaseFormatError(f"{source_path} PMatrix marker at {offset} is not UTF-16LE") from exc
-    if marker != PMATRIX_SIGNATURE:
-        raise ECGsimCaseFormatError(f"{source_path} marker at {offset} is {marker!r}, not PMatrix")
-
-    header_offset = text_end
-    if header_offset + 12 > len(data):
-        raise ECGsimCaseFormatError(f"{source_path} PMatrix header at {offset} overruns the file")
-    version, rows, columns = struct.unpack_from("<iii", data, header_offset)
+    version, rows, columns = _read_ecgsimcase_matrix_header(data, source_path, offset)
     if version <= 0:
         raise ECGsimCaseFormatError(f"{source_path} PMatrix at {offset} has invalid version {version}")
     if rows <= 0 or columns <= 0:
         raise ECGsimCaseFormatError(f"{source_path} PMatrix at {offset} has invalid shape {rows}x{columns}")
 
-    values_offset = header_offset + 12
+    _marker, values_offset = _read_marker(data, source_path, offset)
+    values_offset += 12
     expected_bytes = rows * columns * 4
     if values_offset + expected_bytes > len(data):
         raise ECGsimCaseFormatError(f"{source_path} PMatrix values at {offset} overrun the file")
@@ -951,6 +1030,49 @@ def _read_marker(data: bytes, source_path: Path, offset: int) -> tuple[str, int]
     except UnicodeDecodeError as exc:
         raise ECGsimCaseFormatError(f"{source_path} marker at {offset} is not UTF-16LE") from exc
     return marker, text_end
+
+
+def _read_ecgsimcase_matrix_header(data: bytes, source_path: Path, offset: int) -> tuple[int, int, int]:
+    marker, header_offset = _read_marker(data, source_path, offset)
+    if marker != PMATRIX_SIGNATURE:
+        raise ECGsimCaseFormatError(f"{source_path} marker at {offset} is {marker!r}, not PMatrix")
+    if header_offset + 12 > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} PMatrix header at {offset} overruns the file")
+    return struct.unpack_from("<iii", data, header_offset)
+
+
+def _matrix_role_hint(
+    offset: int,
+    rows: int | None,
+    columns: int | None,
+    index: int,
+    signal_rows: int | None,
+    signal_columns: int | None,
+    graph_counts: tuple[int, ...],
+    source_counts: tuple[int, ...],
+    lead_counts_by_offset: dict[int, tuple[int, int, int]],
+) -> str:
+    if rows is None or columns is None:
+        return "unsupported PMatrix header"
+    if rows <= 0 or columns <= 0:
+        if offset in lead_counts_by_offset:
+            return "empty lead-system transform placeholder"
+        return "empty matrix placeholder"
+    if index == 1 and rows == signal_rows and columns == signal_columns:
+        return "root thorax-node surface-potential time series"
+    if rows == signal_rows and columns in graph_counts + source_counts:
+        return "thorax-by-source transfer matrix candidate"
+    if rows in graph_counts + source_counts and columns in graph_counts + source_counts:
+        if rows == columns:
+            return "source graph distance/adjacency or source transfer candidate"
+        return "source matrix candidate"
+    owner_counts = lead_counts_by_offset.get(offset)
+    if owner_counts is not None:
+        electrode_count, lead_count, shown_lead_count = owner_counts
+        if columns == electrode_count and rows in (3, lead_count, shown_lead_count):
+            return "lead-system transform candidate"
+        return "lead-system matrix candidate with unresolved transform semantics"
+    return "unclassified PMatrix payload"
 
 
 def find_length_prefixed_utf16le(

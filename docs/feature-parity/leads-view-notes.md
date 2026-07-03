@@ -16,6 +16,7 @@ Status: task `0039` parity notes for the modern Leads pane.
 - Plot metadata shows selected lead-system counts, plotted trace count, sample count, sample rate, coupling mode, and scale.
 - Coupling status reports AC/DC behavior or whether baseline mode uses parsed fiducials versus signal-end fallback.
 - Measured, initial, and adapted signal overlays are visible but disabled when the current fixture lacks signal classification.
+- `read_ecgsimcase_matrix_inventory()` records root signal, thorax-by-source transfer, and lead-system matrix role hints for archived cases.
 
 ## Current Limitations
 
@@ -26,3 +27,14 @@ Status: task `0039` parity notes for the modern Leads pane.
 - Clipboard export remains future parity work.
 - Multi-beat atrial/ventricular beat inventory is not yet parsed; current zoom uses interval or fiducial sample windows.
 - `normal_male2` uses derived baseline samples `(5, 499)` from promoted legacy export evidence. Bundled cases without matching evidence use signal-end fallback until P-wave and T-wave fiducial samples are parsed or derived.
+
+## PMatrix Evidence
+
+Task `0106` adds `research/pmatrix-inventory.json`. The archived cases show:
+
+- matrix 1 is the root thorax-node surface-potential time series;
+- matrix 21 is the thorax-by-source transfer candidate used by recomputation previews;
+- standard 12-lead and BSPM lead-system matrix slots are empty placeholders;
+- VCG and minimap lead-system matrix slots parse as `3x7` and `3x9` transform candidates.
+
+This narrows the overlay blocker but does not resolve WCT/reference semantics. Standard 12-lead and BSPM transforms must come from decoded `PLead`/`PLeadReference` fields or another evidence source, not from the empty `PMatrix` slots.

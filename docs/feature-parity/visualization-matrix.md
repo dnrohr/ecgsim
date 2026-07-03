@@ -49,7 +49,7 @@ This matrix tracks what a user can see and manipulate. It does not require the m
 | TMP | Beat zoom | Shared Leads beat-window zoom | supported | App workflow checks zoomed TMP metadata and canvas redraw | complete |
 | TMP | Electrogram | EGM toggle disabled with named missing evidence | blocked-on-evidence | App workflow verifies disabled blocker; needs electrogram payload or derivation equation | complete |
 | Leads | Standard and alternate lead systems | Lead-system selector with parsed electrodes/traces | supported | Lead-system switch canvas/metadata tests | `0101` |
-| Leads | Measured/initial/adapted overlays | Case traces plus adapted recompute preview; measured/initial disabled with status text | blocked-on-evidence | Measured/initial signal classification and WCT/reference lead-transform semantics | complete |
+| Leads | Measured/initial/adapted overlays | Case traces plus adapted recompute preview; measured/initial disabled with status text | blocked-on-evidence | PMatrix roles inventoried; standard/BSPM WCT/reference and measured/initial classification still need decoded PLead/PLeadReference semantics | future |
 | Leads | Coupling/filter modes | Baseline, AC, DC selector | supported | Numerical filtering tests and canvas/status deltas | `0101` |
 | Leads | Time bar and arrow stepping | Shared yellow cursor and keyboard stepping | supported | Cursor x-position and status tests | `0101` |
 | Leads | Beat zoom | Interval/fiducial-backed zoom controls plus double-click toggle | supported | App workflow checks interval and fiducial zoom plus all-beats reset | complete |

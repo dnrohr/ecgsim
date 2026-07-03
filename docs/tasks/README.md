@@ -190,3 +190,4 @@ Each task should end with:
 
 - [x] [0104 Inventory PGraphGeometry Payloads For Wall Mapping](0104-inventory-pgraphgeometry-payloads-for-wall-mapping.md)
 - [x] [0105 Parse PGraphGeometry Source Meshes](0105-parse-pgraphgeometry-source-meshes.md)
+- [x] [0106 Inventory PMatrix Lead Signal Roles](0106-inventory-pmatrix-lead-signal-roles.md)

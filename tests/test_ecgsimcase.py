@@ -9,6 +9,7 @@ from ecgsim.io import (
     read_ecgsimcase_graph_geometries,
     read_ecgsimcase_lead_systems,
     read_ecgsimcase_matrix,
+    read_ecgsimcase_matrix_inventory,
     read_ecgsimcase_metadata,
     read_ecgsimcase_signal_metadata,
     read_ecgsimcase_sources,
@@ -195,6 +196,36 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
         self.assertEqual([graph.point_count for graph in graphs], [0, 697])
         self.assertEqual([graph.triangle_count for graph in graphs], [0, 1394])
         self.assertEqual([graph.payload_bytes for graph in graphs], [20, 25112])
+
+    def test_reads_normal_case_matrix_inventory(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")
+        inventory = read_ecgsimcase_matrix_inventory(path)
+
+        self.assertEqual(len(inventory), 31)
+        self.assertEqual((inventory[0].offset, inventory[0].rows, inventory[0].columns), (54, 300, 1000))
+        self.assertEqual(inventory[0].role_hint, "root thorax-node surface-potential time series")
+        self.assertEqual((inventory[20].offset, inventory[20].rows, inventory[20].columns), (9252914, 300, 576))
+        self.assertEqual(inventory[20].role_hint, "thorax-by-source transfer matrix candidate")
+        self.assertEqual(inventory[27].owner_hint, "standard_12")
+        self.assertEqual(inventory[27].status, "empty-placeholder")
+        self.assertEqual(inventory[28].owner_hint, "VCG_(Frank)")
+        self.assertEqual((inventory[28].rows, inventory[28].columns), (3, 7))
+        self.assertEqual(inventory[28].role_hint, "lead-system transform candidate")
+        self.assertEqual(inventory[30].owner_hint, "minimap_montage")
+        self.assertEqual((inventory[30].rows, inventory[30].columns), (3, 9))
+
+    def test_reads_wpw_case_matrix_inventory(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/WPW_Bundleonly.ECGsimcase")
+        inventory = read_ecgsimcase_matrix_inventory(path)
+
+        self.assertEqual(len(inventory), 31)
+        self.assertEqual((inventory[0].rows, inventory[0].columns), (500, 817))
+        self.assertEqual((inventory[20].rows, inventory[20].columns), (500, 697))
+        self.assertEqual(inventory[20].role_hint, "thorax-by-source transfer matrix candidate")
+        self.assertEqual(inventory[27].owner_hint, "standard_12")
+        self.assertEqual(inventory[27].status, "empty-placeholder")
+        self.assertEqual(inventory[29].owner_hint, "BSM_(amsterdam_64)")
+        self.assertEqual(inventory[29].status, "empty-placeholder")
 
     def test_rejects_unsupported_geometry_payload_offset(self) -> None:
         path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")
