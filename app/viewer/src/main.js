@@ -107,6 +107,7 @@ const leadsInitial = document.querySelector("[data-leads-initial]");
 const leadsAdapted = document.querySelector("[data-leads-adapted]");
 const leadsRms = document.querySelector("[data-leads-rms]");
 const leadsGrid = document.querySelector("[data-leads-grid]");
+const leadsVcgLoop = document.querySelector("[data-leads-vcg-loop]");
 const leadsInterval = document.querySelector("[data-leads-interval]");
 const leadsIntervalStart = document.querySelector("[data-leads-interval-start]");
 const leadsIntervalEnd = document.querySelector("[data-leads-interval-end]");
@@ -287,11 +288,13 @@ function selectVisualMode(mode) {
       selectControlValue(leadsSource, "case");
       selectControlValue(leadsSystem, currentCaseMetadata?.leadSystems?.[0] ?? "");
       setCheckboxControl(leadsAdapted, false);
+      setCheckboxControl(leadsVcgLoop, false);
       selectControlValue(leadsFilter, "baseline");
       break;
     case "leads-adapted":
       scrollPaneIntoView("leads");
       selectControlValue(leadsSource, "case");
+      setCheckboxControl(leadsVcgLoop, false);
       if (!setCheckboxControl(leadsAdapted, true)) {
         unavailable("Adapted lead ECG recompute is unavailable for this case.");
       }
@@ -301,6 +304,8 @@ function selectVisualMode(mode) {
       selectControlValue(leadsSource, "case");
       if (!selectControlValue(leadsSystem, "VCG_(Frank)")) {
         unavailable("Frank VCG lead system is unavailable for this case.");
+      } else if (!setCheckboxControl(leadsVcgLoop, true)) {
+        unavailable("VCG loop display is unavailable.");
       }
       break;
     default:
@@ -1768,6 +1773,7 @@ function plotSignals(
     scale = 1,
     showGrid = true,
     showRms = false,
+    showVcgLoop = false,
     selectedSample = 0,
     interval = null,
     zoom = null,
@@ -1808,6 +1814,7 @@ function plotSignals(
   const traceHeight = plotHeight / traceCount;
   const colors = ["#b3261e", "#175c8a", "#6f8790", "#287d5b", "#8a5b13", "#5f4b8b"];
   const sampleWindow = visibleSampleWindow(signalSet.sampleCount, zoom);
+  const isVcgLoop = showVcgLoop && isFrankVcgLeadSystem(leadSystem) && traces.length >= 3;
 
   context.clearRect(0, 0, width, height);
   context.fillStyle = "#f8fafb";
@@ -1845,6 +1852,32 @@ function plotSignals(
     context.textAlign = "right";
     context.fillText("Imported", width - right, top - 7);
     context.textAlign = "start";
+  }
+
+  if (isVcgLoop) {
+    drawVcgLoopPreview(context, traces.slice(0, 3), {
+      left,
+      right: width - right,
+      top,
+      bottom: height - bottom,
+      sampleCount: signalSet.sampleCount,
+      selectedSample,
+      zoom,
+    });
+    const systemText = `${leadSystem.name}: VCG loop preview / ${signalSet.traces.length} electrode traces`;
+    leadsMetadata.value =
+      `${systemText} / ${signalSet.sampleCount} samples / ${signalSet.sampleRateHz} Hz / ${mode.toUpperCase()}${zoom?.enabled ? ` / zoom ${sampleWindow.start}-${sampleWindow.end}` : ""}`;
+    if (leadsStatus) {
+      leadsStatus.value = `${signalSet.signalKind}; ${filteringStatus(mode, signalSet.sampleCount, fiducials)}; VCG loop preview from first three parsed Frank traces; exact Frank transform unresolved`;
+    }
+    setPaneBadges(
+      leadsModeBadge,
+      leadsProvenanceBadge,
+      `${mode.toUpperCase()}+VCG`,
+      "Case signals",
+      "VCG loop preview uses parsed Frank lead-system traces; exact legacy Frank transform remains unresolved.",
+    );
+    return;
   }
 
   for (let traceIndex = 0; traceIndex < traceCount; traceIndex += 1) {
@@ -1928,6 +1961,78 @@ function plotSignals(
     ? "External imported ECG signal, separate from case and recomputed outputs."
     : "Lead traces read from case surface potentials or representative signal fixtures.";
   setPaneBadges(leadsModeBadge, leadsProvenanceBadge, modeText, provenanceText, provenanceDetail);
+}
+
+function isFrankVcgLeadSystem(leadSystem) {
+  return /VCG|Frank/i.test(leadSystem?.name ?? "");
+}
+
+function drawVcgLoopPreview(context, traces, { left, right, top, bottom, sampleCount, selectedSample, zoom }) {
+  const visible = visibleSampleWindow(sampleCount, zoom);
+  const values = traces.map((trace) => trace.values);
+  const maxMagnitude = Math.max(
+    1e-9,
+    ...values.flatMap((series) => series.slice(visible.start, visible.end + 1).map((value) => Math.abs(value))),
+  );
+  const panels = [
+    { label: "Horizontal", axes: [0, 1] },
+    { label: "Frontal", axes: [0, 2] },
+    { label: "Sagittal", axes: [1, 2] },
+  ];
+  const gap = 14;
+  const panelWidth = (right - left - gap * 2) / 3;
+  const panelHeight = bottom - top;
+
+  context.save();
+  context.font = "12px Segoe UI, Arial, sans-serif";
+  panels.forEach((panel, index) => {
+    const x0 = left + index * (panelWidth + gap);
+    const x1 = x0 + panelWidth;
+    const cx = (x0 + x1) / 2;
+    const cy = top + panelHeight / 2;
+    const radius = Math.min(panelWidth, panelHeight) * 0.38;
+    context.strokeStyle = "rgba(120, 144, 156, 0.24)";
+    context.lineWidth = 1;
+    context.strokeRect(x0 + 0.5, top + 0.5, panelWidth - 1, panelHeight - 1);
+    context.beginPath();
+    context.moveTo(cx, top + 12);
+    context.lineTo(cx, bottom - 12);
+    context.moveTo(x0 + 12, cy);
+    context.lineTo(x1 - 12, cy);
+    context.stroke();
+
+    const [axisX, axisY] = panel.axes;
+    context.strokeStyle = "#175c8a";
+    context.lineWidth = 1.8;
+    context.beginPath();
+    for (let sample = visible.start; sample <= visible.end; sample += 1) {
+      const x = cx + (values[axisX][sample] / maxMagnitude) * radius;
+      const y = cy - (values[axisY][sample] / maxMagnitude) * radius;
+      if (sample === visible.start) {
+        context.moveTo(x, y);
+      } else {
+        context.lineTo(x, y);
+      }
+    }
+    context.stroke();
+
+    if (selectedSample >= visible.start && selectedSample <= visible.end) {
+      const pointX = cx + (values[axisX][selectedSample] / maxMagnitude) * radius;
+      const pointY = cy - (values[axisY][selectedSample] / maxMagnitude) * radius;
+      context.fillStyle = "#f2b705";
+      context.strokeStyle = "#111820";
+      context.beginPath();
+      context.arc(pointX, pointY, 4.5, 0, Math.PI * 2);
+      context.fill();
+      context.stroke();
+    }
+
+    context.fillStyle = "#52616b";
+    context.textAlign = "center";
+    context.fillText(panel.label, cx, top + 12);
+  });
+  context.textAlign = "start";
+  context.restore();
 }
 
 function filteringStatus(mode, sampleCount, fiducials) {
@@ -3099,6 +3204,7 @@ function applyCaseBundle(bundle, noticeText) {
     scale: Number.parseFloat(leadsScale?.value ?? "100") / 100,
     showGrid: leadsGrid?.checked ?? true,
     showRms: leadsRms?.checked ?? false,
+    showVcgLoop: leadsVcgLoop?.checked ?? false,
     selectedSample: timeState.sample,
     interval: intervalState,
     zoom: zoomState,
@@ -3113,6 +3219,9 @@ function applyCaseBundle(bundle, noticeText) {
   }
   if (leadsRms) {
     leadsRms.checked = false;
+  }
+  if (leadsVcgLoop) {
+    leadsVcgLoop.checked = false;
   }
   if (leadsInterval) {
     leadsInterval.checked = false;
@@ -3161,6 +3270,9 @@ function applyCaseBundle(bundle, noticeText) {
   if (leadsSystem && toolbarLeadSystem) {
     leadsSystem.onchange = () => {
       toolbarLeadSystem.value = leadsSystem.value;
+      if (leadsVcgLoop && !isFrankVcgLeadSystem(selectedLeadSystemDetail())) {
+        leadsVcgLoop.checked = false;
+      }
       heartView?.syncLeadSystem();
       thoraxView.syncLeadSystem();
       redrawSignals();
@@ -3175,6 +3287,9 @@ function applyCaseBundle(bundle, noticeText) {
   }
   if (leadsRms) {
     leadsRms.onchange = redrawSignals;
+  }
+  if (leadsVcgLoop) {
+    leadsVcgLoop.onchange = redrawSignals;
   }
   if (leadsAdapted) {
     leadsAdapted.onchange = redrawSignals;

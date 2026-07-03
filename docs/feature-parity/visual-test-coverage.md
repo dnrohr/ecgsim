@@ -33,7 +33,7 @@ This document maps visualization modes to current automated evidence. It tracks 
 | TMP | Editing/reset/undo/redo | App workflow edits a selected node and checks redraw/status | strong behavior | Exact legacy drag handlers remain numeric-edit equivalent |
 | TMP | Time cursor, interval, and beat zoom | App workflow checks yellow cursor movement, shared interval highlight, zoomed metadata, and TMP canvas deltas | strong smoke | Multi-beat atrial/ventricular selection unresolved |
 | Leads | Interval highlight and beat zoom | App workflow sets interval controls, zooms from interval/fiducials, resets all beats, and verifies Leads/TMP canvas deltas | strong smoke | Multi-beat atrial/ventricular selection unresolved |
-| Leads | Lead-system switching | App workflow selects VCG and checks metadata/canvas delta | strong smoke | VCG loop visualization missing |
+| Leads | Lead-system switching and VCG loop | App workflow selects VCG, checks metadata/canvas delta, enables VCG loop, and verifies mode/status/canvas redraw | strong smoke | Exact Frank transform unresolved |
 | Leads | Coupling/filtering | App workflow switches baseline/AC/DC and checks status/canvas delta | strong behavior | Arbitrary case fiducials unresolved |
 | Leads | Adapted recompute preview | App workflow toggles adapted and checks TMP-edit-driven redraw | medium | Lead transform/WCT parity unresolved |
 | Leads | External ECG import | App workflow imports JSON and checks imported source/status/canvas | strong smoke | Legacy ECG file import format still separate |
@@ -47,5 +47,5 @@ This document maps visualization modes to current automated evidence. It tracks 
 1. Add per-mode canvas smoke tests that iterate all Heart and Thorax surface modes without relying on one long workflow.
 2. Add visible node overlays and selection rings so Heart selection is inspectable, not only text/status-driven.
 3. Add interval/beat zoom coverage for Leads/TMP linked views.
-4. Add VCG loop visualization evidence for Frank VCG cases.
+4. Promote exact Frank VCG transform/reference evidence when lead semantics are parsed.
 5. Capture curated pane-level legacy references for specific modes once the modern equivalents are stable.

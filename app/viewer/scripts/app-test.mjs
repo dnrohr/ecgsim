@@ -515,6 +515,14 @@ async function assertLeadsFiltering(page) {
 
   await expectText(page, "[data-thorax-selection]", "7 electrodes");
 
+  await page.locator("[data-leads-vcg-loop]").check();
+  await expectText(page, "[data-leads-metadata]", "VCG loop preview");
+  await expectText(page, "[data-leads-status]", "exact Frank transform unresolved");
+  await expectText(page, "[data-leads-mode-badge]", "BASELINE+VCG");
+  const vcgLoopSignature = await canvasSignature(page, canvas);
+  assert.notEqual(vcgLoopSignature, vcgSignature, "VCG loop mode should redraw Frank traces as projection loops");
+  await page.locator("[data-leads-vcg-loop]").uncheck();
+
   await setRangeValue(page, "[data-leads-scale]", "150");
   await expectText(page, "[data-leads-metadata]", "/ 150%");
   const scaledSignature = await canvasSignature(page, canvas);

@@ -53,7 +53,7 @@ This matrix tracks what a user can see and manipulate. It does not require the m
 | Leads | Coupling/filter modes | Baseline, AC, DC selector | supported | Numerical filtering tests and canvas/status deltas | `0101` |
 | Leads | Time bar and arrow stepping | Shared yellow cursor and keyboard stepping | supported | Cursor x-position and status tests | `0101` |
 | Leads | Beat zoom | Interval/fiducial-backed zoom controls plus double-click toggle | supported | App workflow checks interval and fiducial zoom plus all-beats reset | complete |
-| Leads | VCG loop display | Frank VCG visualization mode | partial | VCG transform/data mapping | `0099` |
+| Leads | VCG loop display | Frank trace projection preview | modern-equivalent | App workflow checks VCG mode/status/canvas redraw | complete |
 | Visual output | Pane PNG export | PNG per pane | supported | PNG signature and dimensions | complete |
 | Visual output | Movie/playback export | WebM per pane | supported | WebM signature and nonempty artifact | complete |
 
