@@ -12,6 +12,7 @@ Status: updated through task `0073`.
 - Thorax contribution surface mode driven by the selected Thorax node.
 - Contour overlay toggle for scalar Heart surfaces.
 - Optional node, selection-ring, parsed-electrode, and computed heart-vector overlays.
+- Parsed `PGraphGeometry` source-mesh overlay for source-node topology inspection.
 - Movable cross-section clipping-plane prototype.
 - Initial/adapted value switching for supported source-parameter previews.
 - TMP-at-time coloring follows the shared time cursor and current adapted TMP edit state.
@@ -22,7 +23,7 @@ Status: updated through task `0073`.
 - Surface coloring is a source-parameter preview mapped by source-node index; exact legacy heart surface-function interpolation remains future parity work.
 - Contours are node-marker overlays near scalar levels rather than interpolated triangle isolines.
 - Atria/ventricles switching is not exposed yet even though source containers are parsed.
-- Endocardial/epicardial switching and transmural handling are disabled per case until explicit wall pairings are parsed. See `docs/feature-parity/wall-mapping-notes.md`.
+- Endocardial/epicardial switching and transmural handling are disabled per case until explicit wall pairings are parsed. The source-mesh overlay shows the parsed graph surface but does not assign wall-side pairings. See `docs/feature-parity/wall-mapping-notes.md`.
 - Legacy named-region accumulation variants, movie playback, and clipboard export remain unsupported until their roadmap tasks.
 - Heart vector display is a modern-equivalent computed TMP-centroid preview; exact legacy vector-equation parity remains blocked on reference capture.
 - Contribution maps use the selected Thorax node's transfer row from the current ventricles-to-thorax candidate; confirmed legacy lead-transfer roles remain unresolved.

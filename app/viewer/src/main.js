@@ -77,6 +77,7 @@ const heartCrossSection = document.querySelector("[data-heart-cross-section]");
 const heartCrossSectionPlane = document.querySelector("[data-heart-cross-section-plane]");
 const heartCrossSectionStatus = document.querySelector("[data-heart-cross-section-status]");
 const heartElectrodes = document.querySelector("[data-heart-electrodes]");
+const heartSourceMesh = document.querySelector("[data-heart-source-mesh]");
 const heartVector = document.querySelector("[data-heart-vector]");
 const heartOverlayStatus = document.querySelector("[data-heart-overlay-status]");
 const heartSurfaceStatus = document.querySelector("[data-heart-surface-status]");
@@ -248,6 +249,13 @@ function selectVisualMode(mode) {
       scrollPaneIntoView("heart");
       if (!selectControlValue(heartSurface, "thoraxContribution")) {
         unavailable("Heart contribution view is unavailable.");
+      }
+      break;
+    case "heart-source-mesh":
+      scrollPaneIntoView("heart");
+      selectControlValue(heartSurface, "geometry");
+      if (!setCheckboxControl(heartSourceMesh, true)) {
+        unavailable("Parsed source mesh overlay is unavailable for this case.");
       }
       break;
     case "thorax-geometry":
@@ -519,6 +527,7 @@ function mountHeart(
     !heartCrossSectionPlane ||
     !heartCrossSectionStatus ||
     !heartElectrodes ||
+    !heartSourceMesh ||
     !heartVector ||
     !heartOverlayStatus
   ) {
@@ -636,6 +645,11 @@ function mountHeart(
   electrodeGroup.renderOrder = 7;
   scene.add(electrodeGroup);
 
+  const sourceMeshGroup = new THREE.Group();
+  sourceMeshGroup.renderOrder = 8;
+  sourceMeshGroup.visible = false;
+  mesh.add(sourceMeshGroup);
+
   const vectorGroup = new THREE.Group();
   const vectorPath = new THREE.Line(
     new THREE.BufferGeometry(),
@@ -649,8 +663,8 @@ function mountHeart(
     0.012,
     0.008,
   );
-  vectorPath.renderOrder = 8;
-  vectorArrow.renderOrder = 9;
+  vectorPath.renderOrder = 9;
+  vectorArrow.renderOrder = 10;
   vectorGroup.add(vectorPath);
   vectorGroup.add(vectorArrow);
   vectorGroup.visible = false;
@@ -746,6 +760,84 @@ function mountHeart(
     renderer.render(scene, camera);
   }
 
+  function centeredPointVectors(points) {
+    const center = centerOfPoints(points);
+    return points.map((point) => new THREE.Vector3(
+      point[0] - center.x,
+      point[1] - center.y,
+      point[2] - center.z,
+    ));
+  }
+
+  function sourceMeshLinePositions(sourceMesh) {
+    const points = centeredPointVectors(sourceMesh.points ?? []);
+    const positions = [];
+    (sourceMesh.triangles ?? []).forEach((triangle) => {
+      const [a, b, c] = triangle;
+      [[a, b], [b, c], [c, a]].forEach(([from, to]) => {
+        if (points[from] && points[to]) {
+          positions.push(
+            points[from].x,
+            points[from].y,
+            points[from].z,
+            points[to].x,
+            points[to].y,
+            points[to].z,
+          );
+        }
+      });
+    });
+    return positions;
+  }
+
+  function syncHeartSourceMesh() {
+    sourceMeshGroup.clear();
+    const sourceMesh = fixture.sourceMesh;
+    const hasSourceMesh = Boolean(sourceMesh?.pointCount && sourceMesh?.triangleCount);
+    heartSourceMesh.disabled = !hasSourceMesh;
+    heartSourceMesh.title = hasSourceMesh
+      ? `${sourceMesh.pointCount} source nodes and ${sourceMesh.triangleCount} source triangles from parsed PGraphGeometry.`
+      : "No parsed PGraphGeometry source mesh is available for this case.";
+    sourceMeshGroup.visible = heartSourceMesh.checked && hasSourceMesh;
+    if (sourceMeshGroup.visible) {
+      const lineGeometry = new THREE.BufferGeometry();
+      lineGeometry.setAttribute("position", new THREE.Float32BufferAttribute(sourceMeshLinePositions(sourceMesh), 3));
+      lineGeometry.computeBoundingSphere();
+      const lines = new THREE.LineSegments(
+        lineGeometry,
+        new THREE.LineBasicMaterial({
+          color: 0x0b6e69,
+          transparent: true,
+          opacity: 0.62,
+          depthTest: false,
+        }),
+      );
+      lines.renderOrder = 8;
+      const pointGeometry = new THREE.BufferGeometry();
+      const pointPositions = [];
+      centeredPointVectors(sourceMesh.points ?? []).forEach((point) => {
+        pointPositions.push(point.x, point.y, point.z);
+      });
+      pointGeometry.setAttribute("position", new THREE.Float32BufferAttribute(pointPositions, 3));
+      const points = new THREE.Points(
+        pointGeometry,
+        new THREE.PointsMaterial({
+          color: 0x0f9f8f,
+          opacity: 0.72,
+          size: 0.0038,
+          sizeAttenuation: true,
+          transparent: true,
+          depthTest: false,
+        }),
+      );
+      points.renderOrder = 9;
+      sourceMeshGroup.add(lines);
+      sourceMeshGroup.add(points);
+    }
+    updateHeartOverlayStatus();
+    renderer.render(scene, camera);
+  }
+
   function computedVectorPoints(tmpState) {
     if (!tmpState?.parameters || !nodePositions.length) {
       return [];
@@ -809,6 +901,9 @@ function mountHeart(
     const parts = [];
     if (heartElectrodes.checked && !heartElectrodes.disabled) {
       parts.push(`${leadSystem?.electrodes?.length ?? 0} electrodes`);
+    }
+    if (heartSourceMesh.checked && !heartSourceMesh.disabled) {
+      parts.push(`${fixture.sourceMesh?.pointCount ?? 0} source mesh nodes`);
     }
     if (heartVector.checked) {
       parts.push(`TMP vector ${Math.round((timeState.sample / timeState.sampleRateHz) * 1000)} ms`);
@@ -1062,6 +1157,7 @@ function mountHeart(
   heartCrossSection.onchange = syncCrossSectionPlane;
   heartCrossSectionPlane.oninput = syncCrossSectionPlane;
   heartElectrodes.onchange = syncHeartElectrodes;
+  heartSourceMesh.onchange = syncHeartSourceMesh;
   heartVector.onchange = syncHeartVector;
   renderer.domElement.addEventListener("pointerdown", selectFromPointer);
   renderer.domElement.style.cursor = "crosshair";
@@ -1080,6 +1176,7 @@ function mountHeart(
   heartCrossSection.checked = false;
   heartCrossSectionPlane.value = "0";
   heartElectrodes.checked = false;
+  heartSourceMesh.checked = false;
   heartVector.checked = false;
   syncWallMappingControls();
   if (heartRotate) {
@@ -1089,6 +1186,7 @@ function mountHeart(
   publishHeartOrientation();
   syncCrossSectionPlane();
   syncHeartElectrodes();
+  syncHeartSourceMesh();
   syncHeartVector();
   applySurfaceFunction();
   updateSelection();

@@ -47,7 +47,7 @@ def case_geometry_payload(case, case_path: Path, name: str) -> dict[str, object]
         geometry for geometry in case.geometries if geometry.name == name
     )
     geometry = geometry_object.geometry
-    return {
+    payload = {
         "source": case_path_text(case_path),
         "sourceGeometryOffset": geometry_object.marker_offset,
         "sourceGeometryName": geometry_object.name,
@@ -59,6 +59,33 @@ def case_geometry_payload(case, case_path: Path, name: str) -> dict[str, object]
             for point in geometry.points
         ),
         "triangles": geometry.triangles,
+    }
+    if name == "heart":
+        source_mesh = source_mesh_payload(case, case_path)
+        if source_mesh:
+            payload["sourceMesh"] = source_mesh
+    return payload
+
+
+def source_mesh_payload(case, case_path: Path) -> dict[str, object] | None:
+    source_mesh = next((graph for graph in case.graph_geometries if graph.point_count > 0), None)
+    if not source_mesh:
+        return None
+    return {
+        "source": case_path_text(case_path),
+        "sourceGeometryOffset": source_mesh.marker_offset,
+        "sourceGeometryId": source_mesh.id,
+        "kind": "PGraphGeometry source mesh",
+        "units": "m",
+        "pointCount": source_mesh.point_count,
+        "triangleCount": source_mesh.triangle_count,
+        "scale": source_mesh.scale,
+        "interpretation": source_mesh.interpretation,
+        "points": tuple(
+            (point[0] / 1000, point[1] / 1000, point[2] / 1000)
+            for point in source_mesh.geometry.points
+        ),
+        "triangles": source_mesh.geometry.triangles,
     }
 
 

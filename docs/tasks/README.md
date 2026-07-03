@@ -199,3 +199,4 @@ Each task should end with:
 - [x] [0112 Add Initial Lead Recompute Overlay](0112-add-initial-lead-recompute-overlay.md)
 - [x] [0113 Document Electrogram Matrix Evidence](0113-document-electrogram-matrix-evidence.md)
 - [x] [0114 Add Legacy Measured ECG Export Overlay](0114-add-legacy-measured-ecg-export-overlay.md)
+- [x] [0115 Add Heart Source Mesh Overlay](0115-add-heart-source-mesh-overlay.md)

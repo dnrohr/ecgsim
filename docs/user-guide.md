@@ -72,7 +72,7 @@ research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase
 ```
 
 1. Confirm the case status shows `normal_male2.ECGsimcase`.
-2. In Heart, switch Surface between Geometry, Depolarization, Repolarization, ARI, TMP at time, Amplitude, and Resting potential; toggle Contours on scalar surfaces when useful.
+2. In Heart, switch Surface between Geometry, Depolarization, Repolarization, ARI, TMP at time, Amplitude, and Resting potential; toggle Contours on scalar surfaces when useful, and Source mesh when you want to inspect the parsed `PGraphGeometry` source topology.
 3. Click the Heart surface to select a node.
 4. Adjust Radius and Transition to change the weighted source region.
 5. In TMP, choose a parameter and change Value.
@@ -167,7 +167,7 @@ Current unsupported outputs:
 - WPW Focus controls use a documented `linear-index-preview` route calculation for safe UI workflow testing. The preview does not write raw activation construction fields and does not yet propagate into TMP, ECG, or BSPM recomputation.
 - Baseline coupling reports whether fiducials are available. `normal_male2` uses derived samples `(5, 499)` from the promoted ECGSIM 3.0.1 `standard_12.adaptECG` export; WPW bundles still use fallback signal endpoints because P-wave/T-wave samples have not been located or derived for those cases.
 - The Validation field summarizes known partial-support limits for the loaded bundle; it is not a failure when the main views remain available.
-- Endocardial/epicardial and transmural controls are disabled until explicit wall pairings are parsed.
+- The Heart Source mesh overlay shows the parsed `PGraphGeometry` source topology. Endocardial/epicardial and transmural controls are still disabled until explicit wall pairings are parsed.
 - Surface-potential matrix values are parsed and displayed. Normal-male measured Leads can be shown from promoted `.refECG` exports, but arbitrary case-payload measured/initial signal classification and lead reference-weight equations remain incomplete.
 - Normal male and normal young male ECGSIM 3.0.1 raw legacy exports have been captured. Promoted parity fixtures cover full normal-male numerical artifacts and ECG-only normal-young artifacts; full export parity still needs edited workflow coverage and broader value-level comparisons.
 

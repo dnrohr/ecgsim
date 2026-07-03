@@ -132,6 +132,8 @@ class ParityRegressionTests(unittest.TestCase):
     def test_case_metadata_fixture_marks_wall_mapping_unavailable(self) -> None:
         fixture = json.loads(Path("app/viewer/public/fixtures/case-metadata.json").read_text(encoding="utf-8"))
         wall_mapping = fixture["wallMapping"]
+        heart = json.loads(Path("app/viewer/public/fixtures/heart.json").read_text(encoding="utf-8"))
+        source_mesh = heart["sourceMesh"]
 
         self.assertEqual(wall_mapping["status"], "unavailable")
         self.assertFalse(wall_mapping["supportsEndocardialEpicardialSwitch"])
@@ -147,6 +149,13 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertIn("wall-pairing semantics", wall_mapping["requiredPayloads"])
         self.assertIn("source mesh is parsed", wall_mapping["reason"])
         self.assertIn("transmural grouping semantics are not decoded", wall_mapping["reason"])
+        self.assertEqual(source_mesh["kind"], "PGraphGeometry source mesh")
+        self.assertEqual(source_mesh["sourceGeometryId"], "graphGeometry2")
+        self.assertEqual(source_mesh["pointCount"], wall_mapping["sourceMeshPointCount"])
+        self.assertEqual(source_mesh["triangleCount"], wall_mapping["sourceMeshTriangleCount"])
+        self.assertEqual(source_mesh["units"], "m")
+        self.assertEqual(len(source_mesh["points"]), 576)
+        self.assertEqual(len(source_mesh["triangles"]), 1148)
 
     def test_case_metadata_fixture_marks_electrogram_unavailable_with_matrix_evidence(self) -> None:
         fixture = json.loads(Path("app/viewer/public/fixtures/case-metadata.json").read_text(encoding="utf-8"))

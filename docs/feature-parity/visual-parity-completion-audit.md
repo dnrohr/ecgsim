@@ -28,7 +28,7 @@ Use `--require-complete` when a release gate should fail while evidence blockers
 
 | Area | Mode | Missing evidence |
 | --- | --- | --- |
-| Heart | Endocardial/epicardial and transmural mapping | `PGraphGeometry` source meshes are parsed and source-node aligned, but explicit wall-pairing and transmural grouping semantics are not decoded. |
+| Heart | Endocardial/epicardial and transmural mapping | `PGraphGeometry` source meshes are parsed, source-node aligned, and visible as a Heart overlay, but explicit wall-pairing and transmural grouping semantics are not decoded. |
 | TMP | Electrogram | Manual text names the behavior, but matrix inventories contain no source-node-by-time electrogram payload candidate and no derivation equation has been confirmed. |
 | Leads | Measured/initial/adapted overlays | Promoted normal-male measured ECG exports and initial/adapted recompute overlays are available; arbitrary case-payload measured classification and final reference-weight equations are not decoded. |
 

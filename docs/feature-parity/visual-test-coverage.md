@@ -20,6 +20,7 @@ This document maps visualization modes to current automated evidence. It tracks 
 | Heart | Selection radius/transition | App workflow selects nodes, checks selection text/weighted region, and verifies node/ring overlay canvas deltas | strong smoke | Exact legacy glyph and ring projection style unverified |
 | Heart | Cross-section plane | App workflow enables Heart cut mode, moves the plane, and checks canvas deltas/status | medium | Exact legacy Shift+wheel/arrow behavior and plane orientation unverified |
 | Heart | Electrode overlay | App workflow toggles Heart electrodes and verifies parsed lead-system count plus canvas delta | strong smoke | Exact legacy grey patch shape unverified |
+| Heart | Source mesh overlay | App workflow toggles the parsed `PGraphGeometry` source mesh and verifies canvas delta; smoke tests pin source-mesh fixture shape | medium | Endocardial/epicardial pairings and transmural grouping semantics remain unavailable |
 | Heart | Heart vector | App workflow toggles computed TMP vector path and checks time-linked canvas redraw/status | medium | Exact legacy heart-vector equation unverified |
 | Thorax | Geometry/heart/lung layers | App workflow checks overlays/layers; visual-mode smoke checks geometry status/mode label and nonblank canvas | strong smoke | Exact legacy transparency style unverified |
 | Thorax | Electrodes | App workflow toggles parsed electrodes and checks canvas delta | strong smoke | Exact electrode glyph geometry unverified |

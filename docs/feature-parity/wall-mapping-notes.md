@@ -1,6 +1,6 @@
 # Wall Mapping Notes
 
-Status: task `0045` parity notes, updated by tasks `0104`, `0105`, and `0111` with parser evidence.
+Status: task `0045` parity notes, updated by tasks `0104`, `0105`, `0111`, and `0115` with parser and viewer evidence.
 
 ## Current Capability
 
@@ -11,6 +11,7 @@ Status: task `0045` parity notes, updated by tasks `0104`, `0105`, and `0111` wi
 - `load_case()` exposes the parsed graph geometries on the normalized case object.
 - `research/pgraphgeometry-inventory.json` records the repeatable two-block pattern: one empty mesh and one source-node mesh.
 - Viewer metadata exports source-mesh alignment evidence under `wallMapping`, including source-node count matching and nearest parsed-Heart-mesh distance summaries.
+- The Heart pane can show the parsed source mesh as a toggleable overlay and through the visual mode navigator.
 
 ## Why Unavailable
 
@@ -24,6 +25,8 @@ The current evidence shows:
 - the source mesh point count matches the ventricular source-node count for all bundled cases;
 - the source mesh is not an exact subset of the parsed Heart geometry: nearest-distance checks report `0` exact point matches for the normal and WPW bundles;
 - no nested `PMatrix` payload markers appear inside these graph mesh payloads.
+
+Task `0115` makes the non-empty source mesh visible in the Heart pane as source-node points and mesh edges. This improves visual inspection coverage for the source topology, but it deliberately keeps Endo/Epi, Transmural, and opposite-wall workflows disabled because no explicit pairing or transmural grouping records have been decoded.
 
 ## Enablement Criteria
 

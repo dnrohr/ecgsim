@@ -80,6 +80,7 @@ const required = [
   "data-heart-values",
   "data-heart-wall",
   "data-heart-transmural",
+  "data-heart-source-mesh",
   "data-heart-surface-status",
   "data-thorax-metadata",
   "data-thorax-ap",
@@ -249,7 +250,14 @@ if (routeTimes.join(",") !== "9,7,5,7") {
   process.exit(1);
 }
 
-if (fixture.pointCount !== 912 || fixture.triangleCount !== 1696) {
+if (
+  fixture.pointCount !== 912 ||
+  fixture.triangleCount !== 1696 ||
+  fixture.sourceMesh?.kind !== "PGraphGeometry source mesh" ||
+  fixture.sourceMesh?.pointCount !== 576 ||
+  fixture.sourceMesh?.triangleCount !== 1148 ||
+  fixture.sourceMesh?.sourceGeometryId !== "graphGeometry2"
+) {
   console.error(`Unexpected heart fixture size: ${fixture.pointCount} / ${fixture.triangleCount}`);
   process.exit(1);
 }

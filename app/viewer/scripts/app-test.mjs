@@ -113,6 +113,11 @@ async function assertVisualModeNavigator(page) {
   await expectText(page, "[data-heart-provenance-badge]", "Derived ARI");
   assert.equal(await page.locator("[data-heart-surface]").inputValue(), "ariMs", "navigator should set Heart surface mode");
 
+  await navigator.selectOption("heart-source-mesh");
+  await expectText(page, "[data-heart-overlay-status]", "576 source mesh nodes");
+  assert.equal(await page.locator("[data-heart-source-mesh]").isChecked(), true, "navigator should enable parsed source mesh overlay");
+  await page.locator("[data-heart-source-mesh]").uncheck();
+
   await navigator.selectOption("thorax-measured");
   await expectText(page, "[data-thorax-mode-badge]", "Measured BSPM");
   await expectText(page, "[data-thorax-provenance-badge]", "Case BSPM");
@@ -415,6 +420,17 @@ async function assertHeartViewControls(page) {
   await expectText(page, "[data-heart-cross-section-status]", "Full heart");
 
   await expectText(page, "[data-heart-overlay-status]", "Overlays off");
+  assert.equal(await page.locator("[data-heart-source-mesh]").isDisabled(), false, "parsed source mesh overlay should be available");
+  const sourceMeshTitle = await page.locator("[data-heart-source-mesh]").getAttribute("title");
+  assert.match(sourceMeshTitle ?? "", /576 source nodes/i, "source mesh overlay title should report parsed source-node count");
+  await page.locator("[data-heart-source-mesh]").check();
+  await expectText(page, "[data-heart-overlay-status]", "576 source mesh nodes");
+  await page.waitForTimeout(150);
+  const sourceMeshSignature = await canvasSignature(page, canvas);
+  assert.notEqual(sourceMeshSignature, geometrySignature, "Heart source mesh overlay should draw parsed PGraphGeometry");
+  await page.locator("[data-heart-source-mesh]").uncheck();
+  await expectText(page, "[data-heart-overlay-status]", "Overlays off");
+
   await page.locator("[data-heart-electrodes]").check();
   await expectText(page, "[data-heart-overlay-status]", "9 electrodes");
   await page.waitForTimeout(150);
