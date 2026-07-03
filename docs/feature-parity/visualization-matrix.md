@@ -46,12 +46,13 @@ This matrix tracks what a user can see and manipulate. It does not require the m
 | TMP | Parameter handlers | Numeric controls plus selected-node handler overlay | modern-equivalent | App workflow checks handler overlay canvas delta after Heart selection | complete |
 | TMP | Time bar | Shared yellow cursor | supported | Cursor x-position tests | `0101` |
 | TMP | Interval highlight | Linked Leads interval highlight | supported | App workflow checks interval redraw on Leads and TMP canvases | complete |
+| TMP | Beat zoom | Shared Leads beat-window zoom | supported | App workflow checks zoomed TMP metadata and canvas redraw | complete |
 | TMP | Electrogram | EGM toggle disabled until data/equation exists | blocked-on-evidence | Electrogram data or derivation | `0100` |
 | Leads | Standard and alternate lead systems | Lead-system selector with parsed electrodes/traces | supported | Lead-system switch canvas/metadata tests | `0101` |
 | Leads | Measured/initial/adapted overlays | Measured/initial disabled; adapted recompute preview | partial | Signal classification and WCT/reference parity | future |
 | Leads | Coupling/filter modes | Baseline, AC, DC selector | supported | Numerical filtering tests and canvas/status deltas | `0101` |
 | Leads | Time bar and arrow stepping | Shared yellow cursor and keyboard stepping | supported | Cursor x-position and status tests | `0101` |
-| Leads | Beat zoom | Beat/interval zoom workflow | partial | Beat metadata or interval model | `0098` |
+| Leads | Beat zoom | Interval/fiducial-backed zoom controls plus double-click toggle | supported | App workflow checks interval and fiducial zoom plus all-beats reset | complete |
 | Leads | VCG loop display | Frank VCG visualization mode | partial | VCG transform/data mapping | `0099` |
 | Visual output | Pane PNG export | PNG per pane | supported | PNG signature and dimensions | complete |
 | Visual output | Movie/playback export | WebM per pane | supported | WebM signature and nonempty artifact | complete |

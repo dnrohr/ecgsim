@@ -110,6 +110,9 @@ const leadsGrid = document.querySelector("[data-leads-grid]");
 const leadsInterval = document.querySelector("[data-leads-interval]");
 const leadsIntervalStart = document.querySelector("[data-leads-interval-start]");
 const leadsIntervalEnd = document.querySelector("[data-leads-interval-end]");
+const leadsZoomBeat = document.querySelector("[data-leads-zoom-beat]");
+const leadsZoomAll = document.querySelector("[data-leads-zoom-all]");
+const leadsZoomStatus = document.querySelector("[data-leads-zoom-status]");
 const leadsImport = document.querySelector("[data-leads-import]");
 const leadsScale = document.querySelector("[data-leads-scale]");
 const leadsStatus = document.querySelector("[data-leads-status]");
@@ -318,6 +321,13 @@ const intervalState = {
   endSample: 160,
 };
 
+const zoomState = {
+  enabled: false,
+  startSample: 0,
+  endSample: 0,
+  source: "all",
+};
+
 const linkedOrientationState = {
   locked: false,
   heartRotation: new THREE.Euler(),
@@ -456,7 +466,24 @@ function sampleFromCanvasEvent(canvas, event, leftPaddingPx) {
   const plotLeft = bounds.left + bounds.width * leftPaddingRatio;
   const plotRight = bounds.right - bounds.width * rightPaddingRatio;
   const ratio = Math.max(0, Math.min(1, (event.clientX - plotLeft) / (plotRight - plotLeft)));
-  return ratio * (timeState.sampleCount - 1);
+  const visible = visibleSampleWindow(timeState.sampleCount, zoomState);
+  return visible.start + ratio * Math.max(1, visible.end - visible.start);
+}
+
+function visibleSampleWindow(sampleCount, zoom = null) {
+  const max = Math.max(0, sampleCount - 1);
+  if (!zoom?.enabled) {
+    return { start: 0, end: max };
+  }
+  const start = Math.max(0, Math.min(max, Math.min(zoom.startSample, zoom.endSample)));
+  const end = Math.max(0, Math.min(max, Math.max(zoom.startSample, zoom.endSample)));
+  return end > start ? { start, end } : { start: 0, end: max };
+}
+
+function xForSample(sample, sampleCount, left, right, zoom = null) {
+  const visible = visibleSampleWindow(sampleCount, zoom);
+  const ratio = (sample - visible.start) / Math.max(1, visible.end - visible.start);
+  return left + ratio * (right - left);
 }
 
 function mountHeart(
@@ -1743,6 +1770,7 @@ function plotSignals(
     showRms = false,
     selectedSample = 0,
     interval = null,
+    zoom = null,
     tmpState = null,
     showAdapted = false,
   } = {},
@@ -1779,6 +1807,7 @@ function plotSignals(
   const traceCount = traces.length;
   const traceHeight = plotHeight / traceCount;
   const colors = ["#b3261e", "#175c8a", "#6f8790", "#287d5b", "#8a5b13", "#5f4b8b"];
+  const sampleWindow = visibleSampleWindow(signalSet.sampleCount, zoom);
 
   context.clearRect(0, 0, width, height);
   context.fillStyle = "#f8fafb";
@@ -1803,7 +1832,7 @@ function plotSignals(
       context.stroke();
     }
   }
-  drawIntervalHighlight(context, interval, signalSet.sampleCount, left, width - right, top, height - bottom);
+  drawIntervalHighlight(context, interval, signalSet.sampleCount, left, width - right, top, height - bottom, zoom);
 
   context.font = "12px Segoe UI, Arial, sans-serif";
   context.fillStyle = "#52616b";
@@ -1841,16 +1870,17 @@ function plotSignals(
     context.strokeStyle = trace.name === "RMS" ? "#111111" : colors[traceIndex % colors.length];
     context.lineWidth = 1.8;
     context.beginPath();
-    values.forEach((value, sampleIndex) => {
-      const x = left + (sampleIndex / (values.length - 1)) * plotWidth;
+    for (let sampleIndex = sampleWindow.start; sampleIndex <= sampleWindow.end; sampleIndex += 1) {
+      const value = values[sampleIndex];
+      const x = xForSample(sampleIndex, values.length, left, width - right, zoom);
       const normalized = (value - min) / span - 0.5;
       const y = centerY - normalized * amplitude * 2;
-      if (sampleIndex === 0) {
+      if (sampleIndex === sampleWindow.start) {
         context.moveTo(x, y);
       } else {
         context.lineTo(x, y);
       }
-    });
+    }
     context.stroke();
   }
 
@@ -1860,14 +1890,15 @@ function plotSignals(
   context.lineTo(width - right, height - bottom + 7);
   context.stroke();
 
-  drawTimeCursor(context, selectedSample, signalSet.sampleCount, left, width - right, top, height - bottom);
+  drawTimeCursor(context, selectedSample, signalSet.sampleCount, left, width - right, top, height - bottom, zoom);
 
   context.fillStyle = "#52616b";
   context.textAlign = "left";
-  context.fillText("0 ms", left, height - 12);
+  const startMs = Math.round((sampleWindow.start / signalSet.sampleRateHz) * 1000);
+  context.fillText(`${startMs} ms`, left, height - 12);
   context.textAlign = "right";
-  const durationMs = Math.round(((signalSet.sampleCount - 1) / signalSet.sampleRateHz) * 1000);
-  context.fillText(`${durationMs} ms`, width - right, height - 12);
+  const endMs = Math.round((sampleWindow.end / signalSet.sampleRateHz) * 1000);
+  context.fillText(`${endMs} ms`, width - right, height - 12);
   context.textAlign = "start";
 
   const systemText = signalSet.source === "imported"
@@ -1876,7 +1907,7 @@ function plotSignals(
     ? `${leadSystem.name}: ${signalSet.traces.length} electrode traces / ${leadSystem.leadCount} leads`
     : `${signalSet.traces.length} representative traces`;
   leadsMetadata.value =
-    `${systemText} / plotted ${traces.length} / ${signalSet.sampleCount} samples / ${signalSet.sampleRateHz} Hz / ${mode.toUpperCase()} / ${Math.round(scale * 100)}%`;
+    `${systemText} / plotted ${traces.length} / ${signalSet.sampleCount} samples / ${signalSet.sampleRateHz} Hz / ${mode.toUpperCase()} / ${Math.round(scale * 100)}%${zoom?.enabled ? ` / zoom ${sampleWindow.start}-${sampleWindow.end}` : ""}`;
   if (leadsStatus) {
     const classification = signalSet.isRecomputed
       ? "adapted ECG recomputed from TMP transfer; WCT/reference lead transform unresolved"
@@ -1988,6 +2019,7 @@ function plotTmp(
     showHandlers = false,
     selectedSample = 0,
     interval = null,
+    zoom = null,
   } = {},
 ) {
   if (!canvas || !tmpMetadata) {
@@ -2006,6 +2038,7 @@ function plotTmp(
   const nodes = fixture.nodes;
   const nodeCount = nodes.length;
   const laneHeight = plotHeight / nodeCount;
+  const sampleWindow = visibleSampleWindow(fixture.sampleCount, zoom);
 
   context.clearRect(0, 0, width, height);
   context.fillStyle = "#f8fafb";
@@ -2029,7 +2062,7 @@ function plotTmp(
       context.stroke();
     }
   }
-  drawIntervalHighlight(context, interval, fixture.sampleCount, left, width - right, top, height - bottom);
+  drawIntervalHighlight(context, interval, fixture.sampleCount, left, width - right, top, height - bottom, zoom);
   context.font = "12px Segoe UI, Arial, sans-serif";
   context.textBaseline = "middle";
 
@@ -2053,13 +2086,13 @@ function plotTmp(
     context.fillText(`N${node.sourceNode + 1}`, 8, centerY);
 
     if (showInitial) {
-      drawTmpLine(context, node.initial, min, span, left, plotWidth, centerY, amplitude, "#6f8790", 1.5);
+      drawTmpLine(context, node.initial, min, span, left, width - right, centerY, amplitude, "#6f8790", 1.5, zoom);
     }
     if (showAdapted) {
-      drawTmpLine(context, node.adapted, min, span, left, plotWidth, centerY, amplitude, "#b3261e", 1.9);
+      drawTmpLine(context, node.adapted, min, span, left, width - right, centerY, amplitude, "#b3261e", 1.9, zoom);
     }
     if (showHandlers && fixture.selectedNode === node.sourceNode) {
-      drawTmpHandlers(context, node, min, span, left, plotWidth, centerY, amplitude, fixture.sampleRateHz, fixture.sampleCount);
+      drawTmpHandlers(context, node, min, span, left, width - right, centerY, amplitude, fixture.sampleRateHz, fixture.sampleCount, zoom);
     }
   });
 
@@ -2068,20 +2101,21 @@ function plotTmp(
   context.moveTo(left, height - bottom + 7);
   context.lineTo(width - right, height - bottom + 7);
   context.stroke();
-  drawTimeCursor(context, selectedSample, fixture.sampleCount, left, width - right, top, height - bottom);
+  drawTimeCursor(context, selectedSample, fixture.sampleCount, left, width - right, top, height - bottom, zoom);
   context.fillStyle = "#52616b";
   context.textAlign = "left";
-  context.fillText("0 ms", left, height - 12);
+  const startMs = Math.round((sampleWindow.start / fixture.sampleRateHz) * 1000);
+  context.fillText(`${startMs} ms`, left, height - 12);
   context.textAlign = "right";
-  const durationMs = Math.round(((fixture.sampleCount - 1) / fixture.sampleRateHz) * 1000);
-  context.fillText(`${durationMs} ms`, width - right, height - 12);
+  const endMs = Math.round((sampleWindow.end / fixture.sampleRateHz) * 1000);
+  context.fillText(`${endMs} ms`, width - right, height - 12);
   context.textAlign = "start";
 
   const traceModes = [
     showInitial ? "initial" : null,
     showAdapted ? "adapted" : null,
   ].filter(Boolean).join("+") || "none";
-  tmpMetadata.value = `${nodes.length} nodes / ${fixture.sampleCount} samples / ${fixture.sampleRateHz} Hz / ${traceModes}`;
+  tmpMetadata.value = `${nodes.length} nodes / ${fixture.sampleCount} samples / ${fixture.sampleRateHz} Hz / ${traceModes}${zoom?.enabled ? ` / zoom ${sampleWindow.start}-${sampleWindow.end}` : ""}`;
   setPaneBadges(
     tmpModeBadge,
     tmpProvenanceBadge,
@@ -2091,14 +2125,20 @@ function plotTmp(
   );
 }
 
-function drawIntervalHighlight(context, interval, sampleCount, left, right, top, bottom) {
+function drawIntervalHighlight(context, interval, sampleCount, left, right, top, bottom, zoom = null) {
   if (!interval?.enabled || sampleCount < 2) {
     return;
   }
-  const start = Math.max(0, Math.min(sampleCount - 1, Math.min(interval.startSample, interval.endSample)));
-  const end = Math.max(0, Math.min(sampleCount - 1, Math.max(interval.startSample, interval.endSample)));
-  const x1 = left + (start / (sampleCount - 1)) * (right - left);
-  const x2 = left + (end / (sampleCount - 1)) * (right - left);
+  const visible = visibleSampleWindow(sampleCount, zoom);
+  const intervalStart = Math.max(0, Math.min(sampleCount - 1, Math.min(interval.startSample, interval.endSample)));
+  const intervalEnd = Math.max(0, Math.min(sampleCount - 1, Math.max(interval.startSample, interval.endSample)));
+  const start = Math.max(visible.start, intervalStart);
+  const end = Math.min(visible.end, intervalEnd);
+  if (end < visible.start || start > visible.end || end < start) {
+    return;
+  }
+  const x1 = xForSample(start, sampleCount, left, right, zoom);
+  const x2 = xForSample(end, sampleCount, left, right, zoom);
   context.save();
   context.fillStyle = "rgba(242, 183, 5, 0.18)";
   context.fillRect(x1, top, Math.max(2, x2 - x1), bottom - top);
@@ -2113,7 +2153,7 @@ function drawIntervalHighlight(context, interval, sampleCount, left, right, top,
   context.restore();
 }
 
-function drawTmpHandlers(context, node, min, span, left, plotWidth, centerY, amplitude, sampleRateHz, sampleCount) {
+function drawTmpHandlers(context, node, min, span, left, right, centerY, amplitude, sampleRateHz, sampleCount, zoom = null) {
   const parameters = {
     depolarizationMs: node.parameters?.depolarizationMs?.adapted,
     repolarizationMs: node.parameters?.repolarizationMs?.adapted,
@@ -2123,26 +2163,33 @@ function drawTmpHandlers(context, node, min, span, left, plotWidth, centerY, amp
   if (!Object.values(parameters).every(Number.isFinite)) {
     return;
   }
+  const visible = visibleSampleWindow(sampleCount, zoom);
   const xForMs = (ms) => {
     const sample = Math.max(0, Math.min(sampleCount - 1, (ms / 1000) * sampleRateHz));
-    return left + (sample / (sampleCount - 1)) * plotWidth;
+    if (sample < visible.start || sample > visible.end) {
+      return null;
+    }
+    return xForSample(sample, sampleCount, left, right, zoom);
   };
   const yForValue = (value) => centerY - (((value - min) / span - 0.5) * amplitude * 2);
   const depX = xForMs(parameters.depolarizationMs);
   const repX = xForMs(parameters.repolarizationMs);
+  if (depX === null && repX === null) {
+    return;
+  }
   const restY = yForValue(parameters.restingPotential);
   const peakY = yForValue(parameters.restingPotential + parameters.amplitude);
   context.save();
   context.strokeStyle = "#111820";
   context.fillStyle = "#f2b705";
   context.lineWidth = 1.4;
-  [depX, repX].forEach((x) => {
+  [depX, repX].filter((x) => x !== null).forEach((x) => {
     context.beginPath();
     context.moveTo(x, centerY - amplitude);
     context.lineTo(x, centerY + amplitude);
     context.stroke();
   });
-  [[depX, restY], [repX, peakY]].forEach(([x, y]) => {
+  [[depX, restY], [repX, peakY]].filter(([x]) => x !== null).forEach(([x, y]) => {
     context.beginPath();
     context.arc(x, y, 5, 0, Math.PI * 2);
     context.fill();
@@ -2151,9 +2198,13 @@ function drawTmpHandlers(context, node, min, span, left, plotWidth, centerY, amp
   context.restore();
 }
 
-function drawTimeCursor(context, selectedSample, sampleCount, left, right, top, bottom) {
+function drawTimeCursor(context, selectedSample, sampleCount, left, right, top, bottom, zoom = null) {
+  const visible = visibleSampleWindow(sampleCount, zoom);
   const sample = Math.max(0, Math.min(sampleCount - 1, selectedSample));
-  const x = left + (sample / (sampleCount - 1)) * (right - left);
+  if (sample < visible.start || sample > visible.end) {
+    return;
+  }
+  const x = xForSample(sample, sampleCount, left, right, zoom);
   context.strokeStyle = "#f2b705";
   context.lineWidth = 2;
   context.beginPath();
@@ -2162,20 +2213,22 @@ function drawTimeCursor(context, selectedSample, sampleCount, left, right, top, 
   context.stroke();
 }
 
-function drawTmpLine(context, values, min, span, left, plotWidth, centerY, amplitude, color, width) {
+function drawTmpLine(context, values, min, span, left, right, centerY, amplitude, color, width, zoom = null) {
+  const sampleWindow = visibleSampleWindow(values.length, zoom);
   context.strokeStyle = color;
   context.lineWidth = width;
   context.beginPath();
-  values.forEach((value, sampleIndex) => {
-    const x = left + (sampleIndex / (values.length - 1)) * plotWidth;
+  for (let sampleIndex = sampleWindow.start; sampleIndex <= sampleWindow.end; sampleIndex += 1) {
+    const value = values[sampleIndex];
+    const x = xForSample(sampleIndex, values.length, left, right, zoom);
     const normalized = (value - min) / span - 0.5;
     const y = centerY - normalized * amplitude * 2;
-    if (sampleIndex === 0) {
+    if (sampleIndex === sampleWindow.start) {
       context.moveTo(x, y);
     } else {
       context.lineTo(x, y);
     }
-  });
+  }
   context.stroke();
 }
 
@@ -2251,6 +2304,7 @@ function mountTmpEditing(fixture, onRecompute = () => {}) {
       showHandlers: tmpHandlers.checked,
       selectedSample: timeState.sample,
       interval: intervalState,
+      zoom: zoomState,
     });
   }
 
@@ -3030,7 +3084,12 @@ function applyCaseBundle(bundle, noticeText) {
   intervalState.enabled = false;
   intervalState.startSample = 80;
   intervalState.endSample = 160;
+  zoomState.enabled = false;
+  zoomState.startSample = 0;
+  zoomState.endSample = timeState.sampleCount - 1;
+  zoomState.source = "all";
   syncIntervalControls();
+  syncZoomControls();
   const leadsCanvas = document.querySelector("[data-leads-canvas]");
   redrawSignals = () => plotSignals(leadsCanvas, bundle.ecgSignals, {
     mode: leadsFilter?.value ?? "baseline",
@@ -3042,6 +3101,7 @@ function applyCaseBundle(bundle, noticeText) {
     showRms: leadsRms?.checked ?? false,
     selectedSample: timeState.sample,
     interval: intervalState,
+    zoom: zoomState,
     tmpState: tmpEditing.getState(),
     showAdapted: leadsAdapted?.checked ?? false,
   });
@@ -3071,6 +3131,20 @@ function applyCaseBundle(bundle, noticeText) {
       };
     }
   });
+  if (leadsZoomBeat) {
+    leadsZoomBeat.onclick = () => {
+      applyBeatZoom(bundle.ecgSignals);
+      redrawSignals();
+      tmpEditing.redrawTmp();
+    };
+  }
+  if (leadsZoomAll) {
+    leadsZoomAll.onclick = () => {
+      resetBeatZoom();
+      redrawSignals();
+      tmpEditing.redrawTmp();
+    };
+  }
   if (leadsSource) {
     leadsSource.value = "case";
     syncImportedEcgControls();
@@ -3141,6 +3215,15 @@ function applyCaseBundle(bundle, noticeText) {
     }
   };
   leadsCanvas.onpointerdown = (event) => setTimeSample(sampleFromCanvasEvent(leadsCanvas, event, 54));
+  leadsCanvas.ondblclick = () => {
+    if (zoomState.enabled) {
+      resetBeatZoom();
+    } else {
+      applyBeatZoom(bundle.ecgSignals);
+    }
+    redrawSignals();
+    tmpEditing.redrawTmp();
+  };
   leadsCanvas.onkeydown = (event) => {
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
       event.preventDefault();
@@ -3182,6 +3265,54 @@ function syncIntervalStateFromControls() {
   intervalState.startSample = Math.max(0, Math.min(max, Number.parseInt(leadsIntervalStart?.value ?? "0", 10)));
   intervalState.endSample = Math.max(0, Math.min(max, Number.parseInt(leadsIntervalEnd?.value ?? String(max), 10)));
   syncIntervalControls();
+}
+
+function syncZoomControls() {
+  const visible = visibleSampleWindow(timeState.sampleCount, zoomState);
+  if (leadsZoomAll) {
+    leadsZoomAll.disabled = !zoomState.enabled;
+  }
+  if (leadsZoomStatus) {
+    leadsZoomStatus.value = zoomState.enabled
+      ? `Zoom ${visible.start}-${visible.end} (${zoomState.source})`
+      : "All beats";
+  }
+}
+
+function applyBeatZoom(signalFixture) {
+  const max = Math.max(0, timeState.sampleCount - 1);
+  let start = 0;
+  let end = max;
+  let source = "full signal";
+  if (intervalState.enabled) {
+    start = intervalState.startSample;
+    end = intervalState.endSample;
+    source = "interval";
+  } else {
+    const fiducials = signalFixture?.fiducials ?? {};
+    if (Number.isInteger(fiducials.baselineStartIndex) && Number.isInteger(fiducials.baselineEndIndex)) {
+      start = fiducials.baselineStartIndex;
+      end = fiducials.baselineEndIndex;
+      source = "fiducials";
+    }
+  }
+  zoomState.enabled = true;
+  zoomState.startSample = Math.max(0, Math.min(max, Math.min(start, end)));
+  zoomState.endSample = Math.max(0, Math.min(max, Math.max(start, end)));
+  zoomState.source = source;
+  if (zoomState.endSample <= zoomState.startSample) {
+    resetBeatZoom();
+    return;
+  }
+  syncZoomControls();
+}
+
+function resetBeatZoom() {
+  zoomState.enabled = false;
+  zoomState.startSample = 0;
+  zoomState.endSample = Math.max(0, timeState.sampleCount - 1);
+  zoomState.source = "all";
+  syncZoomControls();
 }
 
 async function importSelectedEcgSignals(file, redrawSignals) {

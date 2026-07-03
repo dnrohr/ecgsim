@@ -362,6 +362,8 @@
               End
               <input type="number" min="0" max="575" step="1" value="160" data-leads-interval-end>
             </label>
+            <button type="button" data-leads-zoom-beat>Zoom beat</button>
+            <button type="button" data-leads-zoom-all disabled>All beats</button>
             <label>
               Import ECG
               <input type="file" accept=".json,.ecgsim-ecg.json,application/json" data-leads-import>
@@ -371,6 +373,7 @@
               <input type="range" min="50" max="200" step="25" value="100" data-leads-scale>
             </label>
             <output data-leads-status>Representative traces</output>
+            <output data-leads-zoom-status>All beats</output>
           </div>
           <canvas width="640" height="220" tabindex="0" data-leads-canvas></canvas>
         </section>

@@ -28,11 +28,11 @@ This document maps visualization modes to current automated evidence. It tracks 
 | Thorax | Initial/adapted BSPM | App workflow switches recomputed maps and verifies edit-driven redraw | strong smoke | WCT/reference parity unresolved |
 | Thorax | Sensitivity | App workflow checks sensitivity map, scale changes, and parsed electrode target selection | strong smoke | Confirmed legacy lead-transfer roles still need reference capture |
 | Thorax | Lock to Heart orientation | App workflow enables lock, checks followed Heart rotation, linked AP reset, and unlock | medium | Exact manual drag-rotation parity unverified |
-| TMP | Initial/adapted traces | App workflow toggles initial/grid and verifies canvas deltas | strong smoke | Beat zoom missing |
+| TMP | Initial/adapted traces | App workflow toggles initial/grid and verifies canvas deltas | strong smoke | Multi-beat source inventory unresolved |
 | TMP | Handler overlay | App workflow toggles selected-node handlers and verifies TMP canvas delta | medium | Exact legacy triangular drag handles unverified |
 | TMP | Editing/reset/undo/redo | App workflow edits a selected node and checks redraw/status | strong behavior | Exact legacy drag handlers remain numeric-edit equivalent |
-| TMP | Time cursor and interval | App workflow checks yellow cursor movement plus shared Leads/TMP interval highlight | strong smoke | Beat zoom missing |
-| Leads | Interval highlight | App workflow sets Leads interval controls and verifies Leads/TMP canvas deltas | strong smoke | Beat zoom missing |
+| TMP | Time cursor, interval, and beat zoom | App workflow checks yellow cursor movement, shared interval highlight, zoomed metadata, and TMP canvas deltas | strong smoke | Multi-beat atrial/ventricular selection unresolved |
+| Leads | Interval highlight and beat zoom | App workflow sets interval controls, zooms from interval/fiducials, resets all beats, and verifies Leads/TMP canvas deltas | strong smoke | Multi-beat atrial/ventricular selection unresolved |
 | Leads | Lead-system switching | App workflow selects VCG and checks metadata/canvas delta | strong smoke | VCG loop visualization missing |
 | Leads | Coupling/filtering | App workflow switches baseline/AC/DC and checks status/canvas delta | strong behavior | Arbitrary case fiducials unresolved |
 | Leads | Adapted recompute preview | App workflow toggles adapted and checks TMP-edit-driven redraw | medium | Lead transform/WCT parity unresolved |

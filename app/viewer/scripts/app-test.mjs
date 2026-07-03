@@ -538,7 +538,24 @@ async function assertLeadsFiltering(page) {
   await page.waitForTimeout(150);
   assert.notEqual(await canvasSignature(page, canvas), leadsBeforeInterval, "Leads interval highlight should redraw the Leads canvas");
   assert.notEqual(await canvasSignature(page, "[data-tmp-canvas]"), tmpBeforeInterval, "Leads interval highlight should redraw the TMP canvas");
+  const leadsBeforeZoom = await canvasSignature(page, canvas);
+  const tmpBeforeZoom = await canvasSignature(page, "[data-tmp-canvas]");
+  await page.locator("[data-leads-zoom-beat]").click();
+  await expectText(page, "[data-leads-zoom-status]", "Zoom 90-180 (interval)");
+  await expectText(page, "[data-leads-metadata]", "zoom 90-180");
+  await expectText(page, "[data-tmp-metadata]", "zoom 90-180");
+  assert.equal(await page.locator("[data-leads-zoom-all]").isEnabled(), true, "All-beats reset should be available after zoom");
+  assert.notEqual(await canvasSignature(page, canvas), leadsBeforeZoom, "Beat zoom should redraw the Leads canvas");
+  assert.notEqual(await canvasSignature(page, "[data-tmp-canvas]"), tmpBeforeZoom, "Beat zoom should redraw the TMP canvas");
+  await page.locator("[data-leads-zoom-all]").click();
+  await expectText(page, "[data-leads-zoom-status]", "All beats");
   await page.locator("[data-leads-interval]").uncheck();
+
+  await page.locator("[data-leads-zoom-beat]").click();
+  await expectText(page, "[data-leads-zoom-status]", "Zoom 5-499 (fiducials)");
+  await expectText(page, "[data-leads-metadata]", "zoom 5-499");
+  await page.locator("[data-leads-zoom-all]").click();
+  await expectText(page, "[data-leads-zoom-status]", "All beats");
 
   await page.locator("[data-leads-filter]").selectOption("ac");
   await expectText(page, "[data-leads-metadata]", "/ AC");
