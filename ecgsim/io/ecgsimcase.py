@@ -17,6 +17,7 @@ from ecgsim.io.matrix import MatrixData, VectorData
 ROOT_SIGNATURE = "PECGsimData"
 PMATRIX_SIGNATURE = "PMatrix"
 PGEOMETRY_SIGNATURE = "PGeometry"
+PGRAPH_GEOMETRY_SIGNATURE = "PGraphGeometry"
 PVECTOR_SIGNATURE = "PVector"
 PSOURCE_SIGNATURE = "PSource"
 PSOURCE_PARAMETER_SIGNATURE = "PSourceParameter"
@@ -93,6 +94,29 @@ class ECGsimCaseGeometry:
     @property
     def triangle_count(self) -> int:
         return self.geometry.triangle_count
+
+
+@dataclass(frozen=True)
+class ECGsimCaseGraphGeometry:
+    """Conservative inventory for a ``PGraphGeometry`` payload.
+
+    The payload semantics are not yet confirmed as wall-side or transmural
+    mappings, so this object intentionally exposes byte-level structure rather
+    than interpreted node pairs.
+    """
+
+    id: str
+    marker_offset: int
+    values_offset: int
+    end_offset: int
+    storage_format: str
+    version: int | None
+    header_ints: tuple[int, ...]
+    header_floats: tuple[float, ...]
+    candidate_node_count: int | None
+    payload_bytes: int
+    nested_matrix_offsets: tuple[int, ...]
+    interpretation: str
 
 
 @dataclass(frozen=True)
@@ -335,6 +359,73 @@ def read_ecgsimcase_geometries(path: str | Path) -> tuple[ECGsimCaseGeometry, ..
         )
 
     return tuple(geometries)
+
+
+def read_ecgsimcase_graph_geometries(path: str | Path) -> tuple[ECGsimCaseGraphGeometry, ...]:
+    """Inventory ``PGraphGeometry`` payloads without assigning wall semantics."""
+
+    source_path = Path(path)
+    data = source_path.read_bytes()
+    metadata = read_ecgsimcase_metadata(source_path)
+    all_marker_offsets = _all_marker_offsets(metadata) + (len(data),)
+    graph_geometries: list[ECGsimCaseGraphGeometry] = []
+
+    for index, offset in enumerate(metadata.marker_offsets.get(PGRAPH_GEOMETRY_SIGNATURE, ())):
+        marker, values_offset = _read_marker(data, source_path, offset)
+        if marker != PGRAPH_GEOMETRY_SIGNATURE:
+            raise ECGsimCaseFormatError(
+                f"{source_path} marker at {offset} is {marker!r}, not PGraphGeometry"
+            )
+        end_offset = next(next_offset for next_offset in all_marker_offsets if next_offset > offset)
+        payload_bytes = max(0, end_offset - values_offset)
+        header_byte_count = min(payload_bytes, 48)
+        int_count = header_byte_count // 4
+        header_ints = (
+            struct.unpack_from(f"<{int_count}i", data, values_offset)
+            if int_count
+            else ()
+        )
+        header_floats = (
+            struct.unpack_from(f"<{int_count}f", data, values_offset)
+            if int_count
+            else ()
+        )
+        candidate_node_count = (
+            header_ints[3]
+            if len(header_ints) > 3 and 0 <= header_ints[3] <= 100000
+            else None
+        )
+        nested_matrix_offsets = _marker_offsets_in_range(
+            metadata,
+            PMATRIX_SIGNATURE,
+            values_offset,
+            end_offset,
+        )
+        graph_geometries.append(
+            ECGsimCaseGraphGeometry(
+                id=f"graphGeometry{index + 1}",
+                marker_offset=offset,
+                values_offset=values_offset,
+                end_offset=end_offset,
+                storage_format=(
+                    f"ecgsimcase-pgraphgeometry-v{header_ints[0]}"
+                    if header_ints and header_ints[0] > 0
+                    else "ecgsimcase-pgraphgeometry-unknown"
+                ),
+                version=header_ints[0] if header_ints else None,
+                header_ints=tuple(int(value) for value in header_ints),
+                header_floats=tuple(float(value) for value in header_floats),
+                candidate_node_count=candidate_node_count,
+                payload_bytes=payload_bytes,
+                nested_matrix_offsets=nested_matrix_offsets,
+                interpretation=(
+                    "PGraphGeometry envelope inventory only; wall-side, opposite-wall, "
+                    "and transmural pairing semantics are not confirmed."
+                ),
+            )
+        )
+
+    return tuple(graph_geometries)
 
 
 def read_ecgsimcase_sources(path: str | Path) -> tuple[ECGsimCaseSource, ...]:
@@ -712,6 +803,10 @@ def _marker_offsets_in_range(
     metadata: ECGsimCaseMetadata, marker: str, start: int, end: int
 ) -> tuple[int, ...]:
     return tuple(offset for offset in metadata.marker_offsets.get(marker, ()) if start <= offset < end)
+
+
+def _all_marker_offsets(metadata: ECGsimCaseMetadata) -> tuple[int, ...]:
+    return tuple(sorted(offset for offsets in metadata.marker_offsets.values() for offset in offsets))
 
 
 def _next_string_after(metadata: ECGsimCaseMetadata, offset: int) -> StringEntry | None:

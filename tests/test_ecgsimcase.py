@@ -6,6 +6,7 @@ from ecgsim.io import (
     ECGsimCaseFormatError,
     load_case,
     read_ecgsimcase_geometries,
+    read_ecgsimcase_graph_geometries,
     read_ecgsimcase_lead_systems,
     read_ecgsimcase_matrix,
     read_ecgsimcase_metadata,
@@ -167,6 +168,27 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
         self.assertEqual((geometries[4].point_count, geometries[4].triangle_count), (400, 796))
         self.assertEqual(geometries[5].name, "left_lung")
         self.assertEqual((geometries[5].point_count, geometries[5].triangle_count), (349, 694))
+
+    def test_reads_normal_case_graph_geometry_inventory(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")
+        graphs = read_ecgsimcase_graph_geometries(path)
+
+        self.assertEqual(len(graphs), 2)
+        self.assertEqual([graph.marker_offset for graph in graphs], [1214518, 1214750])
+        self.assertEqual([graph.version for graph in graphs], [1, 1])
+        self.assertEqual([graph.candidate_node_count for graph in graphs], [0, 576])
+        self.assertEqual([graph.payload_bytes for graph in graphs], [20, 20708])
+        self.assertEqual(graphs[1].storage_format, "ecgsimcase-pgraphgeometry-v1")
+        self.assertIn("wall-side", graphs[1].interpretation)
+
+    def test_reads_wpw_case_graph_geometry_inventory(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/WPW_Bundleonly.ECGsimcase")
+        graphs = read_ecgsimcase_graph_geometries(path)
+
+        self.assertEqual(len(graphs), 2)
+        self.assertEqual([graph.version for graph in graphs], [1, 1])
+        self.assertEqual([graph.candidate_node_count for graph in graphs], [0, 697])
+        self.assertEqual([graph.payload_bytes for graph in graphs], [20, 25112])
 
     def test_rejects_unsupported_geometry_payload_offset(self) -> None:
         path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")

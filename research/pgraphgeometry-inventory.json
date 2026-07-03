@@ -1,0 +1,296 @@
+{
+  "cases": [
+    {
+      "case": "research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase",
+      "sha256": "4da15b759b8bc4880843bc647a257f66e36b64042583d0ad1c3e11bdc6169c4a",
+      "graphGeometryCount": 2,
+      "graphGeometries": [
+        {
+          "id": "graphGeometry1",
+          "markerOffset": 1214518,
+          "valuesOffset": 1214550,
+          "endOffset": 1214570,
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "version": 1,
+          "headerInts": [
+            1,
+            1073741824,
+            1,
+            0,
+            0
+          ],
+          "headerFloats": [
+            0.0,
+            2.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "candidateNodeCount": 0,
+          "payloadBytes": 20,
+          "nestedMatrixOffsets": [],
+          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+        },
+        {
+          "id": "graphGeometry2",
+          "markerOffset": 1214750,
+          "valuesOffset": 1214782,
+          "endOffset": 1235490,
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "version": 1,
+          "headerInts": [
+            1,
+            1073741824,
+            1,
+            576,
+            1104569958,
+            1108711834,
+            1109236122,
+            1113404211,
+            1107715686,
+            1119000986,
+            1115081933,
+            1101371802
+          ],
+          "headerFloats": [
+            0.0,
+            2.0,
+            0.0,
+            0.0,
+            26.799999,
+            37.400002,
+            39.400002,
+            55.299999,
+            33.599998,
+            89.300003,
+            61.700001,
+            20.700001
+          ],
+          "candidateNodeCount": 576,
+          "payloadBytes": 20708,
+          "nestedMatrixOffsets": [],
+          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+        }
+      ]
+    },
+    {
+      "case": "research/source/www.ecgsim.org/downloads/cases/WPW_Bundleonly.ECGsimcase",
+      "sha256": "2ec84bb53ea60e564ce6ff495e88ac6343047cea8a76db9dd69973b18e38f5c4",
+      "graphGeometryCount": 2,
+      "graphGeometries": [
+        {
+          "id": "graphGeometry1",
+          "markerOffset": 1658118,
+          "valuesOffset": 1658150,
+          "endOffset": 1658170,
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "version": 1,
+          "headerInts": [
+            1,
+            1073741824,
+            1,
+            0,
+            0
+          ],
+          "headerFloats": [
+            0.0,
+            2.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "candidateNodeCount": 0,
+          "payloadBytes": 20,
+          "nestedMatrixOffsets": [],
+          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+        },
+        {
+          "id": "graphGeometry2",
+          "markerOffset": 1658350,
+          "valuesOffset": 1658382,
+          "endOffset": 1683494,
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "version": 1,
+          "headerInts": [
+            1,
+            1073741824,
+            1,
+            697,
+            1112245535,
+            -1060047421,
+            1109147255,
+            1112361402,
+            -1048989139,
+            -1043946537,
+            1111260398,
+            1092830102
+          ],
+          "headerFloats": [
+            0.0,
+            2.0,
+            0.0,
+            0.0,
+            50.880001,
+            -6.53,
+            39.061001,
+            51.321999,
+            -15.606,
+            -24.83,
+            47.122002,
+            10.204
+          ],
+          "candidateNodeCount": 697,
+          "payloadBytes": 25112,
+          "nestedMatrixOffsets": [],
+          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+        }
+      ]
+    },
+    {
+      "case": "research/source/www.ecgsim.org/downloads/cases/WPW_ectopicbeat.ECGsimcase",
+      "sha256": "869412d681c9860837117ce7a98a62cf381ce92b64ae5b68aecfc3b735f22749",
+      "graphGeometryCount": 2,
+      "graphGeometries": [
+        {
+          "id": "graphGeometry1",
+          "markerOffset": 2300118,
+          "valuesOffset": 2300150,
+          "endOffset": 2300170,
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "version": 1,
+          "headerInts": [
+            1,
+            1073741824,
+            1,
+            0,
+            0
+          ],
+          "headerFloats": [
+            0.0,
+            2.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "candidateNodeCount": 0,
+          "payloadBytes": 20,
+          "nestedMatrixOffsets": [],
+          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+        },
+        {
+          "id": "graphGeometry2",
+          "markerOffset": 2300350,
+          "valuesOffset": 2300382,
+          "endOffset": 2325494,
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "version": 1,
+          "headerInts": [
+            1,
+            1073741824,
+            1,
+            697,
+            1112245535,
+            -1060047421,
+            1109147255,
+            1112361402,
+            -1048989139,
+            -1043946537,
+            1111260398,
+            1092830102
+          ],
+          "headerFloats": [
+            0.0,
+            2.0,
+            0.0,
+            0.0,
+            50.880001,
+            -6.53,
+            39.061001,
+            51.321999,
+            -15.606,
+            -24.83,
+            47.122002,
+            10.204
+          ],
+          "candidateNodeCount": 697,
+          "payloadBytes": 25112,
+          "nestedMatrixOffsets": [],
+          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+        }
+      ]
+    },
+    {
+      "case": "research/source/www.ecgsim.org/downloads/cases/WPW_fusionbeat.ECGsimcase",
+      "sha256": "09dc777f2b8eca47e893c5a6ae2e1ae9daf34f64436eebf03ceb7ec0eda1f970",
+      "graphGeometryCount": 2,
+      "graphGeometries": [
+        {
+          "id": "graphGeometry1",
+          "markerOffset": 1724118,
+          "valuesOffset": 1724150,
+          "endOffset": 1724170,
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "version": 1,
+          "headerInts": [
+            1,
+            1073741824,
+            1,
+            0,
+            0
+          ],
+          "headerFloats": [
+            0.0,
+            2.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "candidateNodeCount": 0,
+          "payloadBytes": 20,
+          "nestedMatrixOffsets": [],
+          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+        },
+        {
+          "id": "graphGeometry2",
+          "markerOffset": 1724350,
+          "valuesOffset": 1724382,
+          "endOffset": 1749494,
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "version": 1,
+          "headerInts": [
+            1,
+            1073741824,
+            1,
+            697,
+            1112245535,
+            -1060047421,
+            1109147255,
+            1112361402,
+            -1048989139,
+            -1043946537,
+            1111260398,
+            1092830102
+          ],
+          "headerFloats": [
+            0.0,
+            2.0,
+            0.0,
+            0.0,
+            50.880001,
+            -6.53,
+            39.061001,
+            51.321999,
+            -15.606,
+            -24.83,
+            47.122002,
+            10.204
+          ],
+          "candidateNodeCount": 697,
+          "payloadBytes": 25112,
+          "nestedMatrixOffsets": [],
+          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+        }
+      ]
+    }
+  ]
+}

@@ -28,7 +28,7 @@ Use `--require-complete` when a release gate should fail while evidence blockers
 
 | Area | Mode | Missing evidence |
 | --- | --- | --- |
-| Heart | Endocardial/epicardial and transmural mapping | `PGraphGeometry` or wall-side mapping semantics are not decoded. |
+| Heart | Endocardial/epicardial and transmural mapping | `PGraphGeometry` envelope inventory exists, but wall-side pairing semantics are not decoded. |
 | TMP | Electrogram | Selected-heart-node electrogram payload or derivation equation has not been identified. |
 | Leads | Measured/initial/adapted overlays | Measured/initial signal classification and WCT/reference lead-transform semantics are not decoded. |
 
