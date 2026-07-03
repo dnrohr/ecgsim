@@ -202,3 +202,4 @@ Each task should end with:
 - [x] [0115 Add Heart Source Mesh Overlay](0115-add-heart-source-mesh-overlay.md)
 - [x] [0116 Classify Source Square Matrix Evidence For EGM](0116-classify-source-square-matrix-evidence-for-egm.md)
 - [x] [0117 Add Computed Source Wall Depth View](0117-add-computed-source-wall-depth-view.md)
+- [x] [0118 Add Computed Electrogram Preview](0118-add-computed-electrogram-preview.md)

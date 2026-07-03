@@ -2304,6 +2304,8 @@ function plotTmp(
     showAdapted = true,
     showGrid = true,
     showHandlers = false,
+    showEgm = false,
+    egmTraces = new Map(),
     selectedSample = 0,
     interval = null,
     zoom = null,
@@ -2354,7 +2356,8 @@ function plotTmp(
   context.textBaseline = "middle";
 
   nodes.forEach((node, nodeIndex) => {
-    const values = [...node.initial, ...node.adapted];
+    const egm = showEgm ? egmTraces.get(node.sourceNode) : null;
+    const values = [...node.initial, ...node.adapted, ...(egm ?? [])];
     const min = Math.min(...values);
     const max = Math.max(...values);
     const span = max - min || 1;
@@ -2377,6 +2380,9 @@ function plotTmp(
     }
     if (showAdapted) {
       drawTmpLine(context, node.adapted, min, span, left, width - right, centerY, amplitude, "#b3261e", 1.9, zoom);
+    }
+    if (showEgm && egm?.length) {
+      drawTmpLine(context, egm, min, span, left, width - right, centerY, amplitude, "#175c8a", 1.5, zoom);
     }
     if (showHandlers && fixture.selectedNode === node.sourceNode) {
       drawTmpHandlers(context, node, min, span, left, width - right, centerY, amplitude, fixture.sampleRateHz, fixture.sampleCount, zoom);
@@ -2401,6 +2407,7 @@ function plotTmp(
   const traceModes = [
     showInitial ? "initial" : null,
     showAdapted ? "adapted" : null,
+    showEgm ? "egm" : null,
   ].filter(Boolean).join("+") || "none";
   tmpMetadata.value = `${nodes.length} nodes / ${fixture.sampleCount} samples / ${fixture.sampleRateHz} Hz / ${traceModes}${zoom?.enabled ? ` / zoom ${sampleWindow.start}-${sampleWindow.end}` : ""}`;
   setPaneBadges(
@@ -2408,7 +2415,9 @@ function plotTmp(
     tmpProvenanceBadge,
     traceModes,
     "Source params",
-    "TMP traces generated from parsed source-parameter vectors for preview nodes.",
+    showEgm
+      ? "TMP traces plus computed EGM preview from parsed source-to-source transfer candidate."
+      : "TMP traces generated from parsed source-parameter vectors for preview nodes.",
   );
 }
 
@@ -2519,6 +2528,38 @@ function drawTmpLine(context, values, min, span, left, right, centerY, amplitude
   context.stroke();
 }
 
+function computedEgmTracesForNodes(nodes, tmpState, computedElectrogram) {
+  if (computedElectrogram?.status !== "computed-preview" || !Array.isArray(computedElectrogram.matrixValues)) {
+    return new Map();
+  }
+  const traces = new Map();
+  const sampleCount = tmpState.sampleCount;
+  const nodeCount = Math.min(tmpState.nodeCount, computedElectrogram.columns ?? tmpState.nodeCount);
+  const requestedNodes = nodes.map((node) => node.sourceNode);
+  const requestedRows = new Map(
+    requestedNodes
+      .filter((nodeIndex) => nodeIndex >= 0 && nodeIndex < computedElectrogram.matrixValues.length)
+      .map((nodeIndex) => [nodeIndex, computedElectrogram.matrixValues[nodeIndex]]),
+  );
+  if (!requestedRows.size) {
+    return traces;
+  }
+  requestedRows.forEach((row, nodeIndex) => {
+    traces.set(nodeIndex, new Array(sampleCount).fill(0));
+  });
+  for (let sample = 0; sample < sampleCount; sample += 1) {
+    const tmpValues = tmpAtTimeValues(tmpState, "adapted", sample);
+    requestedRows.forEach((row, nodeIndex) => {
+      let value = 0;
+      for (let sourceNode = 0; sourceNode < nodeCount; sourceNode += 1) {
+        value += (row[sourceNode] ?? 0) * (tmpValues[sourceNode] ?? 0);
+      }
+      traces.get(nodeIndex)[sample] = value / Math.max(1, nodeCount);
+    });
+  }
+  return traces;
+}
+
 function mountTmpEditing(fixture, caseMetadata = {}, onRecompute = () => {}) {
   if (
     !tmpShowInitial ||
@@ -2564,12 +2605,15 @@ function mountTmpEditing(fixture, caseMetadata = {}, onRecompute = () => {}) {
   });
   if (tmpShowEgm) {
     const electrogram = caseMetadata.electrogram ?? {};
+    const canPreviewEgm = electrogram.status === "computed-preview" && fixture.computedElectrogram?.status === "computed-preview";
     const reason = electrogram.reason
       ?? "Selected-node electrogram display is unavailable until an electrogram payload or derivation equation is identified.";
+    tmpShowEgm.disabled = !canPreviewEgm;
     tmpShowEgm.title = reason;
     tmpShowEgm.closest("label")?.setAttribute("title", reason);
     tmpShowEgm.dataset.evidenceStatus = electrogram.status ?? "unavailable";
     tmpShowEgm.dataset.candidateMatrixCount = String(electrogram.candidateMatrixCount ?? 0);
+    tmpShowEgm.dataset.transferMatrixIndex = String(fixture.computedElectrogram?.transferMatrixIndex ?? "");
   }
   tmpShowInitial.checked = true;
   tmpShowAdapted.checked = true;
@@ -2588,16 +2632,19 @@ function mountTmpEditing(fixture, caseMetadata = {}, onRecompute = () => {}) {
     tmpEditState.selectedNode = selectionState.nodeIndex >= 0 && selectionState.nodeIndex < tmpEditState.nodeCount
       ? selectionState.nodeIndex
       : null;
+    const nodes = buildTmpPlotNodes(tmpEditState);
     plotTmp(tmpCanvas, {
       sampleRateHz: tmpEditState.sampleRateHz,
       sampleCount: tmpEditState.sampleCount,
       selectedNode: tmpEditState.selectedNode,
-      nodes: buildTmpPlotNodes(tmpEditState),
+      nodes,
     }, {
       showInitial: tmpShowInitial.checked,
       showAdapted: tmpShowAdapted.checked,
       showGrid: tmpGrid.checked,
       showHandlers: tmpHandlers.checked,
+      showEgm: tmpShowEgm.checked && !tmpShowEgm.disabled,
+      egmTraces: computedEgmTracesForNodes(nodes, tmpEditState, fixture.computedElectrogram),
       selectedSample: timeState.sample,
       interval: intervalState,
       zoom: zoomState,
@@ -2723,6 +2770,9 @@ function mountTmpEditing(fixture, caseMetadata = {}, onRecompute = () => {}) {
   tmpShowAdapted.onchange = redrawTmp;
   tmpGrid.onchange = redrawTmp;
   tmpHandlers.onchange = redrawTmp;
+  if (tmpShowEgm) {
+    tmpShowEgm.onchange = redrawTmp;
+  }
   tmpDecrement.onclick = () => nudgeParameter(-1);
   tmpIncrement.onclick = () => nudgeParameter(1);
   tmpApply.onclick = () => {

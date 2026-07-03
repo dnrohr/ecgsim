@@ -12,8 +12,8 @@ The matrix audit reports:
 
 - 39 visualization matrix rows.
 - 32 rows marked `supported`.
-- 5 rows marked `modern-equivalent`.
-- 2 rows marked `blocked-on-evidence`.
+- 6 rows marked `modern-equivalent`.
+- 1 row marked `blocked-on-evidence`.
 - 0 rows with unsupported or ambiguous statuses such as `partial`.
 
 Run the audit with:
@@ -28,14 +28,13 @@ Use `--require-complete` when a release gate should fail while evidence blockers
 
 | Area | Mode | Missing evidence |
 | --- | --- | --- |
-| TMP | Electrogram | Manual text names the behavior; matrix inventories contain no source-node-by-time electrogram payload, and the dense signed source-to-source transfer candidate has not been validated as the legacy EGM computation. |
 | Leads | Measured/initial/adapted overlays | Promoted normal-male measured ECG exports and initial/adapted recompute overlays are available; arbitrary case-payload measured classification and final reference-weight equations are not decoded. |
 
 ## Completion Interpretation
 
 The current app gives users discoverable modern equivalents for the major Heart, Thorax, TMP, Leads, visual-output, and reference workflows that are backed by parsed or computed data. Automated browser workflow tests, per-mode visual smoke tests, PNG/WebM export checks, and curated legacy screenshot-region checks cover the implemented visual surface.
 
-The goal should stay active until the two remaining evidence blockers are resolved or the product decision explicitly accepts them as out of scope. The current state is a strong visualization parity baseline, not a final proof that every legacy visual mode is available.
+The goal should stay active until the remaining Leads evidence blocker is resolved or the product decision explicitly accepts it as out of scope. The current state is a strong visualization parity baseline, not a final proof that every legacy visual mode is available.
 
 ## Verification Evidence
 

@@ -166,12 +166,12 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertIn("not decoded legacy endocardial/epicardial pair semantics", wall_depth["interpretation"])
         self.assertEqual(sum(wall_depth["layerCounts"].values()), 576)
 
-    def test_case_metadata_fixture_marks_electrogram_unavailable_with_matrix_evidence(self) -> None:
+    def test_case_metadata_fixture_marks_electrogram_computed_preview_with_matrix_evidence(self) -> None:
         fixture = json.loads(Path("app/viewer/public/fixtures/case-metadata.json").read_text(encoding="utf-8"))
         electrogram = fixture["electrogram"]
 
-        self.assertEqual(electrogram["status"], "unavailable")
-        self.assertFalse(electrogram["supportsSelectedNodeElectrogram"])
+        self.assertEqual(electrogram["status"], "computed-preview")
+        self.assertTrue(electrogram["supportsSelectedNodeElectrogram"])
         self.assertEqual(electrogram["inspectedMatrixCount"], 31)
         self.assertEqual(electrogram["sourceNodeCount"], 576)
         self.assertEqual(electrogram["sampleCount"], 1000)
@@ -187,9 +187,15 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertLess(transfer_candidate["stats"]["min"], 0)
         self.assertGreater(transfer_candidate["stats"]["max"], 0)
         self.assertEqual(transfer_candidate["stats"]["zeroFraction"], 0.0)
-        self.assertIn("no source-node-by-time electrogram payload", electrogram["reason"])
-        self.assertIn("confirmed source-to-source transfer role", electrogram["requiredEvidence"])
+        self.assertIn("computed preview", electrogram["reason"])
+        self.assertIn("confirmed VENTR.VENTRICLES transfer role", electrogram["requiredEvidence"])
         self.assertIn("legacy-validated selected-node EGM output", electrogram["requiredEvidence"])
+        tmp_fixture = json.loads(Path("app/viewer/public/fixtures/tmp-waveforms.json").read_text(encoding="utf-8"))
+        computed_egm = tmp_fixture["computedElectrogram"]
+        self.assertEqual(computed_egm["status"], "computed-preview")
+        self.assertEqual(computed_egm["transferMatrixIndex"], 27)
+        self.assertEqual(len(computed_egm["matrixValues"]), 576)
+        self.assertEqual(len(computed_egm["matrixValues"][0]), 576)
 
     def test_source_square_matrix_evidence_identifies_one_transfer_candidate_per_case(self) -> None:
         report = json.loads(Path("research/source-square-matrix-evidence.json").read_text(encoding="utf-8"))
@@ -272,10 +278,11 @@ class ParityRegressionTests(unittest.TestCase):
                 )
                 self.assertTrue(metadata["wallMapping"]["sourceMeshMatchesSourceNodeCount"])
                 self.assertEqual(metadata["wallMapping"]["nearestHeartDistance"]["exactMatchCount"], 0)
-                self.assertEqual(metadata["electrogram"]["status"], "unavailable")
+                self.assertEqual(metadata["electrogram"]["status"], "computed-preview")
                 self.assertEqual(metadata["electrogram"]["candidateMatrixCount"], 0)
                 self.assertEqual(metadata["electrogram"]["sourceNodeCount"], bundle["tmpWaveforms"]["nodeCount"])
                 self.assertEqual(len(metadata["electrogram"]["sourceToSourceTransferCandidates"]), 1)
+                self.assertEqual(bundle["tmpWaveforms"]["computedElectrogram"]["transferMatrixIndex"], 27)
                 self.assertEqual(validation["status"], "partial")
                 self.assertEqual(validation["unsupportedPayloadCount"], len(case.metadata.unsupported_payloads))
                 if case.signal_metadata.fiducials.status == "unavailable":

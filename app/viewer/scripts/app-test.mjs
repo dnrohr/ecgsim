@@ -96,13 +96,13 @@ async function assertPaneBadges(page) {
 
 async function assertElectrogramEvidenceBlocker(page) {
   const egmControl = page.locator("[data-tmp-show-egm]");
-  assert.equal(await egmControl.isDisabled(), true, "EGM display should stay disabled until selected-node electrogram evidence exists");
+  assert.equal(await egmControl.isEnabled(), true, "EGM display should be available as a computed preview");
   const title = await egmControl.locator("xpath=..").getAttribute("title");
-  assert.match(title ?? "", /no source-node-by-time electrogram payload/i, "EGM blocker should name the missing source-node time-series evidence");
-  assert.match(title ?? "", /source-to-source transfer candidate/i, "EGM blocker should name the candidate source transfer evidence");
-  assert.match(title ?? "", /legacy validation/i, "EGM blocker should name the missing legacy output validation");
-  assert.equal(await egmControl.getAttribute("data-evidence-status"), "unavailable", "EGM evidence status should come from case metadata");
+  assert.match(title ?? "", /computed preview/i, "EGM title should name the computed preview");
+  assert.match(title ?? "", /VENTR\.VENTRICLES role/i, "EGM title should name the missing legacy role validation");
+  assert.equal(await egmControl.getAttribute("data-evidence-status"), "computed-preview", "EGM evidence status should come from case metadata");
   assert.equal(await egmControl.getAttribute("data-candidate-matrix-count"), "0", "EGM evidence should report no candidate matrices");
+  assert.equal(await egmControl.getAttribute("data-transfer-matrix-index"), "27", "EGM preview should use transfer matrix index 27");
 }
 
 async function assertVisualModeNavigator(page) {
@@ -774,7 +774,14 @@ async function assertHeartSelectionAndTmpEditing(page) {
   assert.equal(await importEdits.isEnabled(), true, "Import edits should be available for the loaded case");
   assert.equal(await page.locator("[data-tmp-combine-handlers]").isDisabled(), true, "combined TMP handlers should be unavailable");
   assert.equal(await page.locator("[data-tmp-keep-apd]").isDisabled(), true, "constant APD mode should be unavailable");
-  assert.equal(await page.locator("[data-tmp-show-egm]").isDisabled(), true, "electrogram toggle should be unavailable");
+  assert.equal(await page.locator("[data-tmp-show-egm]").isEnabled(), true, "electrogram toggle should be available as computed preview");
+  const tmpBeforeEgm = await canvasSignature(page, "[data-tmp-canvas]");
+  await page.locator("[data-tmp-show-egm]").check();
+  await expectText(page, "[data-tmp-metadata]", "initial+adapted+egm");
+  await page.waitForTimeout(150);
+  const tmpWithEgm = await canvasSignature(page, "[data-tmp-canvas]");
+  assert.notEqual(tmpWithEgm, tmpBeforeEgm, "EGM preview should redraw TMP traces");
+  await page.locator("[data-tmp-show-egm]").uncheck();
   await expectText(page, "[data-tmp-parameter-status]", "Initial");
 
   const tmpControlsBefore = await canvasSignature(page, "[data-tmp-canvas]");

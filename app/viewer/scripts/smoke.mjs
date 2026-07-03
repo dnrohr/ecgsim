@@ -173,16 +173,19 @@ if (
   caseFixture.wallMapping?.sourceMeshMatchesSourceNodeCount !== true ||
   caseFixture.wallMapping?.nearestHeartDistance?.exactMatchCount !== 0 ||
   !caseFixture.wallMapping?.reason?.includes("source mesh is parsed") ||
-  caseFixture.electrogram?.status !== "unavailable" ||
-  caseFixture.electrogram?.supportsSelectedNodeElectrogram !== false ||
+  caseFixture.electrogram?.status !== "computed-preview" ||
+  caseFixture.electrogram?.supportsSelectedNodeElectrogram !== true ||
   caseFixture.electrogram?.candidateMatrixCount !== 0 ||
   caseFixture.electrogram?.sourceNodeCount !== 576 ||
   caseFixture.electrogram?.sampleCount !== 1000 ||
   caseFixture.electrogram?.rejectedShapeEvidence?.sourceSquareMatrixCount !== 7 ||
-  !caseFixture.electrogram?.reason?.includes("no source-node-by-time electrogram payload") ||
-  !caseFixture.electrogram?.reason?.includes("source-to-source transfer candidate") ||
+  !caseFixture.electrogram?.reason?.includes("computed preview") ||
+  !caseFixture.electrogram?.reason?.includes("VENTR.VENTRICLES role") ||
   caseFixture.electrogram?.sourceToSourceTransferCandidates?.[0]?.index !== 27 ||
   caseFixture.electrogram?.sourceToSourceTransferCandidates?.[0]?.classification !== "dense signed source-to-source transfer candidate" ||
+  tmpFixture.computedElectrogram?.status !== "computed-preview" ||
+  tmpFixture.computedElectrogram?.transferMatrixIndex !== 27 ||
+  tmpFixture.computedElectrogram?.matrixValues?.length !== 576 ||
   caseFixture.activationConstructions?.[1]?.entryCount !== 576 ||
   caseFixture.activationConstructions?.[1]?.sampleEntries?.[0]?.integerField !== -1 ||
   caseFixture.leadSystemDetails[0].electrodes.length !== 9 ||
@@ -190,7 +193,7 @@ if (
   caseFixture.validation?.status !== "partial" ||
   caseFixture.validation?.unsupportedPayloadCount !== 7 ||
   !caseFixture.validation?.unavailableCapabilities?.includes("case-payload measured ECG classification and lead reference-weight equations") ||
-  !caseFixture.validation?.unavailableCapabilities?.includes("selected-node electrogram visualization") ||
+  !caseFixture.validation?.unavailableCapabilities?.includes("legacy-validated selected-node electrogram role and scale") ||
   !caseFixture.validation?.unavailableCapabilities?.includes("legacy focus raw-field mutation and opposite-wall mapping")
 ) {
   console.error("Unexpected case metadata fixture");

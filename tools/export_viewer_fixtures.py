@@ -296,19 +296,22 @@ def electrogram_payload(case, case_path: Path) -> dict[str, object]:
         and matrix.rows == case.signal_metadata.rows
         and matrix.columns == source_node_count
     )
+    supports_preview = len(source_square_evidence) == 1
     reason = (
+        "Selected-node electrogram is available as a computed preview from the dense signed "
+        "source-to-source transfer candidate and generated TMP waveforms. The exact legacy "
+        "VENTR.VENTRICLES role and output scale still need validation."
+        if supports_preview else
         "Selected-node electrogram remains unavailable: manual text names the EGM display, "
-        "but case matrices contain no source-node-by-time electrogram payload. A dense signed "
-        "source-to-source transfer candidate exists, but its VENTR.VENTRICLES role and EGM output "
-        "still need legacy validation before enabling the display."
+        "but case matrices contain no source-node-by-time electrogram payload and no unique "
+        "source-to-source transfer candidate is available."
     )
     return {
-        "status": "unavailable",
-        "supportsSelectedNodeElectrogram": False,
+        "status": "computed-preview" if supports_preview else "unavailable",
+        "supportsSelectedNodeElectrogram": supports_preview,
         "reason": reason,
         "requiredEvidence": (
-            "source-node-by-time electrogram payload",
-            "confirmed source-to-source transfer role",
+            "confirmed VENTR.VENTRICLES transfer role",
             "legacy-validated selected-node EGM output",
         ),
         "inspectedMatrixCount": len(inventory),
@@ -332,6 +335,37 @@ def electrogram_payload(case, case_path: Path) -> dict[str, object]:
             "thoraxBySourceTransferCount": len(transfer_matrices),
         },
         "sourceToSourceTransferCandidates": tuple(source_square_evidence),
+    }
+
+
+def electrogram_transfer_payload(case_path: Path, source_node_count: int) -> dict[str, object] | None:
+    candidates = []
+    for entry in read_ecgsimcase_matrix_inventory(case_path):
+        if entry.status != "parsed" or entry.rows != source_node_count or entry.columns != source_node_count:
+            continue
+        matrix = read_ecgsimcase_matrix(case_path, entry.offset)
+        stats = matrix_stats(matrix)
+        classification = classify_source_square(stats)
+        if classification == "dense signed source-to-source transfer candidate":
+            candidates.append((entry, matrix, stats, classification))
+    if len(candidates) != 1:
+        return None
+
+    entry, matrix, stats, classification = candidates[0]
+    return {
+        "status": "computed-preview",
+        "kind": "source-to-source-transfer-x-generated-tmp",
+        "transferMatrixIndex": entry.index,
+        "transferMatrixOffset": entry.offset,
+        "rows": matrix.rows,
+        "columns": matrix.columns,
+        "classification": classification,
+        "stats": stats,
+        "interpretation": (
+            "Computed EGM preview using the dense signed source-to-source transfer candidate "
+            "and generated TMP values; output is not yet legacy scale validated."
+        ),
+        "matrixValues": matrix.values,
     }
 
 
@@ -501,8 +535,9 @@ def tmp_waveform_payload(case, case_path: Path) -> dict[str, object]:
     else:
         selected_nodes = tuple(round(index * (node_count - 1) / 4) for index in range(5))
     sample_count = 576
+    electrogram_transfer = electrogram_transfer_payload(case_path, node_count)
 
-    return {
+    payload = {
         "source": case_path_text(case_path),
         "signalKind": "parameter-derived TMP preview",
         "sampleRateHz": 1000,
@@ -538,6 +573,9 @@ def tmp_waveform_payload(case, case_path: Path) -> dict[str, object]:
             for node in selected_nodes
         ],
     }
+    if electrogram_transfer:
+        payload["computedElectrogram"] = electrogram_transfer
+    return payload
 
 
 def activation_sample_entries(activation) -> list[dict[str, object]]:
@@ -656,7 +694,7 @@ def case_validation_payload(case) -> dict[str, object]:
             break
 
     unavailable.append("endocardial/epicardial and transmural wall mapping")
-    unavailable.append("selected-node electrogram visualization")
+    unavailable.append("legacy-validated selected-node electrogram role and scale")
     unavailable.append("case-payload measured ECG classification and lead reference-weight equations")
 
     status = "partial" if unavailable else "supported"

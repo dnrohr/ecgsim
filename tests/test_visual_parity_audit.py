@@ -19,7 +19,6 @@ class VisualParityAuditTests(unittest.TestCase):
         self.assertEqual(
             blockers,
             {
-                ("TMP", "Electrogram"),
                 ("Leads", "Measured/initial/adapted overlays"),
             },
         )
