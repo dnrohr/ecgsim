@@ -196,3 +196,4 @@ Each task should end with:
 - [x] [0109 Expose Lead Reference Definitions](0109-expose-lead-reference-definitions.md)
 - [x] [0110 Render Lead Definition Traces](0110-render-lead-definition-traces.md)
 - [x] [0111 Document Source Mesh Alignment Evidence](0111-document-source-mesh-alignment-evidence.md)
+- [x] [0112 Add Initial Lead Recompute Overlay](0112-add-initial-lead-recompute-overlay.md)

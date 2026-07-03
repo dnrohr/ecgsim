@@ -15,6 +15,12 @@ export function filterTraces(traces, mode, baselineStartIndex = null, baselineEn
   return traces.map((trace) => ({
     ...trace,
     values: filterSignal(trace.values, mode, baselineStartIndex, baselineEndIndex),
+    series: Array.isArray(trace.series)
+      ? trace.series.map((series) => ({
+        ...series,
+        values: filterSignal(series.values, mode, baselineStartIndex, baselineEndIndex),
+      }))
+      : trace.series,
   }));
 }
 

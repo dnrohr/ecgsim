@@ -1779,6 +1779,7 @@ function plotSignals(
     interval = null,
     zoom = null,
     tmpState = null,
+    showInitial = false,
     showAdapted = false,
   } = {},
 ) {
@@ -1797,6 +1798,7 @@ function plotSignals(
   const plotHeight = height - top - bottom;
   const signalSet = leadSystemTraces(fixture, leadSystem, {
     tmpState,
+    showInitial,
     showAdapted,
     importedSignals,
     source,
@@ -1883,9 +1885,10 @@ function plotSignals(
 
   for (let traceIndex = 0; traceIndex < traceCount; traceIndex += 1) {
     const trace = traces[traceIndex];
-    const values = trace.values;
-    const min = Math.min(...values);
-    const max = Math.max(...values);
+    const seriesList = traceSeries(trace, colors[traceIndex % colors.length]);
+    const allValues = seriesList.flatMap((series) => series.values);
+    const min = Math.min(...allValues);
+    const max = Math.max(...allValues);
     const span = max - min || 1;
     const centerY = top + traceHeight * (traceIndex + 0.5);
     const amplitude = traceHeight * 0.38 * scale;
@@ -1901,21 +1904,23 @@ function plotSignals(
     context.fillStyle = "#52616b";
     context.fillText(trace.name, 8, centerY);
 
-    context.strokeStyle = trace.name === "RMS" ? "#111111" : colors[traceIndex % colors.length];
-    context.lineWidth = 1.8;
-    context.beginPath();
-    for (let sampleIndex = sampleWindow.start; sampleIndex <= sampleWindow.end; sampleIndex += 1) {
-      const value = values[sampleIndex];
-      const x = xForSample(sampleIndex, values.length, left, width - right, zoom);
-      const normalized = (value - min) / span - 0.5;
-      const y = centerY - normalized * amplitude * 2;
-      if (sampleIndex === sampleWindow.start) {
-        context.moveTo(x, y);
-      } else {
-        context.lineTo(x, y);
+    seriesList.forEach((series, seriesIndex) => {
+      context.strokeStyle = trace.name === "RMS" ? "#111111" : series.color;
+      context.lineWidth = seriesIndex === 0 ? 1.9 : 1.5;
+      context.beginPath();
+      for (let sampleIndex = sampleWindow.start; sampleIndex <= sampleWindow.end; sampleIndex += 1) {
+        const value = series.values[sampleIndex];
+        const x = xForSample(sampleIndex, series.values.length, left, width - right, zoom);
+        const normalized = (value - min) / span - 0.5;
+        const y = centerY - normalized * amplitude * 2;
+        if (sampleIndex === sampleWindow.start) {
+          context.moveTo(x, y);
+        } else {
+          context.lineTo(x, y);
+        }
       }
-    }
-    context.stroke();
+      context.stroke();
+    });
   }
 
   context.strokeStyle = "#78909c";
@@ -1944,7 +1949,7 @@ function plotSignals(
     `${systemText} / plotted ${traces.length} / ${signalSet.sampleCount} samples / ${signalSet.sampleRateHz} Hz / ${mode.toUpperCase()} / ${Math.round(scale * 100)}%${zoom?.enabled ? ` / zoom ${sampleWindow.start}-${sampleWindow.end}` : ""}`;
   if (leadsStatus) {
     const classification = signalSet.isRecomputed
-      ? "adapted ECG recomputed from TMP transfer and parsed lead definitions; lead reference-weight parity unresolved"
+      ? `${signalSet.recomputeKinds.join("+")} ECG recomputed from TMP transfer and parsed lead definitions; measured classification and final reference-weight parity unresolved`
       : signalSet.source === "imported"
       ? "external imported signal; separate from case and recomputed outputs"
       : "parsed lead definitions from measured thorax potentials; measured/initial classification unavailable";
@@ -1957,11 +1962,22 @@ function plotSignals(
     ? "Imported"
     : "Case signals";
   const provenanceDetail = signalSet.isRecomputed
-    ? "Adapted ECG traces recomputed from TMP source parameters and the transfer matrix candidate."
+    ? `${signalSet.recomputeKinds.join("+")} ECG traces recomputed from TMP source parameters and the transfer matrix candidate.`
     : signalSet.source === "imported"
     ? "External imported ECG signal, separate from case and recomputed outputs."
     : "Lead traces are composed from parsed lead definitions and case surface potentials.";
   setPaneBadges(leadsModeBadge, leadsProvenanceBadge, modeText, provenanceText, provenanceDetail);
+}
+
+function traceSeries(trace, fallbackColor) {
+  if (Array.isArray(trace.series) && trace.series.length) {
+    return trace.series.map((series, index) => ({
+      label: series.label ?? trace.name,
+      values: series.values,
+      color: series.color ?? (index === 0 ? fallbackColor : "#6f8790"),
+    }));
+  }
+  return [{ label: trace.name, values: trace.values, color: fallbackColor }];
 }
 
 function isFrankVcgLeadSystem(leadSystem) {
@@ -2058,6 +2074,7 @@ function leadSystemTraces(
   leadSystem,
   {
     tmpState = null,
+    showInitial = false,
     showAdapted = false,
     importedSignals = null,
     source = "case",
@@ -2076,14 +2093,30 @@ function leadSystemTraces(
     };
   }
 
-  if (showAdapted && canRecomputeLeadTraces(fixture, tmpState) && leadSystem?.electrodes?.length) {
+  const recomputeKinds = [
+    showInitial ? "initial" : null,
+    showAdapted ? "adapted" : null,
+  ].filter(Boolean);
+  if (recomputeKinds.length && canRecomputeLeadTraces(fixture, tmpState) && leadSystem?.electrodes?.length) {
+    const recomputed = Object.fromEntries(
+      recomputeKinds.map((kind) => [kind, recomputeLeadTraces(fixture, tmpState, leadSystem, kind)]),
+    );
+    const primaryKind = recomputeKinds.includes("adapted") ? "adapted" : recomputeKinds[0];
     return {
       source: "case",
-      signalKind: `${leadSystem.name} adapted ECG recompute`,
+      signalKind: `${leadSystem.name} ${recomputeKinds.join("+")} ECG recompute`,
       sampleCount: tmpState.sampleCount,
       sampleRateHz: tmpState.sampleRateHz,
       isRecomputed: true,
-      traces: recomputeLeadTraces(fixture, tmpState, leadSystem, "adapted"),
+      recomputeKinds,
+      traces: recomputed[primaryKind].map((trace, index) => ({
+        ...trace,
+        series: recomputeKinds.map((kind) => ({
+          label: kind,
+          color: kind === "adapted" ? "#b3261e" : "#6f8790",
+          values: recomputed[kind][index]?.values ?? trace.values,
+        })),
+      })),
     };
   }
 
@@ -3017,23 +3050,25 @@ function syncLeadSystemOptions() {
 }
 
 function syncLeadOverlayControls(signalFixture, tmpState) {
-  [leadsMeasured, leadsInitial].forEach((control) => {
+  if (leadsMeasured) {
+    leadsMeasured.checked = false;
+    leadsMeasured.disabled = true;
+    leadsMeasured.title = "Measured lead classification is not available in current fixtures.";
+  }
+  const canRecompute = canRecomputeLeadTraces(signalFixture, tmpState);
+  [
+    [leadsInitial, "initial"],
+    [leadsAdapted, "adapted"],
+  ].forEach(([control, kind]) => {
     if (!control) {
       return;
     }
     control.checked = false;
-    control.disabled = true;
-    control.title = "Measured and initial signal classification is not available in current fixtures.";
+    control.disabled = !canRecompute;
+    control.title = canRecompute
+      ? `Recompute ${kind} lead-definition traces from TMP parameters and the ventricles-to-thorax transfer candidate.`
+      : `${kind} ECG recomputation requires a transfer matrix matching TMP source nodes.`;
   });
-  if (!leadsAdapted) {
-    return;
-  }
-  const canRecompute = canRecomputeLeadTraces(signalFixture, tmpState);
-  leadsAdapted.checked = false;
-  leadsAdapted.disabled = !canRecompute;
-  leadsAdapted.title = canRecompute
-    ? "Recompute adapted lead-definition traces from edited TMP parameters and the ventricles-to-thorax transfer candidate."
-    : "Adapted ECG recomputation requires a transfer matrix matching TMP source nodes.";
 }
 
 function validateCaseBundle(bundle) {
@@ -3210,6 +3245,7 @@ function applyCaseBundle(bundle, noticeText) {
     interval: intervalState,
     zoom: zoomState,
     tmpState: tmpEditing.getState(),
+    showInitial: leadsInitial?.checked ?? false,
     showAdapted: leadsAdapted?.checked ?? false,
   });
   if (leadsScale) {
@@ -3292,9 +3328,11 @@ function applyCaseBundle(bundle, noticeText) {
   if (leadsVcgLoop) {
     leadsVcgLoop.onchange = redrawSignals;
   }
-  if (leadsAdapted) {
-    leadsAdapted.onchange = redrawSignals;
-  }
+  [leadsInitial, leadsAdapted].forEach((control) => {
+    if (control) {
+      control.onchange = redrawSignals;
+    }
+  });
   redrawTimeDependents = () => {
     redrawSignals();
     heartView.redrawHeartSurface();

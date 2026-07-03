@@ -36,7 +36,7 @@ This document maps visualization modes to current automated evidence. It tracks 
 | Leads | Interval highlight and beat zoom | App workflow sets interval controls, zooms from interval/fiducials, resets all beats, and verifies Leads/TMP canvas deltas | strong smoke | Multi-beat atrial/ventricular selection unresolved |
 | Leads | Lead-system switching and VCG loop | App workflow selects VCG, checks metadata/canvas delta, enables VCG loop, and verifies mode/status/canvas redraw | strong smoke | Exact Frank transform unresolved |
 | Leads | Coupling/filtering | App workflow switches baseline/AC/DC and checks status/canvas delta | strong behavior | Arbitrary case fiducials unresolved |
-| Leads | Adapted recompute preview | App workflow toggles adapted and checks TMP-edit-driven redraw | medium | Lead transform/WCT parity unresolved |
+| Leads | Initial/adapted recompute overlays | App workflow toggles initial, adapted, and initial+adapted overlays; smoke tests cover overlay filtering and initial/adapted recompute dimensions | medium | Measured classification and final lead transform/WCT parity unresolved |
 | Leads | External ECG import | App workflow imports JSON and checks imported source/status/canvas | strong smoke | Legacy ECG file import format still separate |
 | Visual output | PNG exports | App workflow downloads all pane PNGs and checks signatures/dimensions | strong artifact | Clipboard remains browser-permission dependent |
 | Visual output | WebM movie export | App workflow downloads Leads WebM and checks EBML signature/size | medium artifact | Other panes use same code path but are not individually downloaded |

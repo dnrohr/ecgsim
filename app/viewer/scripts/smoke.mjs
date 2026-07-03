@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { contourLevels, contourNodeIndexes, divergingRgb, sequentialRgb } from "../src/color-maps.js";
-import { baselineWindowForSignal, buildRmsTrace, filterSignal } from "../src/filtering.js";
+import { baselineWindowForSignal, buildRmsTrace, filterSignal, filterTraces } from "../src/filtering.js";
 import {
   applyFocusSelection,
   createFocusEditState,
@@ -321,6 +321,17 @@ if (baselineFiltered.some((value) => value !== 0)) {
   console.error("Baseline filtering failed");
   process.exit(1);
 }
+const filteredOverlay = filterTraces([
+  {
+    name: "overlay",
+    values: [1, 2, 3],
+    series: [{ label: "initial", values: [2, 4, 6] }],
+  },
+], "ac");
+if (filteredOverlay[0].values[0] !== -1 || filteredOverlay[0].series[0].values[0] !== -2) {
+  console.error("Overlay trace filtering failed");
+  process.exit(1);
+}
 if (baselineWindowForSignal(3).source !== "signal-ends" || baselineWindowForSignal(3, 0, 2).source !== "fiducials") {
   console.error("Baseline window source tracking failed");
   process.exit(1);
@@ -372,7 +383,8 @@ if (!canRecomputeLeadTraces(ecgFixture, editState)) {
   console.error("Lead ECG recompute prerequisites were not detected");
   process.exit(1);
 }
-const recomputedLeadTraces = recomputeLeadTraces(ecgFixture, editState, caseFixture.leadSystemDetails[0]);
+const recomputedInitialLeadTraces = recomputeLeadTraces(ecgFixture, editState, caseFixture.leadSystemDetails[0], "initial");
+const recomputedLeadTraces = recomputeLeadTraces(ecgFixture, editState, caseFixture.leadSystemDetails[0], "adapted");
 const standardElectrodeTraces = caseFixture.leadSystemDetails[0].electrodes.map((electrode, index) => ({
   name: electrode.label ?? `E${index + 1}`,
   sourceRow: electrode.thoraxNodeIndex,
@@ -384,8 +396,11 @@ const standardLeadTraces = leadDefinitionTracesFromElectrodes(
 );
 if (
   recomputedLeadTraces.length !== caseFixture.leadSystemDetails[0].leadDefinitions.length ||
+  recomputedInitialLeadTraces.length !== caseFixture.leadSystemDetails[0].leadDefinitions.length ||
   recomputedLeadTraces[0].values.length !== editState.sampleCount ||
+  recomputedInitialLeadTraces[0].values.length !== editState.sampleCount ||
   !Number.isFinite(recomputedLeadTraces[0].values[0]) ||
+  !Number.isFinite(recomputedInitialLeadTraces[0].values[0]) ||
   standardLeadTraces.length !== caseFixture.leadSystemDetails[0].leadDefinitions.length ||
   standardLeadTraces[0].name !== "I" ||
   standardLeadTraces[3].name !== "V1" ||

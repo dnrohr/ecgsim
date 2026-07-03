@@ -507,15 +507,23 @@ async function assertLeadsFiltering(page) {
   await expectText(page, "[data-leads-mode-badge]", "BASELINE");
   await expectText(page, "[data-leads-provenance-badge]", "Case signals");
   assert.equal(await page.locator("[data-leads-measured]").isDisabled(), true, "measured overlay should be unavailable");
-  assert.equal(await page.locator("[data-leads-initial]").isDisabled(), true, "initial overlay should be unavailable");
+  assert.equal(await page.locator("[data-leads-initial]").isDisabled(), false, "initial overlay should be recomputable");
   assert.equal(await page.locator("[data-leads-adapted]").isDisabled(), false, "adapted overlay should be recomputable");
 
   const baselineSignature = await canvasSignature(page, canvas);
+  await page.locator("[data-leads-initial]").check();
+  await expectText(page, "[data-leads-status]", "initial ECG recomputed from TMP transfer");
+  await expectText(page, "[data-leads-provenance-badge]", "Recomputed");
+  const initialSignature = await canvasSignature(page, canvas);
+  assert.notEqual(initialSignature, baselineSignature, "Initial lead ECG recompute should redraw traces");
+
   await page.locator("[data-leads-adapted]").check();
-  await expectText(page, "[data-leads-status]", "adapted ECG recomputed from TMP transfer");
+  await expectText(page, "[data-leads-status]", "initial+adapted ECG recomputed from TMP transfer");
   await expectText(page, "[data-leads-provenance-badge]", "Recomputed");
   const adaptedSignature = await canvasSignature(page, canvas);
-  assert.notEqual(adaptedSignature, baselineSignature, "Adapted lead ECG recompute should redraw traces");
+  assert.notEqual(adaptedSignature, initialSignature, "Initial+adapted lead ECG overlay should redraw traces");
+  await page.locator("[data-leads-initial]").uncheck();
+  await expectText(page, "[data-leads-status]", "adapted ECG recomputed from TMP transfer");
   await page.locator("[data-leads-adapted]").uncheck();
 
   await page.locator("[data-leads-system]").selectOption("VCG_(Frank)");

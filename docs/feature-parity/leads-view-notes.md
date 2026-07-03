@@ -21,13 +21,14 @@ Status: task `0039` parity notes for the modern Leads pane.
 - `read_ecgsimcase_lead_systems()` now uses embedded lead-object labels instead of fallback names.
 - Viewer fixture metadata now includes parsed lead definitions, reference definitions, and show-lead display definitions.
 - The Leads pane now renders parsed lead-definition traces instead of raw electrode rows when direct electrode indices are available.
+- Initial and adapted recompute traces can be overlaid in the same lead lanes when the TMP vectors and ventricles-to-thorax transfer candidate are available.
 
 ## Current Limitations
 
 - Exact standard 12-lead, Frank VCG, BSPM, and minimap lead transforms remain unsupported until lead polarity/reference-weight equations are interpreted from raw fields.
 - Current lead-system plots use parsed electrode/reference indices, but final clinical transform parity still needs reference-weight and polarity validation.
 - Current VCG loop is a projection preview from parsed Frank traces, not a verified legacy Frank transform.
-- Measured and initial overlays require parsed signal classification; selected-heart-node electrogram remains blocked until an electrogram payload or derivation equation is identified.
+- Measured overlays require parsed signal classification; selected-heart-node electrogram remains blocked until an electrogram payload or derivation equation is identified.
 - Clipboard export remains future parity work.
 - Multi-beat atrial/ventricular beat inventory is not yet parsed; current zoom uses interval or fiducial sample windows.
 - `normal_male2` uses derived baseline samples `(5, 499)` from promoted legacy export evidence. Bundled cases without matching evidence use signal-end fallback until P-wave and T-wave fiducial samples are parsed or derived.
@@ -64,3 +65,5 @@ Task `0109` promotes the stable trailing-field layer into structured parser outp
 The remaining blocker is no longer raw index/layout access; it is the final weighting/polarity equation needed to claim clinical lead-transform parity.
 
 Task `0110` uses the parsed definitions in the browser Leads pane. `standard_12` now plots 12 lead-labeled traces, BSPM systems plot their parsed lead labels, and Frank VCG keeps only directly backed traces where definitions expose electrode indices.
+
+Task `0112` enables data-backed initial and adapted recompute overlays in the same lead lanes. These overlays are generated from stored TMP parameter vectors, the thorax transfer candidate, and parsed lead definitions. This resolves the viewer's initial/adapted visibility gap, but the measured overlay and final reference-weight/polarity parity are still blocked on decoded case semantics.
