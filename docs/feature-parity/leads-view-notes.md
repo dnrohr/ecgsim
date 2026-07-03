@@ -22,7 +22,7 @@ Status: task `0039` parity notes for the modern Leads pane.
 - Exact standard 12-lead, Frank VCG, BSPM, and minimap lead transforms remain unsupported until lead polarity/reference semantics are parsed.
 - Current lead-system plots are electrode surface-potential traces, not transformed clinical lead signals.
 - Current VCG loop is a projection preview from parsed Frank traces, not a verified legacy Frank transform.
-- Measured, initial, adapted, and selected-heart-node electrogram overlays require parsed signal classification and matrix mapping.
+- Measured and initial overlays require parsed signal classification; selected-heart-node electrogram remains blocked until an electrogram payload or derivation equation is identified.
 - Clipboard export remains future parity work.
 - Multi-beat atrial/ventricular beat inventory is not yet parsed; current zoom uses interval or fiducial sample windows.
 - `normal_male2` uses derived baseline samples `(5, 499)` from promoted legacy export evidence. Bundled cases without matching evidence use signal-end fallback until P-wave and T-wave fiducial samples are parsed or derived.

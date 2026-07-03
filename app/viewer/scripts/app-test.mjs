@@ -76,6 +76,7 @@ async function assertInitialState(page) {
   assert.ok(await canvasHasContent(page, ".thorax-viewport canvas"), "thorax WebGL canvas should be nonblank");
   await assertCoreVisualsVisible(page);
   await assertPaneBadges(page);
+  await assertElectrogramEvidenceBlocker(page);
   await assertVisualModeNavigator(page);
   await assertVisualPngExports(page);
   await assertMovieExport(page);
@@ -91,6 +92,13 @@ async function assertPaneBadges(page) {
   await expectText(page, "[data-tmp-provenance-badge]", "Source params");
   await expectText(page, "[data-leads-mode-badge]", "BASELINE");
   await expectText(page, "[data-leads-provenance-badge]", "Case signals");
+}
+
+async function assertElectrogramEvidenceBlocker(page) {
+  const egmControl = page.locator("[data-tmp-show-egm]");
+  assert.equal(await egmControl.isDisabled(), true, "EGM display should stay disabled until selected-node electrogram evidence exists");
+  const title = await egmControl.locator("xpath=..").getAttribute("title");
+  assert.match(title ?? "", /electrogram payload or derivation equation/i, "EGM blocker should name the missing evidence");
 }
 
 async function assertVisualModeNavigator(page) {

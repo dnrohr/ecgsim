@@ -21,5 +21,6 @@ Status: task `0049` TMP generation parity notes for the modern TMP pane.
 - TMP generation is parity-tested against the captured normal male ECGSIM 3.0.1 `.user.source` export. Additional cases and edited-source exports are still needed before claiming broad TMP parity.
 - Exact triangular drag handlers are represented by numeric/step controls plus visual selected-node handler markers for now.
 - Combined resting/amplitude handlers, keep-constant-APD mode, and electrogram display are visible but disabled until edit semantics and data are available.
+- Selected-node electrogram display is blocked until an electrogram payload or derivation equation is identified; the disabled EGM control names that blocker.
 - Time bar, interval highlight, beat zoom, and linked playback are supported; clipboard copy remains deferred to shared view/export tasks.
 - Reset beat currently applies to the active fixture edit state, not yet to a parsed multi-source or multi-beat case scope.

@@ -32,6 +32,7 @@ This document maps visualization modes to current automated evidence. It tracks 
 | TMP | Handler overlay | App workflow toggles selected-node handlers and verifies TMP canvas delta | medium | Exact legacy triangular drag handles unverified |
 | TMP | Editing/reset/undo/redo | App workflow edits a selected node and checks redraw/status | strong behavior | Exact legacy drag handlers remain numeric-edit equivalent |
 | TMP | Time cursor, interval, and beat zoom | App workflow checks yellow cursor movement, shared interval highlight, zoomed metadata, and TMP canvas deltas | strong smoke | Multi-beat atrial/ventricular selection unresolved |
+| TMP | Electrogram blocker | App workflow verifies EGM control is disabled and names missing electrogram evidence | blocker evidence | Needs selected-node electrogram payload or derivation equation |
 | Leads | Interval highlight and beat zoom | App workflow sets interval controls, zooms from interval/fiducials, resets all beats, and verifies Leads/TMP canvas deltas | strong smoke | Multi-beat atrial/ventricular selection unresolved |
 | Leads | Lead-system switching and VCG loop | App workflow selects VCG, checks metadata/canvas delta, enables VCG loop, and verifies mode/status/canvas redraw | strong smoke | Exact Frank transform unresolved |
 | Leads | Coupling/filtering | App workflow switches baseline/AC/DC and checks status/canvas delta | strong behavior | Arbitrary case fiducials unresolved |
