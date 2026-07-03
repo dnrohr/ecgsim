@@ -9,24 +9,24 @@ This document maps visualization modes to current automated evidence. It tracks 
 | Area | Visual mode or workflow | Current evidence | Coverage strength | Gap |
 | --- | --- | --- | --- | --- |
 | Workspace | Four-pane launch layout | `app/viewer/scripts/app-test.mjs` checks shell layout and task `0085` adds first-viewport canvas visibility assertions | strong for default layout | Does not yet test resizable panes |
-| Workspace | Pane mode/provenance labels | App workflow checks launch badges and representative Heart/Thorax/TMP/Leads mode transitions | medium | Needs per-mode coverage expansion in `0101` |
+| Workspace | Pane mode/provenance labels | App workflow checks launch badges and representative Heart/Thorax/TMP/Leads mode transitions; visual-mode smoke iterates Heart/Thorax labels | strong for Heart/Thorax | Leads/TMP per-mode matrix remains in app workflow |
 | Workspace | Visual mode navigator | App workflow selects representative Heart, Thorax, TMP, and Leads destinations through toolbar navigator | medium | Does not yet enumerate every visual matrix row |
-| Heart | Geometry render | App workflow checks nonblank WebGL canvas and metadata | strong smoke | No pane-level legacy screenshot comparison |
-| Heart | Depolarization/repolarization | App workflow switches modes, verifies labels/provenance, and checks initial/adapted canvas redraw | strong smoke | No exact legacy colormap or scale parity |
-| Heart | ARI | App workflow switches mode, verifies derived provenance, and checks initial/adapted canvas redraw | strong smoke | No legacy ARI reference scale |
-| Heart | Amplitude/resting potential | App workflow switches modes, verifies labels/provenance, and checks initial/adapted canvas redraw | strong smoke | No exact legacy colormap or scale parity |
-| Heart | TMP at time | App workflow links time cursor and checks canvas changes | strong smoke | No numeric sampled-color validation |
-| Heart | Thorax contribution | App workflow targets a parsed thorax electrode and checks Heart contribution status/canvas change | strong smoke | Confirmed legacy lead-transfer roles still need reference capture |
+| Heart | Geometry render | App workflow and visual-mode smoke check nonblank WebGL canvas and metadata/status | strong smoke | No pane-level legacy screenshot comparison |
+| Heart | Depolarization/repolarization | App workflow checks initial/adapted redraw; visual-mode smoke iterates status/mode labels and nonblank canvas | strong smoke | No exact legacy colormap or scale parity |
+| Heart | ARI | App workflow checks initial/adapted redraw; visual-mode smoke checks status/mode labels and nonblank canvas | strong smoke | No legacy ARI reference scale |
+| Heart | Amplitude/resting potential | App workflow checks initial/adapted redraw; visual-mode smoke iterates status/mode labels and nonblank canvas | strong smoke | No exact legacy colormap or scale parity |
+| Heart | TMP at time | App workflow links time cursor and checks canvas changes; visual-mode smoke checks status/mode labels and nonblank canvas | strong smoke | No numeric sampled-color validation |
+| Heart | Thorax contribution | App workflow targets a parsed thorax electrode and checks canvas change; visual-mode smoke checks status/provenance and nonblank canvas | strong smoke | Confirmed legacy lead-transfer roles still need reference capture |
 | Heart | Selection radius/transition | App workflow selects nodes, checks selection text/weighted region, and verifies node/ring overlay canvas deltas | strong smoke | Exact legacy glyph and ring projection style unverified |
 | Heart | Cross-section plane | App workflow enables Heart cut mode, moves the plane, and checks canvas deltas/status | medium | Exact legacy Shift+wheel/arrow behavior and plane orientation unverified |
 | Heart | Electrode overlay | App workflow toggles Heart electrodes and verifies parsed lead-system count plus canvas delta | strong smoke | Exact legacy grey patch shape unverified |
 | Heart | Heart vector | App workflow toggles computed TMP vector path and checks time-linked canvas redraw/status | medium | Exact legacy heart-vector equation unverified |
-| Thorax | Geometry/heart/lung layers | App workflow checks nonblank canvas plus Heart context and lung-toggle canvas deltas | strong smoke | Exact legacy transparency style unverified |
+| Thorax | Geometry/heart/lung layers | App workflow checks overlays/layers; visual-mode smoke checks geometry status/mode label and nonblank canvas | strong smoke | Exact legacy transparency style unverified |
 | Thorax | Electrodes | App workflow toggles parsed electrodes and checks canvas delta | strong smoke | Exact electrode glyph geometry unverified |
-| Thorax | Measured BSPM | App workflow switches measured map, time cursor, contours, and scale | strong smoke | No legacy map color/line parity |
+| Thorax | Measured BSPM | App workflow switches measured map/time/contours/scale; visual-mode smoke checks status/mode label and nonblank canvas | strong smoke | No legacy map color/line parity |
 | Thorax | Line-only isofunction mode | App workflow enables line-only mode on measured BSPM and checks status/canvas delta | medium | Exact interpolated legacy isolines unverified |
-| Thorax | Initial/adapted BSPM | App workflow switches recomputed maps and verifies edit-driven redraw | strong smoke | WCT/reference parity unresolved |
-| Thorax | Sensitivity | App workflow checks sensitivity map, scale changes, and parsed electrode target selection | strong smoke | Confirmed legacy lead-transfer roles still need reference capture |
+| Thorax | Initial/adapted BSPM | App workflow switches recomputed maps and verifies edit-driven redraw; visual-mode smoke checks each mode label/status and nonblank canvas | strong smoke | WCT/reference parity unresolved |
+| Thorax | Sensitivity | App workflow checks sensitivity map, scale changes, and parsed electrode target selection; visual-mode smoke checks status/mode label and nonblank canvas | strong smoke | Confirmed legacy lead-transfer roles still need reference capture |
 | Thorax | Lock to Heart orientation | App workflow enables lock, checks followed Heart rotation, linked AP reset, and unlock | medium | Exact manual drag-rotation parity unverified |
 | TMP | Initial/adapted traces | App workflow toggles initial/grid and verifies canvas deltas | strong smoke | Multi-beat source inventory unresolved |
 | TMP | Handler overlay | App workflow toggles selected-node handlers and verifies TMP canvas delta | medium | Exact legacy triangular drag handles unverified |
@@ -45,8 +45,6 @@ This document maps visualization modes to current automated evidence. It tracks 
 
 ## Priority Coverage Gaps
 
-1. Add per-mode canvas smoke tests that iterate all Heart and Thorax surface modes without relying on one long workflow.
-2. Add visible node overlays and selection rings so Heart selection is inspectable, not only text/status-driven.
-3. Add interval/beat zoom coverage for Leads/TMP linked views.
-4. Promote exact Frank VCG transform/reference evidence when lead semantics are parsed.
-5. Capture curated pane-level legacy references for specific modes once the modern equivalents are stable.
+1. Promote exact Frank VCG transform/reference evidence when lead semantics are parsed.
+2. Capture curated pane-level legacy references for specific modes once the modern equivalents are stable.
+3. Add per-mode Leads/TMP matrix enumeration if those modes continue to grow beyond the main app workflow.

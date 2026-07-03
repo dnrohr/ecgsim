@@ -182,6 +182,6 @@ Each task should end with:
 
 ## VF5: Validation And Reference Capture
 
-- [ ] [0101 Add Per Mode Canvas Smoke Tests](0101-add-per-mode-canvas-smoke-tests.md)
+- [x] [0101 Add Per Mode Canvas Smoke Tests](0101-add-per-mode-canvas-smoke-tests.md)
 - [ ] [0102 Capture Curated Legacy Pane References](0102-capture-curated-legacy-pane-references.md)
 - [ ] [0103 Add Visual Parity Completion Audit](0103-add-visual-parity-completion-audit.md)

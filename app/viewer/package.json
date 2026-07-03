@@ -8,6 +8,7 @@
     "dev": "node scripts/dev-server.mjs",
     "test": "node scripts/smoke.mjs",
     "test:app": "node scripts/app-test.mjs",
+    "test:visual-modes": "node scripts/visual-mode-smoke.mjs",
     "capture:package": "node scripts/capture-package-screenshot.mjs",
     "test:package": "node scripts/test-static-package.mjs"
   },
