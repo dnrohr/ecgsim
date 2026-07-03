@@ -259,7 +259,11 @@ if (
   fixture.sourceMesh?.kind !== "PGraphGeometry source mesh" ||
   fixture.sourceMesh?.pointCount !== 576 ||
   fixture.sourceMesh?.triangleCount !== 1148 ||
-  fixture.sourceMesh?.sourceGeometryId !== "graphGeometry2"
+  fixture.sourceMesh?.sourceGeometryId !== "graphGeometry2" ||
+  fixture.sourceMesh?.computedWallDepth?.status !== "computed" ||
+  fixture.sourceMesh?.computedWallDepth?.pointCount !== 576 ||
+  fixture.sourceMesh?.computedWallDepth?.min !== 0 ||
+  fixture.sourceMesh?.computedWallDepth?.max !== 1
 ) {
   console.error(`Unexpected heart fixture size: ${fixture.pointCount} / ${fixture.triangleCount}`);
   process.exit(1);

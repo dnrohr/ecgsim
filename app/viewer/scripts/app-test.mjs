@@ -119,6 +119,11 @@ async function assertVisualModeNavigator(page) {
   assert.equal(await page.locator("[data-heart-source-mesh]").isChecked(), true, "navigator should enable parsed source mesh overlay");
   await page.locator("[data-heart-source-mesh]").uncheck();
 
+  await navigator.selectOption("heart-wall-depth");
+  await expectText(page, "[data-heart-mode-badge]", "Source wall depth");
+  await expectText(page, "[data-heart-provenance-badge]", "Computed source mesh");
+  assert.equal(await page.locator("[data-heart-surface]").inputValue(), "sourceWallDepth", "navigator should set computed wall-depth mode");
+
   await navigator.selectOption("thorax-measured");
   await expectText(page, "[data-thorax-mode-badge]", "Measured BSPM");
   await expectText(page, "[data-thorax-provenance-badge]", "Case BSPM");
@@ -431,6 +436,14 @@ async function assertHeartViewControls(page) {
   assert.notEqual(sourceMeshSignature, geometrySignature, "Heart source mesh overlay should draw parsed PGraphGeometry");
   await page.locator("[data-heart-source-mesh]").uncheck();
   await expectText(page, "[data-heart-overlay-status]", "Overlays off");
+
+  await page.locator("[data-heart-surface]").selectOption("sourceWallDepth");
+  await expectText(page, "[data-heart-surface-status]", "Source wall depth / computed / 576 nodes");
+  await expectText(page, "[data-heart-provenance-badge]", "Computed source mesh");
+  await page.waitForTimeout(150);
+  const wallDepthSignature = await canvasSignature(page, canvas);
+  assert.notEqual(wallDepthSignature, geometrySignature, "Computed source wall-depth mode should redraw the Heart surface");
+  await page.locator("[data-heart-surface]").selectOption("geometry");
 
   await page.locator("[data-heart-electrodes]").check();
   await expectText(page, "[data-heart-overlay-status]", "9 electrodes");
@@ -1005,8 +1018,8 @@ async function canvasSignature(page, selector) {
     const context = scratch.getContext("2d");
     context.drawImage(canvas, 0, 0, width, height);
     const { data } = context.getImageData(0, 0, width, height);
-    const xStep = Math.max(1, Math.floor(width / 32));
-    const yStep = Math.max(1, Math.floor(height / 32));
+    const xStep = Math.max(1, Math.floor(width / 64));
+    const yStep = Math.max(1, Math.floor(height / 64));
     let signature = 0;
     for (let y = 0; y < height; y += yStep) {
       for (let x = 0; x < width; x += xStep) {

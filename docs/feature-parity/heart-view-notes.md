@@ -23,7 +23,7 @@ Status: updated through task `0073`.
 - Surface coloring is a source-parameter preview mapped by source-node index; exact legacy heart surface-function interpolation remains future parity work.
 - Contours are node-marker overlays near scalar levels rather than interpolated triangle isolines.
 - Atria/ventricles switching is not exposed yet even though source containers are parsed.
-- Endocardial/epicardial switching and transmural handling are disabled per case until explicit wall pairings are parsed. The source-mesh overlay shows the parsed graph surface but does not assign wall-side pairings. See `docs/feature-parity/wall-mapping-notes.md`.
+- Endocardial/epicardial switching and transmural handling are disabled per case until explicit wall pairings are parsed. The Source wall depth surface is a modern computed equivalent based on normalized parsed source-mesh radius; it does not assign legacy wall-side pairings. See `docs/feature-parity/wall-mapping-notes.md`.
 - Legacy named-region accumulation variants, movie playback, and clipboard export remain unsupported until their roadmap tasks.
 - Heart vector display is a modern-equivalent computed TMP-centroid preview; exact legacy vector-equation parity remains blocked on reference capture.
 - Contribution maps use the selected Thorax node's transfer row from the current ventricles-to-thorax candidate; confirmed legacy lead-transfer roles remain unresolved.

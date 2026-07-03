@@ -54,6 +54,7 @@ async function assertHeartModes(page) {
     { value: "amplitude", status: "Amplitude / adapted", badge: "Amplitude" },
     { value: "restingPotential", status: "Resting potential / adapted", badge: "Resting potential" },
     { value: "tmpAtTime", status: "TMP at time / adapted / 0 ms", badge: "TMP at time" },
+    { value: "sourceWallDepth", status: "Source wall depth / computed / 576 nodes", badge: "Source wall depth" },
   ];
 
   await page.locator("[data-heart-values]").selectOption("adapted");

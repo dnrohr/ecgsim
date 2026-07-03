@@ -19,7 +19,6 @@ class VisualParityAuditTests(unittest.TestCase):
         self.assertEqual(
             blockers,
             {
-                ("Heart", "Endocardial/epicardial and transmural mapping"),
                 ("TMP", "Electrogram"),
                 ("Leads", "Measured/initial/adapted overlays"),
             },

@@ -258,6 +258,12 @@ function selectVisualMode(mode) {
         unavailable("Parsed source mesh overlay is unavailable for this case.");
       }
       break;
+    case "heart-wall-depth":
+      scrollPaneIntoView("heart");
+      if (!selectControlValue(heartSurface, "sourceWallDepth")) {
+        unavailable("Computed source wall-depth view is unavailable.");
+      }
+      break;
     case "thorax-geometry":
       scrollPaneIntoView("thorax");
       selectControlValue(thoraxSurface, "geometry");
@@ -935,7 +941,8 @@ function mountHeart(
     } else {
       const tmpState = getTmpEditState() ?? createTmpEditState(tmpFixture);
       const contribution = surface === "thoraxContribution" ? getContributionValues() : null;
-      const values = contribution?.values ?? heartSurfaceValues(tmpState, surface, valueState, timeState.sample);
+      const wallDepth = surface === "sourceWallDepth" ? fixture.sourceMesh?.computedWallDepth : null;
+      const values = wallDepth?.values ?? contribution?.values ?? heartSurfaceValues(tmpState, surface, valueState, timeState.sample);
       const range = finiteRange(values);
       for (let index = 0; index < colorAttribute.count; index += 1) {
         if (index < values.length) {
@@ -969,6 +976,17 @@ function mountHeart(
           contribution
             ? `Ventricles-to-thorax transfer row for thorax node ${contribution.thoraxNodeIndex + 1}.`
             : "Select a thorax node to map transfer contribution back onto the heart.",
+        );
+      } else if (surface === "sourceWallDepth") {
+        heartSurfaceStatus.value = wallDepth?.values?.length
+          ? `${label} / computed / ${wallDepth.pointCount ?? wallDepth.values.length} nodes`
+          : `${label} / unavailable`;
+        setPaneBadges(
+          heartModeBadge,
+          heartProvenanceBadge,
+          label,
+          wallDepth?.status === "computed" ? "Computed source mesh" : "Unavailable",
+          wallDepth?.interpretation ?? "No parsed PGraphGeometry source mesh is available for wall-depth visualization.",
         );
       } else if (surface === "ariMs") {
         heartSurfaceStatus.value = `${label} / ${valueState} / ms`;

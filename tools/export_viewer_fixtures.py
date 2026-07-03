@@ -72,6 +72,7 @@ def source_mesh_payload(case, case_path: Path) -> dict[str, object] | None:
     source_mesh = next((graph for graph in case.graph_geometries if graph.point_count > 0), None)
     if not source_mesh:
         return None
+    wall_depth = computed_source_wall_depth(source_mesh.geometry.points)
     return {
         "source": case_path_text(case_path),
         "sourceGeometryOffset": source_mesh.marker_offset,
@@ -87,7 +88,63 @@ def source_mesh_payload(case, case_path: Path) -> dict[str, object] | None:
             for point in source_mesh.geometry.points
         ),
         "triangles": source_mesh.geometry.triangles,
+        "computedWallDepth": wall_depth,
     }
+
+
+def computed_source_wall_depth(points: tuple[tuple[float, float, float], ...]) -> dict[str, object]:
+    if not points:
+        return {
+            "status": "unavailable",
+            "interpretation": "No source mesh points are available for computed wall-depth visualization.",
+            "values": (),
+        }
+
+    center = center_of_points(points)
+    radii = [
+        math.sqrt(
+            (point[0] - center[0]) ** 2
+            + (point[1] - center[1]) ** 2
+            + (point[2] - center[2]) ** 2
+        )
+        for point in points
+    ]
+    minimum = min(radii)
+    maximum = max(radii)
+    span = max(maximum - minimum, 1e-9)
+    values = tuple(round((radius - minimum) / span, 6) for radius in radii)
+    inner_count = sum(1 for value in values if value < 1 / 3)
+    middle_count = sum(1 for value in values if 1 / 3 <= value < 2 / 3)
+    outer_count = len(values) - inner_count - middle_count
+    return {
+        "status": "computed",
+        "kind": "source-mesh-radial-depth",
+        "interpretation": (
+            "Modern computed wall-depth preview from parsed PGraphGeometry source mesh radii; "
+            "not decoded legacy endocardial/epicardial pair semantics."
+        ),
+        "units": "normalized",
+        "pointCount": len(values),
+        "min": min(values),
+        "max": max(values),
+        "values": values,
+        "layerCounts": {
+            "inner": inner_count,
+            "middle": middle_count,
+            "outer": outer_count,
+        },
+    }
+
+
+def center_of_points(points: tuple[tuple[float, float, float], ...]) -> tuple[float, float, float]:
+    count = len(points)
+    if count == 0:
+        return (0.0, 0.0, 0.0)
+    return (
+        sum(point[0] for point in points) / count,
+        sum(point[1] for point in points) / count,
+        sum(point[2] for point in points) / count,
+    )
 
 
 def nearest_point_index(points: tuple[tuple[float, float, float], ...], target: tuple[float, float, float]) -> int:

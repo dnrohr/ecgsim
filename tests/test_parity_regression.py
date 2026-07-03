@@ -156,6 +156,15 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertEqual(source_mesh["units"], "m")
         self.assertEqual(len(source_mesh["points"]), 576)
         self.assertEqual(len(source_mesh["triangles"]), 1148)
+        wall_depth = source_mesh["computedWallDepth"]
+        self.assertEqual(wall_depth["status"], "computed")
+        self.assertEqual(wall_depth["kind"], "source-mesh-radial-depth")
+        self.assertEqual(wall_depth["pointCount"], 576)
+        self.assertEqual(len(wall_depth["values"]), 576)
+        self.assertEqual(wall_depth["min"], 0)
+        self.assertEqual(wall_depth["max"], 1)
+        self.assertIn("not decoded legacy endocardial/epicardial pair semantics", wall_depth["interpretation"])
+        self.assertEqual(sum(wall_depth["layerCounts"].values()), 576)
 
     def test_case_metadata_fixture_marks_electrogram_unavailable_with_matrix_evidence(self) -> None:
         fixture = json.loads(Path("app/viewer/public/fixtures/case-metadata.json").read_text(encoding="utf-8"))
