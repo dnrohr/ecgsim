@@ -65,7 +65,7 @@ All four case files share the same class-marker vocabulary. Counts are identical
 | `PMatrix` | 31 | 31 | Matrix payloads: ECG/signal data, transfer functions, adjacency/distance data, or lead transforms. |
 | `PVolumeConductor` | 1 | 1 | Volume conductor/model container. |
 | `PGeometry` | 8 | 8 | Geometry objects. |
-| `PGraphGeometry` | 2 | 2 | Graph/adjacency-related geometry objects. |
+| `PGraphGeometry` | 2 | 2 | Source graph mesh objects. |
 | `PSource` | 2 | 2 | Atrial and ventricular source containers, or initial/adapted source groups. Needs confirmation. |
 | `PSourceParameter` | 14 | 14 | Source parameter groups. |
 | `PVector` | 30 | 30 | Vector payloads within source parameters and activation construction. |
@@ -97,7 +97,7 @@ The observed object order is consistent across all four cases:
 3. Initial `PMatrix`
 4. `PVolumeConductor`
 5. First `PGeometry`
-6. Two `PGraphGeometry` blocks with several small/empty `PMatrix` entries
+6. Two `PGraphGeometry` source mesh blocks
 7. Several large `PMatrix` blocks
 8. Seven additional `PGeometry` entries
 9. More `PMatrix` blocks
@@ -203,3 +203,18 @@ nested PMatrix/PLead/PLeadReference/PShowLead payloads
 The parser exposes lead-system names, electrode positions, nested lead/reference/shown-lead labels where string labels are present, and stable fallback labels where they are absent. Lead polarity, shown-lead layout fields, decoded fiducial/time-base fields, and exact measured/initial/adapted signal classification remain unsupported fields. The normal male case additionally exposes a derived baseline window `(5, 499)` from promoted legacy export evidence, not from decoded case payload fields.
 
 Task 0035 added compact regression summaries in `tests/fixtures/case-summaries.json` for the normal case and all three WPW cases. The summaries pin case size/checksum, signal shape, key geometry counts, ventricular source dimensions, representative parameter values, lead-system dimensions, and case-level unsupported fields. The current unsupported fields include lead polarity/reference electrode semantics, shown-lead layout fields, fiducial/time-base fields, and measured/initial/adapted signal classification. WPW cases still include P-wave/T-wave fiducial samples for baseline correction as unavailable; the normal case uses the derived export-evidence window instead.
+
+Task 0105 decoded `PGraphGeometry` as a source mesh payload:
+
+```text
+length-prefixed UTF-16LE marker `PGraphGeometry`
+int32 version
+float32 scale
+int32 flag_or_reserved
+int32 point_count
+float32 x/y/z triplets, zero-based row order
+int32 triangle_count
+int32 triangle index triplets, zero-based
+```
+
+Each inspected case has two graph geometries. The first is empty. The second contains the source mesh used by source-node visual workflows: `576` points and `1148` triangles for `normal_male2`, and `697` points and `1394` triangles for each WPW case. This confirms a mesh layout, not endocardial/epicardial opposite-wall pairings.

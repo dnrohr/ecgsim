@@ -1,6 +1,6 @@
 # 0104 Inventory PGraphGeometry Payloads For Wall Mapping
 
-Status: complete.
+Status: complete. Superseded by task `0105`, which decoded the mesh layout behind this inventory.
 
 ## Goal
 
@@ -10,6 +10,7 @@ Capture conservative parser evidence for `PGraphGeometry` payloads so future wal
 
 - Add a reader that inventories `PGraphGeometry` envelopes without assigning unverified wall-pair semantics.
 - Record marker offsets, payload bounds, header words, candidate node counts, and nested matrix markers for archived cases.
+- Leave full point/triangle decoding to the follow-up task once the repeated layout is confirmed.
 - Add regression tests for the normal and WPW case patterns.
 - Document what this evidence does and does not prove.
 

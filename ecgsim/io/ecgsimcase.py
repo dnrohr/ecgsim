@@ -98,11 +98,11 @@ class ECGsimCaseGeometry:
 
 @dataclass(frozen=True)
 class ECGsimCaseGraphGeometry:
-    """Conservative inventory for a ``PGraphGeometry`` payload.
+    """Parsed ``PGraphGeometry`` source-surface mesh and payload inventory.
 
-    The payload semantics are not yet confirmed as wall-side or transmural
-    mappings, so this object intentionally exposes byte-level structure rather
-    than interpreted node pairs.
+    The point/triangle mesh layout is confirmed for archived cases. Wall-side
+    and transmural pairing semantics are not yet confirmed, so this object does
+    not expose interpreted opposite-wall pairs.
     """
 
     id: str
@@ -111,12 +111,22 @@ class ECGsimCaseGraphGeometry:
     end_offset: int
     storage_format: str
     version: int | None
+    scale: float | None
+    flag: int | None
+    geometry: GeometryData
     header_ints: tuple[int, ...]
     header_floats: tuple[float, ...]
-    candidate_node_count: int | None
     payload_bytes: int
     nested_matrix_offsets: tuple[int, ...]
     interpretation: str
+
+    @property
+    def point_count(self) -> int:
+        return self.geometry.point_count
+
+    @property
+    def triangle_count(self) -> int:
+        return self.geometry.triangle_count
 
 
 @dataclass(frozen=True)
@@ -253,6 +263,7 @@ class ECGsimCase:
 
     metadata: ECGsimCaseMetadata
     geometries: tuple[ECGsimCaseGeometry, ...]
+    graph_geometries: tuple[ECGsimCaseGraphGeometry, ...]
     sources: tuple[ECGsimCaseSource, ...]
     lead_systems: tuple[ECGsimCaseLeadSystem, ...]
     signal_metadata: ECGsimCaseSignalMetadata
@@ -265,6 +276,7 @@ def load_case(path: str | Path, *, strict: bool = False) -> ECGsimCase:
     case = ECGsimCase(
         metadata=metadata,
         geometries=read_ecgsimcase_geometries(metadata.source_path),
+        graph_geometries=read_ecgsimcase_graph_geometries(metadata.source_path),
         sources=read_ecgsimcase_sources(metadata.source_path),
         lead_systems=read_ecgsimcase_lead_systems(metadata.source_path),
         signal_metadata=read_ecgsimcase_signal_metadata(metadata.source_path),
@@ -362,7 +374,7 @@ def read_ecgsimcase_geometries(path: str | Path) -> tuple[ECGsimCaseGeometry, ..
 
 
 def read_ecgsimcase_graph_geometries(path: str | Path) -> tuple[ECGsimCaseGraphGeometry, ...]:
-    """Inventory ``PGraphGeometry`` payloads without assigning wall semantics."""
+    """Read ``PGraphGeometry`` source meshes without assigning wall semantics."""
 
     source_path = Path(path)
     data = source_path.read_bytes()
@@ -377,24 +389,7 @@ def read_ecgsimcase_graph_geometries(path: str | Path) -> tuple[ECGsimCaseGraphG
                 f"{source_path} marker at {offset} is {marker!r}, not PGraphGeometry"
             )
         end_offset = next(next_offset for next_offset in all_marker_offsets if next_offset > offset)
-        payload_bytes = max(0, end_offset - values_offset)
-        header_byte_count = min(payload_bytes, 48)
-        int_count = header_byte_count // 4
-        header_ints = (
-            struct.unpack_from(f"<{int_count}i", data, values_offset)
-            if int_count
-            else ()
-        )
-        header_floats = (
-            struct.unpack_from(f"<{int_count}f", data, values_offset)
-            if int_count
-            else ()
-        )
-        candidate_node_count = (
-            header_ints[3]
-            if len(header_ints) > 3 and 0 <= header_ints[3] <= 100000
-            else None
-        )
+        graph = _read_ecgsimcase_graph_geometry_payload(data, source_path, values_offset, end_offset)
         nested_matrix_offsets = _marker_offsets_in_range(
             metadata,
             PMATRIX_SIGNATURE,
@@ -408,19 +403,22 @@ def read_ecgsimcase_graph_geometries(path: str | Path) -> tuple[ECGsimCaseGraphG
                 values_offset=values_offset,
                 end_offset=end_offset,
                 storage_format=(
-                    f"ecgsimcase-pgraphgeometry-v{header_ints[0]}"
-                    if header_ints and header_ints[0] > 0
+                    f"ecgsimcase-pgraphgeometry-v{graph['version']}-mesh"
+                    if graph["version"] and graph["version"] > 0
                     else "ecgsimcase-pgraphgeometry-unknown"
                 ),
-                version=header_ints[0] if header_ints else None,
-                header_ints=tuple(int(value) for value in header_ints),
-                header_floats=tuple(float(value) for value in header_floats),
-                candidate_node_count=candidate_node_count,
-                payload_bytes=payload_bytes,
+                version=graph["version"],
+                scale=graph["scale"],
+                flag=graph["flag"],
+                geometry=graph["geometry"],
+                header_ints=graph["header_ints"],
+                header_floats=graph["header_floats"],
+                payload_bytes=end_offset - values_offset,
                 nested_matrix_offsets=nested_matrix_offsets,
                 interpretation=(
-                    "PGraphGeometry envelope inventory only; wall-side, opposite-wall, "
-                    "and transmural pairing semantics are not confirmed."
+                    "PGraphGeometry source mesh parsed as float32 XYZ points and int32 "
+                    "triangle indices; wall-side, opposite-wall, and transmural pairing "
+                    "semantics are not confirmed."
                 ),
             )
         )
@@ -724,6 +722,102 @@ def _read_ecgsimcase_geometry_payload(data: bytes, source_path: Path, offset: in
         source_path=source_path,
         storage_format=f"ecgsimcase-pgeometry-v{version}",
     )
+
+
+def _read_ecgsimcase_graph_geometry_payload(
+    data: bytes,
+    source_path: Path,
+    values_offset: int,
+    end_offset: int,
+) -> dict[str, object]:
+    if end_offset - values_offset < 20:
+        raise ECGsimCaseFormatError(f"{source_path} PGraphGeometry at {values_offset} is too short")
+
+    version, scale, flag, point_count = struct.unpack_from("<ifii", data, values_offset)
+    if version <= 0:
+        raise ECGsimCaseFormatError(f"{source_path} PGraphGeometry at {values_offset} has invalid version {version}")
+    if point_count < 0:
+        raise ECGsimCaseFormatError(
+            f"{source_path} PGraphGeometry at {values_offset} has invalid point count {point_count}"
+        )
+
+    point_start = values_offset + 16
+    point_bytes = point_count * 3 * 4
+    triangle_count_offset = point_start + point_bytes
+    if triangle_count_offset + 4 > end_offset:
+        raise ECGsimCaseFormatError(f"{source_path} PGraphGeometry points at {values_offset} overrun payload")
+    flat_points = struct.unpack_from(f"<{point_count * 3}f", data, point_start) if point_count else ()
+    points = tuple(
+        (
+            float(flat_points[row * 3]),
+            float(flat_points[row * 3 + 1]),
+            float(flat_points[row * 3 + 2]),
+        )
+        for row in range(point_count)
+    )
+
+    (triangle_count,) = struct.unpack_from("<i", data, triangle_count_offset)
+    if triangle_count < 0:
+        raise ECGsimCaseFormatError(
+            f"{source_path} PGraphGeometry at {values_offset} has invalid triangle count {triangle_count}"
+        )
+
+    triangle_start = triangle_count_offset + 4
+    triangle_bytes = triangle_count * 3 * 4
+    if triangle_start + triangle_bytes != end_offset:
+        raise ECGsimCaseFormatError(
+            f"{source_path} PGraphGeometry at {values_offset} expected payload end "
+            f"{triangle_start + triangle_bytes}, found {end_offset}"
+        )
+    flat_triangles = (
+        struct.unpack_from(f"<{triangle_count * 3}i", data, triangle_start)
+        if triangle_count
+        else ()
+    )
+    triangles = tuple(
+        (
+            int(flat_triangles[row * 3]),
+            int(flat_triangles[row * 3 + 1]),
+            int(flat_triangles[row * 3 + 2]),
+        )
+        for row in range(triangle_count)
+    )
+    for triangle in triangles:
+        for point_index in triangle:
+            if point_index < 0 or point_index >= point_count:
+                raise ECGsimCaseFormatError(
+                    f"{source_path} PGraphGeometry at {values_offset} has triangle index {point_index} "
+                    f"outside point range 0..{point_count - 1}"
+                )
+
+    header_byte_count = min(end_offset - values_offset, 48)
+    header_value_count = header_byte_count // 4
+    header_ints = (
+        struct.unpack_from(f"<{header_value_count}i", data, values_offset)
+        if header_value_count
+        else ()
+    )
+    header_floats = (
+        struct.unpack_from(f"<{header_value_count}f", data, values_offset)
+        if header_value_count
+        else ()
+    )
+
+    return {
+        "version": version,
+        "scale": float(scale),
+        "flag": flag,
+        "geometry": GeometryData(
+            points=points,
+            triangles=triangles,
+            units="mm",
+            source_index_base=0,
+            source_path=source_path,
+            storage_format=f"ecgsimcase-pgraphgeometry-v{version}",
+        ),
+        "header_ints": tuple(int(value) for value in header_ints),
+        "header_floats": tuple(float(value) for value in header_floats),
+    }
 
 
 def _read_ecgsimcase_vector_payload(data: bytes, source_path: Path, offset: int) -> ECGsimCaseVector:

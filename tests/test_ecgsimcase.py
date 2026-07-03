@@ -176,9 +176,14 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
         self.assertEqual(len(graphs), 2)
         self.assertEqual([graph.marker_offset for graph in graphs], [1214518, 1214750])
         self.assertEqual([graph.version for graph in graphs], [1, 1])
-        self.assertEqual([graph.candidate_node_count for graph in graphs], [0, 576])
+        self.assertEqual([graph.scale for graph in graphs], [2.0, 2.0])
+        self.assertEqual([graph.flag for graph in graphs], [1, 1])
+        self.assertEqual([graph.point_count for graph in graphs], [0, 576])
+        self.assertEqual([graph.triangle_count for graph in graphs], [0, 1148])
         self.assertEqual([graph.payload_bytes for graph in graphs], [20, 20708])
-        self.assertEqual(graphs[1].storage_format, "ecgsimcase-pgraphgeometry-v1")
+        self.assertEqual(graphs[1].storage_format, "ecgsimcase-pgraphgeometry-v1-mesh")
+        self.assertEqual(graphs[1].geometry.units, "mm")
+        self.assertEqual(graphs[1].geometry.triangles[0], (250, 262, 249))
         self.assertIn("wall-side", graphs[1].interpretation)
 
     def test_reads_wpw_case_graph_geometry_inventory(self) -> None:
@@ -187,7 +192,8 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
 
         self.assertEqual(len(graphs), 2)
         self.assertEqual([graph.version for graph in graphs], [1, 1])
-        self.assertEqual([graph.candidate_node_count for graph in graphs], [0, 697])
+        self.assertEqual([graph.point_count for graph in graphs], [0, 697])
+        self.assertEqual([graph.triangle_count for graph in graphs], [0, 1394])
         self.assertEqual([graph.payload_bytes for graph in graphs], [20, 25112])
 
     def test_rejects_unsupported_geometry_payload_offset(self) -> None:
@@ -328,6 +334,9 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
 
         self.assertEqual(case.metadata.source_path, path)
         self.assertEqual(len(case.geometries), 8)
+        self.assertEqual(len(case.graph_geometries), 2)
+        self.assertEqual(case.graph_geometries[1].point_count, 576)
+        self.assertEqual(case.graph_geometries[1].triangle_count, 1148)
         self.assertEqual([source.kind for source in case.sources], ["atria", "ventricles"])
         self.assertEqual([system.name for system in case.lead_systems], list(self.CASES[path.name]["lead_systems"]))
         self.assertEqual((case.signal_metadata.rows, case.signal_metadata.columns), (300, 1000))

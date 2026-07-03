@@ -22,7 +22,7 @@ def load_case(path: str | Path, *, strict: bool = False) -> ECGsimCase:
 
 `strict=False` should parse every known payload and retain unknown payload references. `strict=True` may fail when a required object type is malformed or when a known case object cannot be interpreted.
 
-Task 0033 added this API as `ecgsim.io.load_case(path, strict=False)`. The returned object currently contains metadata, geometries, sources, lead systems, and signal metadata. Later tasks should add new parsed payloads to this object instead of creating parallel fixture-only reader paths.
+Task 0033 added this API as `ecgsim.io.load_case(path, strict=False)`. The returned object currently contains metadata, geometries, graph geometries, sources, lead systems, and signal metadata. Later tasks should add new parsed payloads to this object instead of creating parallel fixture-only reader paths.
 
 Task 0034 uses `load_case` to generate browser-ready supported-case bundles. The web app does not parse arbitrary binary `.ECGsimcase` files directly; it hashes selected files and loads a pre-generated bundle only when the file matches the supported-case manifest.
 
@@ -91,12 +91,12 @@ class GeometrySurface:
 class GraphGeometry:
     id: str
     source_kind: SourceKind | None
-    adjacency_surface: CaseMatrix | None
-    adjacency_3d: CaseMatrix | None
-    distance_surface: CaseMatrix | None
-    distance_3d: CaseMatrix | None
-    anisotropic_adjacency: CaseMatrix | None
-    anisotropic_distance: CaseMatrix | None
+    vertices: tuple[Point3D, ...]
+    triangles: tuple[Triangle, ...]
+    units: str
+    source_offset: int
+    scale: float | None
+    flag: int | None
     unknown_matrices: tuple[CaseMatrix, ...]
 ```
 

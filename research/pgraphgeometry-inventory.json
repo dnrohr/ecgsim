@@ -10,8 +10,12 @@
           "markerOffset": 1214518,
           "valuesOffset": 1214550,
           "endOffset": 1214570,
-          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1-mesh",
           "version": 1,
+          "scale": 2.0,
+          "flag": 1,
+          "pointCount": 0,
+          "triangleCount": 0,
           "headerInts": [
             1,
             1073741824,
@@ -26,18 +30,21 @@
             0.0,
             0.0
           ],
-          "candidateNodeCount": 0,
           "payloadBytes": 20,
           "nestedMatrixOffsets": [],
-          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+          "interpretation": "PGraphGeometry source mesh parsed as float32 XYZ points and int32 triangle indices; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
         },
         {
           "id": "graphGeometry2",
           "markerOffset": 1214750,
           "valuesOffset": 1214782,
           "endOffset": 1235490,
-          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1-mesh",
           "version": 1,
+          "scale": 2.0,
+          "flag": 1,
+          "pointCount": 576,
+          "triangleCount": 1148,
           "headerInts": [
             1,
             1073741824,
@@ -66,10 +73,9 @@
             61.700001,
             20.700001
           ],
-          "candidateNodeCount": 576,
           "payloadBytes": 20708,
           "nestedMatrixOffsets": [],
-          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+          "interpretation": "PGraphGeometry source mesh parsed as float32 XYZ points and int32 triangle indices; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
         }
       ]
     },
@@ -83,8 +89,12 @@
           "markerOffset": 1658118,
           "valuesOffset": 1658150,
           "endOffset": 1658170,
-          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1-mesh",
           "version": 1,
+          "scale": 2.0,
+          "flag": 1,
+          "pointCount": 0,
+          "triangleCount": 0,
           "headerInts": [
             1,
             1073741824,
@@ -99,18 +109,21 @@
             0.0,
             0.0
           ],
-          "candidateNodeCount": 0,
           "payloadBytes": 20,
           "nestedMatrixOffsets": [],
-          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+          "interpretation": "PGraphGeometry source mesh parsed as float32 XYZ points and int32 triangle indices; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
         },
         {
           "id": "graphGeometry2",
           "markerOffset": 1658350,
           "valuesOffset": 1658382,
           "endOffset": 1683494,
-          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1-mesh",
           "version": 1,
+          "scale": 2.0,
+          "flag": 1,
+          "pointCount": 697,
+          "triangleCount": 1394,
           "headerInts": [
             1,
             1073741824,
@@ -139,10 +152,9 @@
             47.122002,
             10.204
           ],
-          "candidateNodeCount": 697,
           "payloadBytes": 25112,
           "nestedMatrixOffsets": [],
-          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+          "interpretation": "PGraphGeometry source mesh parsed as float32 XYZ points and int32 triangle indices; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
         }
       ]
     },
@@ -156,8 +168,12 @@
           "markerOffset": 2300118,
           "valuesOffset": 2300150,
           "endOffset": 2300170,
-          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1-mesh",
           "version": 1,
+          "scale": 2.0,
+          "flag": 1,
+          "pointCount": 0,
+          "triangleCount": 0,
           "headerInts": [
             1,
             1073741824,
@@ -172,18 +188,21 @@
             0.0,
             0.0
           ],
-          "candidateNodeCount": 0,
           "payloadBytes": 20,
           "nestedMatrixOffsets": [],
-          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+          "interpretation": "PGraphGeometry source mesh parsed as float32 XYZ points and int32 triangle indices; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
         },
         {
           "id": "graphGeometry2",
           "markerOffset": 2300350,
           "valuesOffset": 2300382,
           "endOffset": 2325494,
-          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1-mesh",
           "version": 1,
+          "scale": 2.0,
+          "flag": 1,
+          "pointCount": 697,
+          "triangleCount": 1394,
           "headerInts": [
             1,
             1073741824,
@@ -212,10 +231,9 @@
             47.122002,
             10.204
           ],
-          "candidateNodeCount": 697,
           "payloadBytes": 25112,
           "nestedMatrixOffsets": [],
-          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+          "interpretation": "PGraphGeometry source mesh parsed as float32 XYZ points and int32 triangle indices; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
         }
       ]
     },
@@ -229,8 +247,12 @@
           "markerOffset": 1724118,
           "valuesOffset": 1724150,
           "endOffset": 1724170,
-          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1-mesh",
           "version": 1,
+          "scale": 2.0,
+          "flag": 1,
+          "pointCount": 0,
+          "triangleCount": 0,
           "headerInts": [
             1,
             1073741824,
@@ -245,18 +267,21 @@
             0.0,
             0.0
           ],
-          "candidateNodeCount": 0,
           "payloadBytes": 20,
           "nestedMatrixOffsets": [],
-          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+          "interpretation": "PGraphGeometry source mesh parsed as float32 XYZ points and int32 triangle indices; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
         },
         {
           "id": "graphGeometry2",
           "markerOffset": 1724350,
           "valuesOffset": 1724382,
           "endOffset": 1749494,
-          "storageFormat": "ecgsimcase-pgraphgeometry-v1",
+          "storageFormat": "ecgsimcase-pgraphgeometry-v1-mesh",
           "version": 1,
+          "scale": 2.0,
+          "flag": 1,
+          "pointCount": 697,
+          "triangleCount": 1394,
           "headerInts": [
             1,
             1073741824,
@@ -285,10 +310,9 @@
             47.122002,
             10.204
           ],
-          "candidateNodeCount": 697,
           "payloadBytes": 25112,
           "nestedMatrixOffsets": [],
-          "interpretation": "PGraphGeometry envelope inventory only; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
+          "interpretation": "PGraphGeometry source mesh parsed as float32 XYZ points and int32 triangle indices; wall-side, opposite-wall, and transmural pairing semantics are not confirmed."
         }
       ]
     }
