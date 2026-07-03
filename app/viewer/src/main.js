@@ -2371,7 +2371,7 @@ function drawTmpLine(context, values, min, span, left, right, centerY, amplitude
   context.stroke();
 }
 
-function mountTmpEditing(fixture, onRecompute = () => {}) {
+function mountTmpEditing(fixture, caseMetadata = {}, onRecompute = () => {}) {
   if (
     !tmpShowInitial ||
     !tmpShowAdapted ||
@@ -2414,6 +2414,15 @@ function mountTmpEditing(fixture, onRecompute = () => {}) {
     control.disabled = true;
     control.title = "This legacy TMP option is unavailable until the backing data and handlers are implemented.";
   });
+  if (tmpShowEgm) {
+    const electrogram = caseMetadata.electrogram ?? {};
+    const reason = electrogram.reason
+      ?? "Selected-node electrogram display is unavailable until an electrogram payload or derivation equation is identified.";
+    tmpShowEgm.title = reason;
+    tmpShowEgm.closest("label")?.setAttribute("title", reason);
+    tmpShowEgm.dataset.evidenceStatus = electrogram.status ?? "unavailable";
+    tmpShowEgm.dataset.candidateMatrixCount = String(electrogram.candidateMatrixCount ?? 0);
+  }
   tmpShowInitial.checked = true;
   tmpShowAdapted.checked = true;
   tmpGrid.checked = true;
@@ -3192,7 +3201,7 @@ function applyCaseBundle(bundle, noticeText) {
   let thoraxView = null;
   let redrawSignals = () => {};
   let focusEditing = null;
-  const tmpEditing = mountTmpEditing(bundle.tmpWaveforms, () => {
+  const tmpEditing = mountTmpEditing(bundle.tmpWaveforms, bundle.caseMetadata, () => {
     heartView?.redrawHeartSurface();
     heartView?.redrawHeartVector();
     thoraxView?.redrawThoraxMap();

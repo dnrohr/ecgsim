@@ -126,6 +126,23 @@ class ParityRegressionTests(unittest.TestCase):
         self.assertIn("source mesh is parsed", wall_mapping["reason"])
         self.assertIn("transmural grouping semantics are not decoded", wall_mapping["reason"])
 
+    def test_case_metadata_fixture_marks_electrogram_unavailable_with_matrix_evidence(self) -> None:
+        fixture = json.loads(Path("app/viewer/public/fixtures/case-metadata.json").read_text(encoding="utf-8"))
+        electrogram = fixture["electrogram"]
+
+        self.assertEqual(electrogram["status"], "unavailable")
+        self.assertFalse(electrogram["supportsSelectedNodeElectrogram"])
+        self.assertEqual(electrogram["inspectedMatrixCount"], 31)
+        self.assertEqual(electrogram["sourceNodeCount"], 576)
+        self.assertEqual(electrogram["sampleCount"], 1000)
+        self.assertEqual(electrogram["candidateMatrixCount"], 0)
+        self.assertEqual(electrogram["candidateMatrices"], [])
+        self.assertEqual(electrogram["rejectedShapeEvidence"]["thoraxTimeSeriesCount"], 1)
+        self.assertEqual(electrogram["rejectedShapeEvidence"]["sourceSquareMatrixCount"], 7)
+        self.assertEqual(electrogram["rejectedShapeEvidence"]["thoraxBySourceTransferCount"], 1)
+        self.assertIn("no source-node-by-time electrogram payload", electrogram["reason"])
+        self.assertIn("confirmed electrogram derivation equation", electrogram["requiredEvidence"])
+
     def test_case_metadata_fixture_includes_activation_construction_summaries(self) -> None:
         fixture = json.loads(Path("app/viewer/public/fixtures/case-metadata.json").read_text(encoding="utf-8"))
         activations = fixture["activationConstructions"]
@@ -189,6 +206,9 @@ class ParityRegressionTests(unittest.TestCase):
                 )
                 self.assertTrue(metadata["wallMapping"]["sourceMeshMatchesSourceNodeCount"])
                 self.assertEqual(metadata["wallMapping"]["nearestHeartDistance"]["exactMatchCount"], 0)
+                self.assertEqual(metadata["electrogram"]["status"], "unavailable")
+                self.assertEqual(metadata["electrogram"]["candidateMatrixCount"], 0)
+                self.assertEqual(metadata["electrogram"]["sourceNodeCount"], bundle["tmpWaveforms"]["nodeCount"])
                 self.assertEqual(validation["status"], "partial")
                 self.assertEqual(validation["unsupportedPayloadCount"], len(case.metadata.unsupported_payloads))
                 if case.signal_metadata.fiducials.status == "unavailable":

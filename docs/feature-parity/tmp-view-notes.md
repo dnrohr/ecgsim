@@ -15,12 +15,13 @@ Status: task `0049` TMP generation parity notes for the modern TMP pane.
 - Parameter status text showing initial value, adapted value, unit, and selected-node count.
 - Stored-only depolarization slope remains listed as disabled.
 - TMP traces use the legacy-calibrated generator from task `0049`; Python and browser implementations are kept in sync and generated viewer fixtures have been refreshed.
+- Case metadata exports an `electrogram` evidence object, and the disabled EGM control shows the case-specific missing-evidence reason.
 
 ## Current Limitations
 
 - TMP generation is parity-tested against the captured normal male ECGSIM 3.0.1 `.user.source` export. Additional cases and edited-source exports are still needed before claiming broad TMP parity.
 - Exact triangular drag handlers are represented by numeric/step controls plus visual selected-node handler markers for now.
 - Combined resting/amplitude handlers, keep-constant-APD mode, and electrogram display are visible but disabled until edit semantics and data are available.
-- Selected-node electrogram display is blocked until an electrogram payload or derivation equation is identified; the disabled EGM control names that blocker.
+- Selected-node electrogram display is blocked until an electrogram payload or derivation equation is identified. Task `0113` confirms the bundled case matrices do not contain a source-node-by-time electrogram candidate.
 - Time bar, interval highlight, beat zoom, and linked playback are supported; clipboard copy remains deferred to shared view/export tasks.
 - Reset beat currently applies to the active fixture edit state, not yet to a parsed multi-source or multi-beat case scope.

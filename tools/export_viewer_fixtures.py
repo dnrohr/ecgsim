@@ -15,6 +15,7 @@ from ecgsim.core import generate_tmp_waveform_from_vectors
 from ecgsim.io import (
     load_case,
     read_ecgsimcase_matrix,
+    read_ecgsimcase_matrix_inventory,
 )
 
 
@@ -160,6 +161,72 @@ def wall_mapping_payload(case) -> dict[str, object]:
         }
     )
     return payload
+
+
+def electrogram_payload(case, case_path: Path) -> dict[str, object]:
+    source_node_count = ventricular_source_node_count(case)
+    sample_count = case.signal_metadata.columns
+    inventory = read_ecgsimcase_matrix_inventory(case_path)
+    candidate_matrices = tuple(
+        matrix for matrix in inventory
+        if matrix.status == "parsed"
+        and (
+            (matrix.rows == source_node_count and matrix.columns == sample_count)
+            or (matrix.rows == sample_count and matrix.columns == source_node_count)
+        )
+    )
+    source_square_matrices = tuple(
+        matrix for matrix in inventory
+        if matrix.status == "parsed"
+        and matrix.rows == source_node_count
+        and matrix.columns == source_node_count
+    )
+    thorax_time_matrices = tuple(
+        matrix for matrix in inventory
+        if matrix.status == "parsed"
+        and matrix.rows == case.signal_metadata.rows
+        and matrix.columns == sample_count
+    )
+    transfer_matrices = tuple(
+        matrix for matrix in inventory
+        if matrix.status == "parsed"
+        and matrix.rows == case.signal_metadata.rows
+        and matrix.columns == source_node_count
+    )
+    reason = (
+        "Selected-node electrogram remains unavailable: manual text names the EGM display, "
+        "but case matrices contain no source-node-by-time electrogram payload and no derivation "
+        "equation has been confirmed."
+    )
+    return {
+        "status": "unavailable",
+        "supportsSelectedNodeElectrogram": False,
+        "reason": reason,
+        "requiredEvidence": (
+            "source-node-by-time electrogram payload",
+            "confirmed electrogram derivation equation",
+        ),
+        "inspectedMatrixCount": len(inventory),
+        "sourceNodeCount": source_node_count,
+        "sampleCount": sample_count,
+        "candidateMatrixCount": len(candidate_matrices),
+        "candidateMatrices": tuple(
+            {
+                "index": matrix.index,
+                "offset": matrix.offset,
+                "rows": matrix.rows,
+                "columns": matrix.columns,
+                "roleHint": matrix.role_hint,
+                "ownerHint": matrix.owner_hint,
+            }
+            for matrix in candidate_matrices
+        ),
+        "rejectedShapeEvidence": {
+            "thoraxTimeSeriesCount": len(thorax_time_matrices),
+            "sourceSquareMatrixCount": len(source_square_matrices),
+            "thoraxBySourceTransferCount": len(transfer_matrices),
+        },
+    }
 
 
 def ecg_signal_payload(case, case_path: Path) -> dict[str, object]:
@@ -335,6 +402,7 @@ def case_metadata_payload(case, case_path: Path) -> dict[str, object]:
         "sha256": metadata.sha256,
         "rootSignature": metadata.root_signature,
         "wallMapping": wall_mapping_payload(case),
+        "electrogram": electrogram_payload(case, case_path),
         "activationConstructions": [
             {
                 "sourceId": source.id,
@@ -424,6 +492,7 @@ def case_validation_payload(case) -> dict[str, object]:
             break
 
     unavailable.append("endocardial/epicardial and transmural wall mapping")
+    unavailable.append("selected-node electrogram visualization")
     unavailable.append("measured/initial ECG classification and lead reference-weight equations")
 
     status = "partial" if unavailable else "supported"

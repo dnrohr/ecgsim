@@ -61,7 +61,7 @@ Use the Open case control and select the original local `.ECGsimcase` file. The 
 
 Use the Open bundle control to load a generated case-bundle `.json` file directly. Bundle JSON must use the same top-level sections emitted by `tools/export_viewer_fixtures.py`: `caseMetadata`, `heart`, `thorax`, `ecgSignals`, and `tmpWaveforms`. Invalid bundles leave the current case visible and show a validation notice.
 
-The case summary includes a Validation field. `Partial` means the case loaded and the main views are usable, but the bundle has known unavailable capabilities such as unsupported raw payload groups or unresolved measured/initial signal and lead-reference semantics. Some cases still have unavailable fiducials; `normal_male2` uses a derived baseline window from legacy export evidence.
+The case summary includes a Validation field. `Partial` means the case loaded and the main views are usable, but the bundle has known unavailable capabilities such as unsupported raw payload groups, selected-node electrogram display, or unresolved measured-signal and lead-reference semantics. Some cases still have unavailable fiducials; `normal_male2` uses a derived baseline window from legacy export evidence.
 
 ## Normal Case Walkthrough
 

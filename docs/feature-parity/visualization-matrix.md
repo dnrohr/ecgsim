@@ -47,7 +47,7 @@ This matrix tracks what a user can see and manipulate. It does not require the m
 | TMP | Time bar | Shared yellow cursor | supported | Cursor x-position tests | `0101` |
 | TMP | Interval highlight | Linked Leads interval highlight | supported | App workflow checks interval redraw on Leads and TMP canvases | complete |
 | TMP | Beat zoom | Shared Leads beat-window zoom | supported | App workflow checks zoomed TMP metadata and canvas redraw | complete |
-| TMP | Electrogram | EGM toggle disabled with named missing evidence | blocked-on-evidence | App workflow verifies disabled blocker; needs electrogram payload or derivation equation | complete |
+| TMP | Electrogram | EGM toggle disabled with matrix-inventory evidence | blocked-on-evidence | Case metadata verifies no source-node-by-time electrogram matrix candidate; needs payload evidence or confirmed derivation equation | future |
 | Leads | Standard and alternate lead systems | Lead-system selector with parsed electrodes/traces | supported | Lead-system switch canvas/metadata tests | `0101` |
 | Leads | Measured/initial/adapted overlays | Case traces plus initial/adapted recompute overlays; measured disabled with status text | blocked-on-evidence | Initial/adapted overlays are recomputed from TMP vectors, transfer candidate, and parsed lead definitions; measured classification and final reference-weight equations still need decoded semantics | future |
 | Leads | Coupling/filter modes | Baseline, AC, DC selector | supported | Numerical filtering tests and canvas/status deltas | `0101` |

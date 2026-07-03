@@ -172,6 +172,13 @@ if (
   caseFixture.wallMapping?.sourceMeshMatchesSourceNodeCount !== true ||
   caseFixture.wallMapping?.nearestHeartDistance?.exactMatchCount !== 0 ||
   !caseFixture.wallMapping?.reason?.includes("source mesh is parsed") ||
+  caseFixture.electrogram?.status !== "unavailable" ||
+  caseFixture.electrogram?.supportsSelectedNodeElectrogram !== false ||
+  caseFixture.electrogram?.candidateMatrixCount !== 0 ||
+  caseFixture.electrogram?.sourceNodeCount !== 576 ||
+  caseFixture.electrogram?.sampleCount !== 1000 ||
+  caseFixture.electrogram?.rejectedShapeEvidence?.sourceSquareMatrixCount !== 7 ||
+  !caseFixture.electrogram?.reason?.includes("no source-node-by-time electrogram payload") ||
   caseFixture.activationConstructions?.[1]?.entryCount !== 576 ||
   caseFixture.activationConstructions?.[1]?.sampleEntries?.[0]?.integerField !== -1 ||
   caseFixture.leadSystemDetails[0].electrodes.length !== 9 ||
@@ -179,6 +186,7 @@ if (
   caseFixture.validation?.status !== "partial" ||
   caseFixture.validation?.unsupportedPayloadCount !== 7 ||
   !caseFixture.validation?.unavailableCapabilities?.includes("measured/initial ECG classification and lead reference-weight equations") ||
+  !caseFixture.validation?.unavailableCapabilities?.includes("selected-node electrogram visualization") ||
   !caseFixture.validation?.unavailableCapabilities?.includes("legacy focus raw-field mutation and opposite-wall mapping")
 ) {
   console.error("Unexpected case metadata fixture");

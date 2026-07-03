@@ -235,6 +235,8 @@ Task 0106 added `read_ecgsimcase_matrix_inventory(path)` and `research/pmatrix-i
 
 The empty standard 12-lead and BSPM matrix slots mean measured/initial/adapted overlay semantics and final reference-weight equations still require decoded lead-field semantics or external legacy evidence.
 
+Task 0113 used the matrix inventory to sharpen the selected-node electrogram blocker. The manual names an EGM display, but none of the inspected case files contains a parsed `PMatrix` with shape `source nodes x samples` or `samples x source nodes`. The inspected cases instead contain a thorax-node time series, seven source-square matrices, and one thorax-by-source transfer matrix. This leaves electrogram visualization blocked on either a newly identified payload or a confirmed derivation equation.
+
 Task 0107 decoded the common labeled-object envelope for `PLead`, `PLeadReference`, and `PShowLead`:
 
 ```text

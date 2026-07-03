@@ -67,7 +67,7 @@ async function assertInitialState(page) {
   await expectText(page, "[data-heart-metadata]", "912 nodes / 1696 triangles");
   await expectText(page, "[data-tmp-metadata]", "5 nodes / 576 samples / 1000 Hz / initial+adapted");
   await expectText(page, "[data-leads-metadata]", "standard_12: 12 parsed lead traces / 12 leads / plotted 12 / 576 samples / 1000 Hz / BASELINE / 100%");
-  await expectText(page, "[data-case-validation]", "Partial: 7 unsupported payload groups / 4 unavailable capabilities");
+  await expectText(page, "[data-case-validation]", "Partial: 7 unsupported payload groups / 5 unavailable capabilities");
   await expectText(page, "[data-focus-status]", "Focus preview is enabled only for supported WPW cases");
 
   assert.ok(await canvasHasContent(page, "[data-leads-canvas]"), "leads canvas should be nonblank");
@@ -98,7 +98,10 @@ async function assertElectrogramEvidenceBlocker(page) {
   const egmControl = page.locator("[data-tmp-show-egm]");
   assert.equal(await egmControl.isDisabled(), true, "EGM display should stay disabled until selected-node electrogram evidence exists");
   const title = await egmControl.locator("xpath=..").getAttribute("title");
-  assert.match(title ?? "", /electrogram payload or derivation equation/i, "EGM blocker should name the missing evidence");
+  assert.match(title ?? "", /no source-node-by-time electrogram payload/i, "EGM blocker should name the missing source-node time-series evidence");
+  assert.match(title ?? "", /derivation equation has been confirmed/i, "EGM blocker should name the missing derivation equation");
+  assert.equal(await egmControl.getAttribute("data-evidence-status"), "unavailable", "EGM evidence status should come from case metadata");
+  assert.equal(await egmControl.getAttribute("data-candidate-matrix-count"), "0", "EGM evidence should report no candidate matrices");
 }
 
 async function assertVisualModeNavigator(page) {
@@ -216,7 +219,7 @@ async function assertImportNotices(page) {
     await expectText(page, "[data-case-status]", fileName);
     await expectText(page, "[data-case-notice]", `${fileName} loaded from a supported web case bundle`);
     await expectText(page, "[data-case-size]", byteSize.toLocaleString());
-    await expectText(page, "[data-case-validation]", "Partial: 7 unsupported payload groups / 5 unavailable capabilities");
+    await expectText(page, "[data-case-validation]", "Partial: 7 unsupported payload groups / 6 unavailable capabilities");
     await expectText(page, "[data-case-leads]", "BSM_(amsterdam_64)");
     await expectText(page, "[data-toolbar-lead-system]", "BSM_(amsterdam_64)");
     await expectText(page, "[data-status-message]", `${fileName} loaded`);
