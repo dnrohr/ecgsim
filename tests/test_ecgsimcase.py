@@ -8,6 +8,7 @@ from ecgsim.io import (
     read_ecgsimcase_geometries,
     read_ecgsimcase_graph_geometries,
     read_ecgsimcase_lead_systems,
+    read_ecgsimcase_lead_object_inventory,
     read_ecgsimcase_matrix,
     read_ecgsimcase_matrix_inventory,
     read_ecgsimcase_metadata,
@@ -226,6 +227,35 @@ class ECGsimCaseMetadataTests(unittest.TestCase):
         self.assertEqual(inventory[27].status, "empty-placeholder")
         self.assertEqual(inventory[29].owner_hint, "BSM_(amsterdam_64)")
         self.assertEqual(inventory[29].status, "empty-placeholder")
+
+    def test_reads_standard_12_lead_object_inventory(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")
+        inventory = read_ecgsimcase_lead_object_inventory(path)
+        standard = [entry for entry in inventory if entry.lead_system_name == "standard_12"]
+
+        leads = [entry for entry in standard if entry.kind == "PLead"]
+        references = [entry for entry in standard if entry.kind == "PLeadReference"]
+        shown = [entry for entry in standard if entry.kind == "PShowLead"]
+
+        self.assertEqual([entry.label for entry in leads], [
+            "I", "II", "III", "V1", "V2", "V3", "V4", "V5", "V6", "aVr", "aVl", "aVf"
+        ])
+        self.assertEqual(leads[0].trailing_int32, (7, 2))
+        self.assertEqual(leads[3].trailing_int32, (0, 1))
+        self.assertEqual([entry.label for entry in references], ["Zeromean", "extremities", "vr", "vl"])
+        self.assertEqual(references[0].trailing_int32, (9, 0, 1, 2, 3, 4, 5, 6, 7, 8))
+        self.assertEqual(references[1].trailing_int32, (3, 6, 7, 2))
+        self.assertEqual([entry.label for entry in shown[:3]], ["I", "II", "III"])
+        self.assertEqual(shown[4].trailing_float32[3:], (2.0, 1.0))
+
+    def test_reads_wpw_lead_object_inventory_counts(self) -> None:
+        path = Path("research/source/www.ecgsim.org/downloads/cases/WPW_Bundleonly.ECGsimcase")
+        inventory = read_ecgsimcase_lead_object_inventory(path)
+        bsm = [entry for entry in inventory if entry.lead_system_name == "BSM_(amsterdam_64)"]
+
+        self.assertEqual(len([entry for entry in bsm if entry.kind == "PLead"]), 65)
+        self.assertEqual(len([entry for entry in bsm if entry.kind == "PShowLead"]), 65)
+        self.assertEqual([entry.label for entry in bsm if entry.kind == "PLeadReference"], ["Zeromean", "extremities"])
 
     def test_rejects_unsupported_geometry_payload_offset(self) -> None:
         path = Path("research/source/www.ecgsim.org/downloads/cases/normal_male2.ECGsimcase")

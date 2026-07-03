@@ -259,6 +259,24 @@ class ECGsimCaseMatrixInventoryEntry:
     error: str | None = None
 
 
+@dataclass(frozen=True)
+class ECGsimCaseLeadObjectInventoryEntry:
+    """Conservative inventory for lead, reference, and show-lead objects."""
+
+    kind: str
+    index: int
+    offset: int
+    lead_system_name: str
+    version: int | None
+    label: str | None
+    trailing_int32: tuple[int, ...]
+    trailing_float32: tuple[float, ...]
+    trailing_bytes: int
+    status: str
+    interpretation: str
+    error: str | None = None
+
+
 DERIVED_FIDUCIALS_BY_SHA256 = {
     "4da15b759b8bc4880843bc647a257f66e36b64042583d0ad1c3e11bdc6169c4a": ECGsimCaseFiducials(
         status="derived-from-legacy-export",
@@ -682,6 +700,78 @@ def read_ecgsimcase_matrix_inventory(path: str | Path) -> tuple[ECGsimCaseMatrix
     return tuple(entries)
 
 
+def read_ecgsimcase_lead_object_inventory(path: str | Path) -> tuple[ECGsimCaseLeadObjectInventoryEntry, ...]:
+    """Inventory ``PLead``, ``PLeadReference``, and ``PShowLead`` payloads."""
+
+    source_path = Path(path)
+    data = source_path.read_bytes()
+    metadata = read_ecgsimcase_metadata(source_path)
+    lead_system_offsets = metadata.marker_offsets.get(PLEAD_SYSTEM_SIGNATURE, ())
+    entries: list[ECGsimCaseLeadObjectInventoryEntry] = []
+    global_index = 0
+
+    for system_index, system_offset in enumerate(lead_system_offsets):
+        system_end = (
+            lead_system_offsets[system_index + 1]
+            if system_index + 1 < len(lead_system_offsets)
+            else len(data)
+        )
+        name_entry = _next_string_after(metadata, system_offset)
+        system_name = name_entry.text if name_entry is not None else f"leadSystem{system_index + 1}"
+        for kind in (PLEAD_SIGNATURE, PLEAD_REFERENCE_SIGNATURE, PSHOW_LEAD_SIGNATURE):
+            for offset in _marker_offsets_in_range(metadata, kind, system_offset, system_end):
+                global_index += 1
+                try:
+                    version, label, trailing = _read_labeled_payload_tail(data, source_path, offset, kind)
+                    trailing_int32 = (
+                        struct.unpack_from(f"<{len(trailing) // 4}i", trailing)
+                        if len(trailing) >= 4
+                        else ()
+                    )
+                    trailing_float32 = (
+                        struct.unpack_from(f"<{len(trailing) // 4}f", trailing)
+                        if len(trailing) >= 4
+                        else ()
+                    )
+                    entries.append(
+                        ECGsimCaseLeadObjectInventoryEntry(
+                            kind=kind,
+                            index=global_index,
+                            offset=offset,
+                            lead_system_name=system_name,
+                            version=version,
+                            label=label,
+                            trailing_int32=tuple(int(value) for value in trailing_int32),
+                            trailing_float32=tuple(float(value) for value in trailing_float32),
+                            trailing_bytes=len(trailing),
+                            status="parsed",
+                            interpretation=(
+                                "label and raw trailing numeric fields preserved; polarity, "
+                                "reference, and display-layout semantics are not fully decoded"
+                            ),
+                        )
+                    )
+                except ECGsimCaseFormatError as exc:
+                    entries.append(
+                        ECGsimCaseLeadObjectInventoryEntry(
+                            kind=kind,
+                            index=global_index,
+                            offset=offset,
+                            lead_system_name=system_name,
+                            version=None,
+                            label=None,
+                            trailing_int32=(),
+                            trailing_float32=(),
+                            trailing_bytes=0,
+                            status="unsupported",
+                            interpretation="payload could not be decoded as a labeled lead object",
+                            error=str(exc),
+                        )
+                    )
+
+    return tuple(entries)
+
+
 def read_ecgsimcase_matrix(path: str | Path, offset: int) -> MatrixData:
     """Read a known ``PMatrix`` payload from an ECGsimcase file.
 
@@ -1039,6 +1129,32 @@ def _read_ecgsimcase_matrix_header(data: bytes, source_path: Path, offset: int) 
     if header_offset + 12 > len(data):
         raise ECGsimCaseFormatError(f"{source_path} PMatrix header at {offset} overruns the file")
     return struct.unpack_from("<iii", data, header_offset)
+
+
+def _read_labeled_payload_tail(
+    data: bytes,
+    source_path: Path,
+    offset: int,
+    expected_marker: str,
+) -> tuple[int, str, bytes]:
+    marker, values_offset = _read_marker(data, source_path, offset)
+    if marker != expected_marker:
+        raise ECGsimCaseFormatError(f"{source_path} marker at {offset} is {marker!r}, not {expected_marker}")
+    if values_offset + 8 > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} {expected_marker} at {offset} overruns label header")
+    version = struct.unpack_from("<i", data, values_offset)[0]
+    byte_length = struct.unpack_from("<I", data, values_offset + 4)[0]
+    label_start = values_offset + 8
+    label_end = label_start + byte_length
+    if byte_length % 2 or label_end > len(data):
+        raise ECGsimCaseFormatError(f"{source_path} {expected_marker} at {offset} has invalid label length")
+    try:
+        label = data[label_start:label_end].decode("utf-16le")
+    except UnicodeDecodeError as exc:
+        raise ECGsimCaseFormatError(f"{source_path} {expected_marker} at {offset} label is not UTF-16LE") from exc
+    all_offsets = _all_marker_offsets(read_ecgsimcase_metadata(source_path)) + (len(data),)
+    end_offset = next(next_offset for next_offset in all_offsets if next_offset > offset)
+    return version, label, data[label_end:end_offset]
 
 
 def _matrix_role_hint(

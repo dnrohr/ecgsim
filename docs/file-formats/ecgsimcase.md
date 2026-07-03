@@ -232,3 +232,15 @@ Task 0106 added `read_ecgsimcase_matrix_inventory(path)` and `research/pmatrix-i
 | Minimap transform candidate | `3 x 9` | `3 x 9` |
 
 The empty standard 12-lead and BSPM matrix slots mean WCT/reference and measured/initial/adapted overlay semantics still require decoded `PLead`/`PLeadReference` fields or external legacy evidence.
+
+Task 0107 decoded the common labeled-object envelope for `PLead`, `PLeadReference`, and `PShowLead`:
+
+```text
+length-prefixed UTF-16LE marker
+int32 version
+uint32 label_byte_length
+utf16le label
+trailing numeric fields
+```
+
+The trailing bytes are preserved as int32 and float32 views in `read_ecgsimcase_lead_object_inventory(path)` and `research/lead-object-inventory.json`. Standard 12-lead labels and reference names are now parsed, but the trailing-field semantics still need to be matched to WCT/reference and polarity equations before clinical lead overlays can be marked decoded.

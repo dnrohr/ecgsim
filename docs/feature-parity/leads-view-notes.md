@@ -17,10 +17,11 @@ Status: task `0039` parity notes for the modern Leads pane.
 - Coupling status reports AC/DC behavior or whether baseline mode uses parsed fiducials versus signal-end fallback.
 - Measured, initial, and adapted signal overlays are visible but disabled when the current fixture lacks signal classification.
 - `read_ecgsimcase_matrix_inventory()` records root signal, thorax-by-source transfer, and lead-system matrix role hints for archived cases.
+- `read_ecgsimcase_lead_object_inventory()` records `PLead`, `PLeadReference`, and `PShowLead` labels with raw trailing fields.
 
 ## Current Limitations
 
-- Exact standard 12-lead, Frank VCG, BSPM, and minimap lead transforms remain unsupported until lead polarity/reference semantics are parsed.
+- Exact standard 12-lead, Frank VCG, BSPM, and minimap lead transforms remain unsupported until lead polarity/reference semantics are interpreted from raw fields.
 - Current lead-system plots are electrode surface-potential traces, not transformed clinical lead signals.
 - Current VCG loop is a projection preview from parsed Frank traces, not a verified legacy Frank transform.
 - Measured and initial overlays require parsed signal classification; selected-heart-node electrogram remains blocked until an electrogram payload or derivation equation is identified.
@@ -38,3 +39,13 @@ Task `0106` adds `research/pmatrix-inventory.json`. The archived cases show:
 - VCG and minimap lead-system matrix slots parse as `3x7` and `3x9` transform candidates.
 
 This narrows the overlay blocker but does not resolve WCT/reference semantics. Standard 12-lead and BSPM transforms must come from decoded `PLead`/`PLeadReference` fields or another evidence source, not from the empty `PMatrix` slots.
+
+## Lead Object Evidence
+
+Task `0107` adds `research/lead-object-inventory.json`. The case payloads now decode as:
+
+- `PLead`: version, embedded lead label, and trailing int32 fields;
+- `PLeadReference`: version, embedded reference label, and trailing int32 fields;
+- `PShowLead`: version, embedded display label, trailing int32 fields, and layout-like float values.
+
+The standard 12-lead system exposes labels `I`, `II`, `III`, `V1` through `V6`, `aVr`, `aVl`, and `aVf`, plus references `Zeromean`, `extremities`, `vr`, and `vl`. This is enough to preserve labels and reference objects, but not enough to assign final polarity/WCT equations without matching the trailing fields to legacy transforms.
