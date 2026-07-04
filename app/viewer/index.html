@@ -27,13 +27,13 @@
         </div>
       </header>
       <nav class="menu-strip" aria-label="ECGSIM menu groups" data-shell-menu>
-        <span>File</span>
-        <span>Edit</span>
-        <span>Heart</span>
-        <span>Thorax</span>
-        <span>ECGs</span>
-        <span>Options</span>
-        <span>Help</span>
+        <button type="button" data-menu-action="file">File</button>
+        <button type="button" data-menu-action="edit">Edit</button>
+        <button type="button" data-menu-action="heart">Heart</button>
+        <button type="button" data-menu-action="thorax">Thorax</button>
+        <button type="button" data-menu-action="ecgs">ECGs</button>
+        <button type="button" data-menu-action="options">Options</button>
+        <button type="button" data-menu-action="help">Help</button>
       </nav>
       <section class="toolbar" aria-label="ECGSIM toolbar" data-shell-toolbar>
         <div class="toolbar-group">
@@ -64,12 +64,12 @@
           <label>
             Visual mode
             <select data-visual-mode-navigator>
+              <option value="heart-source-mesh">Heart source mesh</option>
               <option value="heart-geometry">Heart geometry</option>
               <option value="heart-depolarization">Heart depolarization</option>
               <option value="heart-ari">Heart ARI</option>
               <option value="heart-tmp-time">Heart TMP at time</option>
               <option value="heart-contribution">Heart contribution</option>
-              <option value="heart-source-mesh">Heart source mesh</option>
               <option value="heart-wall-depth">Heart wall depth</option>
               <option value="thorax-geometry">Thorax geometry</option>
               <option value="thorax-measured">Thorax measured BSPM</option>

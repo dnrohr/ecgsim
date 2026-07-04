@@ -100,6 +100,23 @@ h2 {
   font-size: 13px;
 }
 
+.menu-strip button {
+  min-height: 22px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0 2px;
+}
+
+.menu-strip button:hover,
+.menu-strip button:focus-visible {
+  color: #0b6e69;
+  outline: none;
+  text-decoration: underline;
+}
+
 .toolbar {
   min-height: 36px;
   display: flex;

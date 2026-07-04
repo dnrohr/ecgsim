@@ -69,6 +69,9 @@ async function assertInitialState(page) {
   await expectText(page, "[data-leads-metadata]", "standard_12: 12 parsed lead traces / 12 leads / plotted 12 / 576 samples / 1000 Hz / BASELINE / 100%");
   await expectText(page, "[data-case-validation]", "Partial: 7 unsupported payload groups / 5 unavailable capabilities");
   await expectText(page, "[data-focus-status]", "Focus preview is enabled only for supported WPW cases");
+  assert.equal(await page.locator("[data-heart-source-mesh]").isChecked(), true, "Heart source mesh should be visible at launch");
+  assert.equal(await page.locator("[data-visual-mode-navigator]").inputValue(), "heart-source-mesh", "visual navigator should start on Heart source mesh");
+  await expectText(page, "[data-heart-overlay-status]", "576 source mesh nodes");
 
   assert.ok(await canvasHasContent(page, "[data-leads-canvas]"), "leads canvas should be nonblank");
   assert.ok(await canvasHasContent(page, "[data-tmp-canvas]"), "TMP canvas should be nonblank");
@@ -184,16 +187,35 @@ async function assertCoreVisualsVisible(page) {
 
 async function assertShellLayout(page) {
   const shell = await page.evaluate(() => ({
-    menu: [...document.querySelectorAll("[data-shell-menu] span")].map((item) => item.textContent),
+    menu: [...document.querySelectorAll("[data-shell-menu] button")].map((item) => ({
+      text: item.textContent,
+      disabled: item.disabled,
+      action: item.dataset.menuAction,
+    })),
     modes: [...document.querySelectorAll(".toolbar-mode-group output")].map((item) => item.textContent),
     workspaceColumns: getComputedStyle(document.querySelector(".workspace")).gridTemplateColumns,
     statusHeight: document.querySelector(".statusbar").getBoundingClientRect().height,
   }));
 
-  assert.deepEqual(shell.menu, ["File", "Edit", "Heart", "Thorax", "ECGs", "Options", "Help"]);
+  assert.deepEqual(shell.menu.map((item) => item.text), ["File", "Edit", "Heart", "Thorax", "ECGs", "Options", "Help"]);
+  assert.deepEqual(shell.menu.map((item) => item.action), ["file", "edit", "heart", "thorax", "ecgs", "options", "help"]);
+  assert.equal(shell.menu.every((item) => item.disabled === false), true, "shell menu entries should be enabled buttons");
   assert.deepEqual(shell.modes, ["Heart", "Thorax", "TMP", "ECGs"]);
   assert.ok(shell.workspaceColumns.includes("px"), "workspace should render as a visible grid");
   assert.ok(shell.statusHeight >= 20, "status bar should remain visible");
+
+  await page.locator("[data-menu-action='heart']").click();
+  assert.equal(await page.locator("[data-visual-mode-navigator]").inputValue(), "heart-source-mesh", "Heart menu should select the visible Heart source mesh mode");
+  assert.equal(await page.locator("[data-heart-source-mesh]").isChecked(), true, "Heart menu should keep the source mesh visible");
+  await page.locator("[data-menu-action='thorax']").click();
+  assert.equal(await page.locator("[data-visual-mode-navigator]").inputValue(), "thorax-geometry", "Thorax menu should select Thorax geometry");
+  await page.locator("[data-menu-action='ecgs']").click();
+  assert.equal(await page.locator("[data-visual-mode-navigator]").inputValue(), "leads-case", "ECGs menu should select Leads case ECG");
+  await page.locator("[data-menu-action='help']").click();
+  await expectText(page, "[data-help-dialog]", "About ECGSIM Viewer");
+  await page.locator("[data-help-close]").click();
+  await page.locator("[data-heart-source-mesh]").uncheck();
+  await expectText(page, "[data-heart-overlay-status]", "Overlays off");
 }
 
 async function assertHelpAbout(page) {
@@ -425,10 +447,13 @@ async function assertHeartViewControls(page) {
   await page.locator("[data-heart-cross-section]").uncheck();
   await expectText(page, "[data-heart-cross-section-status]", "Full heart");
 
-  await expectText(page, "[data-heart-overlay-status]", "Overlays off");
   assert.equal(await page.locator("[data-heart-source-mesh]").isDisabled(), false, "parsed source mesh overlay should be available");
   const sourceMeshTitle = await page.locator("[data-heart-source-mesh]").getAttribute("title");
   assert.match(sourceMeshTitle ?? "", /576 source nodes/i, "source mesh overlay title should report parsed source-node count");
+  if (await page.locator("[data-heart-source-mesh]").isChecked()) {
+    await page.locator("[data-heart-source-mesh]").uncheck();
+  }
+  await expectText(page, "[data-heart-overlay-status]", "Overlays off");
   await page.locator("[data-heart-source-mesh]").check();
   await expectText(page, "[data-heart-overlay-status]", "576 source mesh nodes");
   await page.waitForTimeout(150);

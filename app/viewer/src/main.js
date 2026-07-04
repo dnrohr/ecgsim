@@ -53,6 +53,7 @@ const caseNotice = document.querySelector("[data-case-notice]");
 const statusMessage = document.querySelector("[data-status-message]");
 const toolbarLeadSystem = document.querySelector("[data-toolbar-lead-system]");
 const visualModeNavigator = document.querySelector("[data-visual-mode-navigator]");
+const shellMenu = document.querySelector("[data-shell-menu]");
 const timeStepBack = document.querySelector("[data-time-step-back]");
 const timePlay = document.querySelector("[data-time-play]");
 const timeStepForward = document.querySelector("[data-time-step-forward]");
@@ -328,6 +329,41 @@ function selectVisualMode(mode) {
   }
 }
 
+function handleShellMenuAction(action) {
+  switch (action) {
+    case "file":
+      caseFile?.click();
+      break;
+    case "edit":
+      scrollPaneIntoView("tmp");
+      tmpParameter?.focus();
+      break;
+    case "heart":
+      scrollPaneIntoView("heart");
+      selectControlValue(visualModeNavigator, "heart-source-mesh");
+      selectVisualMode("heart-source-mesh");
+      break;
+    case "thorax":
+      scrollPaneIntoView("thorax");
+      selectControlValue(visualModeNavigator, "thorax-geometry");
+      selectVisualMode("thorax-geometry");
+      break;
+    case "ecgs":
+      scrollPaneIntoView("leads");
+      selectControlValue(visualModeNavigator, "leads-case");
+      selectVisualMode("leads-case");
+      break;
+    case "options":
+      visualModeNavigator?.focus();
+      break;
+    case "help":
+      openHelpDialog();
+      break;
+    default:
+      break;
+  }
+}
+
 const timeState = {
   sample: 0,
   sampleCount: 576,
@@ -402,7 +438,7 @@ function createScene(viewport, cameraDistance) {
   return { scene, camera, renderer };
 }
 
-function observeViewport(viewport, camera, renderer, distanceForWidth) {
+function observeViewport(viewport, camera, renderer, distanceForWidth, onResize = () => {}) {
   const resize = () => {
     const width = viewport.clientWidth;
     const height = viewport.clientHeight;
@@ -411,6 +447,7 @@ function observeViewport(viewport, camera, renderer, distanceForWidth) {
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
     renderer.setSize(width, height, false);
+    onResize();
   };
 
   const observer = new ResizeObserver(resize);
@@ -1180,7 +1217,7 @@ function mountHeart(
   renderer.domElement.addEventListener("pointerdown", selectFromPointer);
   renderer.domElement.style.cursor = "crosshair";
 
-  observeViewport(heartViewport, camera, renderer, (width) => (width < 480 ? 0.5 : 0.32));
+  observeViewport(heartViewport, camera, renderer, (width) => (width < 480 ? 0.5 : 0.32), () => renderer.render(scene, camera));
   linkedOrientationState.applyHeartAp = setMeshRotationAP;
 
   heartMetadata.value = `${fixture.pointCount} nodes / ${fixture.triangleCount} triangles`;
@@ -1194,7 +1231,7 @@ function mountHeart(
   heartCrossSection.checked = false;
   heartCrossSectionPlane.value = "0";
   heartElectrodes.checked = false;
-  heartSourceMesh.checked = false;
+  heartSourceMesh.checked = true;
   heartVector.checked = false;
   syncWallMappingControls();
   if (heartRotate) {
@@ -1862,7 +1899,7 @@ function mountThorax(fixture, signalFixture, heartFixture, getTmpEditState = () 
   renderer.domElement.addEventListener("pointerdown", selectThoraxNode);
   renderer.domElement.style.cursor = "crosshair";
 
-  observeViewport(thoraxViewport, camera, renderer, (width) => (width < 480 ? 1.05 : 0.75));
+  observeViewport(thoraxViewport, camera, renderer, (width) => (width < 480 ? 1.05 : 0.75), () => renderer.render(scene, camera));
 
   function animate() {
     if (isAutoRotating) {
@@ -3394,6 +3431,12 @@ function applyCaseBundle(bundle, noticeText) {
   if (heartSurface) {
     heartSurface.value = "geometry";
   }
+  if (heartSourceMesh) {
+    heartSourceMesh.checked = true;
+  }
+  if (visualModeNavigator) {
+    visualModeNavigator.value = "heart-source-mesh";
+  }
   if (heartValues) {
     heartValues.value = "adapted";
   }
@@ -3615,7 +3658,7 @@ function applyCaseBundle(bundle, noticeText) {
     }
   };
   if (visualModeNavigator) {
-    visualModeNavigator.value = "heart-geometry";
+    visualModeNavigator.value = "heart-source-mesh";
     visualModeNavigator.onchange = () => selectVisualMode(visualModeNavigator.value);
   }
   redrawSignals();
@@ -3832,6 +3875,12 @@ async function mount() {
   );
   caseFile?.addEventListener("change", () => openSelectedCase(caseFile.files?.[0]));
   caseBundleFile?.addEventListener("change", () => openSelectedCaseBundle(caseBundleFile.files?.[0]));
+  shellMenu?.addEventListener("click", (event) => {
+    const action = event.target?.dataset?.menuAction;
+    if (action) {
+      handleShellMenuAction(action);
+    }
+  });
   helpOpen?.addEventListener("click", openHelpDialog);
   helpClose?.addEventListener("click", closeHelpDialog);
   helpDialog?.addEventListener("click", (event) => {

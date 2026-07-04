@@ -204,3 +204,4 @@ Each task should end with:
 - [x] [0117 Add Computed Source Wall Depth View](0117-add-computed-source-wall-depth-view.md)
 - [x] [0118 Add Computed Electrogram Preview](0118-add-computed-electrogram-preview.md)
 - [x] [0119 Close Leads Overlay Visual Parity Boundary](0119-close-leads-overlay-visual-parity-boundary.md)
+- [x] [0120 Fix Launch Heart Visibility And Shell Menu Actions](0120-fix-launch-heart-visibility-and-shell-menu-actions.md)
