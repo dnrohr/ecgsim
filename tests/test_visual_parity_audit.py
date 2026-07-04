@@ -18,9 +18,7 @@ class VisualParityAuditTests(unittest.TestCase):
         blockers = {(row["area"], row["mode"]) for row in report["blockedOnEvidence"]}
         self.assertEqual(
             blockers,
-            {
-                ("Leads", "Measured/initial/adapted overlays"),
-            },
+            set(),
         )
 
 

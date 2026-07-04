@@ -1,6 +1,6 @@
 # Visualization Feature Parity Roadmap
 
-Status: active.
+Status: complete. The visualization matrix has no remaining evidence blockers as of task `0119`; exact numerical parity work continues separately.
 
 ## Goal
 

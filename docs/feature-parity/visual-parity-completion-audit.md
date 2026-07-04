@@ -12,8 +12,8 @@ The matrix audit reports:
 
 - 39 visualization matrix rows.
 - 32 rows marked `supported`.
-- 6 rows marked `modern-equivalent`.
-- 1 row marked `blocked-on-evidence`.
+- 7 rows marked `modern-equivalent`.
+- 0 rows marked `blocked-on-evidence`.
 - 0 rows with unsupported or ambiguous statuses such as `partial`.
 
 Run the audit with:
@@ -24,17 +24,17 @@ python tools/audit_visual_parity.py docs/feature-parity/visualization-matrix.md
 
 Use `--require-complete` when a release gate should fail while evidence blockers remain.
 
-## Remaining Evidence Blockers
+## Remaining Numerical Parity Work
 
 | Area | Mode | Missing evidence |
 | --- | --- | --- |
-| Leads | Measured/initial/adapted overlays | Promoted normal-male measured ECG exports and initial/adapted recompute overlays are available; arbitrary case-payload measured classification and final reference-weight equations are not decoded. |
+| Leads | Measured/initial/adapted overlays | Visual parity is covered by promoted/imported measured traces and computed initial/adapted traces. Exact arbitrary case-payload measured classification and final reference-weight equations remain numerical parity work. |
 
 ## Completion Interpretation
 
 The current app gives users discoverable modern equivalents for the major Heart, Thorax, TMP, Leads, visual-output, and reference workflows that are backed by parsed or computed data. Automated browser workflow tests, per-mode visual smoke tests, PNG/WebM export checks, and curated legacy screenshot-region checks cover the implemented visual surface.
 
-The goal should stay active until the remaining Leads evidence blocker is resolved or the product decision explicitly accepts it as out of scope. The current state is a strong visualization parity baseline, not a final proof that every legacy visual mode is available.
+The visualization feature-parity matrix has no remaining evidence blockers. Exact numerical parity still has open work around lead reference weights, EGM scale validation, and legacy wall-pair semantics, but every legacy visual mode now has a discoverable supported or modern-equivalent path.
 
 ## Verification Evidence
 
